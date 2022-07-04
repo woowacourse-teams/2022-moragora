@@ -8,7 +8,9 @@ module.exports = {
     'airbnb',
     'plugin:prettier/recommended',
     '@typescript-eslint',
+    'plugin:storybook/recommended',
   ],
+
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaFeatures: {
@@ -21,7 +23,9 @@ module.exports = {
   rules: {
     'react/function-component-definition': [
       2,
-      { namedComponents: 'arrow-function' },
+      {
+        namedComponents: 'arrow-function',
+      },
     ],
   },
 };
