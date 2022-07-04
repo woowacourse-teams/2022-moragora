@@ -1,0 +1,19 @@
+{
+  "name": "2022-moragora",
+  "version": "0.1.0",
+  "private": true,
+  "contributors": [
+    {
+      "name": "Jeongmin Woo",
+      "email": "greenblues1190@gmail.com",
+      "url": "https://woojeongmin.com"
+    },
+    {
+      "name": "Wooyeong Kam",
+      "email": "dndud5548@gmail.com",
+      "url": "https://gamja.tistory.com/"
+    }
+  ],
+  "repository": "https://github.com/woowacourse-teams/2022-moragora",
+  "license": "MIT"
+}
