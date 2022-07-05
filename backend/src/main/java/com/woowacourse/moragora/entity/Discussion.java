@@ -22,10 +22,14 @@ public class Discussion extends BaseTimeEntity {
     @Column(nullable = false)
     private String content;
 
+    @Column(nullable = false)
+    private int views;
+
     public Discussion(final Long id, final String title, final String content) {
         this.id = id;
         this.title = title;
         this.content = content;
+        this.views = 0;
     }
 
     public Discussion(final String title, final String content) {
