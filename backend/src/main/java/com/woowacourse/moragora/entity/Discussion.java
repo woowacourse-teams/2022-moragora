@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Discussion {
+public class Discussion extends BaseTimeEntity {
 
     private static final int MAX_TITLE_LENGTH = 50;
 

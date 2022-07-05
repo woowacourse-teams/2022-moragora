@@ -31,7 +31,7 @@ class DiscussionRepositoryTest {
 
         // then
         assertThat(savedDiscussion).usingRecursiveComparison()
-                .ignoringFields("id")
+                .ignoringFields("id", "createdAt", "updatedAt")
                 .isEqualTo(new Discussion(title, "내용"));
     }
 
