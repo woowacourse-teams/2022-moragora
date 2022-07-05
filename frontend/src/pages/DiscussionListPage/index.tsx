@@ -4,6 +4,7 @@ import Discussion from '../../components/Discussion';
 import Content from '../../components/layouts/Content';
 import Footer from '../../components/layouts/Footer';
 import TableRow from './DiscussionListPage.styled';
+import Button from '../../components/@shared/Button';
 
 const DiscussionListPage = () => {
   return (
@@ -26,17 +27,7 @@ const DiscussionListPage = () => {
         </table>
       </Content>
       <Footer>
-        <button
-          type="button"
-          css={css`
-            width: 100%;
-            background-color: black;
-            color: white;
-            padding: 0.5rem;
-          `}
-        >
-          의견 작성
-        </button>
+        <Button>새로운 토론 작성</Button>
       </Footer>
     </>
   );

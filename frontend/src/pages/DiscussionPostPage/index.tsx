@@ -1,8 +1,8 @@
 import React from 'react';
-import { css } from '@emotion/react';
 import Content from '../../components/layouts/Content';
 import Footer from '../../components/layouts/Footer';
 import * as S from './DiscussionPostPage.styled';
+import Button from '../../components/@shared/Button';
 
 const DiscussionPostPage = () => {
   return (
@@ -27,17 +27,7 @@ const DiscussionPostPage = () => {
         </S.Form>
       </Content>
       <Footer>
-        <button
-          type="button"
-          css={css`
-            width: 100%;
-            background-color: black;
-            color: white;
-            padding: 0.5rem;
-          `}
-        >
-          토론 게시
-        </button>
+        <Button>토론 게시</Button>
       </Footer>
     </>
   );
