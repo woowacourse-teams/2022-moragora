@@ -1,4 +1,3 @@
-import MobileScreen from './components/MobileScreen/MobileScreen';
 import GlobalStyles from './styles/GlobalStyles';
 
 const App = () => {
