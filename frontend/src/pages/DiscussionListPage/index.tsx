@@ -5,17 +5,9 @@ import Content from '../../components/layouts/Content';
 import Footer from '../../components/layouts/Footer';
 import TableRow from './DiscussionListPage.styled';
 import Button from '../../components/@shared/Button';
+import * as T from '../../types/DiscussionTypes';
 
-type Discussion = {
-  id: number;
-  title: string;
-  content: string;
-  views: number;
-  createdAt: number;
-  updatedAt: number | null;
-};
-
-const discussion: Omit<Discussion, 'id'> = {
+const discussion: Omit<T.Discussion, 'id'> = {
   title: 'Title',
   content: 'content',
   views: 1,
@@ -23,7 +15,7 @@ const discussion: Omit<Discussion, 'id'> = {
   updatedAt: null,
 };
 
-const discussions: Discussion[] = Array.from({ length: 16 }).map((_, id) => ({
+const discussions: T.Discussion[] = Array.from({ length: 16 }).map((_, id) => ({
   ...discussion,
   id,
 }));
