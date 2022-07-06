@@ -1,10 +1,13 @@
-import './styles/App.css';
+import GlobalStyles from './styles/GlobalStyles';
 
 const App = () => {
   return (
-    <div className="App">
-      <h1>Hello, world!</h1>
-    </div>
+    <>
+      <GlobalStyles />
+      <div className="App">
+        <h1>Hello, world!</h1>
+      </div>
+    </>
   );
 };
 
