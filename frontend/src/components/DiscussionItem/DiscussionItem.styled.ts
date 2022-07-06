@@ -23,6 +23,7 @@ export const TimestampParagraph = styled.p`
 `;
 
 export const UpdatedSpan = styled.span`
+  margin-left: 1rem;
   color: gray;
 `;
 
