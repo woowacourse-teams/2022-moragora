@@ -2,6 +2,7 @@ package com.woowacourse.moragora.repository;
 
 import com.woowacourse.moragora.entity.Discussion;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
@@ -27,5 +28,10 @@ public class DiscussionRepository {
 
     public List<Discussion> findAll() {
         return entityManager.createQuery("select d from Discussion d", Discussion.class).getResultList();
+    }
+
+    public Optional<Discussion> findById(final Long id) {
+        final Discussion discussion = entityManager.find(Discussion.class, id);
+        return Optional.ofNullable(discussion);
     }
 }

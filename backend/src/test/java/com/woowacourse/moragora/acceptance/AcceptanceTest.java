@@ -19,12 +19,19 @@ public class AcceptanceTest {
         RestAssured.port = port;
     }
 
-    protected ValidatableResponse post(final Object requestBody, final String uri) {
+    protected ValidatableResponse post(final String uri, final Object requestBody) {
         return RestAssured.given().log().all()
                 .body(requestBody)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when().post(uri)
+                .then().log().all();
+    }
+
+    protected ValidatableResponse get(final String uri) {
+        return RestAssured.given().log().all()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when().get(uri)
                 .then().log().all();
     }
 }

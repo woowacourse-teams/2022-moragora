@@ -4,6 +4,7 @@ import com.woowacourse.moragora.dto.DiscussionRequest;
 import com.woowacourse.moragora.dto.DiscussionResponse;
 import com.woowacourse.moragora.dto.DiscussionsResponse;
 import com.woowacourse.moragora.entity.Discussion;
+import com.woowacourse.moragora.exception.DiscussionNotFoundException;
 import com.woowacourse.moragora.repository.DiscussionRepository;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,5 +36,15 @@ public class DiscussionService {
                 .collect(Collectors.toList());
 
         return new DiscussionsResponse(discussionResponses);
+    }
+
+    @Transactional
+    public DiscussionResponse findById(final Long id) {
+        final Discussion discussion = discussionRepository.findById(id)
+                .orElseThrow(DiscussionNotFoundException::new);
+
+        discussion.increaseViews();
+
+        return DiscussionResponse.from(discussion);
     }
 }

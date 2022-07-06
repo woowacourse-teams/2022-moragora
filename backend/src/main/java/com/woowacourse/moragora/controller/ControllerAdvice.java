@@ -1,8 +1,10 @@
 package com.woowacourse.moragora.controller;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.woowacourse.moragora.dto.ErrorResponse;
+import com.woowacourse.moragora.exception.DiscussionNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -25,5 +27,11 @@ public class ControllerAdvice {
                 .collect(Collectors.joining(" "));
 
         return new ErrorResponse(errorMessage);
+    }
+
+    @ExceptionHandler(DiscussionNotFoundException.class)
+    @ResponseStatus(NOT_FOUND)
+    public ErrorResponse handleDiscussionNotFoundException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
     }
 }

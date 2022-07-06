@@ -1,12 +1,14 @@
 package com.woowacourse.moragora.controller;
 
 import com.woowacourse.moragora.dto.DiscussionRequest;
+import com.woowacourse.moragora.dto.DiscussionResponse;
 import com.woowacourse.moragora.dto.DiscussionsResponse;
 import com.woowacourse.moragora.service.DiscussionService;
 import java.net.URI;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,5 +34,11 @@ public class DiscussionController {
     public ResponseEntity<DiscussionsResponse> findAll() {
         final DiscussionsResponse discussionsResponse = discussionService.findAll();
         return ResponseEntity.ok(discussionsResponse);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DiscussionResponse> show(@PathVariable final Long id) {
+        final DiscussionResponse discussionResponse = discussionService.findById(id);
+        return ResponseEntity.ok(discussionResponse);
     }
 }

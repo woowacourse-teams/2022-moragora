@@ -42,4 +42,8 @@ public class Discussion extends BaseTimeEntity {
     public Discussion(final String title, final String content) {
         this(null, title, content);
     }
+
+    public void increaseViews() {
+        views++;
+    }
 }
