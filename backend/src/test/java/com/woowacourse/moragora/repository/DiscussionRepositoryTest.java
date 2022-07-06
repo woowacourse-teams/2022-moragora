@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.entity.Discussion;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,5 +49,25 @@ class DiscussionRepositoryTest {
         // when, then
         assertThatThrownBy(() -> discussionRepository.save(discussion))
                 .isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @DisplayName("모든 게시글을 조회한다.")
+    @Test
+    void findAll() {
+        // given
+        final Discussion discussion1 = new Discussion("제목1", "내용1");
+        final Discussion discussion2 = new Discussion("제목2", "내용2");
+        final Discussion discussion3 = new Discussion("제목3", "내용3");
+        discussionRepository.save(discussion1);
+        discussionRepository.save(discussion2);
+        discussionRepository.save(discussion3);
+
+        // when
+        final List<Discussion> discussions = discussionRepository.findAll();
+
+        // then
+        assertThat(discussions).usingRecursiveComparison()
+                .comparingOnlyFields("title", "content")
+                .isEqualTo(List.of(discussion1, discussion2, discussion3));
     }
 }

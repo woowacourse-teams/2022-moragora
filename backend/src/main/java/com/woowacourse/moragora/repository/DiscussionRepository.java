@@ -1,10 +1,11 @@
 package com.woowacourse.moragora.repository;
 
 import com.woowacourse.moragora.entity.Discussion;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Repository
@@ -22,5 +23,9 @@ public class DiscussionRepository {
     public Discussion save(final Discussion discussion) {
         entityManager.persist(discussion);
         return discussion;
+    }
+
+    public List<Discussion> findAll() {
+        return entityManager.createQuery("select d from Discussion d", Discussion.class).getResultList();
     }
 }
