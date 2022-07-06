@@ -1,10 +1,12 @@
 package com.woowacourse.moragora.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.DiscussionRequest;
 import com.woowacourse.moragora.dto.DiscussionResponse;
 import com.woowacourse.moragora.dto.DiscussionsResponse;
+import com.woowacourse.moragora.exception.DiscussionNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
@@ -76,5 +78,13 @@ class DiscussionServiceTest {
         assertThat(response).usingRecursiveComparison()
                 .ignoringFields("id", "createdAt", "updatedAt")
                 .isEqualTo(expected);
+    }
+
+    @DisplayName("존재하지 않는 게시글 id를 조회할 경우 예외가 발생한다.")
+    @Test
+    void findById_throwsException_ifDiscussionNotFound() {
+        // given, when, then
+        assertThatThrownBy(() -> discussionService.findById(1L))
+                .isInstanceOf(DiscussionNotFoundException.class);
     }
 }

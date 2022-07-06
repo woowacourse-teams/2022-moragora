@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.moragora.dto.DiscussionRequest;
 import com.woowacourse.moragora.dto.DiscussionResponse;
 import com.woowacourse.moragora.dto.DiscussionsResponse;
+import com.woowacourse.moragora.exception.DiscussionNotFoundException;
 import com.woowacourse.moragora.service.DiscussionService;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -162,5 +163,20 @@ public class DiscussionControllerTest {
                 .andExpect(jsonPath("$.views", equalTo(1)))
                 .andExpect(jsonPath("$.createdAt", notNullValue()))
                 .andExpect(jsonPath("$.updatedAt", notNullValue()));
+    }
+
+    @DisplayName("존재하지 않는 토론 게시글을 조회하면 예외가 발생한다.")
+    @Test
+    void show_throwsException_ifDiscussionNotFound() throws Exception {
+        // given
+        given(discussionService.findById(1L))
+                .willThrow(new DiscussionNotFoundException());
+
+        // when, then
+        mockMvc.perform(get("/discussions/1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", equalTo("토론 게시글이 존재하지 않습니다.")));
     }
 }
