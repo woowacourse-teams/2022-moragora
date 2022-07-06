@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { css } from '@emotion/react';
 import DiscussionItem from '../../components/DiscussionItem';
 import Content from '../../components/layouts/Content';
@@ -6,29 +6,29 @@ import Footer from '../../components/layouts/Footer';
 import TableRow from './DiscussionListPage.styled';
 import Button from '../../components/@shared/Button';
 import * as T from '../../types/DiscussionTypes';
-
-const discussion: Omit<T.Discussion, 'id'> = {
-  title: 'Title',
-  content: 'content',
-  views: 1,
-  createdAt: 1657080703969,
-  updatedAt: null,
-};
-
-const discussions: T.Discussion[] = Array.from({ length: 16 }).map((_, id) => ({
-  ...discussion,
-  id,
-}));
+import useFetch from '../../hooks/useFetch';
 
 const DiscussionListPage = () => {
+  const { data, loading, error } = useFetch<{
+    discussions: T.Discussion[];
+  }>('/discussions');
+
+  if (loading) {
+    return <>Loading...</>;
+  }
+
+  if (error) {
+    return <>Error...</>;
+  }
+
   return (
     <>
       <Content>
         <table>
           <TableRow>
-            {discussions.map((discussionItem) => (
-              <td key={discussionItem.id}>
-                <DiscussionItem discussion={discussionItem} />
+            {data.discussions.map((discussion) => (
+              <td key={discussion.id}>
+                <DiscussionItem discussion={discussion} />
                 <hr
                   css={css`
                     margin: 0;

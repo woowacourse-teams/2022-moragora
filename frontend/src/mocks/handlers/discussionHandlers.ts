@@ -6,11 +6,6 @@ type DiscussionsPathParams = {
   discussionId: string;
 };
 
-type DiscussionsRequestBody = {
-  title: T.Discussion['title'];
-  content: string;
-};
-
 const DELAY = 700;
 
 export default [
@@ -35,7 +30,7 @@ export default [
     }
   ),
 
-  rest.post<DiscussionsRequestBody>('/discussions', (req, res, ctx) => {
+  rest.post<T.DiscussionsRequestBody>('/discussions', (req, res, ctx) => {
     if (!req.body.title || !req.body.content) {
       return res(ctx.status(400), ctx.delay(DELAY));
     }

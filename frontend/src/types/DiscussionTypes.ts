@@ -6,3 +6,8 @@ export type Discussion = {
   createdAt: number;
   updatedAt: number | null;
 };
+
+export type DiscussionsRequestBody = {
+  title: Discussion['title'];
+  content: Discussion['content'];
+};
