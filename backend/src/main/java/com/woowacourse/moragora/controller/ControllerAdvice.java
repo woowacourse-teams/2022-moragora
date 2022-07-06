@@ -3,6 +3,8 @@ package com.woowacourse.moragora.controller;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import com.woowacourse.moragora.dto.ErrorResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -10,8 +12,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ControllerAdvice {

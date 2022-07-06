@@ -1,9 +1,9 @@
 package com.woowacourse.moragora.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
