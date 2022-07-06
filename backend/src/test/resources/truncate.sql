@@ -1,0 +1,2 @@
+TRUNCATE TABLE discussion;
+ALTER TABLE discussion ALTER COLUMN id RESTART WITH 1;

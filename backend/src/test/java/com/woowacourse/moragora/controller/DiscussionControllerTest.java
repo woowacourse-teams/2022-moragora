@@ -139,4 +139,28 @@ public class DiscussionControllerTest {
                 .andExpect(jsonPath("$.discussions[*].createdAt", notNullValue()))
                 .andExpect(jsonPath("$.discussions[*].updatedAt", notNullValue()));
     }
+
+    @DisplayName("단일 게시글을 조회한다.")
+    @Test
+    void show() throws Exception {
+        // given
+        final DiscussionResponse discussionResponse =
+                new DiscussionResponse(1L, "제목", "내용", 1, 0, 0);
+
+        // when
+        given(discussionService.findById(1L))
+                .willReturn(discussionResponse);
+
+        // then
+        mockMvc.perform(get("/discussions/1")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", equalTo(1)))
+                .andExpect(jsonPath("$.title", equalTo("제목")))
+                .andExpect(jsonPath("$.content", equalTo("내용")))
+                .andExpect(jsonPath("$.views", equalTo(1)))
+                .andExpect(jsonPath("$.createdAt", notNullValue()))
+                .andExpect(jsonPath("$.updatedAt", notNullValue()));
+    }
 }

@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.acceptance;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
 
 import com.woowacourse.moragora.dto.DiscussionRequest;
 import io.restassured.RestAssured;
@@ -21,7 +22,7 @@ public class DiscussionAcceptanceTest extends AcceptanceTest {
         final DiscussionRequest discussionRequest = new DiscussionRequest("제목", "내용");
 
         // when
-        ValidatableResponse response = post(discussionRequest, "/discussions");
+        ValidatableResponse response = post("/discussions", discussionRequest);
 
         // then
         response.statusCode(HttpStatus.CREATED.value())
@@ -35,9 +36,9 @@ public class DiscussionAcceptanceTest extends AcceptanceTest {
         final DiscussionRequest discussionRequest1 = new DiscussionRequest("제목1", "내용1");
         final DiscussionRequest discussionRequest2 = new DiscussionRequest("제목2", "내용2");
         final DiscussionRequest discussionRequest3 = new DiscussionRequest("제목3", "내용3");
-        post(discussionRequest1, "/discussions");
-        post(discussionRequest2, "/discussions");
-        post(discussionRequest3, "/discussions");
+        post("/discussions", discussionRequest1);
+        post("/discussions", discussionRequest2);
+        post("/discussions", discussionRequest3);
 
         // when
         final ValidatableResponse response = RestAssured.given().log().all()
@@ -50,5 +51,25 @@ public class DiscussionAcceptanceTest extends AcceptanceTest {
                 .body("discussions.id", contains(1, 2, 3))
                 .body("discussions.title", contains("제목1", "제목2", "제목3"))
                 .body("discussions.content", contains("내용1", "내용2", "내용3"));
+    }
+
+    @DisplayName("사용자가 특정 토론을 조회하면 해당 토론 게시글과 상태코드 200을 반환한다.")
+    @Test
+    void show() {
+        // given
+        final DiscussionRequest discussionRequest = new DiscussionRequest("제목", "내용");
+        final ValidatableResponse createResponse = post("/discussions", discussionRequest);
+        final String uri = createResponse.extract()
+                .header("Location");
+        final int id = Integer.parseInt(uri.split("/discussions/")[1]);
+
+        // when
+        final ValidatableResponse response = get(uri);
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("id", equalTo(id))
+                .body("title", equalTo("제목"))
+                .body("content", equalTo("내용"));
     }
 }

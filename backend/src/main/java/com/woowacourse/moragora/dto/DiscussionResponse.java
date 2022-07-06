@@ -3,9 +3,11 @@ package com.woowacourse.moragora.dto;
 import com.woowacourse.moragora.entity.Discussion;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 public class DiscussionResponse {
 
     private final long id;

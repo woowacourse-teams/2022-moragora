@@ -12,8 +12,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.test.context.jdbc.Sql;
 
 @SpringBootTest
+@Sql("/truncate.sql")
 class DiscussionRepositoryTest {
 
     @Autowired
@@ -69,5 +71,21 @@ class DiscussionRepositoryTest {
         assertThat(discussions).usingRecursiveComparison()
                 .comparingOnlyFields("title", "content")
                 .isEqualTo(List.of(discussion1, discussion2, discussion3));
+    }
+
+    @DisplayName("단일 게시글을 조회한다.")
+    @Test
+    void findById() {
+        // given
+        final Discussion discussion = new Discussion("제목", "내용");
+        final Long id = discussionRepository.save(discussion).getId();
+
+        // when
+        final Discussion foundDiscussion = discussionRepository.findById(id).get();
+
+        // then
+        assertThat(foundDiscussion).usingRecursiveComparison()
+                .ignoringFields("createdAt", "updatedAt")
+                .isEqualTo(new Discussion(id, "제목", "내용"));
     }
 }

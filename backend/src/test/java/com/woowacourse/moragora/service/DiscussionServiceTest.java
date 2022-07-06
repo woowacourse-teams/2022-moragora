@@ -12,9 +12,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.jdbc.Sql;
 
 @SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@Sql("/truncate.sql")
+@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 class DiscussionServiceTest {
 
     @Autowired
@@ -52,5 +55,26 @@ class DiscussionServiceTest {
 
         // then
         assertThat(foundIds).containsExactly(expected1, expected2);
+    }
+
+    @DisplayName("id로 게시글을 조회한다.")
+    @Test
+    void findById() {
+        // given
+        final DiscussionRequest discussionRequest = new DiscussionRequest("제목", "내용");
+        final long savedId = discussionService.save(discussionRequest);
+        final DiscussionResponse expected = DiscussionResponse.builder()
+                .title("제목")
+                .content("내용")
+                .views(1)
+                .build();
+
+        // when
+        final DiscussionResponse response = discussionService.findById(savedId);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .ignoringFields("id", "createdAt", "updatedAt")
+                .isEqualTo(expected);
     }
 }

@@ -36,4 +36,12 @@ public class DiscussionService {
 
         return new DiscussionsResponse(discussionResponses);
     }
+
+    @Transactional
+    public DiscussionResponse findById(final Long id) {
+        final Discussion discussion = discussionRepository.findById(id).get();
+        discussion.increaseViews();
+
+        return DiscussionResponse.from(discussion);
+    }
 }
