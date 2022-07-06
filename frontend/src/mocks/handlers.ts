@@ -1,3 +1,5 @@
 import { rest } from 'msw';
 
-export const handlers = [rest.get('/', null)];
+const handlers = [rest.get('/', null)];
+
+export default handlers;
