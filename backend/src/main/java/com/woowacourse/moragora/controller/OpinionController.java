@@ -3,6 +3,7 @@ package com.woowacourse.moragora.controller;
 import com.woowacourse.moragora.dto.OpinionRequest;
 import com.woowacourse.moragora.service.OpinionService;
 import java.net.URI;
+import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +22,8 @@ public class OpinionController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> add(@PathVariable final Long discussionId, @RequestBody final OpinionRequest request) {
+    public ResponseEntity<Void> add(@PathVariable final Long discussionId,
+                                    @RequestBody @Valid final OpinionRequest request) {
         final long opinionId = opinionService.save(discussionId, request);
         return ResponseEntity.created(URI.create("/discussions/" + discussionId + "/opinions/" + opinionId)).build();
     }

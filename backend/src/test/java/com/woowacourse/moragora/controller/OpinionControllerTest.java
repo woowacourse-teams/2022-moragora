@@ -17,6 +17,9 @@ import com.woowacourse.moragora.exception.DiscussionNotFoundException;
 import com.woowacourse.moragora.service.OpinionService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -71,4 +74,20 @@ class OpinionControllerTest {
                 .andExpect(jsonPath("$.message", equalTo("토론 게시글이 존재하지 않습니다.")));
     }
 
+
+    @DisplayName("내용을 입력하지 않고 의견을 작성하면 예외가 발생한다.")
+    @ParameterizedTest
+    @EmptySource
+    @NullSource
+    void add_throwsException_ifTitleIsEmpty(final String content) throws Exception {
+        // given
+        final OpinionRequest opinionRequest = new OpinionRequest(content);
+
+        // when, then
+        mockMvc.perform(post("/discussions/1/opinions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(opinionRequest)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
 }
