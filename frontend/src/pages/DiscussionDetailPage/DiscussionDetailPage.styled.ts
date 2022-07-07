@@ -42,7 +42,9 @@ export const ControlButton = styled.button``;
 export const DiscussionContentBox = styled.div``;
 
 export const OpinionListSection = styled.section`
-  overflow: scroll;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  width: 100%;
 `;
 
 export const OpinionCountParagraph = styled.p`
@@ -53,4 +55,22 @@ export const OpinionEditorButtonBox = styled.div`
   display: flex;
   gap: 0.5rem;
   align-self: flex-end;
+`;
+
+export const Table = styled.table`
+  border-spacing: 0;
+`;
+
+export const TableRow = styled.tr`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const TabelData = styled.td`
+  padding: 0;
+`;
+export const DivideLine = styled.hr`
+  width: 100%;
+  margin: 0;
+  border-top: 1px solid lightgray;
 `;
