@@ -2,6 +2,7 @@ import React from 'react';
 import * as S from './MeetingPage.styled';
 import Footer from '../../components/layouts/Footer';
 import Button from '../../components/@shared/Button';
+import { css } from '@emotion/react';
 
 const meeting = {
   meetingCount: 7,
@@ -42,6 +43,76 @@ const users = [
     name: 'aspy',
     absentCount: 1,
   },
+  {
+    id: 8,
+    name: 'fildz',
+    absentCount: 1,
+  },
+  {
+    id: 9,
+    name: 'woody',
+    absentCount: 1,
+  },
+  {
+    id: 10,
+    name: 'badd',
+    absentCount: 1,
+  },
+  {
+    id: 11,
+    name: 'forky',
+    absentCount: 1,
+  },
+  {
+    id: 12,
+    name: 'sun',
+    absentCount: 1,
+  },
+  {
+    id: 13,
+    name: 'kun',
+    absentCount: 1,
+  },
+  {
+    id: 14,
+    name: 'aspy',
+    absentCount: 1,
+  },
+  {
+    id: 15,
+    name: 'fildz',
+    absentCount: 1,
+  },
+  {
+    id: 16,
+    name: 'woody',
+    absentCount: 1,
+  },
+  {
+    id: 17,
+    name: 'badd',
+    absentCount: 1,
+  },
+  {
+    id: 18,
+    name: 'forky',
+    absentCount: 1,
+  },
+  {
+    id: 19,
+    name: 'sun',
+    absentCount: 1,
+  },
+  {
+    id: 20,
+    name: 'kun',
+    absentCount: 1,
+  },
+  {
+    id: 21,
+    name: 'aspy',
+    absentCount: 1,
+  },
 ];
 
 const MeetingPage = () => {
@@ -69,53 +140,63 @@ const MeetingPage = () => {
           </S.Paragraph>
         </S.MeetingDetailSection>
         <S.UserListSection>
-          <form id="attendance-form" onSubmit={handleSubmit}>
-            <S.Table>
-              <thead>
-                <tr>
-                  <th>이름</th>
-                  <th>결석일</th>
-                  <th>출석률</th>
-                  <th>출결</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <S.TableRow key={user.id}>
-                    <S.TabelData>{user.name}</S.TabelData>
-                    <S.TabelData>{user.absentCount}</S.TabelData>
-                    <S.TabelData>
-                      {Math.floor(
-                        ((meeting.meetingCount - user.absentCount) /
-                          meeting.meetingCount) *
-                          100
-                      )}
-                      %
-                    </S.TabelData>
-                    <S.TabelData>
-                      <label>
-                        출
-                        <input
-                          name={`${user.id}`}
-                          type="radio"
-                          value="attendance"
-                          defaultChecked
-                        />
-                      </label>
-                      <label>
-                        결
-                        <input
-                          name={`${user.id}`}
-                          type="radio"
-                          value="absent"
-                        />
-                      </label>
-                    </S.TabelData>
-                  </S.TableRow>
-                ))}
-              </tbody>
-            </S.Table>
-          </form>
+          <S.UserRowBox
+            css={css`
+              margin: 1rem 0;
+            `}
+          >
+            <S.UserDataBox>이름</S.UserDataBox>
+            <S.UserDataBox>결석일</S.UserDataBox>
+            <S.UserDataBox>출석률</S.UserDataBox>
+            <S.UserDataBox
+              css={css`
+                display: flex;
+                gap: 1rem;
+              `}
+            >
+              <label>출</label>
+              <label>결</label>
+            </S.UserDataBox>
+          </S.UserRowBox>
+          <S.DivideLine />
+          <S.Form id="attendance-form" onSubmit={handleSubmit}>
+            <S.UserListBox>
+              {users.map((user) => (
+                <S.UserRowBox key={user.id}>
+                  <S.UserDataBox>{user.name}</S.UserDataBox>
+                  <S.UserDataBox>{user.absentCount}</S.UserDataBox>
+                  <S.UserDataBox>
+                    {Math.floor(
+                      ((meeting.meetingCount - user.absentCount) /
+                        meeting.meetingCount) *
+                        100
+                    )}
+                    %
+                  </S.UserDataBox>
+                  <S.UserDataBox
+                    css={css`
+                      display: flex;
+                      gap: 1rem;
+                    `}
+                  >
+                    <label hidden>출석</label>
+                    <S.RadioButton
+                      name={`${user.id}`}
+                      type="radio"
+                      value="attendance"
+                      defaultChecked
+                    />
+                    <label hidden>결석</label>
+                    <S.RadioButton
+                      name={`${user.id}`}
+                      type="radio"
+                      value="absent"
+                    />
+                  </S.UserDataBox>
+                </S.UserRowBox>
+              ))}
+            </S.UserListBox>
+          </S.Form>
         </S.UserListSection>
       </S.Layout>
       <Footer>
