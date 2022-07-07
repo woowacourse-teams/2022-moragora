@@ -4,6 +4,8 @@ import Footer from '../../components/layouts/Footer';
 import * as S from './DiscussionPostPage.styled';
 import Button from '../../components/@shared/Button';
 import * as T from '../../types/DiscussionTypes';
+import Input from '../../components/@shared/Input';
+import TextArea from '../../components/@shared/TextArea';
 
 const postData = (url: string, payload: T.DiscussionsRequestBody) => {
   fetch(url, {
@@ -37,11 +39,11 @@ const DiscussionPostPage = () => {
         />
         <S.AvatarCaption>익명</S.AvatarCaption>
       </S.AvatarFigure>
-      <Content>
+      <S.ContentLayout>
         <S.Form id="discussion-form" onSubmit={handleSubmit}>
           <S.Label>
             제목
-            <input
+            <Input
               name="title"
               placeholder="토론할 주제를 적어주세요."
               required
@@ -49,14 +51,15 @@ const DiscussionPostPage = () => {
           </S.Label>
           <S.Label>
             설명
-            <textarea
+            <TextArea
               name="content"
               placeholder="토론할 주제에 대한 설명을 적어주세요."
+              maxLength={1000}
               required
             />
           </S.Label>
         </S.Form>
-      </Content>
+      </S.ContentLayout>
       <Footer>
         <Button type="submit" form="discussion-form">
           토론 게시

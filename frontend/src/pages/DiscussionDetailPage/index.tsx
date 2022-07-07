@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { css } from '@emotion/react';
 import * as S from './DiscussionDetailPage.styled';
 import Footer from '../../components/layouts/Footer';
 import Button from '../../components/@shared/Button';
 import DialogButton from '../../components/@shared/DialogButton';
 import OpinionItem from '../../components/OpinionItem';
+import TextArea from '../../components/@shared/TextArea';
 import useFetch from '../../hooks/useFetch';
 import * as TDiscussion from '../../types/DiscussionTypes';
 import * as TOpinion from '../../types/OpinionTypes';
@@ -88,12 +88,7 @@ const DiscussionDetailPage = () => {
       <Footer>
         {isEditingOpinion ? (
           <>
-            <textarea
-              css={css`
-                width: 100%;
-                height: 6rem;
-              `}
-            />
+            <TextArea />
             <S.OpinionEditorButtonBox>
               <DialogButton
                 type="button"
