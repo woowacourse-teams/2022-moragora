@@ -1,0 +1,11 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: create # ddl-auto
+logging.level:
+  org.hibernate:
+    SQL: debug
+    type: trace
