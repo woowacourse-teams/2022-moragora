@@ -22,7 +22,7 @@ public class OpinionService {
         this.opinionRepository = opinionRepository;
     }
 
-
+    @Transactional
     public long save(final Long discussionId, final OpinionRequest request) {
         final Discussion discussion = discussionRepository.findById(discussionId)
                 .orElseThrow(DiscussionNotFoundException::new);

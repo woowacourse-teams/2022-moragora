@@ -1,9 +1,11 @@
 package com.woowacourse.moragora.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.DiscussionRequest;
 import com.woowacourse.moragora.dto.OpinionRequest;
+import com.woowacourse.moragora.exception.DiscussionNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,5 +39,17 @@ class OpinionServiceTest {
 
         // then
         assertThat(expected).isEqualTo(1L);
+    }
+
+
+    @DisplayName("존재하지 않는 게시글 id에 의견을 등록할 경우 예외가 발생한다.")
+    @Test
+    void save_throwsException_ifDiscussionNotFound() {
+        // given
+        final OpinionRequest opinionRequest = new OpinionRequest("첫 번째 의견");
+
+        // when, then
+        assertThatThrownBy(() -> opinionService.save(1L, opinionRequest))
+                .isInstanceOf(DiscussionNotFoundException.class);
     }
 }
