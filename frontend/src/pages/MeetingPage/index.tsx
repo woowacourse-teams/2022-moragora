@@ -29,7 +29,7 @@ const submitAttendenceData = async (url: string, payload: any) => {
 
 const MeetingPage = () => {
   const meetingState = useFetch<MeetingResponseBody>('/meetings/1');
-  const usersState = useFetch<UsersResponseBody>('/meetings/1/useasdfrs');
+  const usersState = useFetch<UsersResponseBody>('/meetings/1/users');
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
