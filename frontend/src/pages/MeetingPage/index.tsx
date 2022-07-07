@@ -104,9 +104,9 @@ const MeetingPage = () => {
     <>
       <S.Layout>
         <S.MeetingDetailSection>
-          <S.MeetingTitle>모임</S.MeetingTitle>
+          <S.MeetingTitle>모라고라팀</S.MeetingTitle>
           <S.Paragraph>
-            총 출석일 <span>{meetingState.data.meetingCount}</span>
+            총 출석일: <span>{meetingState.data.meetingCount}</span>
           </S.Paragraph>
         </S.MeetingDetailSection>
         <S.UserListSection>
@@ -116,7 +116,7 @@ const MeetingPage = () => {
             `}
           >
             <S.UserDataBox>이름</S.UserDataBox>
-            <S.UserDataBox>결석일</S.UserDataBox>
+            <S.UserDataBox>지각일</S.UserDataBox>
             <S.UserDataBox>출석률</S.UserDataBox>
             <S.UserDataBox
               css={css`

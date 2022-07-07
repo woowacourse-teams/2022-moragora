@@ -1,7 +1,7 @@
 import GlobalStyles from './styles/GlobalStyles';
-import MobileLayout from 'components/layouts/MobileLayout';
-import Header from 'components/layouts/Header';
-import MeetingPage from 'pages/MeetingPage';
+import MobileLayout from './components/layouts/MobileLayout';
+import Header from './components/layouts/Header';
+import MeetingPage from './pages/MeetingPage';
 import { css } from '@emotion/react';
 
 const App = () => {
