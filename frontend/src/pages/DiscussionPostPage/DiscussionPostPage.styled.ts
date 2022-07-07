@@ -22,6 +22,13 @@ export const AvatarCaption = styled.figcaption`
   color: gray;
 `;
 
+export const ContentLayout = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  overflow: scroll;
+`;
+
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
