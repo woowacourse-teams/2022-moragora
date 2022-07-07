@@ -1,17 +1,9 @@
 import React from 'react';
 import * as S from './DiscussionItem.styled';
-
-type Discussion = {
-  id: number;
-  title: string;
-  content: string;
-  views: number;
-  createdAt: number;
-  updatedAt: number | null;
-};
+import * as T from '../../types/DiscussionTypes';
 
 type DiscussionProps = {
-  discussion: Discussion;
+  discussion: T.Discussion;
 };
 
 const DiscussionItem: React.FC<DiscussionProps> = ({ discussion }) => {

@@ -20,7 +20,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack serve --config webpack.config.js",
     "build": "webpack",
-    "storybook": "start-storybook -p 6006",
+    "storybook": "start-storybook -s public -p 6006",
     "build-storybook": "build-storybook"
   },
   "devDependencies": {
@@ -55,6 +55,7 @@
     "eslint-webpack-plugin": "^3.2.0",
     "html-webpack-plugin": "^5.5.0",
     "msw": "^0.43.0",
+    "msw-storybook-addon": "^1.6.3",
     "prettier": "^2.7.1",
     "style-loader": "^3.3.1",
     "ts-loader": "^9.3.1",
