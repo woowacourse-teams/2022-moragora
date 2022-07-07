@@ -4,6 +4,8 @@ import Footer from '../../components/layouts/Footer';
 import Button from '../../components/@shared/Button';
 import { css } from '@emotion/react';
 import useFetch from '../../hooks/useFetch';
+import Spinner from '../../components/@shared/Spinner';
+import ErrorIcon from '../../components/@shared/ErrorIcon';
 
 type MeetingResponseBody = {
   meetingCount: number;
@@ -27,7 +29,7 @@ const submitAttendenceData = async (url: string, payload: any) => {
 
 const MeetingPage = () => {
   const meetingState = useFetch<MeetingResponseBody>('/meetings/1');
-  const usersState = useFetch<UsersResponseBody>('/meetings/1/users');
+  const usersState = useFetch<UsersResponseBody>('/meetings/1/useasdfrs');
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
@@ -51,11 +53,51 @@ const MeetingPage = () => {
   };
 
   if (meetingState.loading || usersState.loading) {
-    return <div>Loading...</div>;
+    return (
+      <>
+        <S.Layout>
+          <div
+            css={css`
+              flex: 1;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            `}
+          >
+            <Spinner />
+          </div>
+        </S.Layout>
+        <Footer>
+          <Button form="attendance-form" type="submit" disabled>
+            출결 마감
+          </Button>
+        </Footer>
+      </>
+    );
   }
 
   if (meetingState.error || usersState.error) {
-    return <div>Error...</div>;
+    return (
+      <>
+        <S.Layout>
+          <div
+            css={css`
+              flex: 1;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            `}
+          >
+            <ErrorIcon />
+          </div>
+        </S.Layout>
+        <Footer>
+          <Button form="attendance-form" type="submit" disabled>
+            출결 마감
+          </Button>
+        </Footer>
+      </>
+    );
   }
 
   return (
