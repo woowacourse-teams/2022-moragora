@@ -15,7 +15,7 @@ export default [
 
   rest.patch<MeetingAttendanceRequestBody>('/meetings/1', (req, res, ctx) => {
     if (
-      req.body.some(({ id, isAbsent }) => !id || typeof isAbsent === 'boolean')
+      req.body.some(({ id, isAbsent }) => !id || typeof isAbsent !== 'boolean')
     ) {
       return res(ctx.status(400), ctx.delay(DELAY));
     }

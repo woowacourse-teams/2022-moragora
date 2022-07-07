@@ -4,6 +4,11 @@ const useFetch = <ResponseBodyType = any>(url: string) => {
   const [data, setData] = useState<ResponseBodyType>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [fetchingCount, setFetchingCount] = useState(0);
+
+  const refetch = () => {
+    setFetchingCount((prev) => prev + 1);
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -17,12 +22,14 @@ const useFetch = <ResponseBodyType = any>(url: string) => {
         setError(e);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [fetchingCount]);
 
   return {
     data,
     loading,
     error,
+    fetchingCount,
+    refetch,
   };
 };
 

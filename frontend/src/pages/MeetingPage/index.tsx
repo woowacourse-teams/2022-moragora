@@ -3,120 +3,33 @@ import * as S from './MeetingPage.styled';
 import Footer from '../../components/layouts/Footer';
 import Button from '../../components/@shared/Button';
 import { css } from '@emotion/react';
+import useFetch from '../../hooks/useFetch';
 
-const meeting = {
-  meetingCount: 7,
+type MeetingResponseBody = {
+  meetingCount: number;
 };
-const users = [
-  {
-    id: 1,
-    name: 'fildz',
-    absentCount: 1,
-  },
-  {
-    id: 2,
-    name: 'woody',
-    absentCount: 1,
-  },
-  {
-    id: 3,
-    name: 'badd',
-    absentCount: 1,
-  },
-  {
-    id: 4,
-    name: 'forky',
-    absentCount: 1,
-  },
-  {
-    id: 5,
-    name: 'sun',
-    absentCount: 1,
-  },
-  {
-    id: 6,
-    name: 'kun',
-    absentCount: 1,
-  },
-  {
-    id: 7,
-    name: 'aspy',
-    absentCount: 1,
-  },
-  {
-    id: 8,
-    name: 'fildz',
-    absentCount: 1,
-  },
-  {
-    id: 9,
-    name: 'woody',
-    absentCount: 1,
-  },
-  {
-    id: 10,
-    name: 'badd',
-    absentCount: 1,
-  },
-  {
-    id: 11,
-    name: 'forky',
-    absentCount: 1,
-  },
-  {
-    id: 12,
-    name: 'sun',
-    absentCount: 1,
-  },
-  {
-    id: 13,
-    name: 'kun',
-    absentCount: 1,
-  },
-  {
-    id: 14,
-    name: 'aspy',
-    absentCount: 1,
-  },
-  {
-    id: 15,
-    name: 'fildz',
-    absentCount: 1,
-  },
-  {
-    id: 16,
-    name: 'woody',
-    absentCount: 1,
-  },
-  {
-    id: 17,
-    name: 'badd',
-    absentCount: 1,
-  },
-  {
-    id: 18,
-    name: 'forky',
-    absentCount: 1,
-  },
-  {
-    id: 19,
-    name: 'sun',
-    absentCount: 1,
-  },
-  {
-    id: 20,
-    name: 'kun',
-    absentCount: 1,
-  },
-  {
-    id: 21,
-    name: 'aspy',
-    absentCount: 1,
-  },
-];
+
+type UsersResponseBody = {
+  id: number;
+  name: string;
+  absentCount: number;
+}[];
+
+const submitAttendenceData = async (url: string, payload: any) => {
+  return fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+};
 
 const MeetingPage = () => {
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+  const meetingState = useFetch<MeetingResponseBody>('/meetings/1');
+  const usersState = useFetch<UsersResponseBody>('/meetings/1/users');
+
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
 
     const target = e.target as HTMLFormElement;
@@ -127,8 +40,23 @@ const MeetingPage = () => {
       isAbsent: value === 'absent',
     }));
 
-    console.log(payload);
+    const response = await submitAttendenceData('/meetings/1', payload);
+
+    if (response.ok) {
+      alert('출결 마감했습니다.');
+
+      meetingState.refetch();
+      usersState.refetch();
+    }
   };
+
+  if (meetingState.loading || usersState.loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (meetingState.error || usersState.error) {
+    return <div>Error...</div>;
+  }
 
   return (
     <>
@@ -136,7 +64,7 @@ const MeetingPage = () => {
         <S.MeetingDetailSection>
           <S.MeetingTitle>모임</S.MeetingTitle>
           <S.Paragraph>
-            총 출석일 <span>{meeting.meetingCount}</span>
+            총 출석일 <span>{meetingState.data.meetingCount}</span>
           </S.Paragraph>
         </S.MeetingDetailSection>
         <S.UserListSection>
@@ -161,14 +89,14 @@ const MeetingPage = () => {
           <S.DivideLine />
           <S.Form id="attendance-form" onSubmit={handleSubmit}>
             <S.UserListBox>
-              {users.map((user) => (
+              {usersState.data.map((user) => (
                 <S.UserRowBox key={user.id}>
                   <S.UserDataBox>{user.name}</S.UserDataBox>
                   <S.UserDataBox>{user.absentCount}</S.UserDataBox>
                   <S.UserDataBox>
                     {Math.floor(
-                      ((meeting.meetingCount - user.absentCount) /
-                        meeting.meetingCount) *
+                      ((meetingState.data.meetingCount - user.absentCount) /
+                        meetingState.data.meetingCount) *
                         100
                     )}
                     %
