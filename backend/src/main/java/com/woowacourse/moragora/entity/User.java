@@ -38,4 +38,8 @@ public class User {
         this.name = name;
         this.meeting = meeting;
     }
+
+    public void increaseAbsentCount() {
+        absentCount++;
+    }
 }

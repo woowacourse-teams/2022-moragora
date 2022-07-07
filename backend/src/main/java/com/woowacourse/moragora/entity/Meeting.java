@@ -26,4 +26,8 @@ public class Meeting {
         this.id = id;
         this.meetingCount = meetingCount;
     }
+
+    public void increaseMeetingCount() {
+        meetingCount++;
+    }
 }
