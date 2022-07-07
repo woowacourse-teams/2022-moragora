@@ -4,15 +4,30 @@ import * as S from './DiscussionDetailPage.styled';
 import Footer from '../../components/layouts/Footer';
 import Button from '../../components/@shared/Button';
 import DialogButton from '../../components/@shared/DialogButton';
+import useFetch from '../../hooks/useFetch';
+import * as T from '../../types/DiscussionTypes';
 
 const DiscussionDetailPage = () => {
   const [isEditingOpinion, setIsEditingOpinion] = useState(false);
+  const {
+    data: discussion,
+    loading,
+    error,
+  } = useFetch<T.Discussion>('/discussions/1');
+
+  if (loading) {
+    return <>Loading...</>;
+  }
+
+  if (error) {
+    return <>Error...</>;
+  }
 
   return (
     <>
       <S.Layout>
         <S.DiscussionDetailSection>
-          <S.DiscussionTitle>우아한형제들 vs 용감한형제들</S.DiscussionTitle>
+          <S.DiscussionTitle>{discussion.title}</S.DiscussionTitle>
           <S.DiscussionInformationBox>
             <S.Paragraph>
               익명
@@ -29,9 +44,7 @@ const DiscussionDetailPage = () => {
                 margin: 0;
               `}
             >
-              안녕하세요 여러분은 어떻게 생각하시나요? 안녕하세요 여러분은
-              어떻게 생각하시나요? 안녕하세요 여러분은 어떻게 생각하시나요?
-              안녕하세요 여러분은 어떻게 생각하시나요?
+              {discussion.content}
             </p>
           </S.DiscussionContentBox>
         </S.DiscussionDetailSection>

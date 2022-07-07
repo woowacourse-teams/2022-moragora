@@ -39,6 +39,8 @@ module.exports = {
         tsx: 'never',
       },
     ],
+    // dependencies에 선언되지 않은 패키지를 가져올 수 있도록 함
+    'import/no-extraneous-dependencies': 'off',
     // 조건문에서 require 사용 가능하도록 함
     'global-require': 0,
     // 모든 확장자에서 jsx 사용 가능하도록 함
@@ -68,4 +70,5 @@ module.exports = {
     ],
     'react/prop-types': 'off',
   },
+  'no-unused-vars': 'off',
 };
