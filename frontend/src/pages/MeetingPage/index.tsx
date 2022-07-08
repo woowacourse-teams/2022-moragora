@@ -19,8 +19,10 @@ type UsersResponseBody = {
   absentCount: number;
 }[];
 
+type FormDataObject = { [k: string]: FormDataEntryValue };
+
 const submitAttendenceData = async (url: string, payload: any) => {
-  return fetch(url, {
+  return fetch('http://localhost:8080' + url, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -33,7 +35,7 @@ const MeetingPage = () => {
   const meetingState = useFetch<MeetingResponseBody>('/meetings/1');
   const usersState = useFetch<UsersResponseBody>('/meetings/1/users');
   const [modalOpened, setModalOpened] = useState(false);
-  const [formData, setFormData] = useState(null);
+  const [formData, setFormData] = useState<FormDataObject>();
 
   const handleOpen = () => {
     setModalOpened(true);
@@ -56,7 +58,6 @@ const MeetingPage = () => {
   };
 
   const handleConfirm = async () => {
-    console.log(formData);
     const payload = Object.entries(formData).map(([id, value]) => ({
       id,
       isAbsent: value === 'absent',
@@ -66,6 +67,7 @@ const MeetingPage = () => {
 
     if (response.ok) {
       alert('출결 마감했습니다.');
+      handleClose();
 
       meetingState.refetch();
       usersState.refetch();
@@ -104,11 +106,45 @@ const MeetingPage = () => {
             css={css`
               flex: 1;
               display: flex;
+              flex-direction: column;
               justify-content: center;
               align-items: center;
+              gap: 2rem;
             `}
           >
             <ErrorIcon />
+            <button
+              type="button"
+              onClick={() => {
+                meetingState.refetch();
+                usersState.refetch();
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                css={css`
+                  border: 2px solid lightgrey;
+                  padding: 1rem;
+                  border-radius: 50%;
+                  width: 2rem;
+                  height: 2rem;
+
+                  :hover {
+                    color: lightgrey;
+                  }
+                `}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+            </button>
           </div>
         </S.Layout>
         <Footer>
@@ -145,7 +181,7 @@ const MeetingPage = () => {
             `}
           >
             <S.UserDataBox>이름</S.UserDataBox>
-            <S.UserDataBox>지각일</S.UserDataBox>
+            <S.UserDataBox>지각스택</S.UserDataBox>
             <S.UserDataBox>출석률</S.UserDataBox>
             <S.UserDataBox
               css={css`
@@ -165,12 +201,13 @@ const MeetingPage = () => {
                   <S.UserDataBox>{user.name}</S.UserDataBox>
                   <S.UserDataBox>{user.absentCount}</S.UserDataBox>
                   <S.UserDataBox>
-                    {Math.floor(
-                      ((meetingState.data.meetingCount - user.absentCount) /
-                        meetingState.data.meetingCount) *
-                        100
-                    )}
-                    %
+                    {meetingState.data.meetingCount === 0
+                      ? '-'
+                      : Math.floor(
+                          ((meetingState.data.meetingCount - user.absentCount) /
+                            meetingState.data.meetingCount) *
+                            100
+                        ) + '%'}
                   </S.UserDataBox>
                   <S.UserDataBox
                     css={css`
@@ -199,7 +236,7 @@ const MeetingPage = () => {
         </S.UserListSection>
       </S.Layout>
       <Footer>
-        <Button form="attendance-form" type="button" onClick={handleOpen}>
+        <Button form="attendance-form" type="submit">
           출결 마감
         </Button>
       </Footer>

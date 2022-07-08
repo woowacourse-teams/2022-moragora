@@ -13,7 +13,7 @@ const useFetch = <ResponseBodyType = any>(url: string) => {
   useEffect(() => {
     setLoading(true);
 
-    fetch(url)
+    fetch('http://localhost:8080' + url)
       .then((res) => res.json())
       .then((body) => {
         setData(body);
