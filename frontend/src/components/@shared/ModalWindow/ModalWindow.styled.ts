@@ -12,7 +12,7 @@ export const Layout = styled.div`
   z-index: 50;
 `;
 
-export const Title = styled.h2`
+export const MessageTitle = styled.h2`
   margin: 0;
 `;
 

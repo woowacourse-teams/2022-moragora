@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as S from './MeetingPage.styled';
 import Footer from '../../components/layouts/Footer';
 import Button from '../../components/@shared/Button';
@@ -6,6 +6,8 @@ import { css } from '@emotion/react';
 import useFetch from '../../hooks/useFetch';
 import Spinner from '../../components/@shared/Spinner';
 import ErrorIcon from '../../components/@shared/ErrorIcon';
+import ModalPortal from '../../components/ModalPortal';
+import ModalWindow from '../../components/@shared/ModalWindow';
 
 type MeetingResponseBody = {
   meetingCount: number;
@@ -30,14 +32,32 @@ const submitAttendenceData = async (url: string, payload: any) => {
 const MeetingPage = () => {
   const meetingState = useFetch<MeetingResponseBody>('/meetings/1');
   const usersState = useFetch<UsersResponseBody>('/meetings/1/users');
+  const [modalOpened, setModalOpened] = useState(false);
+  const [formData, setFormData] = useState(null);
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+  const handleOpen = () => {
+    setModalOpened(true);
+  };
+
+  const handleClose = () => {
+    setModalOpened(false);
+  };
+
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
 
     const target = e.target as HTMLFormElement;
     const formData = new FormData(target);
     const formDataObject = Object.fromEntries(formData.entries());
-    const payload = Object.entries(formDataObject).map(([id, value]) => ({
+
+    setFormData(formDataObject);
+
+    handleOpen();
+  };
+
+  const handleConfirm = async () => {
+    console.log(formData);
+    const payload = Object.entries(formData).map(([id, value]) => ({
       id,
       isAbsent: value === 'absent',
     }));
@@ -102,6 +122,15 @@ const MeetingPage = () => {
 
   return (
     <>
+      {modalOpened && (
+        <ModalPortal closePortal={handleClose}>
+          <ModalWindow
+            message="정말 삭제하시겠습니까?"
+            onConfirm={handleConfirm}
+            onDismiss={handleClose}
+          />
+        </ModalPortal>
+      )}
       <S.Layout>
         <S.MeetingDetailSection>
           <S.MeetingTitle>모라고라팀</S.MeetingTitle>
@@ -170,7 +199,7 @@ const MeetingPage = () => {
         </S.UserListSection>
       </S.Layout>
       <Footer>
-        <Button form="attendance-form" type="submit">
+        <Button form="attendance-form" type="button" onClick={handleOpen}>
           출결 마감
         </Button>
       </Footer>

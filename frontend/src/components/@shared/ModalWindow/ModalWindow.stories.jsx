@@ -10,3 +10,12 @@ function Template(args) {
 }
 
 export const Default = Template.bind({});
+Default.args = {
+  message: '정말 삭제하시겠습니까?',
+  onConfirm: () => {
+    alert('삭제했습니다.');
+  },
+  onDismiss: () => {
+    alert('취소했습니다.');
+  },
+};

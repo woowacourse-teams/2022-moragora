@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import * as S from './ModalPortal.styled';
