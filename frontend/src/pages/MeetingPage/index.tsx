@@ -161,7 +161,7 @@ const MeetingPage = () => {
       {modalOpened && (
         <ModalPortal closePortal={handleClose}>
           <ModalWindow
-            message="정말 삭제하시겠습니까?"
+            message="마감하시겠습니까?"
             onConfirm={handleConfirm}
             onDismiss={handleClose}
           />
