@@ -33,7 +33,6 @@ export const UserListBox = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 1rem;
 `;
 
 export const Paragraph = styled.p`
@@ -43,6 +42,7 @@ export const Paragraph = styled.p`
 export const UserRowBox = styled.div`
   display: flex;
   justify-content: space-evenly;
+  padding: 1rem 0;
 `;
 
 export const UserDataBox = styled.div`

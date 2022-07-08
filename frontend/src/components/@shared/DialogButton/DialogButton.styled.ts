@@ -40,5 +40,3 @@ export const Button = styled.button<DialogButtonProps>`
     pointer-events: none;
   }
 `;
-
-export const temp = null;

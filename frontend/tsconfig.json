@@ -14,5 +14,6 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "baseUrl": "./src/"
-  }
+  },
+  "include": ["index.d.ts"]
 }
