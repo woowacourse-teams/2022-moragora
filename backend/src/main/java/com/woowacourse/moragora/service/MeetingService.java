@@ -26,7 +26,7 @@ public class MeetingService {
 
     public MeetingResponse findById(final Long id) {
         final Meeting meeting = meetingRepository.findById(id).get();
-        return new MeetingResponse(meeting.getId(), meeting.getMeetingCount());
+        return MeetingResponse.from(meeting);
     }
 
     @Transactional
