@@ -14,7 +14,9 @@ export const BackwardButtonBox = styled.div`
   width: 24px;
 `;
 
-export const BackwardButton = styled.button``;
+export const BackwardButton = styled.button`
+  color: inherit;
+`;
 
 export const ArrowLeftSVG = styled.svg`
   height: 1.5rem;

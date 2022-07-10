@@ -4,17 +4,21 @@ export const Button = styled.button`
   width: 4rem;
   height: 4rem;
   padding: 1rem;
-  border: 2px solid lightgrey;
   border-radius: 50%;
+  border: 2px solid ${({ theme: { colors } }) => colors['primary']};
+  color: ${({ theme: { colors } }) => colors['primary']};
 
   :hover {
-    color: lightgrey;
+    border-color: ${({ theme: { colors } }) => colors['subtle-light']};
+    color: ${({ theme: { colors } }) => colors['subtle-light']};
   }
 
   :disabled {
     pointer-events: none;
 
-    background-color: #eee;
+    border-color: ${({ theme: { colors } }) => colors['subtle-light']};
+    background-color: ${({ theme: { colors } }) => colors['background']};
+    color: ${({ theme: { colors } }) => colors['subtle-light']};
   }
 `;
 

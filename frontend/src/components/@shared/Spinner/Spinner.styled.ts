@@ -4,8 +4,8 @@ export const SpinnerBox = styled.div`
   width: 4rem;
   height: 4rem;
 
-  fill: lightgray;
-  color: transparent;
+  fill: ${({ theme: { colors } }) => colors['primary-subtle']};
+  color: ${({ theme: { colors } }) => colors['transparent']};
 `;
 
 export const SpinnerSVG = styled.svg`

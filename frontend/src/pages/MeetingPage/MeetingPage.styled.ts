@@ -12,10 +12,8 @@ export const MeetingDetailSection = styled.section`
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.75rem;
-  border-bottom: 1px solid lightgray;
+  border-bottom: 1px solid ${({ theme: { colors } }) => colors['background']};
 `;
-
-export const MeetingTitle = styled.h2``;
 
 export const UserListSection = styled.section`
   display: flex;

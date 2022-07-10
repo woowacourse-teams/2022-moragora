@@ -16,7 +16,7 @@ const Header = () => (
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            d="M15 19l-7-7 7-7"
           />
         </S.ArrowLeftSVG>
       </S.BackwardButton>

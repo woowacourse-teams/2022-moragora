@@ -10,3 +10,7 @@ export const Title = styled.h1`
   font-size: 48px;
   font-weight: 700;
 `;
+
+export const LogoImage = styled.img`
+  height: 100%;
+`;

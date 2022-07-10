@@ -152,11 +152,7 @@ const MeetingPage = () => {
           </p>
         </S.MeetingDetailSection>
         <S.UserListSection>
-          <S.UserRowBox
-            css={css`
-              margin: 1rem 0;
-            `}
-          >
+          <S.UserRowBox>
             <S.UserDataBox>이름</S.UserDataBox>
             <S.UserDataBox>지각스택</S.UserDataBox>
             <S.UserDataBox>출석률</S.UserDataBox>
