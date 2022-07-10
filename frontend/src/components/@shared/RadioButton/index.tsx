@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import * as S from './RadioButton.styled';
 
 type RadioButtonProps = Omit<
@@ -6,8 +6,10 @@ type RadioButtonProps = Omit<
   'type'
 >;
 
-const RadioButton: React.FC<RadioButtonProps> = (props) => {
-  return <S.Input {...props} type="radio" />;
-};
+const RadioButton = forwardRef<HTMLInputElement, RadioButtonProps>(
+  (props, ref) => {
+    return <S.Input {...props} ref={ref} type="radio" />;
+  }
+);
 
 export default RadioButton;

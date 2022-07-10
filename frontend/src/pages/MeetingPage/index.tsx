@@ -11,6 +11,7 @@ import ModalWindow from '../../components/@shared/ModalWindow';
 import RadioButton from '../../components/@shared/RadioButton';
 import DivideLine from '../../components/@shared/DivideLine';
 import ReloadButton from '../../components/@shared/ReloadButton';
+import useForm from '../../hooks/useForm';
 
 type MeetingResponseBody = {
   meetingCount: number;
@@ -39,6 +40,7 @@ const MeetingPage = () => {
   const usersState = useFetch<UsersResponseBody>('/meetings/1/users');
   const [modalOpened, setModalOpened] = useState(false);
   const [formData, setFormData] = useState<FormDataObject>();
+  const { isSubmitting, onSubmit, register } = useForm();
 
   const handleOpen = () => {
     setModalOpened(true);
@@ -49,8 +51,6 @@ const MeetingPage = () => {
   };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
-    e.preventDefault();
-
     const target = e.target as HTMLFormElement;
     const formData = new FormData(target);
     const formDataObject = Object.fromEntries(formData.entries());
@@ -167,7 +167,7 @@ const MeetingPage = () => {
             </S.UserDataBox>
           </S.UserRowBox>
           <DivideLine />
-          <S.Form id="attendance-form" onSubmit={handleSubmit}>
+          <S.Form id="attendance-form" {...onSubmit(handleSubmit)}>
             <S.UserListBox>
               {usersState.data.map((user) => (
                 <S.UserRowBox key={user.id}>
@@ -190,12 +190,17 @@ const MeetingPage = () => {
                   >
                     <label hidden>출석</label>
                     <RadioButton
-                      name={`${user.id}`}
-                      value="attendance"
-                      defaultChecked
+                      {...register(user.id.toString(), {
+                        value: 'attendance',
+                        defaultChecked: true,
+                      })}
                     />
                     <label hidden>결석</label>
-                    <RadioButton name={`${user.id}`} value="absent" />
+                    <RadioButton
+                      {...register(user.id.toString(), {
+                        value: 'absent',
+                      })}
+                    />
                   </S.UserDataBox>
                 </S.UserRowBox>
               ))}
@@ -204,7 +209,7 @@ const MeetingPage = () => {
         </S.UserListSection>
       </S.Layout>
       <Footer>
-        <Button form="attendance-form" type="submit">
+        <Button form="attendance-form" type="submit" disabled={isSubmitting}>
           출결 마감
         </Button>
       </Footer>
