@@ -4,6 +4,7 @@ import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserAttendancesRequest;
+import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.repository.AttendanceRepository;
@@ -32,11 +33,18 @@ public class MeetingService {
         return savedMeeting.getId();
     }
 
+    // TODO 1 + N 최적화 대상
     public MeetingResponse findById(final Long id) {
         final Meeting meeting = meetingRepository.findById(id).get();
-        return MeetingResponse.from(meeting);
+        List<Attendance> attendances = attendanceRepository.findByMeetingId(meeting.getId());
+        List<UserResponse> userResponses = attendances.stream()
+                .map(UserResponse::from)
+                .collect(Collectors.toUnmodifiableList());
+
+        return MeetingResponse.from(meeting, userResponses);
     }
 
+    // TODO update (1 + N) -> 최적하기
     @Transactional
     public void updateAttendance(final Long meetingId, final UserAttendancesRequest requests) {
         final Meeting meeting = meetingRepository.findById(meetingId).get();
@@ -50,7 +58,6 @@ public class MeetingService {
         List<Attendance> attendances = attendanceRepository.findByMeetingId(meetingId);
         for (final Attendance attendance : attendances) {
             if (absentUserIds.contains(attendance.getUser().getId())) {
-                // TODO update (1 + N)
                 attendance.increaseTardyCount();
             }
         }

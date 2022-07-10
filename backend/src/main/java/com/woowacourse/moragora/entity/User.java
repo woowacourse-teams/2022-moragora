@@ -24,7 +24,10 @@ public class User {
     @Column(nullable = false, length = MAX_NAME_LENGTH)
     private String name;
 
-    public User(final String name) {
+    private String email;
+
+    public User(final String name, final String email) {
         this.name = name;
+        this.email = email;
     }
 }

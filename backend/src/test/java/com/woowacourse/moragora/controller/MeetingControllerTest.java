@@ -13,9 +13,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.service.MeetingService;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,10 +64,15 @@ class MeetingControllerTest {
                 .andExpect(header().string("Location", equalTo("/meetings/" + 1)));
     }
 
+    // TODO userResponse 테스트 작성
     @DisplayName("단일 미팅 방을 조회한다.")
     @Test
     void findOne() throws Exception {
         // given
+        final List<UserResponse> usersResponse = new ArrayList<>();
+        usersResponse.add(new UserResponse(1L, "abc@naver.com", "foo", 5));
+        usersResponse.add(new UserResponse(2L, "def@naver.com", "boo", 8));
+
         final MeetingResponse meetingResponse = new MeetingResponse(
                 1L,
                 "모임1",
@@ -72,7 +80,9 @@ class MeetingControllerTest {
                 LocalDate.of(2022, 7, 10),
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
-                LocalTime.of(18, 0));
+                LocalTime.of(18, 0),
+                usersResponse
+        );
 
         // when
         given(meetingService.findById(1L))
@@ -89,6 +99,7 @@ class MeetingControllerTest {
                 .andExpect(jsonPath("$.startDate", equalTo("2022-07-10")))
                 .andExpect(jsonPath("$.endDate", equalTo("2022-08-10")))
                 .andExpect(jsonPath("$.entranceTime", equalTo("10:00:00")))
+                .andExpect(jsonPath("$.leaveTime", equalTo("18:00:00")))
                 .andExpect(jsonPath("$.leaveTime", equalTo("18:00:00")));
     }
 }
