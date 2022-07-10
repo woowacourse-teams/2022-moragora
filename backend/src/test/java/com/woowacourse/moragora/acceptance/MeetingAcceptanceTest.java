@@ -26,7 +26,12 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         // then
         response.statusCode(HttpStatus.OK.value())
                 .body("id", equalTo(id))
-                .body("meetingCount", equalTo(0));
+                .body("name", equalTo("모임1"))
+                .body("attendanceCount", equalTo(0))
+                .body("startDate", equalTo("2022-07-10"))
+                .body("endDate", equalTo("2022-08-10"))
+                .body("entranceTime", equalTo("10:00:00"))
+                .body("leaveTime", equalTo("18:00:00"));
     }
 
     @DisplayName("모임의 출석을 마감하면 총 모임 횟수와 결석한 참가자들의 결일을 증가시키고 상태코드 204을 반환한다.")
