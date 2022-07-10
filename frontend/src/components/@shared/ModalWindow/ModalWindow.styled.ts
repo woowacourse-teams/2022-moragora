@@ -12,10 +12,6 @@ export const Layout = styled.div`
   z-index: 50;
 `;
 
-export const MessageTitle = styled.h2`
-  margin: 0;
-`;
-
 export const Box = styled.div`
   display: flex;
   align-self: flex-end;

@@ -1,16 +1,15 @@
 import styled from '@emotion/styled';
 
 export const SpinnerBox = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 4rem;
+  height: 4rem;
+
+  fill: lightgray;
+  color: transparent;
 `;
 
 export const SpinnerSVG = styled.svg`
-  width: 2rem;
-  height: 2rem;
-  fill: gray;
-  color: transparent;
+  fill: inherit;
 
   animation: spin 1s linear infinite;
 

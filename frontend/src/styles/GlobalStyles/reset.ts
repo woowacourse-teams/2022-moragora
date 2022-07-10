@@ -14,6 +14,22 @@ const reset = css`
     font: inherit;
     cursor: pointer;
   }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  hr {
+    padding: 0;
+    margin: 0;
+  }
 `;
 
 export default reset;

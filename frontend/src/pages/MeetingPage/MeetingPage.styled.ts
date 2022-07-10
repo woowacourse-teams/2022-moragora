@@ -15,9 +15,7 @@ export const MeetingDetailSection = styled.section`
   border-bottom: 1px solid lightgray;
 `;
 
-export const MeetingTitle = styled.h2`
-  margin: 0;
-`;
+export const MeetingTitle = styled.h2``;
 
 export const UserListSection = styled.section`
   display: flex;
@@ -35,9 +33,7 @@ export const UserListBox = styled.div`
   flex: 1;
 `;
 
-export const Paragraph = styled.p`
-  margin: 0;
-`;
+export const Paragraph = styled.p``;
 
 export const UserRowBox = styled.div`
   display: flex;
@@ -54,15 +50,4 @@ export const UserDataBox = styled.div`
 export const Form = styled.form`
   display: flex;
   overflow: hidden;
-`;
-
-export const RadioButton = styled.input`
-  width: 1rem;
-  height: 1rem;
-`;
-
-export const DivideLine = styled.hr`
-  width: 100%;
-  margin: 0;
-  border-top: 1px solid lightgray;
 `;

@@ -15,7 +15,7 @@ const ModalWindow: React.FC<ModalWindowProps> = ({
 }) => {
   return (
     <S.Layout>
-      <S.MessageTitle>{message}</S.MessageTitle>
+      <h2>{message}</h2>
       <S.Box>
         <S.ButtonBox>
           <DialogButton variant="dismiss" type="button" onClick={onDismiss}>
