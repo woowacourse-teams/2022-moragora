@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import ErrorIcon from '.';
 
 export default {
@@ -6,7 +7,15 @@ export default {
 };
 
 function Template(args) {
-  return <ErrorIcon {...args} />;
+  return (
+    <div
+      css={css`
+        width: fit-content;
+      `}
+    >
+      <ErrorIcon {...args} />
+    </div>
+  );
 }
 
 export const Default = Template.bind({});

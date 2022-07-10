@@ -6,14 +6,10 @@ export const Layout = styled.div`
   gap: 1.5rem;
   width: 316px;
   padding: 1.5rem;
-  border: 2px solid;
+  border: 2px solid ${({ theme: { colors } }) => colors['primary']};
   border-radius: 0.5rem;
-  background-color: white;
+  background-color: ${({ theme: { colors } }) => colors['white']};
   z-index: 50;
-`;
-
-export const MessageTitle = styled.h2`
-  margin: 0;
 `;
 
 export const Box = styled.div`

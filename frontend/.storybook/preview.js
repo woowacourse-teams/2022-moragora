@@ -2,6 +2,8 @@ import React from 'react';
 import GlobalStyles from '../src/styles/GlobalStyles';
 import { initialize, mswDecorator } from 'msw-storybook-addon';
 import handlers from '../src/mocks/handlers';
+import { ThemeProvider } from '@emotion/react';
+import { theme } from '../src/styles/themes/theme';
 
 // Initialize MSW
 initialize();
@@ -12,7 +14,9 @@ export const decorators = [
   (Story) => (
     <>
       <GlobalStyles />
-      <Story />
+      <ThemeProvider theme={theme}>
+        <Story />
+      </ThemeProvider>
     </>
   ),
 ];

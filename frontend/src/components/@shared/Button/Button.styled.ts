@@ -2,18 +2,18 @@ import styled from '@emotion/styled';
 
 const StyledButton = styled.button`
   width: 100%;
-  background-color: black;
-  color: white;
+  background-color: ${({ theme: { colors } }) => colors['primary']};
+  color: ${({ theme: { colors } }) => colors['white']};
   padding: 0.75rem 0;
   border-radius: 1.5rem;
 
   :hover {
-    background-color: gray;
+    background-color: ${({ theme: { colors } }) => colors['primary-subtle']};
   }
 
   :disabled {
-    background-color: lightgray;
-    color: gray;
+    background-color: ${({ theme: { colors } }) => colors['background']};
+    color: ${({ theme: { colors } }) => colors['subtle-light']};
     pointer-events: none;
   }
 `;

@@ -8,6 +8,9 @@ import Spinner from '../../components/@shared/Spinner';
 import ErrorIcon from '../../components/@shared/ErrorIcon';
 import ModalPortal from '../../components/ModalPortal';
 import ModalWindow from '../../components/@shared/ModalWindow';
+import RadioButton from '../../components/@shared/RadioButton';
+import DivideLine from '../../components/@shared/DivideLine';
+import ReloadButton from '../../components/@shared/ReloadButton';
 
 type MeetingResponseBody = {
   meetingCount: number;
@@ -22,7 +25,7 @@ type UsersResponseBody = {
 type FormDataObject = { [k: string]: FormDataEntryValue };
 
 const submitAttendenceData = async (url: string, payload: any) => {
-  return fetch('http://localhost:8080' + url, {
+  return fetch(url, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -113,38 +116,12 @@ const MeetingPage = () => {
             `}
           >
             <ErrorIcon />
-            <button
-              type="button"
+            <ReloadButton
               onClick={() => {
                 meetingState.refetch();
                 usersState.refetch();
               }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                css={css`
-                  border: 2px solid lightgrey;
-                  padding: 1rem;
-                  border-radius: 50%;
-                  width: 2rem;
-                  height: 2rem;
-
-                  :hover {
-                    color: lightgrey;
-                  }
-                `}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
-            </button>
+            />
           </div>
         </S.Layout>
         <Footer>
@@ -169,17 +146,13 @@ const MeetingPage = () => {
       )}
       <S.Layout>
         <S.MeetingDetailSection>
-          <S.MeetingTitle>모라고라팀</S.MeetingTitle>
-          <S.Paragraph>
+          <h2>모라고라팀</h2>
+          <p>
             총 출석일: <span>{meetingState.data.meetingCount}</span>
-          </S.Paragraph>
+          </p>
         </S.MeetingDetailSection>
         <S.UserListSection>
-          <S.UserRowBox
-            css={css`
-              margin: 1rem 0;
-            `}
-          >
+          <S.UserRowBox>
             <S.UserDataBox>이름</S.UserDataBox>
             <S.UserDataBox>지각스택</S.UserDataBox>
             <S.UserDataBox>출석률</S.UserDataBox>
@@ -193,7 +166,7 @@ const MeetingPage = () => {
               <label>결</label>
             </S.UserDataBox>
           </S.UserRowBox>
-          <S.DivideLine />
+          <DivideLine />
           <S.Form id="attendance-form" onSubmit={handleSubmit}>
             <S.UserListBox>
               {usersState.data.map((user) => (
@@ -216,18 +189,13 @@ const MeetingPage = () => {
                     `}
                   >
                     <label hidden>출석</label>
-                    <S.RadioButton
+                    <RadioButton
                       name={`${user.id}`}
-                      type="radio"
                       value="attendance"
                       defaultChecked
                     />
                     <label hidden>결석</label>
-                    <S.RadioButton
-                      name={`${user.id}`}
-                      type="radio"
-                      value="absent"
-                    />
+                    <RadioButton name={`${user.id}`} value="absent" />
                   </S.UserDataBox>
                 </S.UserRowBox>
               ))}
