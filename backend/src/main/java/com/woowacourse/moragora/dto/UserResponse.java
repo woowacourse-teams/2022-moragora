@@ -14,7 +14,7 @@ public class UserResponse {
     private String nickName;
     private int tardyCount;
 
-    public UserResponse(Long id, String email, String nickName, int tardyCount) {
+    public UserResponse(final Long id, final String email, final String nickName, final int tardyCount) {
         this.id = id;
         this.email = email;
         this.nickName = nickName;

@@ -62,17 +62,17 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("entranceTime", equalTo("10:00:00"))
                 .body("leaveTime", equalTo("18:00:00"));
 
-        List<UserResponse> usersResponse = response.extract().jsonPath().getList("users", UserResponse.class);
+        final List<UserResponse> usersResponse = response.extract().jsonPath().getList("users", UserResponse.class);
 
-        List<Long> ids = usersResponse.stream()
+        final List<Long> ids = usersResponse.stream()
                 .map(UserResponse::getId)
                 .collect(Collectors.toUnmodifiableList());
 
-        List<String> names = usersResponse.stream()
+        final List<String> names = usersResponse.stream()
                 .map(UserResponse::getNickName)
                 .collect(Collectors.toUnmodifiableList());
 
-        List<String> emails = usersResponse.stream()
+        final List<String> emails = usersResponse.stream()
                 .map(UserResponse::getEmail)
                 .collect(Collectors.toUnmodifiableList());
 
