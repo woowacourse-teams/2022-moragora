@@ -1,10 +1,14 @@
 package com.woowacourse.moragora.acceptance;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 
+import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +17,27 @@ import org.springframework.http.MediaType;
 
 @DisplayName("모임 관련 기능")
 public class MeetingAcceptanceTest extends AcceptanceTest {
+
+    @DisplayName("사용자가 모임을 등록하고 상태코드 200 OK 를 반환받는다.")
+    @Test
+    void add() {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0)
+        );
+
+        // when
+        final ValidatableResponse response = post("/meetings", meetingRequest);
+
+        // then
+        response.statusCode(HttpStatus.CREATED.value())
+                .header("Location", notNullValue());
+
+    }
 
     @DisplayName("사용자가 특정 모임을 조회하면 해당 모임 상세 정보와 상태코드 200을 반환한다.")
     @Test
