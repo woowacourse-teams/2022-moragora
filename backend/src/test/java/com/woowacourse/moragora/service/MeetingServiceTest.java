@@ -38,6 +38,7 @@ class MeetingServiceTest {
         assertThat(expected).isNotNull();
     }
 
+    // TODO userResponse 테스트 작성
     @DisplayName("id로 모임 상세 정보를 조회한다.")
     @Test
     void findById() {
@@ -50,13 +51,16 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 7, 10),
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
-                LocalTime.of(18, 0));
+                LocalTime.of(18, 0),
+                null
+        );
 
         // when
         final MeetingResponse response = meetingService.findById(id);
 
         // then
         assertThat(response).usingRecursiveComparison()
+                .ignoringFields("users")
                 .isEqualTo(expectedMeetingResponse);
     }
 }

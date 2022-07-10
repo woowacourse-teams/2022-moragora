@@ -30,13 +30,13 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent event) {
 
-        final User user1 = new User("아스피");
-        final User user2 = new User("필즈");
-        final User user3 = new User("포키");
-        final User user4 = new User("썬");
-        final User user5 = new User("우디");
-        final User user6 = new User("쿤");
-        final User user7 = new User("반듯");
+        final User user1 = new User("아스피", "aaa111@foo.com");
+        final User user2 = new User("필즈", "bbb222@foo.com");
+        final User user3 = new User("포키", "ccc333@foo.com");
+        final User user4 = new User("썬", "ddd444@foo.com");
+        final User user5 = new User("우디", "eee555@foo.com");
+        final User user6 = new User("쿤", "fff666@foo.com");
+        final User user7 = new User("반듯", "ggg777@foo.com");
 
         userRepository.save(user1);
         userRepository.save(user2);
