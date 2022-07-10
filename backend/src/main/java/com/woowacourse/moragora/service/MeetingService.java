@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Meeting;
@@ -22,6 +23,13 @@ public class MeetingService {
                           final MeetingRepository meetingRepository) {
         this.userRepository = userRepository;
         this.meetingRepository = meetingRepository;
+    }
+
+    @Transactional
+    public Long save(final MeetingRequest request) {
+        final Meeting meeting = request.toEntity();
+        final Meeting savedMeeting = meetingRepository.save(meeting);
+        return savedMeeting.getId();
     }
 
     public MeetingResponse findById(final Long id) {

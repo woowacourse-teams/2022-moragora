@@ -18,6 +18,7 @@ public class MeetingRepository {
         this.entityManager = entityManager;
     }
 
+    @Transactional
     public Meeting save(final Meeting meeting) {
         entityManager.persist(meeting);
         return meeting;
