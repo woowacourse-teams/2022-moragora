@@ -3,10 +3,11 @@ package com.woowacourse.moragora.service;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
+import com.woowacourse.moragora.dto.UserAttendancesRequest;
+import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.entity.User;
+import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
-import com.woowacourse.moragora.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -16,13 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MeetingService {
 
-    private final UserRepository userRepository;
     private final MeetingRepository meetingRepository;
+    private final AttendanceRepository attendanceRepository;
 
-    public MeetingService(final UserRepository userRepository,
-                          final MeetingRepository meetingRepository) {
-        this.userRepository = userRepository;
+    public MeetingService(final MeetingRepository meetingRepository, final AttendanceRepository attendanceRepository) {
         this.meetingRepository = meetingRepository;
+        this.attendanceRepository = attendanceRepository;
     }
 
     @Transactional
@@ -38,20 +38,20 @@ public class MeetingService {
     }
 
     @Transactional
-    public void updateAttendance(final Long meetingId, final List<UserAttendanceRequest> requests) {
+    public void updateAttendance(final Long meetingId, final UserAttendancesRequest requests) {
         final Meeting meeting = meetingRepository.findById(meetingId).get();
         meeting.increaseMeetingCount();
 
-        final List<User> users = userRepository.findByMeetingId(meetingId);
-
-        final List<Long> absentUserIds = requests.stream()
-                .filter(UserAttendanceRequest::getIsAbsent)
+        final List<Long> absentUserIds = requests.getUsers().stream()
+                .filter(UserAttendanceRequest::getIsTardy)
                 .map(UserAttendanceRequest::getId)
                 .collect(Collectors.toList());
 
-        for (final User user : users) {
-            if (absentUserIds.contains(user.getId())) {
-                user.increaseAbsentCount();
+        List<Attendance> attendances = attendanceRepository.findByMeetingId(meetingId);
+        for (final Attendance attendance : attendances) {
+            if (absentUserIds.contains(attendance.getUser().getId())) {
+                // TODO update (1 + N)
+                attendance.increaseTardyCount();
             }
         }
     }

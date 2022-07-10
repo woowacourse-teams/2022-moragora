@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
+import com.woowacourse.moragora.dto.UserAttendancesRequest;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDate;
@@ -64,7 +65,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
     void endAttendance() {
         // given
         final int id = 1;
-        final List<UserAttendanceRequest> userAttendanceRequests = List.of(
+        final UserAttendancesRequest userAttendancesRequest = new UserAttendancesRequest(List.of(
                 new UserAttendanceRequest(1L, false),
                 new UserAttendanceRequest(2L, false),
                 new UserAttendanceRequest(3L, true),
@@ -72,15 +73,17 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 new UserAttendanceRequest(5L, true),
                 new UserAttendanceRequest(6L, true),
                 new UserAttendanceRequest(7L, true)
-        );
+        ));
 
-        // when, then
-        RestAssured.given().log().all()
-                .body(userAttendanceRequests)
+        // when
+        final ValidatableResponse response = RestAssured.given().log().all()
+                .body(userAttendancesRequest)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when().patch("/meetings/" + id)
                 .then().log().all();
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
     }
 }
-

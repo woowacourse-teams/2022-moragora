@@ -1,7 +1,9 @@
 package com.woowacourse.moragora;
 
+import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.User;
+import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.UserRepository;
 import java.time.LocalDate;
@@ -14,16 +16,36 @@ import org.springframework.stereotype.Component;
 public class ApplicationStartupRunner implements ApplicationListener<ContextRefreshedEvent> {
 
     private final MeetingRepository meetingRepository;
+    private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
 
     public ApplicationStartupRunner(final MeetingRepository meetingRepository,
+                                    final AttendanceRepository attendanceRepository,
                                     final UserRepository userRepository) {
         this.meetingRepository = meetingRepository;
+        this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
     }
 
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent event) {
+
+        final User user1 = new User("아스피");
+        final User user2 = new User("필즈");
+        final User user3 = new User("포키");
+        final User user4 = new User("썬");
+        final User user5 = new User("우디");
+        final User user6 = new User("쿤");
+        final User user7 = new User("반듯");
+
+        userRepository.save(user1);
+        userRepository.save(user2);
+        userRepository.save(user3);
+        userRepository.save(user4);
+        userRepository.save(user5);
+        userRepository.save(user6);
+        userRepository.save(user7);
+
         final Meeting meeting = new Meeting(
                 "모임1",
                 LocalDate.of(2022, 7, 10),
@@ -32,12 +54,20 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
                 LocalTime.of(18, 0));
         meetingRepository.save(meeting);
 
-        userRepository.save(new User("아스피", meeting));
-        userRepository.save(new User("필즈", meeting));
-        userRepository.save(new User("포키", meeting));
-        userRepository.save(new User("썬", meeting));
-        userRepository.save(new User("우디", meeting));
-        userRepository.save(new User("쿤", meeting));
-        userRepository.save(new User("반듯", meeting));
+        final Attendance attendance1 = new Attendance(user1, meeting);
+        final Attendance attendance2 = new Attendance(user2, meeting);
+        final Attendance attendance3 = new Attendance(user3, meeting);
+        final Attendance attendance4 = new Attendance(user4, meeting);
+        final Attendance attendance5 = new Attendance(user5, meeting);
+        final Attendance attendance6 = new Attendance(user6, meeting);
+        final Attendance attendance7 = new Attendance(user7, meeting);
+
+        attendanceRepository.save(attendance1);
+        attendanceRepository.save(attendance2);
+        attendanceRepository.save(attendance3);
+        attendanceRepository.save(attendance4);
+        attendanceRepository.save(attendance5);
+        attendanceRepository.save(attendance6);
+        attendanceRepository.save(attendance7);
     }
 }

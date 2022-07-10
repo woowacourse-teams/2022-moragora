@@ -2,10 +2,9 @@ package com.woowacourse.moragora.controller;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
-import com.woowacourse.moragora.dto.UserAttendanceRequest;
+import com.woowacourse.moragora.dto.UserAttendancesRequest;
 import com.woowacourse.moragora.service.MeetingService;
 import java.net.URI;
-import java.util.List;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,8 +39,8 @@ public class MeetingController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<Void> endAttendance(@PathVariable final Long id,
-                                              @RequestBody final List<UserAttendanceRequest> requests) {
-        meetingService.updateAttendance(id, requests);
+                                              @RequestBody final UserAttendancesRequest request) {
+        meetingService.updateAttendance(id, request);
         return ResponseEntity.noContent().build();
     }
 }

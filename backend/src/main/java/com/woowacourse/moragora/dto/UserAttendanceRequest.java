@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 public class UserAttendanceRequest {
 
     private Long id;
-    private Boolean isAbsent;
+    private Boolean isTardy;
 
-    public UserAttendanceRequest(final Long id, final Boolean isAbsent) {
+    public UserAttendanceRequest(final Long id, final Boolean isTardy) {
         this.id = id;
-        this.isAbsent = isAbsent;
+        this.isTardy = isTardy;
     }
 }
