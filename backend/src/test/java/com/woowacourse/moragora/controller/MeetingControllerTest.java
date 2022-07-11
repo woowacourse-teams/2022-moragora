@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.UserResponse;
+import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import com.woowacourse.moragora.service.MeetingService;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -67,6 +68,32 @@ class MeetingControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", equalTo("/meetings/" + 1)));
+    }
+
+    @DisplayName("미팅 방을 생성 시 시작 날짜보다 종료 날짜가 이른 경우 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifStartDateIsLaterThanEndDate() throws Exception {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 6, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0)
+        );
+
+        // when
+        given(meetingService.save(any(MeetingRequest.class)))
+                .willThrow(new IllegalStartEndDateException());
+
+        // then
+        mockMvc.perform(post("/meetings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(meetingRequest)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("시작 날짜보다 종료 날짜가 이를 수 없습니다."));
     }
 
     @DisplayName("미팅 방 이름의 길이가 50자를 초과할 경우 예외가 발생한다.")
