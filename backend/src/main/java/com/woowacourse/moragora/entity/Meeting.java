@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.entity;
 
+import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import javax.persistence.Column;
@@ -44,6 +45,7 @@ public class Meeting {
                    final LocalDate endDate,
                    final LocalTime entranceTime,
                    final LocalTime leaveTime) {
+        validateStartEndDate(startDate, endDate);
         this.name = name;
         this.attendanceCount = 0;
         this.startDate = startDate;
@@ -54,5 +56,11 @@ public class Meeting {
 
     public void increaseMeetingCount() {
         attendanceCount++;
+    }
+
+    private void validateStartEndDate(final LocalDate startDate, final LocalDate endDate) {
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalStartEndDateException();
+        }
     }
 }
