@@ -1,19 +1,17 @@
 package com.woowacourse.moragora.acceptance;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserAttendancesRequest;
-import com.woowacourse.moragora.dto.UserResponse;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -42,7 +40,6 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .header("Location", notNullValue());
     }
 
-    // TODO assertThat 검증을 RestAssured 로 변경
     @DisplayName("사용자가 특정 모임을 조회하면 해당 모임 상세 정보와 상태코드 200을 반환한다.")
     @Test
     void findOne() {
@@ -60,33 +57,17 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("startDate", equalTo("2022-07-10"))
                 .body("endDate", equalTo("2022-08-10"))
                 .body("entranceTime", equalTo("10:00:00"))
-                .body("leaveTime", equalTo("18:00:00"));
-
-        final List<UserResponse> usersResponse = response.extract().jsonPath().getList("users", UserResponse.class);
-
-        final List<Long> ids = usersResponse.stream()
-                .map(UserResponse::getId)
-                .collect(Collectors.toUnmodifiableList());
-
-        final List<String> names = usersResponse.stream()
-                .map(UserResponse::getNickName)
-                .collect(Collectors.toUnmodifiableList());
-
-        final List<String> emails = usersResponse.stream()
-                .map(UserResponse::getEmail)
-                .collect(Collectors.toUnmodifiableList());
-
-        assertThat(ids).containsExactlyInAnyOrder(1L, 2L, 3L, 4L, 5L, 6L, 7L);
-        assertThat(names).containsExactlyInAnyOrder("아스피", "필즈", "포키", "썬", "우디", "쿤", "반듯");
-        assertThat(emails).containsExactlyInAnyOrder(
-                "aaa111@foo.com",
-                "bbb222@foo.com",
-                "ccc333@foo.com",
-                "ddd444@foo.com",
-                "eee555@foo.com",
-                "fff666@foo.com",
-                "ggg777@foo.com"
-        );
+                .body("leaveTime", equalTo("18:00:00"))
+                .body("users.id", containsInAnyOrder(1, 2, 3, 4, 5, 6, 7))
+                .body("users.nickname", containsInAnyOrder("아스피", "필즈", "포키",
+                        "썬", "우디", "쿤", "반듯"))
+                .body("users.email", containsInAnyOrder("aaa111@foo.com",
+                        "bbb222@foo.com",
+                        "ccc333@foo.com",
+                        "ddd444@foo.com",
+                        "eee555@foo.com",
+                        "fff666@foo.com",
+                        "ggg777@foo.com"));
     }
 
     @DisplayName("모임의 출석을 마감하면 총 모임 횟수와 결석한 참가자들의 결일을 증가시키고 상태코드 204을 반환한다.")

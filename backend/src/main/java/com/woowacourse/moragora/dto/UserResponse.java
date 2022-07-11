@@ -11,13 +11,13 @@ public class UserResponse {
 
     private Long id;
     private String email;
-    private String nickName;
+    private String nickname;
     private int tardyCount;
 
-    public UserResponse(final Long id, final String email, final String nickName, final int tardyCount) {
+    public UserResponse(final Long id, final String email, final String nickname, final int tardyCount) {
         this.id = id;
         this.email = email;
-        this.nickName = nickName;
+        this.nickname = nickname;
         this.tardyCount = tardyCount;
     }
 
@@ -26,7 +26,7 @@ public class UserResponse {
         return new UserResponse(
                 user.getId(),
                 user.getEmail(),
-                user.getName(),
+                user.getNickname(),
                 attendance.getTardyCount()
         );
     }
