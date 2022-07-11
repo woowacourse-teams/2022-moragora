@@ -7,6 +7,7 @@ import com.woowacourse.moragora.dto.UserAttendancesRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import java.util.List;
@@ -35,7 +36,7 @@ public class MeetingService {
 
     // TODO 1 + N 최적화 대상
     public MeetingResponse findById(final Long id) {
-        final Meeting meeting = meetingRepository.findById(id).get();
+        final Meeting meeting = findMeeting(id);
         List<Attendance> attendances = attendanceRepository.findByMeetingId(meeting.getId());
         List<UserResponse> userResponses = attendances.stream()
                 .map(UserResponse::from)
@@ -47,7 +48,7 @@ public class MeetingService {
     // TODO update (1 + N) -> 최적하기
     @Transactional
     public void updateAttendance(final Long meetingId, final UserAttendancesRequest requests) {
-        final Meeting meeting = meetingRepository.findById(meetingId).get();
+        final Meeting meeting = findMeeting(meetingId);
         meeting.increaseMeetingCount();
 
         final List<Long> absentUserIds = requests.getUsers().stream()
@@ -55,11 +56,16 @@ public class MeetingService {
                 .map(UserAttendanceRequest::getId)
                 .collect(Collectors.toList());
 
-        List<Attendance> attendances = attendanceRepository.findByMeetingId(meetingId);
+        final List<Attendance> attendances = attendanceRepository.findByMeetingId(meetingId);
         for (final Attendance attendance : attendances) {
             if (absentUserIds.contains(attendance.getUser().getId())) {
                 attendance.increaseTardyCount();
             }
         }
+    }
+
+    private Meeting findMeeting(final Long id) {
+        return meetingRepository.findById(id)
+                .orElseThrow(MeetingNotFoundException::new);
     }
 }

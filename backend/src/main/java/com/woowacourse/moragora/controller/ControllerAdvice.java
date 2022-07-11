@@ -1,8 +1,10 @@
 package com.woowacourse.moragora.controller;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.woowacourse.moragora.dto.ErrorResponse;
+import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -28,9 +30,15 @@ public class ControllerAdvice {
         return new ErrorResponse(errorMessage);
     }
 
+    @ExceptionHandler(MeetingNotFoundException.class)
+    @ResponseStatus(NOT_FOUND)
+    public ErrorResponse handleMeetingNotFoundException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(BAD_REQUEST)
-    public ErrorResponse handleInvalidRequest() {
+    public ErrorResponse handleInvalidRequestFormat() {
         return new ErrorResponse("입력 형식이 올바르지 않습니다.");
     }
 }
