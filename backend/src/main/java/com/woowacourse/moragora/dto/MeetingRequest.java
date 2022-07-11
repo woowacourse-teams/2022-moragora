@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
@@ -37,8 +38,11 @@ public class MeetingRequest {
     @DateTimeFormat(pattern = "'T'HH:mm")
     private LocalTime leaveTime;
 
-    public MeetingRequest(final String name, final LocalDate startDate, final LocalDate endDate,
-                          final LocalTime entranceTime, final LocalTime leaveTime) {
+    private List<Long> userIds;
+
+    public MeetingRequest(String name, LocalDate startDate, LocalDate endDate, LocalTime entranceTime,
+                          LocalTime leaveTime,
+                          List<Long> userIds) {
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
