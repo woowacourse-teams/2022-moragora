@@ -36,8 +36,8 @@ public class MeetingService {
     public Long save(final MeetingRequest request) {
         final Meeting meeting = request.toEntity();
         final Meeting savedMeeting = meetingRepository.save(meeting);
-        List<Long> userIds = request.getUserIds();
-        List<User> users = userRepository.findByIds(userIds);
+        final List<Long> userIds = request.getUserIds();
+        final List<User> users = userRepository.findByIds(userIds);
         for (User user : users) {
             attendanceRepository.save(new Attendance(user, savedMeeting));
         }
