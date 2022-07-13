@@ -1,6 +1,6 @@
 package com.woowacourse.moragora.repository;
 
-import com.woowacourse.moragora.entity.User;
+import com.woowacourse.moragora.entity.user.User;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;

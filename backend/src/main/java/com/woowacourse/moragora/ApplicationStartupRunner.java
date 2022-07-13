@@ -2,7 +2,7 @@ package com.woowacourse.moragora;
 
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.entity.User;
+import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.UserRepository;

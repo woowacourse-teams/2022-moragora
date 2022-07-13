@@ -3,6 +3,7 @@ package com.woowacourse.moragora.controller;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.service.UserService;
 import java.net.URI;
+import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,7 +21,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> signUp(@RequestBody final UserRequest userRequest) {
+    public ResponseEntity<Void> signUp(@RequestBody @Valid final UserRequest userRequest) {
         final Long id = userService.create(userRequest);
         return ResponseEntity.created(URI.create("/users/" + id)).build();
     }

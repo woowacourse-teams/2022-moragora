@@ -2,7 +2,7 @@ package com.woowacourse.moragora.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.woowacourse.moragora.entity.User;
+import com.woowacourse.moragora.entity.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,6 @@ public class UserRepositoryTest {
 
     @DisplayName("회원 정보를 저장한다.")
     @Test
-
     void save() {
         // given
         final User user = new User("kun@naver.com", "1234smart!", "kun");

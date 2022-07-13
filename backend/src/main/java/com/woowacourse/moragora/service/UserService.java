@@ -1,7 +1,7 @@
 package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.UserRequest;
-import com.woowacourse.moragora.entity.User;
+import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
