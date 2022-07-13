@@ -14,7 +14,10 @@ public class UserResponse {
     private String nickName;
     private int tardyCount;
 
-    public UserResponse(final Long id, final String email, final String nickName, final int tardyCount) {
+    public UserResponse(final Long id,
+                        final String email,
+                        final String nickName,
+                        final int tardyCount) {
         this.id = id;
         this.email = email;
         this.nickName = nickName;
@@ -22,7 +25,7 @@ public class UserResponse {
     }
 
     public static UserResponse from(final Attendance attendance) {
-        User user = attendance.getUser();
+        final User user = attendance.getUser();
         return new UserResponse(
                 user.getId(),
                 user.getEmail(),

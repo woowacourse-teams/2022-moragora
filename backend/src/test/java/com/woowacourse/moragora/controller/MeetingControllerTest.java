@@ -54,7 +54,8 @@ class MeetingControllerTest {
                 LocalDate.of(2022, 7, 10),
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
-                LocalTime.of(18, 0)
+                LocalTime.of(18, 0),
+                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
 
         // when
@@ -79,7 +80,8 @@ class MeetingControllerTest {
                 LocalDate.of(2022, 7, 10),
                 LocalDate.of(2022, 6, 10),
                 LocalTime.of(10, 0),
-                LocalTime.of(18, 0)
+                LocalTime.of(18, 0),
+                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
 
         // when
@@ -108,7 +110,8 @@ class MeetingControllerTest {
                 LocalDate.of(2022, 7, 10),
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
-                LocalTime.of(18, 0)
+                LocalTime.of(18, 0),
+                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
 
         // when, then
@@ -134,7 +137,7 @@ class MeetingControllerTest {
                                                      final String entranceTime,
                                                      final String leaveTime) throws Exception {
         // given
-        Map<String, Object> params = new HashMap<>();
+        final Map<String, Object> params = new HashMap<>();
         params.put("name", "모임1");
         params.put("startDate", startDate);
         params.put("endDate", endDate);

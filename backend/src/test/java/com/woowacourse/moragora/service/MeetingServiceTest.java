@@ -6,6 +6,7 @@ import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,8 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 7, 10),
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
-                LocalTime.of(18, 0)
+                LocalTime.of(18, 0),
+                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
 
         // when
