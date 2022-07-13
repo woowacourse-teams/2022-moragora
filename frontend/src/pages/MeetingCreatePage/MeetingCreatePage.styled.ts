@@ -8,12 +8,6 @@ export const Layout = styled.div`
   padding: 0.75rem;
 `;
 
-export const TitleSection = styled.section`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
 export const Form = styled.form`
   display: flex;
   flex-direction: column;

@@ -3,11 +3,13 @@ import React from 'react';
 import Button from '../../components/@shared/Button';
 import Footer from '../../components/layouts/Footer';
 import * as S from './MeetingListPage.styled';
+import MeetingIconSVG from '../../assets/meeting.svg';
+import CoffeeIconSVG from '../../assets/coffee.svg';
 
 const meetings = [
   {
     id: 1,
-    name: '모임1',
+    name: '데일리 미팅',
     attendanceCount: 0,
     startDate: '2022-01-01',
     endDate: '2022-12-31',
@@ -30,7 +32,7 @@ const meetings = [
   },
   {
     id: 2,
-    name: '모임2',
+    name: 'php 스터디',
     attendanceCount: 0,
     startDate: '2022-06-01',
     endDate: '2022-07-31',
@@ -53,7 +55,7 @@ const meetings = [
   },
   {
     id: 3,
-    name: '모임3',
+    name: '러닝',
     attendanceCount: 0,
     startDate: '2022-04-01',
     endDate: '2022-09-31',
@@ -195,21 +197,81 @@ const MeetingListPage = () => {
   return (
     <>
       <S.Layout>
-        <S.Title>참여 중인 모임</S.Title>
-        <S.MeetingList>
-          {meetings.map((meeting) => (
-            <S.MeetingItem key={meeting.id}>
-              <S.MeetingIconSVG
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-              </S.MeetingIconSVG>
-              <S.MeetingNameSpan>{meeting.name}</S.MeetingNameSpan>
-            </S.MeetingItem>
-          ))}
-        </S.MeetingList>
+        <S.TimeSection>
+          <S.DateBox>
+            <S.Title>Today</S.Title>
+            <p
+              css={css`
+                font-size: 1.5rem;
+              `}
+            >
+              6월 23일 월
+            </p>
+          </S.DateBox>
+          <S.DateBox>
+            <S.Title>Time</S.Title>
+            <p
+              css={css`
+                font-size: 1.5rem;
+              `}
+            >
+              AM 10:01
+            </p>
+          </S.DateBox>
+        </S.TimeSection>
+        <S.MeetingListSection>
+          <S.TitleBox>
+            <S.Title>참여 중인 모임</S.Title>
+            <S.Link>생성하기</S.Link>
+          </S.TitleBox>
+          <S.MeetingList>
+            {meetings.map((meeting) => (
+              <S.MeetingItem key={meeting.id}>
+                <S.MeetingIconImage src={MeetingIconSVG} />
+                <S.MeetingNameSpan>{meeting.name}</S.MeetingNameSpan>
+                <S.MeetingNameSpan>10:00 ~ 10:05</S.MeetingNameSpan>
+                <S.MeetingNameSpan
+                  css={css`
+                    align-self: flex-end;
+                  `}
+                >
+                  체크인하세요!
+                </S.MeetingNameSpan>
+              </S.MeetingItem>
+            ))}
+          </S.MeetingList>
+        </S.MeetingListSection>
+        <S.CoffeeStackSection>
+          <S.TitleBox>
+            <S.Title>커피 스택</S.Title>
+            <S.Link>전체 보기</S.Link>
+          </S.TitleBox>
+          <S.CoffeeStackList>
+            {meetings.map((meeting) => (
+              <S.CoffeeStackItem>
+                <span>{meeting.name}</span>
+                <S.CoffeeIconImageBox>
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                  <S.CoffeeIconImage src={CoffeeIconSVG} />
+                </S.CoffeeIconImageBox>
+              </S.CoffeeStackItem>
+            ))}
+          </S.CoffeeStackList>
+        </S.CoffeeStackSection>
       </S.Layout>
       <Footer>
         <Button form="attendance-form" type="submit">

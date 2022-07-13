@@ -3,14 +3,12 @@ import Button from '../../components/@shared/Button';
 import Footer from '../../components/layouts/Footer';
 import Input from '../../components/@shared/Input';
 import * as S from './MeetingCreatePage.styled';
+import { css } from '@emotion/react';
 
 const MeetingCreatePage = () => {
   return (
     <>
       <S.Layout>
-        <S.TitleSection>
-          <h2>새로운 모임 만들기</h2>
-        </S.TitleSection>
         <S.Form
           id="meeting-create-form"
           onSubmit={(e) => {
@@ -27,12 +25,6 @@ const MeetingCreatePage = () => {
             <S.Label>
               모임명
               <Input type="text" name="title" required />
-            </S.Label>
-          </S.FieldBox>
-          <S.FieldBox>
-            <S.Label>
-              팀원
-              <Input type="text" name="member" />
             </S.Label>
           </S.FieldBox>
           <S.FieldBox>
@@ -99,13 +91,33 @@ const MeetingCreatePage = () => {
               />
             </S.Label>
           </S.FieldBox>
+          <S.FieldBox>
+            <S.Label>
+              <p>
+                멤버 추가하기
+                <span
+                  css={css`
+                    float: right;
+                  `}
+                >
+                  1/15
+                </span>
+              </p>
+              <Input type="text" name="member" />
+            </S.Label>
+          </S.FieldBox>
         </S.Form>
-      </S.Layout>
-      <Footer>
-        <Button form="meeting-create-form" type="submit">
-          추가하기
+        <Button
+          form="meeting-create-form"
+          type="submit"
+          css={css`
+            margin-top: 32px;
+          `}
+        >
+          모임 생성하기
         </Button>
-      </Footer>
+      </S.Layout>
+      <Footer></Footer>
     </>
   );
 };
