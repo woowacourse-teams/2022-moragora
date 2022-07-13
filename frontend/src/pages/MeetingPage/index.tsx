@@ -8,10 +8,11 @@ import Spinner from '../../components/@shared/Spinner';
 import ErrorIcon from '../../components/@shared/ErrorIcon';
 import ModalPortal from '../../components/ModalPortal';
 import ModalWindow from '../../components/@shared/ModalWindow';
-import RadioButton from '../../components/@shared/RadioButton';
 import DivideLine from '../../components/@shared/DivideLine';
 import ReloadButton from '../../components/@shared/ReloadButton';
 import useForm from '../../hooks/useForm';
+import CoffeeIconSVG from '../../assets/coffee.svg';
+import Checkbox from '../../components/@shared/Checkbox';
 
 type MeetingResponseBody = {
   meetingCount: number;
@@ -151,60 +152,33 @@ const MeetingPage = () => {
             총 출석일: <span>{meetingState.data.meetingCount}</span>
           </p>
         </S.MeetingDetailSection>
+        <DivideLine />
         <S.UserListSection>
-          <S.UserRowBox>
-            <S.UserDataBox>이름</S.UserDataBox>
-            <S.UserDataBox>지각스택</S.UserDataBox>
-            <S.UserDataBox>출석률</S.UserDataBox>
-            <S.UserDataBox
-              css={css`
-                display: flex;
-                gap: 1rem;
-              `}
-            >
-              <label>출</label>
-              <label>결</label>
-            </S.UserDataBox>
-          </S.UserRowBox>
-          <DivideLine />
           <S.Form id="attendance-form" {...onSubmit(handleSubmit)}>
-            <S.UserListBox>
+            <S.UserList>
               {usersState.data.map((user) => (
-                <S.UserRowBox key={user.id}>
-                  <S.UserDataBox>{user.name}</S.UserDataBox>
-                  <S.UserDataBox>{user.absentCount}</S.UserDataBox>
-                  <S.UserDataBox>
-                    {meetingState.data.meetingCount === 0
-                      ? '-'
-                      : Math.floor(
-                          ((meetingState.data.meetingCount - user.absentCount) /
-                            meetingState.data.meetingCount) *
-                            100
-                        ) + '%'}
-                  </S.UserDataBox>
-                  <S.UserDataBox
+                <S.UserItem key={user.id}>
+                  <div
                     css={css`
                       display: flex;
-                      gap: 1rem;
+                      flex-direction: column;
+                      gap: 0.5rem;
                     `}
                   >
-                    <label hidden>출석</label>
-                    <RadioButton
-                      {...register(user.id.toString(), {
-                        value: 'attendance',
-                        defaultChecked: true,
-                      })}
-                    />
-                    <label hidden>결석</label>
-                    <RadioButton
-                      {...register(user.id.toString(), {
-                        value: 'absent',
-                      })}
-                    />
-                  </S.UserDataBox>
-                </S.UserRowBox>
+                    <span>{user.name}</span>
+                    <S.CoffeeIconImageBox>
+                      <S.CoffeeIconImage src={CoffeeIconSVG} />
+                      <S.CoffeeIconImage src={CoffeeIconSVG} />
+                      <S.CoffeeIconImage src={CoffeeIconSVG} />
+                      <S.CoffeeIconImage src={CoffeeIconSVG} />
+                      <S.CoffeeIconImage src={CoffeeIconSVG} />
+                      <S.CoffeeIconImage src={CoffeeIconSVG} />
+                    </S.CoffeeIconImageBox>
+                  </div>
+                  <Checkbox />
+                </S.UserItem>
               ))}
-            </S.UserListBox>
+            </S.UserList>
           </S.Form>
         </S.UserListSection>
       </S.Layout>
