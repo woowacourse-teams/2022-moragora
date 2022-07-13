@@ -69,7 +69,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .collect(Collectors.toUnmodifiableList());
 
         final List<String> names = usersResponse.stream()
-                .map(UserResponse::getNickName)
+                .map(UserResponse::getNickname)
                 .collect(Collectors.toUnmodifiableList());
 
         final List<String> emails = usersResponse.stream()

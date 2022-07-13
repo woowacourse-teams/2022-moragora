@@ -21,13 +21,18 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = MAX_NAME_LENGTH)
-    private String name;
-
+    @Column(nullable = false)
     private String email;
 
-    public User(final String name, final String email) {
-        this.name = name;
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false, length = MAX_NAME_LENGTH)
+    private String nickname;
+
+    public User(final String email, final String password, final String nickname) {
         this.email = email;
+        this.password = password;
+        this.nickname = nickname;
     }
 }
