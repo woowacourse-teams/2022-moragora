@@ -4,11 +4,10 @@ import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserAttendancesRequest;
-import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.entity.User;
+import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.UserRepository;
@@ -25,7 +24,8 @@ public class MeetingService {
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
 
-    public MeetingService(final MeetingRepository meetingRepository, final AttendanceRepository attendanceRepository,
+    public MeetingService(final MeetingRepository meetingRepository,
+                          final AttendanceRepository attendanceRepository,
                           final UserRepository userRepository) {
         this.meetingRepository = meetingRepository;
         this.attendanceRepository = attendanceRepository;
@@ -48,11 +48,8 @@ public class MeetingService {
     public MeetingResponse findById(final Long id) {
         final Meeting meeting = findMeeting(id);
         final List<Attendance> attendances = attendanceRepository.findByMeetingId(meeting.getId());
-        final List<UserResponse> userResponses = attendances.stream()
-                .map(UserResponse::from)
-                .collect(Collectors.toUnmodifiableList());
 
-        return MeetingResponse.from(meeting, userResponses);
+        return MeetingResponse.of(meeting, attendances);
     }
 
     // TODO update (1 + N) -> 최적하기

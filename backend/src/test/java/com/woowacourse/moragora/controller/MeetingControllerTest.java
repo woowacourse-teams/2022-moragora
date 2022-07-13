@@ -137,7 +137,7 @@ class MeetingControllerTest {
                                                      final String entranceTime,
                                                      final String leaveTime) throws Exception {
         // given
-        Map<String, Object> params = new HashMap<>();
+        final Map<String, Object> params = new HashMap<>();
         params.put("name", "모임1");
         params.put("startDate", startDate);
         params.put("endDate", endDate);
