@@ -22,12 +22,12 @@ public class User {
     private Long id;
 
     @Column(nullable = false, length = MAX_NAME_LENGTH)
-    private String name;
+    private String nickname;
 
     private String email;
 
     public User(final String name, final String email) {
-        this.name = name;
+        this.nickname = name;
         this.email = email;
     }
 }
