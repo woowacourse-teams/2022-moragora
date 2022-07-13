@@ -14,7 +14,10 @@ public class UserResponse {
     private String nickname;
     private int tardyCount;
 
-    public UserResponse(final Long id, final String email, final String nickname, final int tardyCount) {
+    public UserResponse(final Long id,
+                        final String email,
+                        final String nickname,
+                        final int tardyCount) {
         this.id = id;
         this.email = email;
         this.nickname = nickname;

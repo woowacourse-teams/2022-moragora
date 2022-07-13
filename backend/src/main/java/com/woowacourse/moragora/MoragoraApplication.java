@@ -9,5 +9,4 @@ public class MoragoraApplication {
     public static void main(String[] args) {
         SpringApplication.run(MoragoraApplication.class, args);
     }
-
 }
