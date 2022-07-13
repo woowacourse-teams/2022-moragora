@@ -18,17 +18,25 @@ const useForm = () => {
     }));
   };
 
-  const handleChange: React.FormEventHandler<HTMLInputElement> = (e) => {
-    const { target } = e;
-    const { name, value } = target as HTMLInputElement;
+  const handleChange =
+    (
+      onChange?: React.FormEventHandler<HTMLInputElement>
+    ): React.FormEventHandler<HTMLInputElement> =>
+    (e) => {
+      const { target } = e;
+      const { name, value } = target as HTMLInputElement;
 
-    validate(target as HTMLInputElement);
+      validate(target as HTMLInputElement);
 
-    setValues((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+      setValues((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+
+      if (onChange) {
+        onChange(e);
+      }
+    };
 
   const handleBlur: React.FormEventHandler<HTMLInputElement> = (e) => {
     const { target } = e;
@@ -91,13 +99,16 @@ const useForm = () => {
 
   const register = (
     name: HTMLInputElement['name'],
-    options: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'name'>
+    {
+      onChange,
+      ...attributes
+    }: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'name'>
   ) => {
     return {
       name,
-      ...options,
+      ...attributes,
       ref: bindInputElementToRef,
-      onChange: handleChange,
+      onChange: handleChange(onChange),
       onBlur: handleBlur,
     };
   };
