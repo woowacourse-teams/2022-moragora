@@ -16,7 +16,7 @@ public class UserResponse {
 
     public UserResponse(final Long id,
                         final String email,
-                        final String nickName,
+                        final String nickname,
                         final int tardyCount) {
         this.id = id;
         this.email = email;
