@@ -1,9 +1,11 @@
 package com.woowacourse.moragora.dto;
 
+import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Getter;
 
 @Getter
@@ -36,7 +38,13 @@ public class MeetingResponse {
         this.users = usersResponse;
     }
 
-    public static MeetingResponse from(final Meeting meeting, final List<UserResponse> usersResponse) {
+    public static MeetingResponse of(final Meeting meeting,
+                                     final List<Attendance> attendances) {
+
+        final List<UserResponse> userResponses = attendances.stream()
+                .map(UserResponse::from)
+                .collect(Collectors.toUnmodifiableList());
+
         return new MeetingResponse(
                 meeting.getId(),
                 meeting.getName(),
@@ -45,6 +53,7 @@ public class MeetingResponse {
                 meeting.getEndDate(),
                 meeting.getEntranceTime(),
                 meeting.getLeaveTime(),
-                usersResponse);
+                userResponses
+        );
     }
 }
