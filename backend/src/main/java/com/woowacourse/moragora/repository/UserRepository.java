@@ -4,6 +4,7 @@ import com.woowacourse.moragora.entity.user.User;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,10 +33,13 @@ public class UserRepository {
     }
 
     public Optional<User> findByEmail(final String email) {
-        final User user = entityManager.createQuery("select u from User u where u.email = :email", User.class)
-                .setParameter("email", email)
-                .getSingleResult();
-
-        return Optional.ofNullable(user);
+        try {
+            User user = entityManager.createQuery("select u from User u where u.email = :email", User.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+            return Optional.of(user);
+        } catch (NoResultException exception) {
+            return Optional.empty();
+        }
     }
 }

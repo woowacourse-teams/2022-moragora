@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.auth.dto.LoginRequest;
 import com.woowacourse.auth.dto.LoginResponse;
+import com.woowacourse.auth.exception.LoginFailException;
 import com.woowacourse.auth.service.AuthService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,5 +49,23 @@ public class AuthControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("accessToken").value(accessToken));
+    }
+
+    @DisplayName("로그인에 실패한다.")
+    @Test
+    void login_fail() throws Exception {
+        // given
+        final LoginRequest loginRequest = new LoginRequest("kun@naver.com", "1234smart!");
+
+        given(authService.createToken(any(LoginRequest.class)))
+                .willThrow(new LoginFailException());
+
+        // when, then
+        mockMvc.perform(post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").value("이메일이나 비밀번호가 틀렸습니다."));
     }
 }
