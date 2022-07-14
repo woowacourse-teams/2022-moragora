@@ -15,5 +15,5 @@
     "esModuleInterop": true,
     "baseUrl": "./src/"
   },
-  "include": ["index.d.ts", "./emotion.d.ts"]
+  "include": ["src", "index.d.ts", "./emotion.d.ts"]
 }
