@@ -1,5 +1,8 @@
 package com.woowacourse.auth.support;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -30,5 +33,18 @@ public class JwtTokenProvider {
                 .setExpiration(validity)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public boolean validateToken(final String token) {
+        try {
+            final Jws<Claims> claims = parseClaimsJws(token);
+            return !claims.getBody().getExpiration().before(new Date());
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    private Jws<Claims> parseClaimsJws(final String token) {
+        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
     }
 }

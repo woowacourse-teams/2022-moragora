@@ -12,6 +12,7 @@ import com.woowacourse.auth.dto.LoginRequest;
 import com.woowacourse.auth.dto.LoginResponse;
 import com.woowacourse.auth.exception.LoginFailException;
 import com.woowacourse.auth.service.AuthService;
+import com.woowacourse.auth.support.JwtTokenProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = {AuthController.class})
+@MockBean(value = {JwtTokenProvider.class})
 public class AuthControllerTest {
 
     @Autowired
