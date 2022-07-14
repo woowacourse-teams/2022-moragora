@@ -35,6 +35,12 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String getPayload(final String token) {
+        return parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+    }
+
     public boolean validateToken(final String token) {
         try {
             final Jws<Claims> claims = parseClaimsJws(token);
@@ -45,6 +51,9 @@ public class JwtTokenProvider {
     }
 
     private Jws<Claims> parseClaimsJws(final String token) {
-        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token);
     }
 }
