@@ -13,7 +13,12 @@ public class EncodedPassword {
     @Column(name = "password")
     private String value;
 
-    public EncodedPassword(final RawPassword rawPassword) {
-        this.value = rawPassword.encode();
+    private EncodedPassword(final String encodedValue) {
+        this.value = encodedValue;
+    }
+
+    public static EncodedPassword fromRawValue(final String plainValue) {
+        final RawPassword rawPassword = new RawPassword(plainValue);
+        return new EncodedPassword(rawPassword.encode());
     }
 }

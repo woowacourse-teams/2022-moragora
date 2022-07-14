@@ -15,7 +15,7 @@ class UserTest {
     @Test
     void createUser() {
         // given
-        final EncodedPassword encodedPassword = new EncodedPassword(new RawPassword("asdfqer1!"));
+        final EncodedPassword encodedPassword = EncodedPassword.fromRawValue("asdfqer1!");
 
         // when, then
         assertThatCode(() -> new User("kun@email.com", encodedPassword, "kun"))
@@ -27,7 +27,7 @@ class UserTest {
     @ValueSource(strings = {"kun", "kun@", "@email.com", "kun@com"})
     void createUser_throwsException_IfInvalidEmail(final String email) {
         // given
-        final EncodedPassword encodedPassword = new EncodedPassword(new RawPassword("asdfqer1!"));
+        final EncodedPassword encodedPassword = EncodedPassword.fromRawValue("asdfqer1!");
 
         // when, then
         assertThatThrownBy(() -> new User(email, encodedPassword, "kun"))
@@ -39,7 +39,7 @@ class UserTest {
     @ValueSource(strings = {"smart쿤!", "smartboykun12345", "smart kun"})
     void createUser_throwsException_IfInvalidNickname(final String nickname) {
         // given
-        final EncodedPassword encodedPassword = new EncodedPassword(new RawPassword("asdfqer1!"));
+        final EncodedPassword encodedPassword = EncodedPassword.fromRawValue("asdfqer1!");
 
         // when, then
         assertThatThrownBy(() -> new User("kun@email.com", encodedPassword, nickname))

@@ -2,7 +2,6 @@ package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
-import com.woowacourse.moragora.entity.user.RawPassword;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -19,8 +18,8 @@ public class UserService {
     }
 
     public Long create(final UserRequest userRequest) {
-        final RawPassword rawPassword = new RawPassword(userRequest.getPassword());
-        final User user = new User(userRequest.getEmail(), new EncodedPassword(rawPassword), userRequest.getNickname());
+        final User user = new User(userRequest.getEmail(), EncodedPassword.fromRawValue(userRequest.getPassword()),
+                userRequest.getNickname());
         final User savedUser = userRepository.save(user);
         return savedUser.getId();
     }
