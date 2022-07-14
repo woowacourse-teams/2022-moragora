@@ -1,6 +1,5 @@
 package com.woowacourse.moragora.dto;
 
-import com.woowacourse.moragora.entity.user.User;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
 import lombok.Getter;
@@ -23,9 +22,5 @@ public class UserRequest {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
-    }
-
-    public User toEntity() {
-        return new User(email, password, nickname);
     }
 }

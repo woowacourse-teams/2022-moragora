@@ -14,8 +14,11 @@ class UserTest {
     @DisplayName("회원을 생성한다.")
     @Test
     void createUser() {
-        // given, when, then
-        assertThatCode(() -> new User("kun@email.com", "asdfqer1!", "kun"))
+        // given
+        final EncodedPassword encodedPassword = new EncodedPassword(new RawPassword("asdfqer1!"));
+
+        // when, then
+        assertThatCode(() -> new User("kun@email.com", encodedPassword, "kun"))
                 .doesNotThrowAnyException();
     }
 
@@ -23,8 +26,11 @@ class UserTest {
     @ParameterizedTest
     @ValueSource(strings = {"kun", "kun@", "@email.com", "kun@com"})
     void createUser_throwsException_IfInvalidEmail(final String email) {
-        // given, when, then
-        assertThatThrownBy(() -> new User(email, "asdfqer1!", "kun"))
+        // given
+        final EncodedPassword encodedPassword = new EncodedPassword(new RawPassword("asdfqer1!"));
+
+        // when, then
+        assertThatThrownBy(() -> new User(email, encodedPassword, "kun"))
                 .isInstanceOf(InvalidFormatException.class);
     }
 
@@ -32,8 +38,11 @@ class UserTest {
     @ParameterizedTest
     @ValueSource(strings = {"smart쿤!", "smartboykun12345", "smart kun"})
     void createUser_throwsException_IfInvalidNickname(final String nickname) {
-        // given, when, then
-        assertThatThrownBy(() -> new User("kun@email.com", "asdfqer1!", nickname))
+        // given
+        final EncodedPassword encodedPassword = new EncodedPassword(new RawPassword("asdfqer1!"));
+
+        // when, then
+        assertThatThrownBy(() -> new User("kun@email.com", encodedPassword, nickname))
                 .isInstanceOf(InvalidFormatException.class);
     }
 }

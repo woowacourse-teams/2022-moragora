@@ -2,6 +2,8 @@ package com.woowacourse.moragora.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.woowacourse.moragora.entity.user.EncodedPassword;
+import com.woowacourse.moragora.entity.user.RawPassword;
 import com.woowacourse.moragora.entity.user.User;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +23,8 @@ class UserRepositoryTest {
     @Test
     void save() {
         // given
-        final User user = new User("kun@naver.com", "1234smart!", "kun");
+        final EncodedPassword encodedPassword = new EncodedPassword(new RawPassword("asdfqer1!"));
+        final User user = new User("kun@naver.com", encodedPassword, "kun");
 
         // when
         final User savedUser = userRepository.save(user);

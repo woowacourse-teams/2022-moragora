@@ -32,16 +32,16 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private Password password;
+    private EncodedPassword password;
 
     @Column(nullable = false)
     private String nickname;
 
-    public User(final String email, final String password, final String nickname) {
+    public User(final String email, final EncodedPassword password, final String nickname) {
         validateEmail(email);
         validateNickname(nickname);
         this.email = email;
-        this.password = Password.fromRawValue(password);
+        this.password = password;
         this.nickname = nickname;
     }
 
