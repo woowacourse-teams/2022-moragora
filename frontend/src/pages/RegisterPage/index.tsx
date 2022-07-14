@@ -5,18 +5,37 @@ import * as S from './RegisterPage.styled';
 import { css } from '@emotion/react';
 import useForm from '../../hooks/useForm';
 
+const submitRegisterUserData = async (url: string, payload: any) => {
+  return fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+};
+
 const RegisterPage = () => {
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
   const [isValidPasswordConfirm, setIsValidPasswordConfirm] = useState(true);
 
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+    if (!isValidPasswordConfirm) {
+      return;
+    }
+
+    const target = e.target as HTMLFormElement;
+    const formData = new FormData(target);
+    const formDataObject = Object.fromEntries(formData.entries());
+
+    await submitRegisterUserData('/users', formDataObject);
+
+    alert('회원가입 완료');
+  };
+
   return (
     <S.Layout>
-      <S.Form
-        id="register-form"
-        {...onSubmit(() => {
-          alert('submitted');
-        })}
-      >
+      <S.Form id="register-form" {...onSubmit(handleSubmit)}>
         <S.FieldBox>
           <S.Label>
             이메일
@@ -33,7 +52,7 @@ const RegisterPage = () => {
               type="password"
               {...register('password', {
                 pattern:
-                  "(?=.[0-9])(?=.[a-z])(?=.[!@#&()\\-\\[{}\\]:;',?/~$^+=<>]).{8,30}",
+                  '(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,20}',
                 onChange: (e) => {
                   setIsValidPasswordConfirm(
                     values['passwordConfirm'] === e.target.value
@@ -66,7 +85,7 @@ const RegisterPage = () => {
             <S.InputHint>{errors['passwordConfirm']}</S.InputHint>
           )}
           {!isValidPasswordConfirm && (
-            <S.InputHint>아무고토 못하쥬?</S.InputHint>
+            <S.InputHint>비밀번호가 다릅니다.</S.InputHint>
           )}
         </S.FieldBox>
         <S.FieldBox>
