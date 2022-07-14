@@ -4,7 +4,16 @@ import Button from '../../components/@shared/Button';
 import * as S from './RegisterPage.styled';
 import { css } from '@emotion/react';
 import useForm from '../../hooks/useForm';
+import DialogButton from '../../components/@shared/DialogButton';
 
+const checkEmail = async (url: string) => {
+  return fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+};
 const submitRegisterUserData = async (url: string, payload: any) => {
   return fetch(url, {
     method: 'POST',
@@ -17,10 +26,30 @@ const submitRegisterUserData = async (url: string, payload: any) => {
 
 const RegisterPage = () => {
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
+  const [isEmailExist, setIsEmailExist] = useState(true);
   const [isValidPasswordConfirm, setIsValidPasswordConfirm] = useState(true);
 
+  const handleCheckEmailButtonClick: React.MouseEventHandler<
+    HTMLButtonElement
+  > = async () => {
+    const res = await checkEmail(`/users/check-email?email=${values['email']}`);
+    const body = await res.json().then((res) => res as { isExist: boolean });
+
+    if (!res.ok) {
+      throw Error('이메일 중복 확인 실패');
+    }
+
+    setIsEmailExist(body.isExist);
+
+    const message = body.isExist
+      ? '중복된 이메일입니다.'
+      : '사용 가능한 이메일입니다.';
+
+    alert(message);
+  };
+
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    if (!isValidPasswordConfirm) {
+    if (!isValidPasswordConfirm && isEmailExist) {
       return;
     }
 
@@ -39,7 +68,35 @@ const RegisterPage = () => {
         <S.FieldBox>
           <S.Label>
             이메일
-            <Input type="email" {...register('email', { required: true })} />
+            <div
+              css={css`
+                display: flex;
+                gap: 0.75rem;
+              `}
+            >
+              <Input
+                type="email"
+                {...register('email', {
+                  required: true,
+                  onChange: () => {
+                    setIsEmailExist(true);
+                  },
+                })}
+                css={css`
+                  flex: 1;
+                `}
+              />
+              <DialogButton
+                css={css`
+                  border-radius: 0.5rem;
+                `}
+                variant="confirm"
+                onClick={handleCheckEmailButtonClick}
+                disabled={!isEmailExist}
+              >
+                중복확인
+              </DialogButton>
+            </div>
           </S.Label>
           {errors['email'] !== '' && (
             <S.InputHint>{errors['email']}</S.InputHint>

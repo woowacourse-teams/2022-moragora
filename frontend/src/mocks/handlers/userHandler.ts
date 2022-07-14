@@ -100,7 +100,6 @@ export default [
 
   rest.get('/users/check-email', (req, res, ctx) => {
     const email = req.url.searchParams.get('email');
-
     const isExist = users.some((user) => user.email === email);
 
     return res(
