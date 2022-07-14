@@ -2,7 +2,8 @@ package com.woowacourse.moragora;
 
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.entity.User;
+import com.woowacourse.moragora.entity.user.EncodedPassword;
+import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.UserRepository;
@@ -30,13 +31,13 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent event) {
 
-        final User user1 = new User("아스피", "aaa111@foo.com");
-        final User user2 = new User("필즈", "bbb222@foo.com");
-        final User user3 = new User("포키", "ccc333@foo.com");
-        final User user4 = new User("썬", "ddd444@foo.com");
-        final User user5 = new User("우디", "eee555@foo.com");
-        final User user6 = new User("쿤", "fff666@foo.com");
-        final User user7 = new User("반듯", "ggg777@foo.com");
+        final User user1 = new User("aaa111@foo.com", EncodedPassword.fromRawValue("1234smart!"), "아스피");
+        final User user2 = new User("bbb222@foo.com", EncodedPassword.fromRawValue("1234smart!"), "필즈");
+        final User user3 = new User("ccc333@foo.com", EncodedPassword.fromRawValue("1234smart!"), "포키");
+        final User user4 = new User("ddd444@foo.com", EncodedPassword.fromRawValue("1234smart!"), "썬");
+        final User user5 = new User("eee555@foo.com", EncodedPassword.fromRawValue("1234smart!"), "우디");
+        final User user6 = new User("fff666@foo.com", EncodedPassword.fromRawValue("1234smart!"), "쿤");
+        final User user7 = new User("ggg777@foo.com", EncodedPassword.fromRawValue("1234smart!"), "반듯");
 
         userRepository.save(user1);
         userRepository.save(user2);

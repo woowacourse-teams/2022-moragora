@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.entity;
 
+import com.woowacourse.moragora.entity.user.User;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

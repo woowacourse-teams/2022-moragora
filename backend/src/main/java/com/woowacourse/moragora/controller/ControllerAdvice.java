@@ -4,11 +4,10 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.woowacourse.moragora.dto.ErrorResponse;
+import com.woowacourse.moragora.exception.InvalidFormatException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -24,11 +23,9 @@ public class ControllerAdvice {
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleInvalidRequest(final BindingResult bindingResult) {
         final List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-        final String errorMessage = fieldErrors.stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.joining(" "));
+        final FieldError mainError = fieldErrors.get(0);
 
-        return new ErrorResponse(errorMessage);
+        return new ErrorResponse(mainError.getDefaultMessage());
     }
 
     @ExceptionHandler(MeetingNotFoundException.class)
@@ -46,6 +43,12 @@ public class ControllerAdvice {
     @ExceptionHandler(IllegalStartEndDateException.class)
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleIllegalStartEndDateException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(InvalidFormatException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handleInvalidFormatException(final Exception exception) {
         return new ErrorResponse(exception.getMessage());
     }
 }

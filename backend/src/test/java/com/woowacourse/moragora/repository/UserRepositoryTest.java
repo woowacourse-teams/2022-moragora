@@ -2,7 +2,8 @@ package com.woowacourse.moragora.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.woowacourse.moragora.entity.User;
+import com.woowacourse.moragora.entity.user.EncodedPassword;
+import com.woowacourse.moragora.entity.user.User;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,20 @@ class UserRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @DisplayName("회원 정보를 저장한다.")
+    @Test
+    void save() {
+        // given
+        final EncodedPassword encodedPassword = EncodedPassword.fromRawValue("asdfqer1!");
+        final User user = new User("kun@naver.com", encodedPassword, "kun");
+
+        // when
+        final User savedUser = userRepository.save(user);
+
+        // then
+        assertThat(savedUser.getId()).isNotNull();
+    }
 
     @DisplayName("여러 id로 여러명의 유저를 검색할 수 있다.")
     @Test
