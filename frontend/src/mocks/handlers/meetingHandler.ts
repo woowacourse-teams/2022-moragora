@@ -1,5 +1,6 @@
-import { rest } from 'msw';
-import meeting from '../fixtures/meeting';
+import { DefaultBodyType, rest } from 'msw';
+import meetings from '../fixtures/meeting';
+import users from '../fixtures/users';
 
 type MeetingAttendanceRequestBody = {
   id: number;
@@ -9,9 +10,25 @@ type MeetingAttendanceRequestBody = {
 const DELAY = 700;
 
 export default [
-  rest.get('/meetings/1', (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(meeting), ctx.delay(DELAY));
-  }),
+  rest.get<DefaultBodyType, { meetingId: string }>(
+    '/meetings/:meetingId',
+    (req, res, ctx) => {
+      const { meetingId } = req.params;
+
+      const meeting = meetings.find(({ id }) => id === Number(meetingId));
+
+      if (!meeting) {
+        return res(ctx.status(404), ctx.delay(DELAY));
+      }
+
+      const joinedMeeting = {
+        ...meeting,
+        users: meeting.userIds.map((id) => users[id]),
+      };
+
+      return res(ctx.status(200), ctx.json(joinedMeeting), ctx.delay(DELAY));
+    }
+  ),
 
   rest.patch<MeetingAttendanceRequestBody>('/meetings/1', (req, res, ctx) => {
     if (
