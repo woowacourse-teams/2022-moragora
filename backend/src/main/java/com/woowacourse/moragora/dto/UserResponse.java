@@ -3,16 +3,14 @@ package com.woowacourse.moragora.dto;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.user.User;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 @Getter
 public class UserResponse {
 
-    private Long id;
-    private String email;
-    private String nickname;
-    private int tardyCount;
+    private final Long id;
+    private final String email;
+    private final String nickname;
+    private final int tardyCount;
 
     public UserResponse(final Long id,
                         final String email,
