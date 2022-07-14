@@ -5,17 +5,32 @@ import * as S from './LoginPage.styled';
 import { css } from '@emotion/react';
 import useForm from '../../hooks/useForm';
 
+const submitLogin = async (url: string, payload: any) => {
+  return fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+};
+
 const LoginPage = () => {
   const { errors, isSubmitting, onSubmit, register } = useForm();
 
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+    const target = e.target as HTMLFormElement;
+    const formData = new FormData(target);
+    const formDataObject = Object.fromEntries(formData.entries());
+
+    await submitLogin('/login', formDataObject);
+
+    alert('로그인 성공');
+  };
+
   return (
     <S.Layout>
-      <S.Form
-        id="login-form"
-        {...onSubmit(() => {
-          alert('submitted');
-        })}
-      >
+      <S.Form id="login-form" {...onSubmit(handleSubmit)}>
         <S.FieldBox>
           <S.Label>
             이메일
@@ -31,8 +46,6 @@ const LoginPage = () => {
             <Input
               type="password"
               {...register('password', {
-                pattern:
-                  "(?=.[0-9])(?=.[a-z])(?=.[!@#&()\\-\\[{}\\]:;',?/~$^+=<>]).{8,30}",
                 required: true,
               })}
             />

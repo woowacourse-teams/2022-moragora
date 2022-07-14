@@ -14,7 +14,7 @@ const useForm = () => {
 
     setErrors((prev) => ({
       ...prev,
-      [target.name]: target.validity.valid ? null : target.validationMessage,
+      [target.name]: target.validationMessage,
     }));
   };
 
@@ -56,6 +56,8 @@ const useForm = () => {
         validate(element);
       });
 
+      const isValidateComplete =
+        Object.keys(errors).length === inputElementList.current.length;
       const isValid = Object.values(errors).every(
         (errorMessage) => errorMessage === ''
       );
@@ -63,13 +65,11 @@ const useForm = () => {
       setIsSubmitting(true);
 
       try {
-        if (isValid) {
+        if (isValidateComplete && isValid) {
           onValid(e);
 
           return;
-        }
-
-        if (onError) {
+        } else if (onError) {
           onError(e);
         }
       } catch (e) {

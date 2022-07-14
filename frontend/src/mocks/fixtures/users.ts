@@ -1,109 +1,19 @@
-const users = [
-  {
-    id: 1,
-    name: 'fildz',
-    absentCount: 1,
-  },
-  {
-    id: 2,
-    name: 'woody',
-    absentCount: 1,
-  },
-  {
-    id: 3,
-    name: 'badd',
-    absentCount: 1,
-  },
-  {
-    id: 4,
-    name: 'forky',
-    absentCount: 1,
-  },
-  {
-    id: 5,
-    name: 'sun',
-    absentCount: 1,
-  },
-  {
-    id: 6,
-    name: 'kun',
-    absentCount: 1,
-  },
-  {
-    id: 7,
-    name: 'aspy',
-    absentCount: 1,
-  },
-  {
-    id: 8,
-    name: 'fildz',
-    absentCount: 1,
-  },
-  {
-    id: 9,
-    name: 'woody',
-    absentCount: 1,
-  },
-  {
-    id: 10,
-    name: 'badd',
-    absentCount: 1,
-  },
-  {
-    id: 11,
-    name: 'forky',
-    absentCount: 1,
-  },
-  {
-    id: 12,
-    name: 'sun',
-    absentCount: 1,
-  },
-  {
-    id: 13,
-    name: 'kun',
-    absentCount: 1,
-  },
-  {
-    id: 14,
-    name: 'aspy',
-    absentCount: 1,
-  },
-  {
-    id: 15,
-    name: 'fildz',
-    absentCount: 1,
-  },
-  {
-    id: 16,
-    name: 'woody',
-    absentCount: 1,
-  },
-  {
-    id: 17,
-    name: 'badd',
-    absentCount: 1,
-  },
-  {
-    id: 18,
-    name: 'forky',
-    absentCount: 1,
-  },
-  {
-    id: 19,
-    name: 'sun',
-    absentCount: 1,
-  },
-  {
-    id: 20,
-    name: 'kun',
-    absentCount: 1,
-  },
-  {
-    id: 21,
-    name: 'aspy',
-    absentCount: 1,
-  },
-];
+type User = {
+  id: number;
+  email: string;
+  password: string;
+  nickname: string;
+  accessToken: string | null;
+};
+
+const generateIndexes = (length: number) => Array.from({ length });
+
+const users = generateIndexes(100).map<User>((_, id) => ({
+  id,
+  email: `user${id}@google.com`,
+  password: `user${id}pw!`,
+  nickname: `user${id}`,
+  accessToken: null,
+}));
 
 export default users;
