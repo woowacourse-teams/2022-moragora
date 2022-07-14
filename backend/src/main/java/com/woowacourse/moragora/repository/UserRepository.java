@@ -2,6 +2,7 @@ package com.woowacourse.moragora.repository;
 
 import com.woowacourse.moragora.entity.user.User;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
@@ -28,5 +29,13 @@ public class UserRepository {
         return entityManager.createQuery("select u from User u where u.id in :userIds", User.class)
                 .setParameter("userIds", userIds)
                 .getResultList();
+    }
+
+    public Optional<User> findByEmail(final String email) {
+        final User user = entityManager.createQuery("select u from User u where u.email = :email", User.class)
+                .setParameter("email", email)
+                .getSingleResult();
+
+        return Optional.ofNullable(user);
     }
 }
