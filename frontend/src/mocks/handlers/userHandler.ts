@@ -1,5 +1,5 @@
 import { rest } from 'msw';
-import users from '../fixtures/users';
+import users, { User } from '../fixtures/users';
 
 type UserRegisterRequestBody = {
   email: string;
@@ -55,7 +55,7 @@ export default [
       );
     }
 
-    const newUser = {
+    const newUser: User = {
       id: users.length,
       email,
       password,

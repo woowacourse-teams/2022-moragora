@@ -6,22 +6,22 @@ type MediaQuery<T extends string> = Record<
   T,
   (arg0: string[]) => SerializedStyles
 >;
+type Colors =
+  | 'normal'
+  | 'subtle-dark'
+  | 'subtle-light'
+  | 'background'
+  | 'surface'
+  | 'primary'
+  | 'primary-subtle'
+  | 'black'
+  | 'white'
+  | 'tint'
+  | 'transparent';
 
 declare module '@emotion/react' {
   export interface Theme {
-    colors: {
-      normal: string;
-      'subtle-dark': string;
-      'subtle-light': string;
-      background: string;
-      surface: string;
-      primary: string;
-      'primary-subtle': string;
-      black: string;
-      white: string;
-      tint: string;
-      transparent: string;
-    };
+    colors: Record<Colors, string>;
     media: MediaQuery<ScreenSize>;
   }
 }
