@@ -1,10 +1,6 @@
-import { css, SerializedStyles, Theme } from '@emotion/react';
+import { css, Theme } from '@emotion/react';
 
-// type MediaQuery<T> = {
-//   [k in keyof T]: (arg0: string[]) => SerializedStyles;
-// };
-
-const COLORS = {
+const colors: Theme['colors'] = {
   normal: '#19191B',
   'subtle-dark': '#61646B',
   'subtle-light': '#AFB1B6',
@@ -26,7 +22,7 @@ const SCREEN_SIZES = {
   xl: 1680,
 };
 
-const media = {
+const media: Theme['media'] = {
   xs: (...args) => css`
     @media only screen and (max-width: ${SCREEN_SIZES.xs}px) {
       ${args}
@@ -58,6 +54,6 @@ const media = {
 };
 
 export const theme: Theme = {
-  colors: COLORS,
+  colors,
   media,
 };
