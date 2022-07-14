@@ -41,7 +41,6 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .header("Location", notNullValue());
     }
 
-    // TODO assertThat 검증을 RestAssured 로 변경
     @DisplayName("사용자가 특정 모임을 조회하면 해당 모임 상세 정보와 상태코드 200을 반환한다.")
     @Test
     void findOne() {
