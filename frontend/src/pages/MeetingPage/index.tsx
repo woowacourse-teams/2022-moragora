@@ -13,20 +13,31 @@ import ReloadButton from '../../components/@shared/ReloadButton';
 import useForm from '../../hooks/useForm';
 import CoffeeIconSVG from '../../assets/coffee.svg';
 import Checkbox from '../../components/@shared/Checkbox';
+import { useParams } from 'react-router-dom';
 
-type MeetingResponseBody = {
-  meetingCount: number;
+type User = {
+  id: 1;
+  email: string;
+  password: string;
+  nickname: string;
+  accessToken: null | string;
+  tardyCount: number;
 };
 
-type UsersResponseBody = {
+type MeetingResponseBody = {
   id: number;
   name: string;
-  absentCount: number;
-}[];
+  startDate: string;
+  endDate: string;
+  entranceTime: string;
+  leaveTime: string;
+  users: Omit<User, 'accessToken'>[];
+  attendanceCount: number;
+};
 
 type FormDataObject = { [k: string]: FormDataEntryValue };
 
-const submitAttendenceData = async (url: string, payload: any) => {
+const submitAttendanceData = async (url: string, payload: any) => {
   return fetch(url, {
     method: 'PATCH',
     headers: {
@@ -37,8 +48,8 @@ const submitAttendenceData = async (url: string, payload: any) => {
 };
 
 const MeetingPage = () => {
-  const meetingState = useFetch<MeetingResponseBody>('/meetings/1');
-  const usersState = useFetch<UsersResponseBody>('/meetings/1/users');
+  const { id } = useParams();
+  const meetingState = useFetch<MeetingResponseBody>(`/meetings/${id}`);
   const [modalOpened, setModalOpened] = useState(false);
   const [formData, setFormData] = useState<FormDataObject>();
   const { isSubmitting, onSubmit, register } = useForm();
@@ -67,18 +78,17 @@ const MeetingPage = () => {
       isAbsent: value === 'absent',
     }));
 
-    const response = await submitAttendenceData('/meetings/1', payload);
+    const response = await submitAttendanceData('/meetings/1', payload);
 
     if (response.ok) {
       alert('출결 마감했습니다.');
       handleClose();
 
       meetingState.refetch();
-      usersState.refetch();
     }
   };
 
-  if (meetingState.loading || usersState.loading) {
+  if (meetingState.loading) {
     return (
       <>
         <S.Layout>
@@ -102,7 +112,7 @@ const MeetingPage = () => {
     );
   }
 
-  if (meetingState.error || usersState.error) {
+  if (meetingState.error) {
     return (
       <>
         <S.Layout>
@@ -120,7 +130,6 @@ const MeetingPage = () => {
             <ReloadButton
               onClick={() => {
                 meetingState.refetch();
-                usersState.refetch();
               }}
             />
           </div>
@@ -147,16 +156,16 @@ const MeetingPage = () => {
       )}
       <S.Layout>
         <S.MeetingDetailSection>
-          <h2>모라고라팀</h2>
+          <h2>{meetingState.data.name}</h2>
           <p>
-            총 출석일: <span>{meetingState.data.meetingCount}</span>
+            총 출석일: <span>{meetingState.data.attendanceCount}</span>
           </p>
         </S.MeetingDetailSection>
         <DivideLine />
         <S.UserListSection>
           <S.Form id="attendance-form" {...onSubmit(handleSubmit)}>
             <S.UserList>
-              {usersState.data.map((user) => (
+              {meetingState.data.users.map((user) => (
                 <S.UserItem key={user.id}>
                   <div
                     css={css`
@@ -165,14 +174,11 @@ const MeetingPage = () => {
                       gap: 0.5rem;
                     `}
                   >
-                    <span>{user.name}</span>
+                    <span>{user.nickname}</span>
                     <S.CoffeeIconImageBox>
-                      <S.CoffeeIconImage src={CoffeeIconSVG} />
-                      <S.CoffeeIconImage src={CoffeeIconSVG} />
-                      <S.CoffeeIconImage src={CoffeeIconSVG} />
-                      <S.CoffeeIconImage src={CoffeeIconSVG} />
-                      <S.CoffeeIconImage src={CoffeeIconSVG} />
-                      <S.CoffeeIconImage src={CoffeeIconSVG} />
+                      {Array.from({ length: user.tardyCount }).map(() => (
+                        <S.CoffeeIconImage src={CoffeeIconSVG} />
+                      ))}
                     </S.CoffeeIconImageBox>
                   </div>
                   <Checkbox />
