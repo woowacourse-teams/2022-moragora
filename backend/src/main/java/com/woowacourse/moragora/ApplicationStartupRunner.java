@@ -2,10 +2,12 @@ package com.woowacourse.moragora;
 
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
+import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -17,15 +19,18 @@ import org.springframework.stereotype.Component;
 public class ApplicationStartupRunner implements ApplicationListener<ContextRefreshedEvent> {
 
     private final MeetingRepository meetingRepository;
-    private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
+    private final AttendanceRepository attendanceRepository;
+    private final ParticipantRepository participantRepository;
 
     public ApplicationStartupRunner(final MeetingRepository meetingRepository,
+                                    final UserRepository userRepository,
                                     final AttendanceRepository attendanceRepository,
-                                    final UserRepository userRepository) {
+                                    final ParticipantRepository participantRepository) {
         this.meetingRepository = meetingRepository;
-        this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
+        this.attendanceRepository = attendanceRepository;
+        this.participantRepository = participantRepository;
     }
 
     @Override
@@ -55,13 +60,31 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
                 LocalTime.of(18, 0));
         meetingRepository.save(meeting);
 
-        final Attendance attendance1 = new Attendance(user1, meeting);
-        final Attendance attendance2 = new Attendance(user2, meeting);
-        final Attendance attendance3 = new Attendance(user3, meeting);
-        final Attendance attendance4 = new Attendance(user4, meeting);
-        final Attendance attendance5 = new Attendance(user5, meeting);
-        final Attendance attendance6 = new Attendance(user6, meeting);
-        final Attendance attendance7 = new Attendance(user7, meeting);
+        final Participant participant1 = new Participant(user1, meeting);
+        final Participant participant2 = new Participant(user2, meeting);
+        final Participant participant3 = new Participant(user3, meeting);
+        final Participant participant4 = new Participant(user4, meeting);
+        final Participant participant5 = new Participant(user5, meeting);
+        final Participant participant6 = new Participant(user6, meeting);
+        final Participant participant7 = new Participant(user7, meeting);
+
+        participantRepository.save(participant1);
+        participantRepository.save(participant2);
+        participantRepository.save(participant3);
+        participantRepository.save(participant4);
+        participantRepository.save(participant5);
+        participantRepository.save(participant6);
+        participantRepository.save(participant7);
+
+        final Attendance attendance1 = new Attendance(participant1, LocalDate.of(2022, 7, 12), true);
+        final Attendance attendance2 = new Attendance(participant2, LocalDate.of(2022, 7, 12), false);
+        final Attendance attendance3 = new Attendance(participant3, LocalDate.of(2022, 7, 12), true);
+        final Attendance attendance4 = new Attendance(participant1, LocalDate.of(2022, 7, 13), false);
+        final Attendance attendance5 = new Attendance(participant2, LocalDate.of(2022, 7, 13), true);
+        final Attendance attendance6 = new Attendance(participant3, LocalDate.of(2022, 7, 13), false);
+        final Attendance attendance7 = new Attendance(participant1, LocalDate.of(2022, 7, 14), true);
+        final Attendance attendance8 = new Attendance(participant2, LocalDate.of(2022, 7, 14), false);
+        final Attendance attendance9 = new Attendance(participant3, LocalDate.of(2022, 7, 14), true);
 
         attendanceRepository.save(attendance1);
         attendanceRepository.save(attendance2);
@@ -70,5 +93,7 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
         attendanceRepository.save(attendance5);
         attendanceRepository.save(attendance6);
         attendanceRepository.save(attendance7);
+        attendanceRepository.save(attendance8);
+        attendanceRepository.save(attendance9);
     }
 }

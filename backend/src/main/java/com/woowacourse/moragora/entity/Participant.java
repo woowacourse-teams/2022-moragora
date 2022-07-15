@@ -1,6 +1,6 @@
 package com.woowacourse.moragora.entity;
 
-import java.time.LocalDate;
+import com.woowacourse.moragora.entity.user.User;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,26 +12,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "attendance")
+@Table(name = "participant")
 @NoArgsConstructor
 @Getter
-public class Attendance {
+public class Participant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "participant_id")
-    private Participant participant;
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    private LocalDate attendanceDate;
+    @ManyToOne
+    @JoinColumn(name = "meeting_id")
+    private Meeting meeting;
 
-    private boolean isTardy;
-
-    public Attendance(final Participant participant, final LocalDate attendanceDate, final boolean isTardy) {
-        this.participant = participant;
-        this.attendanceDate = attendanceDate;
-        this.isTardy = isTardy;
+    public Participant(User user, Meeting meeting) {
+        this.user = user;
+        this.meeting = meeting;
     }
 }

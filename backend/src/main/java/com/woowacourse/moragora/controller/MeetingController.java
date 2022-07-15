@@ -27,13 +27,13 @@ public class MeetingController {
 
     @PostMapping
     public ResponseEntity<Void> add(@RequestBody @Valid final MeetingRequest request) {
-        final Long id = meetingService.save(request);
+        final Long id = meetingService.save(request, 1L);
         return ResponseEntity.created(URI.create("/meetings/" + id)).build();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<MeetingResponse> findOne(@PathVariable final Long id) {
-        final MeetingResponse meetingResponse = meetingService.findById(id);
+        final MeetingResponse meetingResponse = meetingService.findById(id, 1L);
         return ResponseEntity.ok(meetingResponse);
     }
 
