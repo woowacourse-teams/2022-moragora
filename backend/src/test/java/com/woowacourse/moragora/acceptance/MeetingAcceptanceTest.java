@@ -24,6 +24,9 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
     @Test
     void add() {
         // given
+        // 라벨 테스팅
+        // 라벨 테스팅2
+
         final MeetingRequest meetingRequest = new MeetingRequest(
                 "모임1",
                 LocalDate.of(2022, 7, 10),
@@ -35,6 +38,8 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
 
         // when
         final ValidatableResponse response = post("/meetings", meetingRequest);
+
+
 
         // then
         response.statusCode(HttpStatus.CREATED.value())
