@@ -6,21 +6,20 @@ import * as S from './MeetingCreatePage.styled';
 import { css } from '@emotion/react';
 
 const MeetingCreatePage = () => {
+  const handleCreateMeetingSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const target = e.target as HTMLFormElement;
+    const formData = new FormData(target);
+    const formDataObject = Object.fromEntries(formData.entries());
+
+    console.log(formDataObject);
+  };
+
   return (
     <>
       <S.Layout>
-        <S.Form
-          id="meeting-create-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-
-            const target = e.target as HTMLFormElement;
-            const formData = new FormData(target);
-            const formDataObject = Object.fromEntries(formData.entries());
-
-            console.log(formDataObject);
-          }}
-        >
+        <S.Form id="meeting-create-form" onSubmit={handleCreateMeetingSubmit}>
           <S.FieldBox>
             <S.Label>
               모임명
