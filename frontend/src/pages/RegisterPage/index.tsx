@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import Input from '../../components/@shared/Input';
 import * as S from './RegisterPage.styled';
-import { css } from '@emotion/react';
 import useForm from '../../hooks/useForm';
-import DialogButton from '../../components/@shared/DialogButton';
 import { useNavigate } from 'react-router-dom';
 import InputHint from 'components/@shared/InputHint';
 
@@ -87,13 +85,8 @@ const RegisterPage = () => {
         <S.FieldBox>
           <S.Label>
             이메일
-            <div
-              css={css`
-                display: flex;
-                gap: 0.75rem;
-              `}
-            >
-              <Input
+            <S.EmailBox>
+              <S.EmailInput
                 type="email"
                 {...register('email', {
                   required: true,
@@ -101,21 +94,15 @@ const RegisterPage = () => {
                     setIsEmailExist(true);
                   },
                 })}
-                css={css`
-                  flex: 1;
-                `}
               />
-              <DialogButton
-                css={css`
-                  border-radius: 0.5rem;
-                `}
+              <S.EmailCheckButton
                 variant="confirm"
                 onClick={handleCheckEmailButtonClick}
                 disabled={!isEmailExist}
               >
                 중복확인
-              </DialogButton>
-            </div>
+              </S.EmailCheckButton>
+            </S.EmailBox>
           </S.Label>
           <InputHint
             condition={errors['email'] !== ''}
