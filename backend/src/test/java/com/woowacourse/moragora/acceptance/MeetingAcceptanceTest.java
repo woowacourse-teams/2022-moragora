@@ -25,6 +25,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
     void add() {
         // given
         // 라벨 테스팅
+        // 라벨 테스팅2
 
         final MeetingRequest meetingRequest = new MeetingRequest(
                 "모임1",
