@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import Button from 'components/@shared/Button';
 
 export const Layout = styled.div`
   display: flex;
@@ -38,6 +39,10 @@ export const ButtonBox = styled.div`
   flex-direction: column;
   gap: 1.5rem;
   align-items: center;
+`;
+
+export const RegisterButton = styled(Button)`
+  width: 382px;
 `;
 
 export const LoginHintParagraph = styled.p``;

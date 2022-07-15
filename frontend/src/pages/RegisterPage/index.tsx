@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Input from '../../components/@shared/Input';
-import Button from '../../components/@shared/Button';
 import * as S from './RegisterPage.styled';
 import { css } from '@emotion/react';
 import useForm from '../../hooks/useForm';
@@ -180,16 +179,13 @@ const RegisterPage = () => {
         </S.FieldBox>
       </S.Form>
       <S.ButtonBox>
-        <Button
+        <S.RegisterButton
           type="submit"
           form="register-form"
-          css={css`
-            width: 382px;
-          `}
           disabled={isSubmitting}
         >
           회원가입
-        </Button>
+        </S.RegisterButton>
         <S.LoginHintParagraph>
           이미 가입된 계정이 있으신가요?
           <S.LoginLink href="">로그인</S.LoginLink>
