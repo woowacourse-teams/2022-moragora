@@ -91,16 +91,9 @@ const MeetingPage = () => {
     return (
       <>
         <S.Layout>
-          <div
-            css={css`
-              flex: 1;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-            `}
-          >
+          <S.SpinnerBox>
             <Spinner />
-          </div>
+          </S.SpinnerBox>
         </S.Layout>
         <Footer>
           <Button form="attendance-form" type="submit" disabled>

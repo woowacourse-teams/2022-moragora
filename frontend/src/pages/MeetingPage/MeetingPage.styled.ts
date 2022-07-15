@@ -7,6 +7,13 @@ export const Layout = styled.div`
   overflow: hidden;
 `;
 
+export const SpinnerBox = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 export const MeetingDetailSection = styled.section`
   display: flex;
   flex-direction: column;
