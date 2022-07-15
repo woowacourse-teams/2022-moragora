@@ -1,10 +1,8 @@
-import { css } from '@emotion/react';
 import React from 'react';
 import Button from '../../components/@shared/Button';
 import Footer from '../../components/layouts/Footer';
 import * as S from './MeetingListPage.styled';
 import CoffeeIconSVG from '../../assets/coffee.svg';
-import { Link } from 'react-router-dom';
 import MeetingItem from 'components/MeetingItem';
 
 const meetings = [
@@ -201,23 +199,11 @@ const MeetingListPage = () => {
         <S.TimeSection>
           <S.DateBox>
             <S.Title>Today</S.Title>
-            <p
-              css={css`
-                font-size: 1.5rem;
-              `}
-            >
-              6월 23일 월
-            </p>
+            <S.DateParagraph>6월 23일 월</S.DateParagraph>
           </S.DateBox>
           <S.DateBox>
             <S.Title>Time</S.Title>
-            <p
-              css={css`
-                font-size: 1.5rem;
-              `}
-            >
-              AM 10:01
-            </p>
+            <S.DateParagraph>AM 10:01</S.DateParagraph>
           </S.DateBox>
         </S.TimeSection>
         <S.MeetingListSection>
@@ -227,16 +213,9 @@ const MeetingListPage = () => {
           </S.TitleBox>
           <S.MeetingList>
             {meetings.map((meeting) => (
-              <Link
-                key={meeting.id}
-                to={`/meeting/${meeting.id}`}
-                css={css`
-                  color: inherit;
-                  text-decoration: inherit;
-                `}
-              >
+              <S.MeetingItemLink key={meeting.id} to={`/meeting/${meeting.id}`}>
                 <MeetingItem meeting={meeting} />
-              </Link>
+              </S.MeetingItemLink>
             ))}
           </S.MeetingList>
         </S.MeetingListSection>

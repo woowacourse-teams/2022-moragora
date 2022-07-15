@@ -28,6 +28,11 @@ export const TimeSection = styled.section`
 
 export const MeetingListSection = styled.section``;
 
+export const MeetingItemLink = styled(Link)`
+  color: inherit;
+  text-decoration: inherit;
+`;
+
 export const TitleBox = styled.div`
   display: flex;
   align-items: center;
