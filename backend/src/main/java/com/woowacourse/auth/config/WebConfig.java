@@ -19,13 +19,19 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(final InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor(jwtTokenProvider))
+        final LoginInterceptor interceptor = loginInterceptor();
+        registry.addInterceptor(interceptor)
                 .addPathPatterns("/**");
     }
 
     @Override
     public void addArgumentResolvers(final List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(loginArgumentResolver());
+    }
+
+    @Bean
+    public LoginInterceptor loginInterceptor() {
+        return new LoginInterceptor(jwtTokenProvider);
     }
 
     @Bean
