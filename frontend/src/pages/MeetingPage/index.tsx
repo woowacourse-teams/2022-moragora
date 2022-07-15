@@ -176,9 +176,11 @@ const MeetingPage = () => {
                   >
                     <span>{user.nickname}</span>
                     <S.CoffeeIconImageBox>
-                      {Array.from({ length: user.tardyCount }).map(() => (
-                        <S.CoffeeIconImage src={CoffeeIconSVG} />
-                      ))}
+                      {Array.from({ length: user.tardyCount }).map(
+                        (_, index) => (
+                          <S.CoffeeIconImage src={CoffeeIconSVG} key={index} />
+                        )
+                      )}
                     </S.CoffeeIconImageBox>
                   </div>
                   <Checkbox />
