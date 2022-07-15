@@ -38,6 +38,8 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
 
 
 
+
+
         // then
         response.statusCode(HttpStatus.OK.value())
                 .header("Location", notNullValue());
