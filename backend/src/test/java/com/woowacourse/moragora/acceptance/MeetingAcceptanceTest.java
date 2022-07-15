@@ -51,7 +51,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         final ValidatableResponse response = get("/meetings/" + id);
 
         // then
-        response.statusCode(HttpStatus.OK.value())
+        response.statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("id", equalTo(id))
                 .body("name", equalTo("모임1"))
                 .body("attendanceCount", equalTo(0))
