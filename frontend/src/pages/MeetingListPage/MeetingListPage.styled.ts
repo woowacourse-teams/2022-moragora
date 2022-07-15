@@ -15,6 +15,10 @@ export const DateBox = styled.div`
   gap: 0.5rem;
 `;
 
+export const DateParagraph = styled.p`
+  font-size: 1.5rem;
+`;
+
 export const TimeSection = styled.section`
   // global padding
   padding: 0.75rem;
@@ -58,25 +62,6 @@ export const MeetingList = styled.ul`
   gap: 1rem;
   overflow: scroll;
 `;
-
-export const MeetingItem = styled.li`
-  min-width: 160px;
-  height: 160px;
-  padding: 1.25rem;
-  border-radius: 2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-
-  box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.1);
-`;
-
-export const MeetingIconImage = styled.img`
-  width: 2rem;
-  height: 2rem;
-`;
-
-export const MeetingNameSpan = styled.span``;
 
 export const CoffeeStackSection = styled.section`
   display: flex;
