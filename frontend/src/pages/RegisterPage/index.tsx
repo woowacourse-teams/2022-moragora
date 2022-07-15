@@ -105,7 +105,7 @@ const RegisterPage = () => {
             </S.EmailBox>
           </S.Label>
           <InputHint
-            condition={errors['email'] !== ''}
+            isShow={errors['email'] !== ''}
             message={errors['email']}
           />
         </S.FieldBox>
@@ -127,7 +127,7 @@ const RegisterPage = () => {
             />
           </S.Label>
           <InputHint
-            condition={errors['password'] !== ''}
+            isShow={errors['password'] !== ''}
             message={errors['password']}
           />
         </S.FieldBox>
@@ -147,11 +147,11 @@ const RegisterPage = () => {
             />
           </S.Label>
           <InputHint
-            condition={errors['passwordConfirm'] !== ''}
+            isShow={errors['passwordConfirm'] !== ''}
             message={errors['passwordConfirm']}
           />
           <InputHint
-            condition={!isValidPasswordConfirm}
+            isShow={!isValidPasswordConfirm}
             message="비밀번호가 다릅니다."
           />
         </S.FieldBox>
@@ -166,7 +166,7 @@ const RegisterPage = () => {
             />
           </S.Label>
           <InputHint
-            condition={errors['nickname'] !== ''}
+            isShow={errors['nickname'] !== ''}
             message={errors['nickname']}
           />
         </S.FieldBox>

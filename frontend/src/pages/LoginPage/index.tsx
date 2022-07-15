@@ -45,7 +45,7 @@ const LoginPage = () => {
             <Input type="email" {...register('email', { required: true })} />
           </S.Label>
           <InputHint
-            condition={errors['email'] !== ''}
+            isShow={errors['email'] !== ''}
             message={errors['email']}
           />
         </S.FieldBox>
@@ -60,7 +60,7 @@ const LoginPage = () => {
             />
           </S.Label>
           <InputHint
-            condition={errors['password'] !== ''}
+            isShow={errors['password'] !== ''}
             message={errors['password']}
           />
         </S.FieldBox>
