@@ -1,6 +1,6 @@
 package com.woowacourse.moragora.controller;
 
-import com.woowacourse.auth.support.Login;
+import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.UserAttendancesRequest;
@@ -27,21 +27,21 @@ public class MeetingController {
     }
 
     @PostMapping
-    @Login
+    @Authentication
     public ResponseEntity<Void> add(@RequestBody @Valid final MeetingRequest request) {
         final Long id = meetingService.save(request);
         return ResponseEntity.created(URI.create("/meetings/" + id)).build();
     }
 
     @GetMapping("/{id}")
-    @Login
+    @Authentication
     public ResponseEntity<MeetingResponse> findOne(@PathVariable final Long id) {
         final MeetingResponse meetingResponse = meetingService.findById(id);
         return ResponseEntity.ok(meetingResponse);
     }
 
     @PatchMapping("/{id}")
-    @Login
+    @Authentication
     public ResponseEntity<Void> endAttendance(@PathVariable final Long id,
                                               @RequestBody final UserAttendancesRequest request) {
         meetingService.updateAttendance(id, request);
