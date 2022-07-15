@@ -38,7 +38,6 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
 
 
 
-
         // then
         response.statusCode(HttpStatus.BAD_REQUEST.value())
                 .header("Location", notNullValue());
