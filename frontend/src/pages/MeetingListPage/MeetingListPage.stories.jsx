@@ -7,6 +7,11 @@ import MeetingListPage from '.';
 export default {
   title: 'Pages/MeetingListPage',
   component: MeetingListPage,
+  parameters: {
+    reactRouter: {
+      routePath: '/meeting',
+    },
+  },
 };
 
 const Template = (args) => {
