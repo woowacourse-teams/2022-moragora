@@ -28,19 +28,5 @@ Default.args = {
     endDate: '2022-12-31',
     entranceTime: '10:00',
     leaveTime: '18:00',
-    users: [
-      {
-        id: 1,
-        email: 'gildong@gmail.com',
-        nickname: 'KoreanThief',
-        tardyCount: 3,
-      },
-      {
-        id: 2,
-        email: 'boki@gmail.com',
-        nickname: 'boki',
-        tardyCount: 2,
-      },
-    ],
   },
 };
