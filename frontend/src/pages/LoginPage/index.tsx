@@ -1,11 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Input from '../../components/@shared/Input';
 import Button from '../../components/@shared/Button';
 import * as S from './LoginPage.styled';
 import { css } from '@emotion/react';
 import useForm from '../../hooks/useForm';
-import { useNavigate } from 'react-router-dom';
-import InputHint from 'components/@shared/InputHint';
+import InputHint from '../../components/@shared/InputHint';
 
 const submitLogin = async (url: string, payload: any) => {
   return fetch(url, {
@@ -66,16 +66,9 @@ const LoginPage = () => {
         </S.FieldBox>
       </S.Form>
       <S.ButtonBox>
-        <Button
-          type="submit"
-          form="login-form"
-          css={css`
-            width: 382px;
-          `}
-          disabled={isSubmitting}
-        >
+        <S.LoginButton type="submit" form="login-form" disabled={isSubmitting}>
           로그인
-        </Button>
+        </S.LoginButton>
         <S.RegisterHintParagraph>
           모라고라가 처음이신가요?
           <S.RegisterLink to="/register">회원가입</S.RegisterLink>

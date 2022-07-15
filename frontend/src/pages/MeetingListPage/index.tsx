@@ -3,7 +3,7 @@ import Button from '../../components/@shared/Button';
 import Footer from '../../components/layouts/Footer';
 import * as S from './MeetingListPage.styled';
 import CoffeeIconSVG from '../../assets/coffee.svg';
-import MeetingItem from 'components/MeetingItem';
+import MeetingItem from '../../components/MeetingItem';
 
 const meetings = [
   {

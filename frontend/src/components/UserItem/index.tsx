@@ -2,7 +2,7 @@ import { css } from '@emotion/react';
 import React from 'react';
 import * as S from './UserItem.styled';
 import CoffeeIconSVG from '../../assets/coffee.svg';
-import Checkbox from 'components/@shared/Checkbox';
+import Checkbox from '../../components/@shared/Checkbox';
 
 type User = {
   id: 1;

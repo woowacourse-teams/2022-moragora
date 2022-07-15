@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import * as S from './MeetingPage.styled';
 import Footer from '../../components/layouts/Footer';
 import Button from '../../components/@shared/Button';
-import { css } from '@emotion/react';
 import useFetch from '../../hooks/useFetch';
 import Spinner from '../../components/@shared/Spinner';
 import ErrorIcon from '../../components/@shared/ErrorIcon';
