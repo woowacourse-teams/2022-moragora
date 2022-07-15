@@ -1,9 +1,8 @@
 import React from 'react';
-import { css } from '@emotion/react';
 import * as S from './Header.styled';
-import Logo from '../../Logo';
 import ChevronLeftIconSVG from '../../../assets/chevron-left.svg';
-import { Link, useNavigate } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
+import Avatar from '../../@shared/Avatar';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -14,11 +13,32 @@ const Header = () => {
 
   return (
     <S.Layout>
-      <S.Box>
-        <S.BackwardButton type="button" onClick={handleClick}>
-          <S.ChevronLeftImage src={ChevronLeftIconSVG} />
-        </S.BackwardButton>
-      </S.Box>
+      <Routes>
+        <Route
+          path="/meeting"
+          element={
+            <S.AvatarMessageBox>
+              <S.Box>
+                <Avatar />
+              </S.Box>
+              <S.WelcomeMessageBox>
+                <p>반갑습니다.</p>
+                <S.NicknameParagraph>쿤</S.NicknameParagraph>
+              </S.WelcomeMessageBox>
+            </S.AvatarMessageBox>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <S.Box>
+              <S.BackwardButton type="button" onClick={handleClick}>
+                <S.ChevronLeftImage src={ChevronLeftIconSVG} />
+              </S.BackwardButton>
+            </S.Box>
+          }
+        />
+      </Routes>
       <S.Box />
     </S.Layout>
   );
