@@ -225,7 +225,7 @@ const MeetingListPage = () => {
           </S.TitleBox>
           <S.CoffeeStackList>
             {meetings.map((meeting) => (
-              <S.CoffeeStackItem>
+              <S.CoffeeStackItem key={meeting.id}>
                 <span>{meeting.name}</span>
                 <S.CoffeeIconImageBox>
                   <S.CoffeeIconImage src={CoffeeIconSVG} />
