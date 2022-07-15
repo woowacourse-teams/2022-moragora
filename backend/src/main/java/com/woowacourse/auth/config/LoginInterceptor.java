@@ -1,12 +1,13 @@
 package com.woowacourse.auth.config;
 
-import com.woowacourse.auth.exception.UnauthorizedTokenException;
 import com.woowacourse.auth.support.AuthorizationExtractor;
 import com.woowacourse.auth.support.JwtTokenProvider;
-import com.woowacourse.auth.support.Login;
+import com.woowacourse.auth.support.Authentication;
+import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -25,25 +26,25 @@ public class LoginInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        if (!hasAnnotation(handler)) {
+        if (isNotAnnotated(handler)) {
             return true;
         }
 
-        validateToken(request);
+        if (!isValidateToken(request)) {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            return false;
+        }
         return true;
     }
 
-    private boolean hasAnnotation(final Object handler) {
+    private boolean isNotAnnotated(final Object handler) {
         final HandlerMethod handlerMethod = (HandlerMethod) handler;
-
-        return null != handlerMethod.getMethodAnnotation(Login.class);
+        final Authentication login = handlerMethod.getMethodAnnotation(Authentication.class);
+        return Objects.isNull(login);
     }
 
-    private void validateToken(final HttpServletRequest request) {
+    private boolean isValidateToken(final HttpServletRequest request) {
         final String token = AuthorizationExtractor.extract(request);
-        final boolean isValidate = jwtTokenProvider.validateToken(token);
-        if (!isValidate) {
-            throw new UnauthorizedTokenException();
-        }
+        return jwtTokenProvider.validateToken(token);
     }
 }

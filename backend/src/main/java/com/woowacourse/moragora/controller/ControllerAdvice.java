@@ -2,10 +2,8 @@ package com.woowacourse.moragora.controller;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import com.woowacourse.auth.exception.LoginFailException;
-import com.woowacourse.auth.exception.UnauthorizedTokenException;
 import com.woowacourse.moragora.dto.ErrorResponse;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
@@ -59,10 +57,5 @@ public class ControllerAdvice {
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleLoginFailException(final Exception exception) {
         return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler(UnauthorizedTokenException.class)
-    @ResponseStatus(UNAUTHORIZED)
-    public void handleUnauthorizedException() {
     }
 }
