@@ -36,6 +36,8 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         // when
         final ValidatableResponse response = post("/meetings", meetingRequest);
 
+
+
         // then
         response.statusCode(HttpStatus.CREATED.value())
                 .header("Location", notNullValue());
