@@ -11,9 +11,8 @@ import ModalWindow from '../../components/@shared/ModalWindow';
 import DivideLine from '../../components/@shared/DivideLine';
 import ReloadButton from '../../components/@shared/ReloadButton';
 import useForm from '../../hooks/useForm';
-import CoffeeIconSVG from '../../assets/coffee.svg';
-import Checkbox from '../../components/@shared/Checkbox';
 import { useParams } from 'react-router-dom';
+import UserItem from '../../components/UserItem';
 
 type User = {
   id: 1;
@@ -166,25 +165,7 @@ const MeetingPage = () => {
           <S.Form id="attendance-form" {...onSubmit(handleSubmit)}>
             <S.UserList>
               {meetingState.data.users.map((user) => (
-                <S.UserItem key={user.id}>
-                  <div
-                    css={css`
-                      display: flex;
-                      flex-direction: column;
-                      gap: 0.5rem;
-                    `}
-                  >
-                    <span>{user.nickname}</span>
-                    <S.CoffeeIconImageBox>
-                      {Array.from({ length: user.tardyCount }).map(
-                        (_, index) => (
-                          <S.CoffeeIconImage src={CoffeeIconSVG} key={index} />
-                        )
-                      )}
-                    </S.CoffeeIconImageBox>
-                  </div>
-                  <Checkbox />
-                </S.UserItem>
+                <UserItem user={user} />
               ))}
             </S.UserList>
           </S.Form>
