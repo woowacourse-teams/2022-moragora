@@ -108,23 +108,14 @@ const MeetingPage = () => {
     return (
       <>
         <S.Layout>
-          <div
-            css={css`
-              flex: 1;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-              gap: 2rem;
-            `}
-          >
+          <S.ErrorBox>
             <ErrorIcon />
             <ReloadButton
               onClick={() => {
                 meetingState.refetch();
               }}
             />
-          </div>
+          </S.ErrorBox>
         </S.Layout>
         <Footer>
           <Button form="attendance-form" type="submit" disabled>

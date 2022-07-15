@@ -14,6 +14,15 @@ export const SpinnerBox = styled.div`
   align-items: center;
 `;
 
+export const ErrorBox = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+`;
+
 export const MeetingDetailSection = styled.section`
   display: flex;
   flex-direction: column;
