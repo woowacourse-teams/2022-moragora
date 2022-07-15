@@ -3,6 +3,7 @@ package com.woowacourse.moragora.acceptance;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
@@ -38,7 +39,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
 
         // then
         response.statusCode(HttpStatus.CREATED.value())
-                .header("Location", notNullValue());
+                .header("Location", nullValue());
     }
 
     @DisplayName("사용자가 특정 모임을 조회하면 해당 모임 상세 정보와 상태코드 200을 반환한다.")
