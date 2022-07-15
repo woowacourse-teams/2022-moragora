@@ -55,7 +55,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.OK.value())
                 .body("id", equalTo(id))
                 .body("name", equalTo("모임1"))
-                .body("attendanceCount", equalTo(0))
+                .body("attendanceCount", equalTo(1))
                 .body("startDate", equalTo("2022-07-10"))
                 .body("endDate", equalTo("2022-08-10"))
                 .body("entranceTime", equalTo("10:00:00"))
