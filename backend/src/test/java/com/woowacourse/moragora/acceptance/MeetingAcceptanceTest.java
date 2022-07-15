@@ -36,10 +36,8 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         // when
         final ValidatableResponse response = post("/meetings", meetingRequest);
 
-
-
         // then
-        response.statusCode(HttpStatus.BAD_REQUEST.value())
+        response.statusCode(HttpStatus.OK.value())
                 .header("Location", notNullValue());
     }
 
