@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import Button from '../../components/@shared/Button';
 
 export const Layout = styled.div`
   display: flex;
@@ -25,4 +26,13 @@ export const Label = styled.div`
   flex-direction: column;
   gap: 0.5rem;
   overflow: hidden;
+`;
+
+export const AddMemberParagraph = styled.p`
+  display: flex;
+  justify-content: space-between;
+`;
+
+export const MeetingCreateButton = styled(Button)`
+  margin-top: 32px;
 `;
