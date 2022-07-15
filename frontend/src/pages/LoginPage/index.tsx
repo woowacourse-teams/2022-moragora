@@ -5,6 +5,7 @@ import * as S from './LoginPage.styled';
 import { css } from '@emotion/react';
 import useForm from '../../hooks/useForm';
 import { useNavigate } from 'react-router-dom';
+import InputHint from 'components/@shared/InputHint';
 
 const submitLogin = async (url: string, payload: any) => {
   return fetch(url, {
@@ -43,9 +44,10 @@ const LoginPage = () => {
             이메일
             <Input type="email" {...register('email', { required: true })} />
           </S.Label>
-          {errors['email'] !== '' && (
-            <S.InputHint>{errors['email']}</S.InputHint>
-          )}
+          <InputHint
+            condition={errors['email'] !== ''}
+            message={errors['email']}
+          />
         </S.FieldBox>
         <S.FieldBox>
           <S.Label>
@@ -57,9 +59,10 @@ const LoginPage = () => {
               })}
             />
           </S.Label>
-          {errors['password'] !== '' && (
-            <S.InputHint>{errors['password']}</S.InputHint>
-          )}
+          <InputHint
+            condition={errors['password'] !== ''}
+            message={errors['password']}
+          />
         </S.FieldBox>
       </S.Form>
       <S.ButtonBox>

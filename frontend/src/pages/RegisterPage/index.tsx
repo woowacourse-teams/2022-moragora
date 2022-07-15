@@ -5,6 +5,7 @@ import { css } from '@emotion/react';
 import useForm from '../../hooks/useForm';
 import DialogButton from '../../components/@shared/DialogButton';
 import { useNavigate } from 'react-router-dom';
+import InputHint from 'components/@shared/InputHint';
 
 const checkEmail = async (url: string) => {
   return fetch(url, {
@@ -116,9 +117,10 @@ const RegisterPage = () => {
               </DialogButton>
             </div>
           </S.Label>
-          {errors['email'] !== '' && (
-            <S.InputHint>{errors['email']}</S.InputHint>
-          )}
+          <InputHint
+            condition={errors['email'] !== ''}
+            message={errors['email']}
+          />
         </S.FieldBox>
         <S.FieldBox>
           <S.Label>
@@ -137,9 +139,10 @@ const RegisterPage = () => {
               })}
             />
           </S.Label>
-          {errors['password'] !== '' && (
-            <S.InputHint>{errors['password']}</S.InputHint>
-          )}
+          <InputHint
+            condition={errors['password'] !== ''}
+            message={errors['password']}
+          />
         </S.FieldBox>
         <S.FieldBox>
           <S.Label>
@@ -156,12 +159,14 @@ const RegisterPage = () => {
               })}
             />
           </S.Label>
-          {errors['passwordConfirm'] !== '' && (
-            <S.InputHint>{errors['passwordConfirm']}</S.InputHint>
-          )}
-          {!isValidPasswordConfirm && (
-            <S.InputHint>비밀번호가 다릅니다.</S.InputHint>
-          )}
+          <InputHint
+            condition={errors['passwordConfirm'] !== ''}
+            message={errors['passwordConfirm']}
+          />
+          <InputHint
+            condition={!isValidPasswordConfirm}
+            message="비밀번호가 다릅니다."
+          />
         </S.FieldBox>
         <S.FieldBox>
           <S.Label>
@@ -173,9 +178,10 @@ const RegisterPage = () => {
               })}
             />
           </S.Label>
-          {errors['nickname'] !== '' && (
-            <S.InputHint>{errors['nickname']}</S.InputHint>
-          )}
+          <InputHint
+            condition={errors['nickname'] !== ''}
+            message={errors['nickname']}
+          />
         </S.FieldBox>
       </S.Form>
       <S.ButtonBox>
