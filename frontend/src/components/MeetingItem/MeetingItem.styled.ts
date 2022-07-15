@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-export const MeetingItem = styled.li`
+export const Layout = styled.li`
   min-width: 160px;
   height: 160px;
   padding: 1.25rem;
