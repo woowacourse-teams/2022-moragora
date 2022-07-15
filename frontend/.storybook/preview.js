@@ -4,6 +4,7 @@ import { initialize, mswDecorator } from 'msw-storybook-addon';
 import handlers from '../src/mocks/handlers';
 import { ThemeProvider } from '@emotion/react';
 import { theme } from '../src/styles/themes/theme';
+import { withRouter } from 'storybook-addon-react-router-v6';
 
 // Initialize MSW
 initialize();
@@ -11,6 +12,7 @@ initialize();
 // Provide decorators globally
 export const decorators = [
   mswDecorator,
+  withRouter,
   (Story) => (
     <>
       <GlobalStyles />
@@ -24,6 +26,9 @@ export const decorators = [
 export const parameters = {
   msw: {
     handlers,
+  },
+  reactRouter: {
+    routePath: '*',
   },
   actions: { argTypesRegex: '^on[A-Z].*' },
   controls: {

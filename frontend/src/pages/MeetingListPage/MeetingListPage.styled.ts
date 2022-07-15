@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Link } from 'react-router-dom';
 
 export const Layout = styled.div`
   display: flex;
@@ -38,8 +39,10 @@ export const Title = styled.h2`
   color: ${({ theme: { colors } }) => colors['subtle-dark']};
 `;
 
-export const Link = styled.a`
+export const PageLink = styled(Link)`
   font-size: 0.75rem;
+  text-decoration: none;
+  color: ${({ theme: { colors } }) => colors['primary']};
 `;
 
 export const MeetingList = styled.ul`
