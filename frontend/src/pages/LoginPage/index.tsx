@@ -4,6 +4,7 @@ import Button from '../../components/@shared/Button';
 import * as S from './LoginPage.styled';
 import { css } from '@emotion/react';
 import useForm from '../../hooks/useForm';
+import { useNavigate } from 'react-router-dom';
 
 const submitLogin = async (url: string, payload: any) => {
   return fetch(url, {
@@ -16,6 +17,7 @@ const submitLogin = async (url: string, payload: any) => {
 };
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const { errors, isSubmitting, onSubmit, register } = useForm();
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -23,9 +25,14 @@ const LoginPage = () => {
     const formData = new FormData(target);
     const formDataObject = Object.fromEntries(formData.entries());
 
-    await submitLogin('/login', formDataObject);
+    const res = await submitLogin('/login', formDataObject);
+    if (!res.ok) {
+      alert('로그인 실패');
+      return;
+    }
 
-    alert('로그인 성공');
+    const accessToken = await res.json().then((data) => data.accessToken);
+    navigate('/meeting');
   };
 
   return (
@@ -68,7 +75,7 @@ const LoginPage = () => {
         </Button>
         <S.RegisterHintParagraph>
           모라고라가 처음이신가요?
-          <S.RegisterLink href="">회원가입</S.RegisterLink>
+          <S.RegisterLink to="/register">회원가입</S.RegisterLink>
         </S.RegisterHintParagraph>
       </S.ButtonBox>
     </S.Layout>

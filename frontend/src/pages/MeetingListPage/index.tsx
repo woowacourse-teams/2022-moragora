@@ -5,6 +5,7 @@ import Footer from '../../components/layouts/Footer';
 import * as S from './MeetingListPage.styled';
 import MeetingIconSVG from '../../assets/meeting.svg';
 import CoffeeIconSVG from '../../assets/coffee.svg';
+import { Link } from 'react-router-dom';
 
 const meetings = [
   {
@@ -222,29 +223,37 @@ const MeetingListPage = () => {
         <S.MeetingListSection>
           <S.TitleBox>
             <S.Title>참여 중인 모임</S.Title>
-            <S.Link>생성하기</S.Link>
+            <S.PageLink to="/meeting/create">생성하기</S.PageLink>
           </S.TitleBox>
           <S.MeetingList>
             {meetings.map((meeting) => (
-              <S.MeetingItem key={meeting.id}>
-                <S.MeetingIconImage src={MeetingIconSVG} />
-                <S.MeetingNameSpan>{meeting.name}</S.MeetingNameSpan>
-                <S.MeetingNameSpan>10:00 ~ 10:05</S.MeetingNameSpan>
-                <S.MeetingNameSpan
-                  css={css`
-                    align-self: flex-end;
-                  `}
-                >
-                  체크인하세요!
-                </S.MeetingNameSpan>
-              </S.MeetingItem>
+              <Link
+                key={meeting.id}
+                to={`/meeting/${meeting.id}`}
+                css={css`
+                  color: inherit;
+                  text-decoration: inherit;
+                `}
+              >
+                <S.MeetingItem>
+                  <S.MeetingIconImage src={MeetingIconSVG} />
+                  <S.MeetingNameSpan>{meeting.name}</S.MeetingNameSpan>
+                  <S.MeetingNameSpan>10:00 ~ 10:05</S.MeetingNameSpan>
+                  <S.MeetingNameSpan
+                    css={css`
+                      align-self: flex-end;
+                    `}
+                  >
+                    체크인하세요!
+                  </S.MeetingNameSpan>
+                </S.MeetingItem>
+              </Link>
             ))}
           </S.MeetingList>
         </S.MeetingListSection>
         <S.CoffeeStackSection>
           <S.TitleBox>
             <S.Title>커피 스택</S.Title>
-            <S.Link>전체 보기</S.Link>
           </S.TitleBox>
           <S.CoffeeStackList>
             {meetings.map((meeting) => (
