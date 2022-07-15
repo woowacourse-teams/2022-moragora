@@ -14,7 +14,7 @@ import { useParams } from 'react-router-dom';
 import UserItem from '../../components/UserItem';
 
 type User = {
-  id: 1;
+  id: number;
   email: string;
   password: string;
   nickname: string;
@@ -148,7 +148,7 @@ const MeetingPage = () => {
           <S.Form id="attendance-form" {...onSubmit(handleSubmit)}>
             <S.UserList>
               {meetingState.data.users.map((user) => (
-                <UserItem user={user} />
+                <UserItem key={user.id} user={user} />
               ))}
             </S.UserList>
           </S.Form>

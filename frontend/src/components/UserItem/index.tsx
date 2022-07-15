@@ -5,7 +5,7 @@ import CoffeeIconSVG from '../../assets/coffee.svg';
 import Checkbox from '../../components/@shared/Checkbox';
 
 type User = {
-  id: 1;
+  id: number;
   email: string;
   password: string;
   nickname: string;
@@ -19,7 +19,7 @@ type UserItemProps = {
 
 const UserItem: React.FC<UserItemProps> = ({ user }) => {
   return (
-    <S.Layout key={user.id}>
+    <S.Layout>
       <S.Box>
         <span>{user.nickname}</span>
         <S.CoffeeIconImageBox>
