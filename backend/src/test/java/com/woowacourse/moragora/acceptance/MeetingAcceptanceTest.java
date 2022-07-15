@@ -25,6 +25,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
     @Test
     void add() {
         // given
+
         final MeetingRequest meetingRequest = new MeetingRequest(
                 "모임1",
                 LocalDate.of(2022, 7, 10),
