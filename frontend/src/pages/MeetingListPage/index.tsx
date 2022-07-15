@@ -3,9 +3,9 @@ import React from 'react';
 import Button from '../../components/@shared/Button';
 import Footer from '../../components/layouts/Footer';
 import * as S from './MeetingListPage.styled';
-import MeetingIconSVG from '../../assets/meeting.svg';
 import CoffeeIconSVG from '../../assets/coffee.svg';
 import { Link } from 'react-router-dom';
+import MeetingItem from 'components/MeetingItem';
 
 const meetings = [
   {
@@ -235,18 +235,7 @@ const MeetingListPage = () => {
                   text-decoration: inherit;
                 `}
               >
-                <S.MeetingItem>
-                  <S.MeetingIconImage src={MeetingIconSVG} />
-                  <S.MeetingNameSpan>{meeting.name}</S.MeetingNameSpan>
-                  <S.MeetingNameSpan>10:00 ~ 10:05</S.MeetingNameSpan>
-                  <S.MeetingNameSpan
-                    css={css`
-                      align-self: flex-end;
-                    `}
-                  >
-                    체크인하세요!
-                  </S.MeetingNameSpan>
-                </S.MeetingItem>
+                <MeetingItem meeting={meeting} />
               </Link>
             ))}
           </S.MeetingList>
