@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import MeetingItem from '.';
 
 export default {
@@ -6,7 +7,15 @@ export default {
 };
 
 const Template = (args) => {
-  return <MeetingItem {...args} />;
+  return (
+    <div
+      css={css`
+        width: 30rem;
+      `}
+    >
+      <MeetingItem {...args} />
+    </div>
+  );
 };
 
 export const Default = Template.bind({});

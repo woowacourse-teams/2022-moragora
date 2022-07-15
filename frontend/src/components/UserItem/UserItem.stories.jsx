@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import UserItem from '.';
 
 export default {
@@ -6,7 +7,15 @@ export default {
 };
 
 const Template = (args) => {
-  return <UserItem {...args} />;
+  return (
+    <div
+      css={css`
+        width: 20rem;
+      `}
+    >
+      <UserItem {...args} />
+    </div>
+  );
 };
 
 export const Default = Template.bind({});
