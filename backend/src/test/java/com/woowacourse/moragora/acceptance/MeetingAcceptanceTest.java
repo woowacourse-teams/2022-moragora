@@ -50,6 +50,8 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         // when
         final ValidatableResponse response = get("/meetings/" + id);
 
+
+
         // then
         response.statusCode(HttpStatus.OK.value())
                 .body("id", equalTo(id))
