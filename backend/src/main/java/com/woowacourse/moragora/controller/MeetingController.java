@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/meetings")
+@Authentication
 public class MeetingController {
 
     private final MeetingService meetingService;
@@ -27,21 +28,18 @@ public class MeetingController {
     }
 
     @PostMapping
-    @Authentication
     public ResponseEntity<Void> add(@RequestBody @Valid final MeetingRequest request) {
         final Long id = meetingService.save(request);
         return ResponseEntity.created(URI.create("/meetings/" + id)).build();
     }
 
     @GetMapping("/{id}")
-    @Authentication
     public ResponseEntity<MeetingResponse> findOne(@PathVariable final Long id) {
         final MeetingResponse meetingResponse = meetingService.findById(id);
         return ResponseEntity.ok(meetingResponse);
     }
 
     @PatchMapping("/{id}")
-    @Authentication
     public ResponseEntity<Void> endAttendance(@PathVariable final Long id,
                                               @RequestBody final UserAttendancesRequest request) {
         meetingService.updateAttendance(id, request);

@@ -1,8 +1,8 @@
 package com.woowacourse.auth.config;
 
+import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthorizationExtractor;
 import com.woowacourse.auth.support.JwtTokenProvider;
-import com.woowacourse.auth.support.Authentication;
 import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,8 +20,8 @@ public class LoginInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler)
-            throws Exception {
+    public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response,
+                             final Object handler) {
         if (request.getMethod().equals((HttpMethod.OPTIONS.name()))) {
             return true;
         }
@@ -39,8 +39,9 @@ public class LoginInterceptor implements HandlerInterceptor {
 
     private boolean isNotAnnotated(final Object handler) {
         final HandlerMethod handlerMethod = (HandlerMethod) handler;
-        final Authentication login = handlerMethod.getMethodAnnotation(Authentication.class);
-        return Objects.isNull(login);
+        final Authentication classAnnotation = handlerMethod.getBean().getClass().getAnnotation(Authentication.class);
+        final Authentication methodAnnotation = handlerMethod.getMethodAnnotation(Authentication.class);
+        return Objects.isNull(classAnnotation) && Objects.isNull(methodAnnotation);
     }
 
     private boolean isValidateToken(final HttpServletRequest request) {
