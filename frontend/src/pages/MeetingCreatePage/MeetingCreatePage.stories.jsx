@@ -7,6 +7,11 @@ import MeetingCreatePage from '.';
 export default {
   title: 'Pages/MeetingCreatePage',
   component: MeetingCreatePage,
+  parameters: {
+    reactRouter: {
+      routePath: '/meeting/create',
+    },
+  },
 };
 
 const Template = (args) => {
