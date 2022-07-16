@@ -45,12 +45,16 @@ type MeetingItemProps = {
 const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
   return (
     <S.Layout>
-      <S.MeetingIconImage src={MeetingIconSVG} />
-      <span>{meeting.name}</span>
-      <span>
-        {meeting.entranceTime} ~ {addMinute(meeting.entranceTime, 5)}
-      </span>
-      <S.CheckInSpan>체크인하세요!</S.CheckInSpan>
+      <S.MeetingItemLink to={`/meeting/${meeting.id}`}>
+        <S.Box>
+          <S.MeetingIconImage src={MeetingIconSVG} />
+          <span>{meeting.name}</span>
+          <span>
+            {meeting.entranceTime} ~ {addMinute(meeting.entranceTime, 5)}
+          </span>
+          <S.CheckInSpan>체크인하세요!</S.CheckInSpan>
+        </S.Box>
+      </S.MeetingItemLink>
     </S.Layout>
   );
 };

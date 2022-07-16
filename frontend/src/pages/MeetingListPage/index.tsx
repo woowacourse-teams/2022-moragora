@@ -213,9 +213,9 @@ const MeetingListPage = () => {
           </S.TitleBox>
           <S.MeetingList>
             {meetings.map((meeting) => (
-              <S.MeetingItemLink key={meeting.id} to={`/meeting/${meeting.id}`}>
+              <li key={meeting.id}>
                 <MeetingItem meeting={meeting} />
-              </S.MeetingItemLink>
+              </li>
             ))}
           </S.MeetingList>
         </S.MeetingListSection>
