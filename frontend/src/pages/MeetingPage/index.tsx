@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import * as S from './MeetingPage.styled';
 import Footer from '../../components/layouts/Footer';
 import Button from '../../components/@shared/Button';
-import { css } from '@emotion/react';
 import useFetch from '../../hooks/useFetch';
 import Spinner from '../../components/@shared/Spinner';
 import ErrorIcon from '../../components/@shared/ErrorIcon';
@@ -11,12 +10,11 @@ import ModalWindow from '../../components/@shared/ModalWindow';
 import DivideLine from '../../components/@shared/DivideLine';
 import ReloadButton from '../../components/@shared/ReloadButton';
 import useForm from '../../hooks/useForm';
-import CoffeeIconSVG from '../../assets/coffee.svg';
-import Checkbox from '../../components/@shared/Checkbox';
 import { useParams } from 'react-router-dom';
+import UserItem from '../../components/UserItem';
 
 type User = {
-  id: 1;
+  id: number;
   email: string;
   password: string;
   nickname: string;
@@ -92,16 +90,9 @@ const MeetingPage = () => {
     return (
       <>
         <S.Layout>
-          <div
-            css={css`
-              flex: 1;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-            `}
-          >
+          <S.SpinnerBox>
             <Spinner />
-          </div>
+          </S.SpinnerBox>
         </S.Layout>
         <Footer>
           <Button form="attendance-form" type="submit" disabled>
@@ -116,23 +107,14 @@ const MeetingPage = () => {
     return (
       <>
         <S.Layout>
-          <div
-            css={css`
-              flex: 1;
-              display: flex;
-              flex-direction: column;
-              justify-content: center;
-              align-items: center;
-              gap: 2rem;
-            `}
-          >
+          <S.ErrorBox>
             <ErrorIcon />
             <ReloadButton
               onClick={() => {
                 meetingState.refetch();
               }}
             />
-          </div>
+          </S.ErrorBox>
         </S.Layout>
         <Footer>
           <Button form="attendance-form" type="submit" disabled>
@@ -166,25 +148,7 @@ const MeetingPage = () => {
           <S.Form id="attendance-form" {...onSubmit(handleSubmit)}>
             <S.UserList>
               {meetingState.data.users.map((user) => (
-                <S.UserItem key={user.id}>
-                  <div
-                    css={css`
-                      display: flex;
-                      flex-direction: column;
-                      gap: 0.5rem;
-                    `}
-                  >
-                    <span>{user.nickname}</span>
-                    <S.CoffeeIconImageBox>
-                      {Array.from({ length: user.tardyCount }).map(
-                        (_, index) => (
-                          <S.CoffeeIconImage src={CoffeeIconSVG} key={index} />
-                        )
-                      )}
-                    </S.CoffeeIconImageBox>
-                  </div>
-                  <Checkbox />
-                </S.UserItem>
+                <UserItem key={user.id} user={user} />
               ))}
             </S.UserList>
           </S.Form>

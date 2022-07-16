@@ -1,4 +1,7 @@
 import styled from '@emotion/styled';
+import Button from '../../components/@shared/Button';
+import DialogButton from '../../components/@shared/DialogButton';
+import Input from '../../components/@shared/Input';
 
 export const Layout = styled.div`
   display: flex;
@@ -29,8 +32,17 @@ export const Label = styled.div`
   overflow: hidden;
 `;
 
-export const InputHint = styled.p`
-  font-size: 0.5rem;
+export const EmailBox = styled.div`
+  display: flex;
+  gap: 0.75rem;
+`;
+
+export const EmailInput = styled(Input)`
+  flex: 1;
+`;
+
+export const EmailCheckButton = styled(DialogButton)`
+  border-radius: 0.5rem;
 `;
 
 export const ButtonBox = styled.div`
@@ -38,6 +50,10 @@ export const ButtonBox = styled.div`
   flex-direction: column;
   gap: 1.5rem;
   align-items: center;
+`;
+
+export const RegisterButton = styled(Button)`
+  width: 382px;
 `;
 
 export const LoginHintParagraph = styled.p``;
