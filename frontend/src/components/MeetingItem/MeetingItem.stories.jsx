@@ -7,15 +7,7 @@ export default {
 };
 
 const Template = (args) => {
-  return (
-    <div
-      css={css`
-        width: 30rem;
-      `}
-    >
-      <MeetingItem {...args} />
-    </div>
-  );
+  return <MeetingItem {...args} />;
 };
 
 export const Default = Template.bind({});

@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 
 export const Layout = styled.li`
-  min-width: 160px;
-  height: 160px;
+  width: 10rem;
+  height: 10rem;
   padding: 1.25rem;
   border-radius: 2rem;
   display: flex;
