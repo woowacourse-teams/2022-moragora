@@ -80,22 +80,3 @@ export const CoffeeStackList = styled.ul`
   overflow-x: hidden;
   overflow-y: scroll;
 `;
-
-export const CoffeeStackItem = styled.li`
-  padding: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  border-radius: 1rem;
-  background-color: ${({ theme: { colors } }) => colors['white']};
-`;
-
-export const CoffeeIconImageBox = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-`;
-
-export const CoffeeIconImage = styled.img`
-  width: 2rem;
-  height: 2rem;
-`;

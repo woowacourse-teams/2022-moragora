@@ -2,8 +2,8 @@ import React from 'react';
 import Button from '../../components/@shared/Button';
 import Footer from '../../components/layouts/Footer';
 import * as S from './MeetingListPage.styled';
-import CoffeeIconSVG from '../../assets/coffee.svg';
 import MeetingItem from '../../components/MeetingItem';
+import CoffeeStackItem from '../../components/CoffeeStackItem';
 
 const meetings = [
   {
@@ -225,27 +225,9 @@ const MeetingListPage = () => {
           </S.TitleBox>
           <S.CoffeeStackList>
             {meetings.map((meeting) => (
-              <S.CoffeeStackItem key={meeting.id}>
-                <span>{meeting.name}</span>
-                <S.CoffeeIconImageBox>
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                </S.CoffeeIconImageBox>
-              </S.CoffeeStackItem>
+              <li key={meeting.id}>
+                <CoffeeStackItem name={meeting.name} />
+              </li>
             ))}
           </S.CoffeeStackList>
         </S.CoffeeStackSection>
