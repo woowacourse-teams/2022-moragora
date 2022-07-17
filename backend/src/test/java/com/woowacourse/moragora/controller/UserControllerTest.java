@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.moragora.dto.SearchedUserResponse;
 import com.woowacourse.moragora.dto.SearchedUsersResponse;
 import com.woowacourse.moragora.dto.UserRequest;
+import com.woowacourse.moragora.exception.NoKeywordException;
 import com.woowacourse.moragora.service.UserService;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -117,5 +118,21 @@ public class UserControllerTest {
                         "ggg777@foo.com")))
                 .andExpect(jsonPath("$.users[*].nickname", containsInAnyOrder(
                         "아스피", "필즈", "포키", "썬", "우디", "쿤", "반듯")));
+    }
+
+    @DisplayName("keyword를 입력하지 않고 검색하면 예외가 발생한다.")
+    @Test
+    void search_throwsException_ifNoKeyword() throws Exception {
+        // given
+        final String keyword = "";
+        given(userService.search(keyword))
+                .willThrow(new NoKeywordException());
+
+        // when, then
+        mockMvc.perform(get("/users?keyword=" + keyword)
+                .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", equalTo("검색어가 입력되지 않았습니다.")));
     }
 }

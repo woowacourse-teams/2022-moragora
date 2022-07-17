@@ -5,6 +5,7 @@ import com.woowacourse.moragora.dto.SearchedUsersResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.NoKeywordException;
 import com.woowacourse.moragora.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,10 +30,17 @@ public class UserService {
     }
 
     public SearchedUsersResponse search(final String keyword) {
+        validateKeyword(keyword);
         final List<User> searchedUsers = userRepository.findByNicknameOrEmailContaining(keyword);
         final List<SearchedUserResponse> responses = searchedUsers.stream()
                 .map(SearchedUserResponse::from)
                 .collect(Collectors.toList());
         return new SearchedUsersResponse(responses);
+    }
+
+    private void validateKeyword(final String keyword) {
+        if (keyword.isEmpty()) {
+            throw new NoKeywordException();
+        }
     }
 }
