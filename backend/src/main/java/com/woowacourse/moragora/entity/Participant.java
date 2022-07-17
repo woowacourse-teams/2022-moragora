@@ -29,7 +29,7 @@ public class Participant {
     @JoinColumn(name = "meeting_id")
     private Meeting meeting;
 
-    public Participant(User user, Meeting meeting) {
+    public Participant(final User user, final Meeting meeting) {
         this.user = user;
         this.meeting = meeting;
     }

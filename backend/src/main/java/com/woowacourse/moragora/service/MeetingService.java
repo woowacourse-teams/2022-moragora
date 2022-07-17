@@ -63,7 +63,7 @@ public class MeetingService {
 
         List<UserResponse> userResponses = new ArrayList<>();
 
-        for (Participant participant : participants) {
+        for (final Participant participant : participants) {
             final List<Attendance> attendances = attendanceRepository.findByParticipantId(participant.getId());
 
             final int tardyCount = (int) attendances.stream()
