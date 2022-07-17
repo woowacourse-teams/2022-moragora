@@ -29,4 +29,11 @@ public class UserRepository {
                 .setParameter("userIds", userIds)
                 .getResultList();
     }
+
+    public List<User> findByNicknameOrEmailContaining(final String keyword) {
+        return entityManager.createQuery(
+                "select u from User u where u.email like :keyword or u.nickname like :keyword", User.class)
+                .setParameter("keyword", "%" + keyword + "%")
+                .getResultList();
+    }
 }

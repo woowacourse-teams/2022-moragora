@@ -2,6 +2,7 @@ package com.woowacourse.moragora.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.woowacourse.moragora.dto.SearchedUsersResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,5 +28,18 @@ class UserServiceTest {
 
         // then
         assertThat(id).isNotNull();
+    }
+
+    @DisplayName("keyword로 회원을 검색한다.")
+    @Test
+    void search() {
+        // given
+        final String keyword = "foo";
+
+        // when
+        final SearchedUsersResponse response = userService.search(keyword);
+
+        // then
+        assertThat(response.getUsers()).hasSize(7);
     }
 }
