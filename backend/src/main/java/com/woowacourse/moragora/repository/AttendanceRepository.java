@@ -25,7 +25,7 @@ public class AttendanceRepository {
     }
 
     public List<Attendance> findByParticipantId(final Long participantId) {
-        return entityManager.createQuery("select n from Attendance n where n.participant.id = :participantId",
+        return entityManager.createQuery("select a from Attendance a where a.participant.id = :participantId",
                         Attendance.class)
                 .setParameter("participantId", participantId)
                 .getResultList();
