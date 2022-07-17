@@ -6,6 +6,7 @@ type Meeting = {
   entranceTime: string;
   leaveTime: string;
   userIds: number[];
+  attendanceCount: number;
 };
 
 const generateIndexes = (length: number) =>
@@ -19,6 +20,7 @@ const meetings = generateIndexes(100).map<Meeting>((id) => ({
   entranceTime: '10:00',
   leaveTime: '18:00',
   userIds: generateIndexes(100).splice(id, 5),
+  attendanceCount: 10,
 }));
 
 export default meetings;

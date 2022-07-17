@@ -1,10 +1,9 @@
-import { css } from '@emotion/react';
 import React from 'react';
 import Button from '../../components/@shared/Button';
 import Footer from '../../components/layouts/Footer';
 import * as S from './MeetingListPage.styled';
-import MeetingIconSVG from '../../assets/meeting.svg';
-import CoffeeIconSVG from '../../assets/coffee.svg';
+import MeetingItem from '../../components/MeetingItem';
+import CoffeeStackItem from '../../components/CoffeeStackItem';
 
 const meetings = [
   {
@@ -200,75 +199,35 @@ const MeetingListPage = () => {
         <S.TimeSection>
           <S.DateBox>
             <S.Title>Today</S.Title>
-            <p
-              css={css`
-                font-size: 1.5rem;
-              `}
-            >
-              6월 23일 월
-            </p>
+            <S.DateParagraph>6월 23일 월</S.DateParagraph>
           </S.DateBox>
           <S.DateBox>
             <S.Title>Time</S.Title>
-            <p
-              css={css`
-                font-size: 1.5rem;
-              `}
-            >
-              AM 10:01
-            </p>
+            <S.DateParagraph>AM 10:01</S.DateParagraph>
           </S.DateBox>
         </S.TimeSection>
         <S.MeetingListSection>
           <S.TitleBox>
             <S.Title>참여 중인 모임</S.Title>
-            <S.Link>생성하기</S.Link>
+            <S.PageLink to="/meeting/create">생성하기</S.PageLink>
           </S.TitleBox>
           <S.MeetingList>
             {meetings.map((meeting) => (
-              <S.MeetingItem key={meeting.id}>
-                <S.MeetingIconImage src={MeetingIconSVG} />
-                <S.MeetingNameSpan>{meeting.name}</S.MeetingNameSpan>
-                <S.MeetingNameSpan>10:00 ~ 10:05</S.MeetingNameSpan>
-                <S.MeetingNameSpan
-                  css={css`
-                    align-self: flex-end;
-                  `}
-                >
-                  체크인하세요!
-                </S.MeetingNameSpan>
-              </S.MeetingItem>
+              <li key={meeting.id}>
+                <MeetingItem meeting={meeting} />
+              </li>
             ))}
           </S.MeetingList>
         </S.MeetingListSection>
         <S.CoffeeStackSection>
           <S.TitleBox>
             <S.Title>커피 스택</S.Title>
-            <S.Link>전체 보기</S.Link>
           </S.TitleBox>
           <S.CoffeeStackList>
             {meetings.map((meeting) => (
-              <S.CoffeeStackItem>
-                <span>{meeting.name}</span>
-                <S.CoffeeIconImageBox>
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                  <S.CoffeeIconImage src={CoffeeIconSVG} />
-                </S.CoffeeIconImageBox>
-              </S.CoffeeStackItem>
+              <li key={meeting.id}>
+                <CoffeeStackItem name={meeting.name} />
+              </li>
             ))}
           </S.CoffeeStackList>
         </S.CoffeeStackSection>

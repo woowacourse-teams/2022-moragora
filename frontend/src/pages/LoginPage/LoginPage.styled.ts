@@ -1,4 +1,6 @@
 import styled from '@emotion/styled';
+import Button from '../../components/@shared/Button';
+import { Link } from 'react-router-dom';
 
 export const Layout = styled.div`
   display: flex;
@@ -42,9 +44,13 @@ export const ButtonBox = styled.div`
 
 export const RegisterHintParagraph = styled.p``;
 
-export const RegisterLink = styled.a`
+export const RegisterLink = styled(Link)`
   margin-left: 0.5rem;
 
-  text-decoration: none;
+  text-decoration: inherit;
   color: ${({ theme: { colors } }) => colors['primary']};
+`;
+
+export const LoginButton = styled(Button)`
+  width: 382px;
 `;

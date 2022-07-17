@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import Input from '../../components/@shared/Input';
-import Button from '../../components/@shared/Button';
 import * as S from './RegisterPage.styled';
-import { css } from '@emotion/react';
 import useForm from '../../hooks/useForm';
-import DialogButton from '../../components/@shared/DialogButton';
+import { useNavigate } from 'react-router-dom';
+import InputHint from '../../components/@shared/InputHint';
 
 const checkEmail = async (url: string) => {
   return fetch(url, {
@@ -14,7 +13,7 @@ const checkEmail = async (url: string) => {
     },
   });
 };
-const submitRegisterUserData = async (url: string, payload: any) => {
+const submitData = async (url: string, payload: any) => {
   return fetch(url, {
     method: 'POST',
     headers: {
@@ -25,6 +24,7 @@ const submitRegisterUserData = async (url: string, payload: any) => {
 };
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
   const [isEmailExist, setIsEmailExist] = useState(true);
   const [isValidPasswordConfirm, setIsValidPasswordConfirm] = useState(true);
@@ -57,9 +57,26 @@ const RegisterPage = () => {
     const formData = new FormData(target);
     const formDataObject = Object.fromEntries(formData.entries());
 
-    await submitRegisterUserData('/users', formDataObject);
+    const registerRes = await submitData('/users', formDataObject);
+
+    if (!registerRes.ok) {
+      throw Error('이메일 중복 확인 실패');
+    }
 
     alert('회원가입 완료');
+
+    const loginRes = await submitData('/login', {
+      email: formDataObject.email,
+      password: formDataObject.password,
+    });
+    if (!loginRes.ok) {
+      alert('로그인 실패');
+      return;
+    }
+
+    const accessToken = await loginRes.json().then((data) => data.accessToken);
+
+    navigate('/meeting');
   };
 
   return (
@@ -68,13 +85,8 @@ const RegisterPage = () => {
         <S.FieldBox>
           <S.Label>
             이메일
-            <div
-              css={css`
-                display: flex;
-                gap: 0.75rem;
-              `}
-            >
-              <Input
+            <S.EmailBox>
+              <S.EmailInput
                 type="email"
                 {...register('email', {
                   required: true,
@@ -82,25 +94,20 @@ const RegisterPage = () => {
                     setIsEmailExist(true);
                   },
                 })}
-                css={css`
-                  flex: 1;
-                `}
               />
-              <DialogButton
-                css={css`
-                  border-radius: 0.5rem;
-                `}
+              <S.EmailCheckButton
                 variant="confirm"
                 onClick={handleCheckEmailButtonClick}
                 disabled={!isEmailExist}
               >
                 중복확인
-              </DialogButton>
-            </div>
+              </S.EmailCheckButton>
+            </S.EmailBox>
           </S.Label>
-          {errors['email'] !== '' && (
-            <S.InputHint>{errors['email']}</S.InputHint>
-          )}
+          <InputHint
+            isShow={errors['email'] !== ''}
+            message={errors['email']}
+          />
         </S.FieldBox>
         <S.FieldBox>
           <S.Label>
@@ -119,9 +126,10 @@ const RegisterPage = () => {
               })}
             />
           </S.Label>
-          {errors['password'] !== '' && (
-            <S.InputHint>{errors['password']}</S.InputHint>
-          )}
+          <InputHint
+            isShow={errors['password'] !== ''}
+            message={errors['password']}
+          />
         </S.FieldBox>
         <S.FieldBox>
           <S.Label>
@@ -138,12 +146,14 @@ const RegisterPage = () => {
               })}
             />
           </S.Label>
-          {errors['passwordConfirm'] !== '' && (
-            <S.InputHint>{errors['passwordConfirm']}</S.InputHint>
-          )}
-          {!isValidPasswordConfirm && (
-            <S.InputHint>비밀번호가 다릅니다.</S.InputHint>
-          )}
+          <InputHint
+            isShow={errors['passwordConfirm'] !== ''}
+            message={errors['passwordConfirm']}
+          />
+          <InputHint
+            isShow={!isValidPasswordConfirm}
+            message="비밀번호가 다릅니다."
+          />
         </S.FieldBox>
         <S.FieldBox>
           <S.Label>
@@ -155,22 +165,20 @@ const RegisterPage = () => {
               })}
             />
           </S.Label>
-          {errors['nickname'] !== '' && (
-            <S.InputHint>{errors['nickname']}</S.InputHint>
-          )}
+          <InputHint
+            isShow={errors['nickname'] !== ''}
+            message={errors['nickname']}
+          />
         </S.FieldBox>
       </S.Form>
       <S.ButtonBox>
-        <Button
+        <S.RegisterButton
           type="submit"
           form="register-form"
-          css={css`
-            width: 382px;
-          `}
           disabled={isSubmitting}
         >
           회원가입
-        </Button>
+        </S.RegisterButton>
         <S.LoginHintParagraph>
           이미 가입된 계정이 있으신가요?
           <S.LoginLink href="">로그인</S.LoginLink>

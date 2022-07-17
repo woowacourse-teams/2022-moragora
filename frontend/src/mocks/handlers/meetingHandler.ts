@@ -21,9 +21,16 @@ export default [
         return res(ctx.status(404), ctx.delay(DELAY));
       }
 
-      const joinedMeeting = {
+      const { userIds, ...joinedMeeting } = {
         ...meeting,
-        users: meeting.userIds.map((id) => users[id]),
+        users: meeting.userIds.map((id) => {
+          const { accessToken, ...user } = users[id];
+
+          return {
+            ...user,
+            tardyCount: 3,
+          };
+        }),
       };
 
       return res(ctx.status(200), ctx.json(joinedMeeting), ctx.delay(DELAY));

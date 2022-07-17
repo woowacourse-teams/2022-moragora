@@ -1,9 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Input from '../../components/@shared/Input';
-import Button from '../../components/@shared/Button';
 import * as S from './LoginPage.styled';
-import { css } from '@emotion/react';
 import useForm from '../../hooks/useForm';
+import InputHint from '../../components/@shared/InputHint';
 
 const submitLogin = async (url: string, payload: any) => {
   return fetch(url, {
@@ -16,6 +16,7 @@ const submitLogin = async (url: string, payload: any) => {
 };
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const { errors, isSubmitting, onSubmit, register } = useForm();
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -23,9 +24,14 @@ const LoginPage = () => {
     const formData = new FormData(target);
     const formDataObject = Object.fromEntries(formData.entries());
 
-    await submitLogin('/login', formDataObject);
+    const res = await submitLogin('/login', formDataObject);
+    if (!res.ok) {
+      alert('로그인 실패');
+      return;
+    }
 
-    alert('로그인 성공');
+    const accessToken = await res.json().then((data) => data.accessToken);
+    navigate('/meeting');
   };
 
   return (
@@ -36,9 +42,10 @@ const LoginPage = () => {
             이메일
             <Input type="email" {...register('email', { required: true })} />
           </S.Label>
-          {errors['email'] !== '' && (
-            <S.InputHint>{errors['email']}</S.InputHint>
-          )}
+          <InputHint
+            isShow={errors['email'] !== ''}
+            message={errors['email']}
+          />
         </S.FieldBox>
         <S.FieldBox>
           <S.Label>
@@ -50,25 +57,19 @@ const LoginPage = () => {
               })}
             />
           </S.Label>
-          {errors['password'] !== '' && (
-            <S.InputHint>{errors['password']}</S.InputHint>
-          )}
+          <InputHint
+            isShow={errors['password'] !== ''}
+            message={errors['password']}
+          />
         </S.FieldBox>
       </S.Form>
       <S.ButtonBox>
-        <Button
-          type="submit"
-          form="login-form"
-          css={css`
-            width: 382px;
-          `}
-          disabled={isSubmitting}
-        >
+        <S.LoginButton type="submit" form="login-form" disabled={isSubmitting}>
           로그인
-        </Button>
+        </S.LoginButton>
         <S.RegisterHintParagraph>
           모라고라가 처음이신가요?
-          <S.RegisterLink href="">회원가입</S.RegisterLink>
+          <S.RegisterLink to="/register">회원가입</S.RegisterLink>
         </S.RegisterHintParagraph>
       </S.ButtonBox>
     </S.Layout>

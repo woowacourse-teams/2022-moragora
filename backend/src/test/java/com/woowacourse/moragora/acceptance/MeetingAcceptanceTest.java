@@ -34,7 +34,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         );
 
         // when
-        final ValidatableResponse response = post("/meetings", meetingRequest);
+        final ValidatableResponse response = post("/meetings", meetingRequest, signUpAndGetToken());
 
         // then
         response.statusCode(HttpStatus.CREATED.value())
@@ -48,7 +48,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         final int id = 1;
 
         // when
-        final ValidatableResponse response = get("/meetings/" + id);
+        final ValidatableResponse response = get("/meetings/" + id, signUpAndGetToken());
 
         // then
         response.statusCode(HttpStatus.OK.value())
@@ -88,6 +88,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
 
         // when
         final ValidatableResponse response = RestAssured.given().log().all()
+                .auth().oauth2(signUpAndGetToken())
                 .body(userAttendancesRequest)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaType.APPLICATION_JSON_VALUE)

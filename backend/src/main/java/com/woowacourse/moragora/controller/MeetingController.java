@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.controller;
 
+import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.UserAttendancesRequest;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/meetings")
+@Authentication
 public class MeetingController {
 
     private final MeetingService meetingService;

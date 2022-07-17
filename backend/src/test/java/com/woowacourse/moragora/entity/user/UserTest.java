@@ -3,6 +3,7 @@ package com.woowacourse.moragora.entity.user;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.woowacourse.auth.exception.LoginFailException;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,5 +45,30 @@ class UserTest {
         // when, then
         assertThatThrownBy(() -> new User("kun@email.com", encodedPassword, nickname))
                 .isInstanceOf(InvalidFormatException.class);
+    }
+
+    @DisplayName("입력한 비밀번호와 자신의 비밀번호를 비교한다.")
+    @Test
+    void checkPassword() {
+        // given
+        final String plainPassword = "rightPassword123!";
+        final User user = new User("asdf@naver.com", EncodedPassword.fromRawValue(plainPassword), "kun");
+
+        // when, then
+        assertThatCode(() -> user.checkPassword(plainPassword))
+                .doesNotThrowAnyException();
+    }
+
+    @DisplayName("입력한 비밀번호와 자신의 비밀번호와 다를시 예외가 발생한다..")
+    @Test
+    void checkPassword_throwsException_ifPasswordIsDifferent() {
+        // given
+        final String plainPassword = "rightPassword123!";
+        final User user = new User("asdf@naver.com", EncodedPassword.fromRawValue(plainPassword), "kun");
+        final String wrongPassword = "wrongPassword123!";
+
+        // when, then
+        assertThatThrownBy(() -> user.checkPassword(wrongPassword))
+                .isInstanceOf(LoginFailException.class);
     }
 }

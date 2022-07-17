@@ -1,4 +1,4 @@
-package com.woowacourse.moragora;
+package com.woowacourse;
 
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;

@@ -7,6 +7,12 @@ import MeetingPage from '.';
 export default {
   title: 'Pages/MeetingPage',
   component: MeetingPage,
+  parameters: {
+    reactRouter: {
+      routePath: '/meeting/:id',
+      routeParams: { id: '1' },
+    },
+  },
 };
 
 const Template = (args) => {

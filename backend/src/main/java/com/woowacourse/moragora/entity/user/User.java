@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.entity.user;
 
+import com.woowacourse.auth.exception.LoginFailException;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,6 +57,12 @@ public class User {
         final Matcher matcher = PATTERN_NICKNAME.matcher(nickname);
         if (!matcher.matches()) {
             throw new InvalidFormatException();
+        }
+    }
+
+    public void checkPassword(final String plainPassword) {
+        if (!password.isSamePassword(plainPassword)) {
+            throw new LoginFailException();
         }
     }
 }
