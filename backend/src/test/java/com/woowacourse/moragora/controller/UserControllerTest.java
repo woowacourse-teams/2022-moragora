@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.woowacourse.auth.config.WebConfig;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.service.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = {UserController.class})
+@MockBean(value = {WebConfig.class})
 public class UserControllerTest {
 
     @Autowired
