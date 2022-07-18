@@ -2,6 +2,7 @@ package com.woowacourse.moragora.controller;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -61,7 +62,7 @@ class MeetingControllerTest {
         );
 
         // when
-        given(meetingService.save(any(MeetingRequest.class)))
+        given(meetingService.save(any(MeetingRequest.class), anyLong()))
                 .willReturn(1L);
 
         // then
@@ -87,7 +88,7 @@ class MeetingControllerTest {
         );
 
         // when
-        given(meetingService.save(any(MeetingRequest.class)))
+        given(meetingService.save(any(MeetingRequest.class), anyLong()))
                 .willThrow(new IllegalStartEndDateException());
 
         // then
@@ -177,7 +178,7 @@ class MeetingControllerTest {
         );
 
         // when
-        given(meetingService.findById(1L))
+        given(meetingService.findById(1L, 1L))
                 .willReturn(meetingResponse);
 
         // then

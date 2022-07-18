@@ -34,7 +34,27 @@ class MeetingServiceTest {
         );
 
         // when
-        final Long expected = meetingService.save(meetingRequest);
+        final Long expected = meetingService.save(meetingRequest, 1L);
+
+        // then
+        assertThat(expected).isNotNull();
+    }
+
+    @DisplayName("미팅 방을 저장한다.")
+    @Test
+    void save2() {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(2L, 3L, 4L, 5L, 6L, 7L)
+        );
+
+        // when
+        final Long expected = meetingService.save(meetingRequest, 1L);
 
         // then
         assertThat(expected).isNotNull();
@@ -58,7 +78,7 @@ class MeetingServiceTest {
         );
 
         // when
-        final MeetingResponse response = meetingService.findById(id);
+        final MeetingResponse response = meetingService.findById(id, 1L);
 
         // then
         assertThat(response).usingRecursiveComparison()

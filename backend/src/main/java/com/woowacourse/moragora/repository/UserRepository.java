@@ -42,4 +42,9 @@ public class UserRepository {
             return Optional.empty();
         }
     }
+
+    public Optional<User> findById(final Long userId) {
+        final User user = entityManager.find(User.class, userId);
+        return Optional.ofNullable(user);
+    }
 }
