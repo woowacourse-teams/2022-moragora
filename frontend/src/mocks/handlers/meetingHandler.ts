@@ -7,6 +7,10 @@ type MeetingAttendanceRequestBody = {
   isAbsent: boolean;
 }[];
 
+type UserAttendanceCheckRequestBody = {
+  attendanceStatus: string;
+};
+
 const DELAY = 700;
 
 export default [
@@ -47,26 +51,26 @@ export default [
     return res(ctx.status(204), ctx.delay(DELAY));
   }),
 
-  rest.put<{ attendanceStatus: string }, { meetingId: string; userId: string }>(
-    `/meetings/:meetingId/users/:userId`,
-    (req, res, ctx) => {
-      const { meetingId, userId } = req.params;
+  rest.put<
+    UserAttendanceCheckRequestBody,
+    { meetingId: string; userId: string }
+  >(`/meetings/:meetingId/users/:userId`, (req, res, ctx) => {
+    const { meetingId, userId } = req.params;
 
-      const targetMeeting = meetings.find(
-        (meeting) => meeting.id === Number(meetingId)
-      );
-      if (!targetMeeting) {
-        return res(ctx.status(404), ctx.delay(DELAY));
-      }
-
-      const targetUser = users.find((user) => user.id === Number(userId));
-      if (!targetUser) {
-        return res(ctx.status(404), ctx.delay(DELAY));
-      }
-
-      targetUser.attendanceStatus = req.body.attendanceStatus;
-
-      return res(ctx.status(204), ctx.delay(DELAY));
+    const targetMeeting = meetings.find(
+      (meeting) => meeting.id === Number(meetingId)
+    );
+    if (!targetMeeting) {
+      return res(ctx.status(404), ctx.delay(DELAY));
     }
-  ),
+
+    const targetUser = users.find((user) => user.id === Number(userId));
+    if (!targetUser) {
+      return res(ctx.status(404), ctx.delay(DELAY));
+    }
+
+    targetUser.attendanceStatus = req.body.attendanceStatus;
+
+    return res(ctx.status(204), ctx.delay(DELAY));
+  }),
 ];
