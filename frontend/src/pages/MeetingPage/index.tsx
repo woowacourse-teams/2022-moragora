@@ -42,7 +42,12 @@ const userAttendanceFetch = async (url: string, payload: any) => {
 
 const MeetingPage = () => {
   const { id } = useParams();
-  const meetingState = useFetch<MeetingResponseBody>(`/meetings/${id}`);
+  const {
+    data: meetingState,
+    loading: isLoading,
+    error: isError,
+    refetch,
+  } = useFetch<MeetingResponseBody>(`/meetings/${id}`);
 
   const handleChecked = async (
     user: Omit<User, 'accessToken'>,
@@ -52,10 +57,10 @@ const MeetingPage = () => {
       attendanceStatus: checked ? 'present' : 'tardy',
     });
 
-    meetingState.refetch();
+    refetch();
   };
 
-  if (meetingState.loading) {
+  if (isLoading) {
     return (
       <>
         <S.Layout>
@@ -68,7 +73,7 @@ const MeetingPage = () => {
     );
   }
 
-  if (meetingState.error) {
+  if (isError) {
     return (
       <>
         <S.Layout>
@@ -76,7 +81,7 @@ const MeetingPage = () => {
             <ErrorIcon />
             <ReloadButton
               onClick={() => {
-                meetingState.refetch();
+                refetch();
               }}
             />
           </S.ErrorBox>
@@ -90,16 +95,16 @@ const MeetingPage = () => {
     <>
       <S.Layout>
         <S.MeetingDetailSection>
-          <h2>{meetingState.data.name}</h2>
+          <h2>{meetingState.name}</h2>
           <p>
-            총 출석일: <span>{meetingState.data.attendanceCount}</span>
+            총 출석일: <span>{meetingState.attendanceCount}</span>
           </p>
         </S.MeetingDetailSection>
         <DivideLine />
         <S.UserListSection>
           <S.UserListBox>
             <S.UserList>
-              {meetingState.data.users.map((user) => (
+              {meetingState.users.map((user) => (
                 <UserItem
                   key={user.id}
                   user={user}
