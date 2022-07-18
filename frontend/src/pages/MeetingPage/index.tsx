@@ -49,7 +49,7 @@ const MeetingPage = () => {
     refetch,
   } = useFetch<MeetingResponseBody>(`/meetings/${id}`);
 
-  const handleChecked = async (
+  const handleAttendanceCheck = async (
     user: Omit<User, 'accessToken'>,
     checked: boolean
   ) => {
@@ -115,7 +115,7 @@ const MeetingPage = () => {
                 <UserItem
                   key={user.id}
                   user={user}
-                  handleChecked={handleChecked}
+                  onAttendanceCheck={handleAttendanceCheck}
                 />
               ))}
             </S.UserList>

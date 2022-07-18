@@ -16,12 +16,15 @@ type User = {
 
 type UserItemProps = {
   user: Omit<User, 'accessToken'>;
-  handleChecked: (user: Omit<User, 'accessToken'>, checked: boolean) => void;
+  onAttendanceCheck: (
+    user: Omit<User, 'accessToken'>,
+    checked: boolean
+  ) => void;
 };
 
-const UserItem: React.FC<UserItemProps> = ({ user, handleChecked }) => {
+const UserItem: React.FC<UserItemProps> = ({ user, onAttendanceCheck }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleChecked(user, e.target.checked);
+    onAttendanceCheck(user, e.target.checked);
   };
 
   return (
