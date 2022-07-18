@@ -10,3 +10,10 @@ const Template = (args) => {
 };
 
 export const Default = Template.bind({});
+
+export const Landing = Template.bind({});
+Landing.parameters = {
+  reactRouter: {
+    routePath: '/meeting',
+  },
+};

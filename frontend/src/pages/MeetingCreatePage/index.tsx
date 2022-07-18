@@ -1,26 +1,23 @@
 import React from 'react';
-import Button from '../../components/@shared/Button';
 import Footer from '../../components/layouts/Footer';
 import Input from '../../components/@shared/Input';
 import * as S from './MeetingCreatePage.styled';
-import { css } from '@emotion/react';
 
 const MeetingCreatePage = () => {
+  const handleCreateMeetingSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const target = e.target as HTMLFormElement;
+    const formData = new FormData(target);
+    const formDataObject = Object.fromEntries(formData.entries());
+
+    console.log(formDataObject);
+  };
+
   return (
     <>
       <S.Layout>
-        <S.Form
-          id="meeting-create-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-
-            const target = e.target as HTMLFormElement;
-            const formData = new FormData(target);
-            const formDataObject = Object.fromEntries(formData.entries());
-
-            console.log(formDataObject);
-          }}
-        >
+        <S.Form id="meeting-create-form" onSubmit={handleCreateMeetingSubmit}>
           <S.FieldBox>
             <S.Label>
               모임명
@@ -93,29 +90,17 @@ const MeetingCreatePage = () => {
           </S.FieldBox>
           <S.FieldBox>
             <S.Label>
-              <p>
+              <S.AddMemberParagraph>
                 멤버 추가하기
-                <span
-                  css={css`
-                    float: right;
-                  `}
-                >
-                  1/15
-                </span>
-              </p>
+                <span>1/15</span>
+              </S.AddMemberParagraph>
               <Input type="text" name="member" />
             </S.Label>
           </S.FieldBox>
         </S.Form>
-        <Button
-          form="meeting-create-form"
-          type="submit"
-          css={css`
-            margin-top: 32px;
-          `}
-        >
+        <S.MeetingCreateButton form="meeting-create-form" type="submit">
           모임 생성하기
-        </Button>
+        </S.MeetingCreateButton>
       </S.Layout>
       <Footer></Footer>
     </>

@@ -2,6 +2,7 @@ package com.woowacourse.moragora.controller;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -11,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.woowacourse.auth.config.WebConfig;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.UserResponse;
@@ -34,6 +36,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = {MeetingController.class})
+@MockBean(value = {WebConfig.class})
 class MeetingControllerTest {
 
     @Autowired
@@ -59,7 +62,7 @@ class MeetingControllerTest {
         );
 
         // when
-        given(meetingService.save(any(MeetingRequest.class)))
+        given(meetingService.save(any(MeetingRequest.class), anyLong()))
                 .willReturn(1L);
 
         // then
@@ -85,7 +88,7 @@ class MeetingControllerTest {
         );
 
         // when
-        given(meetingService.save(any(MeetingRequest.class)))
+        given(meetingService.save(any(MeetingRequest.class), anyLong()))
                 .willThrow(new IllegalStartEndDateException());
 
         // then
@@ -175,7 +178,7 @@ class MeetingControllerTest {
         );
 
         // when
-        given(meetingService.findById(1L))
+        given(meetingService.findById(1L, 1L))
                 .willReturn(meetingResponse);
 
         // then
