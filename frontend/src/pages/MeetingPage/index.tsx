@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as S from './MeetingPage.styled';
 import Footer from '../../components/layouts/Footer';
 import Button from '../../components/@shared/Button';
@@ -20,6 +20,7 @@ type User = {
   nickname: string;
   accessToken: null | string;
   tardyCount: number;
+  attendanceStatus: string;
 };
 
 type MeetingResponseBody = {
@@ -35,9 +36,27 @@ type MeetingResponseBody = {
 
 type FormDataObject = { [k: string]: FormDataEntryValue };
 
+type MeetingStateDataType = {
+  data: MeetingResponseBody;
+  loading: boolean;
+  error: any;
+  fetchingCount: number;
+  refetch: () => void;
+};
+
 const submitAttendanceData = async (url: string, payload: any) => {
   return fetch(url, {
     method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+};
+
+const userAttendanceFetch = async (url: string, payload: any) => {
+  return fetch(url, {
+    method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -51,6 +70,25 @@ const MeetingPage = () => {
   const [modalOpened, setModalOpened] = useState(false);
   const [formData, setFormData] = useState<FormDataObject>();
   const { isSubmitting, onSubmit, register } = useForm();
+
+  const handleChecked = async (
+    user: Omit<User, 'accessToken'>,
+    checked: boolean
+  ) => {
+    const targetMeeting = meetingState.data.users.find(
+      (userData) => userData.id === user.id
+    );
+    targetMeeting.attendanceStatus = checked ? 'present' : 'tardy';
+
+    const response = await userAttendanceFetch(
+      `/meetings/${id}/users/${user.id}`,
+      {
+        attendanceStatus: checked ? 'present' : 'tardy',
+      }
+    );
+
+    meetingState.refetch();
+  };
 
   const handleOpen = () => {
     setModalOpened(true);
@@ -148,17 +186,17 @@ const MeetingPage = () => {
           <S.Form id="attendance-form" {...onSubmit(handleSubmit)}>
             <S.UserList>
               {meetingState.data.users.map((user) => (
-                <UserItem key={user.id} user={user} />
+                <UserItem
+                  key={user.id}
+                  user={user}
+                  handleChecked={handleChecked}
+                />
               ))}
             </S.UserList>
           </S.Form>
         </S.UserListSection>
       </S.Layout>
-      <Footer>
-        <Button form="attendance-form" type="submit" disabled={isSubmitting}>
-          출결 마감
-        </Button>
-      </Footer>
+      <Footer />
     </>
   );
 };

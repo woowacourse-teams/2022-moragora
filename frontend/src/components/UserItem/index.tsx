@@ -11,13 +11,19 @@ type User = {
   nickname: string;
   accessToken: null | string;
   tardyCount: number;
+  attendanceStatus: string;
 };
 
 type UserItemProps = {
   user: Omit<User, 'accessToken'>;
+  handleChecked: (user: Omit<User, 'accessToken'>, checked: boolean) => void;
 };
 
-const UserItem: React.FC<UserItemProps> = ({ user }) => {
+const UserItem: React.FC<UserItemProps> = ({ user, handleChecked }) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleChecked(user, e.target.checked);
+  };
+
   return (
     <S.Layout>
       <S.Box>
@@ -28,7 +34,10 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
           ))}
         </S.CoffeeIconImageBox>
       </S.Box>
-      <Checkbox />
+      <Checkbox
+        onChange={handleChange}
+        checked={user.attendanceStatus === 'tardy' ? false : true}
+      />
     </S.Layout>
   );
 };
