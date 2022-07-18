@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.repository;
 
 import com.woowacourse.moragora.entity.Attendance;
+import java.time.LocalDate;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -29,5 +30,14 @@ public class AttendanceRepository {
                         Attendance.class)
                 .setParameter("participantId", participantId)
                 .getResultList();
+    }
+
+    public Attendance findByParticipantIdAndDate(final Long participantId, final LocalDate attendanceDate) {
+        return entityManager.createQuery(
+                        "select a from Attendance a where a.participant.id = :participantId and a.attendanceDate = :attendanceDate",
+                        Attendance.class)
+                .setParameter("participantId", participantId)
+                .setParameter("attendanceDate", attendanceDate)
+                .getSingleResult();
     }
 }

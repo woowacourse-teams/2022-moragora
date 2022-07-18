@@ -2,11 +2,12 @@ package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
-import com.woowacourse.moragora.dto.UserAttendancesRequest;
+import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
+import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.UserNotFoundException;
@@ -14,6 +15,7 @@ import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -67,7 +69,7 @@ public class MeetingService {
             final List<Attendance> attendances = attendanceRepository.findByParticipantId(participant.getId());
 
             final int tardyCount = (int) attendances.stream()
-                    .filter(Attendance::isTardy)
+                    .filter(attendance -> attendance.getStatus().equals(Status.TARDY))
                     .count();
 
             final User foundUser = participant.getUser();
@@ -83,23 +85,21 @@ public class MeetingService {
     // TODO update (1 + N) -> 최적하기
     // TODO 출석 제출할 때 구현 예정
     @Transactional
-    public void updateAttendance(final Long meetingId, final UserAttendancesRequest requests) {
-/*
+    public void updateAttendance(final Long meetingId, final Long userId, final UserAttendanceRequest request) {
         final Meeting meeting = findMeeting(meetingId);
         meeting.increaseMeetingCount();
 
-        final List<Long> absentUserIds = requests.getUsers().stream()
-                .filter(UserAttendanceRequest::getIsTardy)
-                .map(UserAttendanceRequest::getId)
-                .collect(Collectors.toList());
+        final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
 
-        final List<Attendance> attendances = attendanceRepository.findByMeetingId(meetingId);
-        for (final Attendance attendance : attendances) {
-            if (absentUserIds.contains(attendance.getUser().getId())) {
-                attendance.increaseTardyCount();
-            }
-        }
-*/
+        final Participant participant = participants.stream()
+                .filter(p -> p.isSameUser(userId))
+                .findAny()
+                .get();
+
+        final Attendance attendance = attendanceRepository.findByParticipantIdAndDate(participant.getId(),
+                LocalDate.now());
+
+        attendance.checkAttendance(request.getAttendanceStatus());
     }
 
     private Meeting findMeeting(final Long id) {

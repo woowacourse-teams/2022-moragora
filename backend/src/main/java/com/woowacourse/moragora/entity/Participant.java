@@ -34,4 +34,8 @@ public class Participant {
         this.user = user;
         this.meeting = meeting;
     }
+
+    public boolean isSameUser(final Long userId) {
+        return user.isSameId(userId);
+    }
 }

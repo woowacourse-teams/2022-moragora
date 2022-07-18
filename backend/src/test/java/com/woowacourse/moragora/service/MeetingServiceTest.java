@@ -1,9 +1,12 @@
 package com.woowacourse.moragora.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.UserAttendanceRequest;
+import com.woowacourse.moragora.entity.Status;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -84,5 +87,18 @@ class MeetingServiceTest {
         assertThat(response).usingRecursiveComparison()
                 .ignoringFields("users")
                 .isEqualTo(expectedMeetingResponse);
+    }
+
+    @DisplayName("사용자들의 출석 여부를 변경한다.")
+    @Test
+    void updateAttendance() {
+        // given
+        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final Long meetingId = 1L;
+        final Long userId = 1L;
+
+        // when, then
+        assertThatCode(() -> meetingService.updateAttendance(meetingId, userId, request))
+                .doesNotThrowAnyException();
     }
 }

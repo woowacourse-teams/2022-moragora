@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -15,7 +16,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.auth.config.WebConfig;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
+import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import com.woowacourse.moragora.service.MeetingService;
 import java.time.LocalDate;
@@ -194,5 +197,21 @@ class MeetingControllerTest {
                 .andExpect(jsonPath("$.entranceTime", equalTo("10:00:00")))
                 .andExpect(jsonPath("$.leaveTime", equalTo("18:00:00")))
                 .andExpect(jsonPath("$.leaveTime", equalTo("18:00:00")));
+    }
+
+    @DisplayName("사용자 출석여부를 종합한다.")
+    @Test
+    void endAttendance() throws Exception {
+        // given
+        final Long meetingId = 1L;
+        final Long userId = 1L;
+        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+
+        // when, then
+        mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isNoContent());
     }
 }

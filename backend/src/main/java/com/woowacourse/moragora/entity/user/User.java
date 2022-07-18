@@ -2,6 +2,7 @@ package com.woowacourse.moragora.entity.user;
 
 import com.woowacourse.auth.exception.LoginFailException;
 import com.woowacourse.moragora.exception.InvalidFormatException;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.persistence.Column;
@@ -64,5 +65,9 @@ public class User {
         if (!password.isSamePassword(plainPassword)) {
             throw new LoginFailException();
         }
+    }
+
+    public boolean isSameId(final Long id) {
+        return Objects.equals(this.id, id);
     }
 }
