@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.woowacourse.auth.exception.LoginFailException;
 import com.woowacourse.moragora.dto.ErrorResponse;
+import com.woowacourse.moragora.exception.IllegalParticipantException;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
@@ -23,6 +24,7 @@ public class ControllerAdvice {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleInvalidRequest(final BindingResult bindingResult) {
+
         final List<FieldError> fieldErrors = bindingResult.getFieldErrors();
         final FieldError mainError = fieldErrors.get(0);
 
@@ -56,6 +58,12 @@ public class ControllerAdvice {
     @ExceptionHandler(LoginFailException.class)
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleLoginFailException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(IllegalParticipantException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handleIllegalParticipantException(final Exception exception) {
         return new ErrorResponse(exception.getMessage());
     }
 }

@@ -8,6 +8,7 @@ import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.IllegalParticipantException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
@@ -16,6 +17,7 @@ import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,14 +43,19 @@ public class MeetingService {
     // TODO: for 문 안에 insert문 한번에 날리는 것 고려
     // TODO: master 지정해야함
     @Transactional
-    public Long save(final MeetingRequest request, final Long userId) {
-        final User loginUser = findUser(userId);
+    public Long save(final MeetingRequest request, final Long loginId) {
+        final User loginUser = findUser(loginId);
         final Meeting meeting = meetingRepository.save(request.toEntity());
 
         final Participant participant = new Participant(loginUser, meeting);
         participantRepository.save(participant);
 
-        final List<User> users = userRepository.findByIds(request.getUserIds());
+        final List<Long> userIds = request.getUserIds();
+        validateUserIds(userIds, loginId);
+        final List<User> users = userRepository.findByIds(userIds);
+
+        validateNotExistUser(userIds, users);
+
         for (User user : users) {
             participantRepository.save(new Participant(user, meeting));
         }
@@ -57,7 +64,8 @@ public class MeetingService {
     }
 
     // TODO 1 + N 최적화 대상
-    public MeetingResponse findById(final Long meetingId, final Long userId) {
+
+    public MeetingResponse findById(final Long meetingId, final Long loginId) {
         final Meeting meeting = findMeeting(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
 
@@ -79,9 +87,9 @@ public class MeetingService {
 
         return MeetingResponse.of(meeting, userResponses);
     }
-
     // TODO update (1 + N) -> 최적하기
     // TODO 출석 제출할 때 구현 예정
+
     @Transactional
     public void updateAttendance(final Long meetingId, final UserAttendancesRequest requests) {
 /*
@@ -110,5 +118,28 @@ public class MeetingService {
     private User findUser(final Long id) {
         return userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
+    }
+
+    /**
+     * 참가자 userIds 내부에 loginId가 있는지 검증해야 userIds.size()가 0인지 검증이 정상적으로 이루어집니다.
+     */
+    private void validateUserIds(final List<Long> userIds, final Long loginId) {
+        if (Set.copyOf(userIds).size() != userIds.size()) {
+            throw new IllegalParticipantException();
+        }
+
+        if (userIds.contains(loginId)) {
+            throw new IllegalParticipantException();
+        }
+
+        if (userIds.size() == 0) {
+            throw new IllegalParticipantException();
+        }
+    }
+
+    private void validateNotExistUser(final List<Long> userIds, final List<User> users) {
+        if (users.size() != userIds.size()) {
+            throw new IllegalParticipantException();
+        }
     }
 }
