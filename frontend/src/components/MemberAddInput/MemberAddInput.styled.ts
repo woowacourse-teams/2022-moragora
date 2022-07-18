@@ -9,6 +9,7 @@ export const QueryResultList = styled.ul`
   list-style: none;
   position: absolute;
   width: 100%;
+  max-height: 12rem;
   z-index: 10;
 
   display: flex;

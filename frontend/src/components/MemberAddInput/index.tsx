@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import useQuerySelectItems from '../../hooks/useQuerySelectItems';
 import Input from '../@shared/Input';
 import * as S from './MemberAddInput.styled';
-import useQuerySelectItems from './useQuerySelectItems';
 
 type User = {
   id: number;
@@ -9,45 +9,45 @@ type User = {
   email: string;
 };
 
-const MemberAddInput: React.FC<React.HTMLAttributes<HTMLInputElement>> = (
-  props
-) => {
-  const {
-    loading,
-    queryResult,
-    selectedItems,
-    queryWithKeyword,
-    selectItem,
-    unselectItem,
-    clearQueryResult,
-  } = useQuerySelectItems<User>('/users?keyword=', {
-    wait: 150,
-  });
+const MemberAddInput: React.FC<
+  Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> &
+    Omit<ReturnType<typeof useQuerySelectItems<User>>, 'loading'>
+> = ({
+  queryResult,
+  selectedItems,
+  queryWithKeyword,
+  selectItem,
+  unselectItem,
+  clearQueryResult,
+  ...props
+}) => {
+  const [isDropdownOpened, setIsDropdownOpened] = useState(false);
+
+  const openDropdown = () => {
+    setIsDropdownOpened(true);
+  };
+
+  const closeDropdown = () => {
+    setIsDropdownOpened(false);
+  };
   const [value, setValue] = useState('');
-  const [isShowingPopup, setIsShowingPopup] = useState(false);
 
-  const showPopup = () => {
-    setIsShowingPopup(true);
-  };
-
-  const hidePopup = () => {
-    setIsShowingPopup(false);
-  };
-
-  const handleChange: React.FormEventHandler<HTMLInputElement> = (e) => {
+  const handleSearchUserInputChange: React.FormEventHandler<
+    HTMLInputElement
+  > = (e) => {
     const { value } = e.target as HTMLInputElement;
 
     setValue(value);
 
     if (value === '') {
       clearQueryResult();
-      hidePopup();
+      closeDropdown();
 
       return;
     }
 
     queryWithKeyword(value);
-    showPopup();
+    openDropdown();
   };
 
   return (
@@ -55,17 +55,16 @@ const MemberAddInput: React.FC<React.HTMLAttributes<HTMLInputElement>> = (
       <Input
         type="search"
         value={value}
-        placeholder="닉네임 또는 이메일로 검색하세요."
-        onChange={handleChange}
+        onChange={handleSearchUserInputChange}
         onFocus={() => {
-          showPopup();
+          openDropdown();
         }}
         onBlur={() => {
-          hidePopup();
+          closeDropdown();
         }}
         {...props}
       />
-      {isShowingPopup && queryResult.length > 0 && (
+      {isDropdownOpened && queryResult.length > 0 && (
         <S.QueryResultList>
           {queryResult.map((user) => (
             <S.QueryResultListItem
@@ -75,9 +74,9 @@ const MemberAddInput: React.FC<React.HTMLAttributes<HTMLInputElement>> = (
               }}
               onClick={(e) => {
                 setValue('');
+                closeDropdown();
                 selectItem(user);
                 clearQueryResult();
-                hidePopup();
               }}
             >
               {user.nickname}
