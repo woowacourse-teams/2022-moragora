@@ -53,9 +53,16 @@ const MeetingPage = () => {
     user: Omit<User, 'accessToken'>,
     checked: boolean
   ) => {
-    await userAttendanceFetch(`/meetings/${id}/users/${user.id}`, {
-      attendanceStatus: checked ? 'present' : 'tardy',
-    });
+    const response = await userAttendanceFetch(
+      `/meetings/${id}/users/${user.id}`,
+      {
+        attendanceStatus: checked ? 'present' : 'tardy',
+      }
+    );
+
+    if (!response.ok) {
+      alert('출석체크에 실패했습니다.');
+    }
 
     refetch();
   };
