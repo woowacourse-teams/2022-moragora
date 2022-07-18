@@ -3,9 +3,11 @@ package com.woowacourse.moragora.controller;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
+import com.woowacourse.auth.exception.LoginFailException;
 import com.woowacourse.moragora.dto.ErrorResponse;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.NoKeywordException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import java.util.List;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -49,6 +51,18 @@ public class ControllerAdvice {
     @ExceptionHandler(InvalidFormatException.class)
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleInvalidFormatException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(LoginFailException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handleLoginFailException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(NoKeywordException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handleNoKeywordException(final Exception exception) {
         return new ErrorResponse(exception.getMessage());
     }
 }
