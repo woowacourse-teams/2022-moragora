@@ -2,28 +2,36 @@ import { useCallback, useState } from 'react';
 
 const throttle = <T extends (...args: any) => any>(
   callback: T,
-  delay: number = 0
+  wait: number = 0
 ) => {
+  const time = Date.now();
   let timerId: NodeJS.Timeout | null = null;
+  let lastArgs: {
+    current: Parameters<T>;
+  } = {
+    current: null,
+  };
 
   return (...args: Parameters<T>) =>
     new Promise<ReturnType<T>>((resolve) => {
+      lastArgs.current = args;
+
       if (timerId) {
         return;
       }
 
       timerId = setTimeout(() => {
-        resolve(callback(...args));
+        resolve(callback(...lastArgs.current));
 
         timerId = null;
-      }, delay);
+      }, wait);
     });
 };
 
 const useQuerySelectItems = <T extends { id: number }>(
   url: string,
   options: Partial<{
-    delay: number;
+    wait: number;
     onError: (e: Error) => void;
     onSuccessful: (res: Response) => void;
   }>
@@ -48,16 +56,21 @@ const useQuerySelectItems = <T extends { id: number }>(
       const users = await res.json().then((body: { users: T[] }) => body.users);
 
       setQueryResult(users);
-      options?.onSuccessful(res);
+
+      if (options.onSuccessful) {
+        options.onSuccessful(res);
+      }
     } catch (e) {
-      options?.onError(e);
+      if (options.onError) {
+        options.onError(e);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const optimizedQueryWithKeyword = useCallback(
-    throttle(queryWithKeyword, options.delay),
+    throttle(queryWithKeyword, options.wait),
     []
   );
 
