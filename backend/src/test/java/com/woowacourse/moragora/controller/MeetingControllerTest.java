@@ -2,7 +2,8 @@ package com.woowacourse.moragora.controller;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -62,7 +63,7 @@ class MeetingControllerTest {
         );
 
         // when
-        given(meetingService.save(any(MeetingRequest.class), anyLong()))
+        given(meetingService.save(any(MeetingRequest.class), nullable(Long.class)))
                 .willReturn(1L);
 
         // then
@@ -88,7 +89,7 @@ class MeetingControllerTest {
         );
 
         // when
-        given(meetingService.save(any(MeetingRequest.class), anyLong()))
+        given(meetingService.save(any(MeetingRequest.class), nullable(Long.class)))
                 .willThrow(new IllegalStartEndDateException());
 
         // then
@@ -178,7 +179,7 @@ class MeetingControllerTest {
         );
 
         // when
-        given(meetingService.findById(1L, 1L))
+        given(meetingService.findById(eq(1L), nullable(Long.class)))
                 .willReturn(meetingResponse);
 
         // then
@@ -192,7 +193,6 @@ class MeetingControllerTest {
                 .andExpect(jsonPath("$.startDate", equalTo("2022-07-10")))
                 .andExpect(jsonPath("$.endDate", equalTo("2022-08-10")))
                 .andExpect(jsonPath("$.entranceTime", equalTo("10:00:00")))
-                .andExpect(jsonPath("$.leaveTime", equalTo("18:00:00")))
                 .andExpect(jsonPath("$.leaveTime", equalTo("18:00:00")));
     }
 }
