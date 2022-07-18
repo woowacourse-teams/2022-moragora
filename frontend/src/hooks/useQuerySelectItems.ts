@@ -32,6 +32,7 @@ const useQuerySelectItems = <T extends { id: number }>(
   url: string,
   options: Partial<{
     wait: number;
+    maxSelectCount: number;
     onError: (e: Error) => void;
     onSuccessful: (res: Response) => void;
   }>
@@ -75,6 +76,14 @@ const useQuerySelectItems = <T extends { id: number }>(
   );
 
   const selectItem = (item: T) => {
+    const isSelectedCountExceed =
+      selectedItems.length >=
+      (options.maxSelectCount ? options.maxSelectCount : 30);
+
+    if (isSelectedCountExceed) {
+      return;
+    }
+
     setSelectedItems((prev) => [...prev, item]);
   };
 
