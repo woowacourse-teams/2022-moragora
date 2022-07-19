@@ -8,15 +8,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.SearchedUserResponse;
 import com.woowacourse.moragora.dto.SearchedUsersResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.exception.NoKeywordException;
+import com.woowacourse.moragora.exception.NoParameterException;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.test.web.servlet.ResultActions;
 
 public class UserControllerTest extends ControllerTest {
@@ -71,6 +75,40 @@ public class UserControllerTest extends ControllerTest {
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
                         .value("입력 형식이 올바르지 않습니다."));
+    }
+
+    @DisplayName("이메일의 중복 여부를 확인한다.")
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void checkEmail(final boolean isExist) throws Exception {
+        // given
+        final String email = "kun@naver.com";
+        given(userService.isEmailExist(email))
+                .willReturn(new EmailCheckResponse(isExist));
+
+        // when
+        final ResultActions resultActions = performGet("/users/check-email?email=" + email);
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.isExist").value(isExist));
+    }
+
+    @DisplayName("이메일을 입력하지 않고 중복 여부를 확인하면 예외가 발생한다.")
+    @ParameterizedTest
+    @EmptySource
+    @ValueSource(strings = {" "})
+    void checkEmail_throwsException_ifBlank(final String email) throws Exception {
+        // given
+        given(userService.isEmailExist(email))
+                .willThrow(new NoParameterException());
+
+        // when
+        final ResultActions resultActions = performGet("/users/check-email?email=" + email);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("값이 입력되지 않았습니다."));
     }
 
     @DisplayName("keyword로 유저를 검색해 반환한다.")

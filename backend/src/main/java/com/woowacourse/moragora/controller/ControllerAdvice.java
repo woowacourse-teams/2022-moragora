@@ -10,6 +10,7 @@ import com.woowacourse.moragora.exception.ClosingTimeExcessException;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.NoKeywordException;
+import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.exception.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import java.util.List;
@@ -60,6 +61,12 @@ public class ControllerAdvice {
     @ExceptionHandler(LoginFailException.class)
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleLoginFailException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(NoParameterException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handleNoParameterException(final Exception exception) {
         return new ErrorResponse(exception.getMessage());
     }
 
