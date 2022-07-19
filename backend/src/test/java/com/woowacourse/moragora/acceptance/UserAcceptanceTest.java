@@ -34,7 +34,7 @@ public class UserAcceptanceTest extends AcceptanceTest {
         final String email = "someUniqueEmail@unique.email";
 
         // when
-        final ValidatableResponse response = get("/users/check-email?email=\"" + email + "\"");
+        final ValidatableResponse response = get("/users/check-email?email=" + email);
 
         // then
         response.statusCode(HttpStatus.OK.value())

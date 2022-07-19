@@ -3,6 +3,7 @@ package com.woowacourse.moragora.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.SearchedUsersResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.exception.NoKeywordException;
@@ -43,10 +44,10 @@ class UserServiceTest {
         final String uniqueEmail = "someUniqueEmail@email.unique";
 
         // when
-        final boolean isExist = userService.isEmailExist(uniqueEmail);
+        final EmailCheckResponse response = userService.isEmailExist(uniqueEmail);
 
         // then
-        assertThat(isExist).isFalse();
+        assertThat(response.getIsExist()).isFalse();
     }
 
     @DisplayName("중복된 이메일의 중복 여부를 확인한다.")
@@ -58,10 +59,10 @@ class UserServiceTest {
         userService.create(userRequest);
 
         // when
-        final boolean isExist = userService.isEmailExist(existingEmail);
+        final EmailCheckResponse response = userService.isEmailExist(existingEmail);
 
         // then
-        assertThat(isExist).isTrue();
+        assertThat(response.getIsExist()).isTrue();
     }
 
     @DisplayName("이메일을 입력하지 않고 중복 여부를 확인하면 예외가 발생한다.")

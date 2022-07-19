@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.SearchedUserResponse;
 import com.woowacourse.moragora.dto.SearchedUsersResponse;
 import com.woowacourse.moragora.dto.UserRequest;
@@ -30,11 +31,12 @@ public class UserService {
         return savedUser.getId();
     }
 
-    public boolean isEmailExist(final String email) {
+    public EmailCheckResponse isEmailExist(final String email) {
         if (email.isBlank()) {
             throw new NoParameterException();
         }
-        return userRepository.findByEmail(email).isPresent();
+        final boolean isExist = userRepository.findByEmail(email).isPresent();
+        return new EmailCheckResponse(isExist);
     }
 
     public SearchedUsersResponse searchByKeyword(final String keyword) {

@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.auth.config.WebConfig;
+import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.SearchedUserResponse;
 import com.woowacourse.moragora.dto.SearchedUsersResponse;
 import com.woowacourse.moragora.dto.UserRequest;
@@ -97,7 +98,7 @@ public class UserControllerTest {
         // given
         final String email = "kun@naver.com";
         given(userService.isEmailExist(email))
-                .willReturn(isExist);
+                .willReturn(new EmailCheckResponse(isExist));
 
         // when, then
         mockMvc.perform(get("/users/check-email?email=" + email)

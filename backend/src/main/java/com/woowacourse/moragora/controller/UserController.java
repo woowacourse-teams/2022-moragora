@@ -32,8 +32,8 @@ public class UserController {
 
     @GetMapping("/check-email")
     public ResponseEntity<EmailCheckResponse> checkEmail(@RequestParam final String email) {
-        final boolean isExist = userService.isEmailExist(email);
-        return ResponseEntity.ok(new EmailCheckResponse(isExist));
+        final EmailCheckResponse response = userService.isEmailExist(email);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
