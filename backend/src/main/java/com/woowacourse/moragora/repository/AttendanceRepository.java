@@ -2,6 +2,8 @@ package com.woowacourse.moragora.repository;
 
 import com.woowacourse.moragora.entity.Attendance;
 import java.time.LocalDate;
+import com.woowacourse.moragora.entity.Participant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
@@ -37,14 +39,14 @@ public class AttendanceRepository {
     public Optional<Attendance> findByParticipantIdAndAttendanceDate(final Long participantId,
                                                                      final LocalDate attendanceDate) {
         try {
-            final Attendance attendance = entityManager.createQuery("select a from Attendance a"
-                    + " where a.participant.id = :participantId and"
-                    + " a.attendanceDate = :attendanceDate", Attendance.class)
+            final Attendance attendance = entityManager.createQuery(
+                            "select a from Attendance a where a.participant.id = :participantId and a.attendanceDate = :attendanceDate",
+                            Attendance.class)
                     .setParameter("participantId", participantId)
                     .setParameter("attendanceDate", attendanceDate)
                     .getSingleResult();
-            return Optional.of(attendance);
-        } catch (final NoResultException e) {
+            return Optional.ofNullable(attendance);
+        } catch (NoResultException exception) {
             return Optional.empty();
         }
     }

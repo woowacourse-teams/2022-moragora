@@ -5,8 +5,13 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.woowacourse.auth.exception.LoginFailException;
 import com.woowacourse.moragora.dto.ErrorResponse;
+import com.woowacourse.moragora.exception.AttendanceNotFoundException;
+import com.woowacourse.moragora.exception.ClosingTimeExcessException;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.NoKeywordException;
+import com.woowacourse.moragora.exception.NoParameterException;
+import com.woowacourse.moragora.exception.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import java.util.List;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -56,6 +61,36 @@ public class ControllerAdvice {
     @ExceptionHandler(LoginFailException.class)
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleLoginFailException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(NoParameterException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handleNoParameterException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(NoKeywordException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handleNoKeywordException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(ParticipantNotFoundException.class)
+    @ResponseStatus(NOT_FOUND)
+    public ErrorResponse handleParticipantNotFoundException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(ClosingTimeExcessException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handleClosingTimeExcessException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(AttendanceNotFoundException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handleAttendanceNotFoundException(final Exception exception) {
         return new ErrorResponse(exception.getMessage());
     }
 }

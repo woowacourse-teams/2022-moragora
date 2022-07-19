@@ -3,6 +3,7 @@ package com.woowacourse;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
+import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.repository.AttendanceRepository;
@@ -76,15 +77,15 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
         participantRepository.save(participant6);
         participantRepository.save(participant7);
 
-        final Attendance attendance1 = new Attendance(participant1, LocalDate.of(2022, 7, 12), true);
-        final Attendance attendance2 = new Attendance(participant2, LocalDate.of(2022, 7, 12), false);
-        final Attendance attendance3 = new Attendance(participant3, LocalDate.of(2022, 7, 12), true);
-        final Attendance attendance4 = new Attendance(participant1, LocalDate.of(2022, 7, 13), false);
-        final Attendance attendance5 = new Attendance(participant2, LocalDate.of(2022, 7, 13), true);
-        final Attendance attendance6 = new Attendance(participant3, LocalDate.of(2022, 7, 13), false);
-        final Attendance attendance7 = new Attendance(participant1, LocalDate.of(2022, 7, 14), true);
-        final Attendance attendance8 = new Attendance(participant2, LocalDate.of(2022, 7, 14), false);
-        final Attendance attendance9 = new Attendance(participant3, LocalDate.of(2022, 7, 14), true);
+        final Attendance attendance1 = new Attendance(participant1, LocalDate.now(), Status.TARDY);
+        final Attendance attendance2 = new Attendance(participant2, LocalDate.of(2022, 7, 12), Status.TARDY);
+        final Attendance attendance3 = new Attendance(participant3, LocalDate.of(2022, 7, 12), Status.TARDY);
+        final Attendance attendance4 = new Attendance(participant1, LocalDate.of(2022, 7, 13), Status.TARDY);
+        final Attendance attendance5 = new Attendance(participant2, LocalDate.of(2022, 7, 13), Status.TARDY);
+        final Attendance attendance6 = new Attendance(participant3, LocalDate.of(2022, 7, 13), Status.TARDY);
+        final Attendance attendance7 = new Attendance(participant1, LocalDate.of(2022, 7, 14), Status.TARDY);
+        final Attendance attendance8 = new Attendance(participant2, LocalDate.of(2022, 7, 14), Status.TARDY);
+        final Attendance attendance9 = new Attendance(participant3, LocalDate.of(2022, 7, 14), Status.TARDY);
 
         attendanceRepository.save(attendance1);
         attendanceRepository.save(attendance2);

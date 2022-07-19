@@ -1,8 +1,10 @@
 package com.woowacourse.moragora.controller;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -10,13 +12,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.woowacourse.auth.config.WebConfig;
+import com.woowacourse.auth.support.JwtTokenProvider;
+import com.woowacourse.moragora.dto.EmailCheckResponse;
+import com.woowacourse.moragora.dto.SearchedUserResponse;
+import com.woowacourse.moragora.dto.SearchedUsersResponse;
 import com.woowacourse.moragora.dto.UserRequest;
+import com.woowacourse.moragora.exception.NoKeywordException;
+import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.service.UserService;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -24,7 +34,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = {UserController.class})
-@MockBean(value = {WebConfig.class})
 public class UserControllerTest {
 
     @Autowired
@@ -36,6 +45,9 @@ public class UserControllerTest {
     @MockBean
     private UserService userService;
 
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
     @DisplayName("회원가입에 성공한다.")
     @Test
     void signUp() throws Exception {
@@ -44,7 +56,13 @@ public class UserControllerTest {
         given(userService.create(any(UserRequest.class)))
                 .willReturn(1L);
 
-        // when, then
+        // when
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+
+        // then
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequest)))
@@ -71,7 +89,13 @@ public class UserControllerTest {
         // given
         final UserRequest userRequest = new UserRequest(email, password, nickname);
 
-        // when, then
+        // when
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+
+        // then
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequest)))
@@ -79,5 +103,90 @@ public class UserControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
                         .value("입력 형식이 올바르지 않습니다."));
+    }
+
+    @DisplayName("이메일의 중복 여부를 확인한다.")
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void checkEmail(final boolean isExist) throws Exception {
+        // given
+        final String email = "kun@naver.com";
+        given(userService.isEmailExist(email))
+                .willReturn(new EmailCheckResponse(isExist));
+
+        // when, then
+        mockMvc.perform(get("/users/check-email?email=" + email)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isExist").value(isExist));
+    }
+
+    @DisplayName("이메일을 입력하지 않고 중복 여부를 확인하면 예외가 발생한다.")
+    @ParameterizedTest
+    @EmptySource
+    @ValueSource(strings = {" "})
+    void checkEmail_throwsException_ifBlank(final String email) throws Exception {
+        // given
+        given(userService.isEmailExist(email))
+                .willThrow(new NoParameterException());
+
+        // when, then
+        mockMvc.perform(get("/users/check-email?email=" + email)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("값이 입력되지 않았습니다."));
+    }
+
+    @DisplayName("keyword로 유저를 검색해 반환한다.")
+    @Test
+    void search() throws Exception {
+        // given
+        final String keyword = "foo";
+        given(userService.searchByKeyword(keyword))
+                .willReturn(new SearchedUsersResponse(
+                        List.of(
+                                new SearchedUserResponse(1L, "aaa111@foo.com", "아스피"),
+                                new SearchedUserResponse(2L, "bbb222@foo.com", "필즈"),
+                                new SearchedUserResponse(3L, "ccc333@foo.com", "포키"),
+                                new SearchedUserResponse(4L, "ddd444@foo.com", "썬"),
+                                new SearchedUserResponse(5L, "eee555@foo.com", "우디"),
+                                new SearchedUserResponse(6L, "fff666@foo.com", "쿤"),
+                                new SearchedUserResponse(7L, "ggg777@foo.com", "반듯"))
+                ));
+
+        // when, then
+        mockMvc.perform(get("/users?keyword=" + keyword)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.users[*].id", containsInAnyOrder(1, 2, 3, 4, 5, 6, 7)))
+                .andExpect(jsonPath("$.users[*].email", containsInAnyOrder(
+                        "aaa111@foo.com",
+                        "bbb222@foo.com",
+                        "ccc333@foo.com",
+                        "ddd444@foo.com",
+                        "eee555@foo.com",
+                        "fff666@foo.com",
+                        "ggg777@foo.com")))
+                .andExpect(jsonPath("$.users[*].nickname", containsInAnyOrder(
+                        "아스피", "필즈", "포키", "썬", "우디", "쿤", "반듯")));
+    }
+
+    @DisplayName("keyword를 입력하지 않고 검색하면 예외가 발생한다.")
+    @Test
+    void search_throwsException_ifNoKeyword() throws Exception {
+        // given
+        final String keyword = "";
+        given(userService.searchByKeyword(keyword))
+                .willThrow(new NoKeywordException());
+
+        // when, then
+        mockMvc.perform(get("/users?keyword=" + keyword)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", equalTo("검색어가 입력되지 않았습니다.")));
     }
 }

@@ -1,5 +1,7 @@
 package com.woowacourse.moragora.acceptance;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.woowacourse.moragora.dto.UserRequest;
@@ -23,5 +25,58 @@ public class UserAcceptanceTest extends AcceptanceTest {
         // then
         response.statusCode(HttpStatus.CREATED.value())
                 .header("Location", notNullValue());
+    }
+
+    @DisplayName("가입되지 않은 이메일에 대해 중복 확인을 요청하면 false와 상태코드 200을 반환받는다.")
+    @Test
+    void checkEmail_ifExists() {
+        // given
+        final String email = "someUniqueEmail@unique.email";
+
+        // when
+        final ValidatableResponse response = get("/users/check-email?email=" + email);
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("isExist", equalTo(false));
+    }
+
+    @DisplayName("존재하는 이메일에 대해 중복 확인을 요청하면 true와 상태코드 200을 반환받는다.")
+    @Test
+    void checkEmail_IfNotExist() {
+        // given
+        final String email = "kun@naver.com";
+        final UserRequest userRequest = new UserRequest(email, "1234smart!", "kun");
+        post("/users", userRequest);
+
+        // when
+        final ValidatableResponse response = get("/users/check-email?email=" + email);
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("isExist", equalTo(true));
+    }
+
+    @DisplayName("키워드를 입력하면 그 키워드가 포함된 유저 목록과 상태코드 200을 반환한다.")
+    @Test
+    void search() {
+        // given
+        final String keyword = "foo";
+
+        // when
+        final ValidatableResponse response = get("/users?keyword=" + keyword);
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("users.id", containsInAnyOrder(1, 2, 3, 4, 5, 6, 7))
+                .body("users.nickname", containsInAnyOrder("아스피", "필즈", "포키",
+                        "썬", "우디", "쿤", "반듯"))
+                .body("users.email", containsInAnyOrder("aaa111@foo.com",
+                        "bbb222@foo.com",
+                        "ccc333@foo.com",
+                        "ddd444@foo.com",
+                        "eee555@foo.com",
+                        "fff666@foo.com",
+                        "ggg777@foo.com"));
     }
 }
