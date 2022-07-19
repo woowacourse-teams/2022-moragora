@@ -47,4 +47,11 @@ public class UserRepository {
         final User user = entityManager.find(User.class, userId);
         return Optional.ofNullable(user);
     }
+
+    public List<User> findByNicknameOrEmailContaining(final String keyword) {
+        return entityManager.createQuery(
+                "select u from User u where u.email like :keyword or u.nickname like :keyword", User.class)
+                .setParameter("keyword", "%" + keyword + "%")
+                .getResultList();
+    }
 }

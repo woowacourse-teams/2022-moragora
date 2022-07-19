@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.controller;
 
 import com.woowacourse.moragora.dto.EmailCheckResponse;
+import com.woowacourse.moragora.dto.SearchedUsersResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.service.UserService;
 import java.net.URI;
@@ -33,5 +34,11 @@ public class UserController {
     public ResponseEntity<EmailCheckResponse> checkEmail(@RequestParam final String email) {
         final boolean isExist = userService.isEmailExist(email);
         return ResponseEntity.ok(new EmailCheckResponse(isExist));
+    }
+
+    @GetMapping
+    public ResponseEntity<SearchedUsersResponse> search(@RequestParam final String keyword) {
+        final SearchedUsersResponse response = userService.searchByKeyword(keyword);
+        return ResponseEntity.ok(response);
     }
 }
