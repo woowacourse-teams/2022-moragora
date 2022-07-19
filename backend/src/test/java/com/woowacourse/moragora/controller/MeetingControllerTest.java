@@ -3,6 +3,7 @@ package com.woowacourse.moragora.controller;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.doThrow;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -19,6 +20,8 @@ import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.exception.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import com.woowacourse.moragora.service.MeetingService;
 import java.time.LocalDate;
@@ -213,5 +216,45 @@ class MeetingControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
+    }
+
+    @DisplayName("출석을 제출하려는 방이 존재하지 않는 경우 예외가 발생한다.")
+    @Test
+    void endAttendance_throwsException_ifMeetingNotFound() throws Exception {
+        // given
+        final Long meetingId = 99L;
+        final Long userId = 1L;
+        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+
+        doThrow(MeetingNotFoundException.class)
+                .when(meetingService)
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
+
+        // when, then
+        mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @DisplayName("출석을 제출하려는 사용자가 미팅에 존재하지 않으면 예외가 발생한다.")
+    @Test
+    void endAttendance_throwsException_ifParticipantNotFound() throws Exception {
+        // given
+        final Long meetingId = 1L;
+        final Long userId = 8L;
+        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+
+        doThrow(ParticipantNotFoundException.class)
+                .when(meetingService)
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
+
+        // when, then
+        mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }

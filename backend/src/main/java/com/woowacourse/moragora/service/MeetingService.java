@@ -9,13 +9,17 @@ import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.ClosingTimeExcessException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
+import com.woowacourse.moragora.service.closingstrategy.ServerTime;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -29,15 +33,18 @@ public class MeetingService {
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
+    private final ServerTime serverTime;
 
     public MeetingService(final MeetingRepository meetingRepository,
                           final ParticipantRepository participantRepository,
                           final AttendanceRepository attendanceRepository,
-                          final UserRepository userRepository) {
+                          final UserRepository userRepository,
+                          final ServerTime serverTime) {
         this.meetingRepository = meetingRepository;
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
+        this.serverTime = serverTime;
     }
 
     // TODO: for 문 안에 insert문 한번에 날리는 것 고려
@@ -55,6 +62,7 @@ public class MeetingService {
             participantRepository.save(new Participant(user, meeting));
         }
 
+        attendanceRepository.save(new Attendance());
         return meeting.getId();
     }
 
@@ -90,11 +98,10 @@ public class MeetingService {
         meeting.increaseMeetingCount();
 
         final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
-
         final Participant participant = participants.stream()
                 .filter(p -> p.isSameUser(userId))
                 .findAny()
-                .get();
+                .orElseThrow(ParticipantNotFoundException::new);
 
         final Attendance attendance = attendanceRepository.findByParticipantIdAndDate(participant.getId(),
                 LocalDate.now());
