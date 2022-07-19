@@ -61,8 +61,6 @@ public class MeetingService {
         for (User user : users) {
             participantRepository.save(new Participant(user, meeting));
         }
-
-        attendanceRepository.save(new Attendance());
         return meeting.getId();
     }
 
