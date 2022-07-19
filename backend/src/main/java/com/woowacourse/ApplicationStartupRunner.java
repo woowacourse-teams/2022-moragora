@@ -55,7 +55,7 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
 
         final Meeting meeting = new Meeting(
                 "모임1",
-                LocalDate.of(2022, 7, 10),
+                LocalDate.now(),
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0));

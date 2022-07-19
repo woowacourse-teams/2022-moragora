@@ -38,7 +38,7 @@ public class Attendance {
         this.status = status;
     }
 
-    public void checkAttendance(Status status) {
+    public void changeAttendanceStatus(Status status) {
         this.status = status;
     }
 }

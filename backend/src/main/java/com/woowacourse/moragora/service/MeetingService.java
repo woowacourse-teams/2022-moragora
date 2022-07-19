@@ -95,7 +95,12 @@ public class MeetingService {
     @Transactional
     public void updateAttendance(final Long meetingId, final Long userId, final UserAttendanceRequest request) {
         final Meeting meeting = findMeeting(meetingId);
-        meeting.increaseMeetingCount();
+
+        final LocalTime entranceTime = meeting.getEntranceTime();
+        final boolean isExcess = serverTime.isExcessClosingTime(LocalTime.now(), entranceTime);
+        if (isExcess) {
+            throw new ClosingTimeExcessException();
+        }
 
         final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
         final Participant participant = participants.stream()
@@ -106,7 +111,7 @@ public class MeetingService {
         final Attendance attendance = attendanceRepository.findByParticipantIdAndDate(participant.getId(),
                 LocalDate.now());
 
-        attendance.checkAttendance(request.getAttendanceStatus());
+        attendance.changeAttendanceStatus(request.getAttendanceStatus());
     }
 
     private Meeting findMeeting(final Long id) {

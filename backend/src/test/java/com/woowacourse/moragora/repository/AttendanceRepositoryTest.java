@@ -33,12 +33,12 @@ class AttendanceRepositoryTest {
         assertThat(attendances.size()).isEqualTo(3);
     }
 
-    @DisplayName("미팅 참가자의 해당 날찌 출석정보를 조회한다.")
+    @DisplayName("미팅 참가자의 해당 날짜 출석정보를 조회한다.")
     @Test
     void findByParticipantIdAndDate() {
         // given
         final Long participantId = 1L;
-        final LocalDate attendanceDate = LocalDate.of(2022, 7, 18);
+        final LocalDate attendanceDate = LocalDate.now();
 
         // when
         final Attendance attendance = attendanceRepository.findByParticipantIdAndDate(participantId,
