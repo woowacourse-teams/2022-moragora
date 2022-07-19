@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse2;
+import com.woowacourse.moragora.dto.UsersResponse;
+import com.woowacourse.moragora.exception.NoKeywordException;
 import com.woowacourse.moragora.exception.UserNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,27 @@ class UserServiceTest {
 
         // then
         assertThat(id).isNotNull();
+    }
+
+    @DisplayName("keyword로 회원을 검색한다.")
+    @Test
+    void searchByKeyword() {
+        // given
+        final String keyword = "foo";
+
+        // when
+        final UsersResponse response = userService.searchByKeyword(keyword);
+
+        // then
+        assertThat(response.getUsers()).hasSize(7);
+    }
+
+    @DisplayName("keyword를 입력하지 않고 검색하면 예외가 발생한다.")
+    @Test
+    void searchByKeyword_throwsException_ifNoKeyword() {
+        // given, when, then
+        assertThatThrownBy(() -> userService.searchByKeyword(""))
+                .isInstanceOf(NoKeywordException.class);
     }
 
     @DisplayName("아이디로 회원을 조회한다.")
