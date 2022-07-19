@@ -15,8 +15,10 @@ import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,6 +83,16 @@ public class MeetingService {
         return MeetingResponse.of(meeting, userResponses);
     }
 
+    public MyMeetingsResponse findAllByUserId(final long userId) {
+        final LocalTime serverTime = LocalTime.now();
+        final List<Participant> participants = participantRepository.findByUserId(userId);
+        final List<Meeting> meetings = participants.stream()
+                .map(Participant::getMeeting)
+                .collect(Collectors.toList());
+
+        return MyMeetingsResponse.of(serverTime, meetings);
+    }
+
     // TODO update (1 + N) -> 최적하기
     // TODO 출석 제출할 때 구현 예정
     @Transactional
@@ -111,9 +123,5 @@ public class MeetingService {
     private User findUser(final Long id) {
         return userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
-    }
-
-    public MyMeetingsResponse findAllByUserId(final long l) {
-        return null;
     }
 }
