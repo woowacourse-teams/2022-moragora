@@ -14,8 +14,10 @@ import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,9 +59,12 @@ public class MeetingService {
     }
 
     // TODO 1 + N 최적화 대상
+    @Transactional
     public MeetingResponse findById(final Long meetingId, final Long userId) {
         final Meeting meeting = findMeeting(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
+
+        putAttendanceIfAbsent(participants);
 
         List<UserResponse> userResponses = new ArrayList<>();
 
@@ -110,5 +115,22 @@ public class MeetingService {
     private User findUser(final Long id) {
         return userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
+    }
+
+    private void putAttendanceIfAbsent(final List<Participant> participants) {
+        final Participant anyParticipant = participants.get(0);
+        final LocalDate today = LocalDate.now();
+        Optional<Attendance> attendance = attendanceRepository
+                .findByParticipantIdAndAttendanceDate(anyParticipant.getId(), today);
+
+        if (attendance.isEmpty()) {
+            saveAttendance(participants, today);
+        }
+    }
+
+    private void saveAttendance(final List<Participant> participants, final LocalDate today) {
+        for (Participant participant : participants) {
+            attendanceRepository.save(new Attendance(participant, today, true));
+        }
     }
 }

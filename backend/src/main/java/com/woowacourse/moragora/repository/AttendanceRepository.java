@@ -1,8 +1,11 @@
 package com.woowacourse.moragora.repository;
 
 import com.woowacourse.moragora.entity.Attendance;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +29,23 @@ public class AttendanceRepository {
 
     public List<Attendance> findByParticipantId(final Long participantId) {
         return entityManager.createQuery("select a from Attendance a where a.participant.id = :participantId",
-                        Attendance.class)
+                Attendance.class)
                 .setParameter("participantId", participantId)
                 .getResultList();
+    }
+
+    public Optional<Attendance> findByParticipantIdAndAttendanceDate(final Long participantId,
+                                                                     final LocalDate attendanceDate) {
+        try {
+            final Attendance attendance = entityManager.createQuery("select a from Attendance a"
+                    + " where a.participant.id = :participantId and"
+                    + " a.attendanceDate = :attendanceDate", Attendance.class)
+                    .setParameter("participantId", participantId)
+                    .setParameter("attendanceDate", attendanceDate)
+                    .getSingleResult();
+            return Optional.of(attendance);
+        } catch (final NoResultException e) {
+            return Optional.empty();
+        }
     }
 }
