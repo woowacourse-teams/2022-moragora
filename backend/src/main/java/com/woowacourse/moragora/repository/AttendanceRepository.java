@@ -30,4 +30,12 @@ public class AttendanceRepository {
                 .setParameter("participantId", participantId)
                 .getResultList();
     }
+
+    public long findAttendanceCountById(final List<Long> participantIds) {
+        return entityManager.createQuery(
+                        "select count(distinct a.attendanceDate) from Attendance a "
+                                + "where a.id in :ids", Long.class)
+                .setParameter("ids", participantIds)
+                .getSingleResult();
+    }
 }

@@ -16,6 +16,7 @@ import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,10 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MeetingService {
 
+
     private final MeetingRepository meetingRepository;
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
+
 
     public MeetingService(final MeetingRepository meetingRepository,
                           final ParticipantRepository participantRepository,
@@ -38,7 +41,7 @@ public class MeetingService {
         this.userRepository = userRepository;
     }
 
-    // TODO: for 문 안에 insert문 한번에 날리는 것 고려
+    // TODO: for 문 안에 insert 한번에 날리는 것 고려
     // TODO: master 지정해야함
     @Transactional
     public Long save(final MeetingRequest request, final Long userId) {
@@ -57,7 +60,7 @@ public class MeetingService {
     }
 
     // TODO 1 + N 최적화 대상
-    public MeetingResponse findById(final Long meetingId, final Long userId) {
+    public MeetingResponse findById(final Long meetingId) {
         final Meeting meeting = findMeeting(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
 
@@ -71,13 +74,22 @@ public class MeetingService {
                     .count();
 
             final User foundUser = participant.getUser();
-            final UserResponse userResponse = new UserResponse(foundUser.getId(), foundUser.getEmail(),
-                    foundUser.getNickname(), tardyCount);
+            final UserResponse userResponse = new UserResponse(
+                    foundUser.getId(),
+                    foundUser.getEmail(),
+                    foundUser.getNickname(),
+                    tardyCount);
 
             userResponses.add(userResponse);
         }
 
-        return MeetingResponse.of(meeting, userResponses);
+        final List<Long> participantIds = participants.stream()
+                .map(Participant::getId)
+                .collect(Collectors.toUnmodifiableList());
+
+        final long meetingAttendanceCount = attendanceRepository.findAttendanceCountById(participantIds);
+
+        return MeetingResponse.of(meeting, userResponses, meetingAttendanceCount);
     }
 
     // TODO update (1 + N) -> 최적하기

@@ -159,7 +159,6 @@ class MeetingControllerTest {
                         .value("입력 형식이 올바르지 않습니다."));
     }
 
-    // TODO userResponse 테스트 작성
     @DisplayName("단일 미팅 방을 조회한다.")
     @Test
     void findOne() throws Exception {
@@ -171,7 +170,7 @@ class MeetingControllerTest {
         final MeetingResponse meetingResponse = new MeetingResponse(
                 1L,
                 "모임1",
-                0,
+                3,
                 LocalDate.of(2022, 7, 10),
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
@@ -180,7 +179,7 @@ class MeetingControllerTest {
         );
 
         // when
-        given(meetingService.findById(eq(1L), nullable(Long.class)))
+        given(meetingService.findById(eq(1L)))
                 .willReturn(meetingResponse);
 
         // then
@@ -190,7 +189,7 @@ class MeetingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", equalTo(1)))
                 .andExpect(jsonPath("$.name", equalTo("모임1")))
-                .andExpect(jsonPath("$.attendanceCount", equalTo(0)))
+                .andExpect(jsonPath("$.attendanceCount", equalTo(3)))
                 .andExpect(jsonPath("$.startDate", equalTo("2022-07-10")))
                 .andExpect(jsonPath("$.endDate", equalTo("2022-08-10")))
                 .andExpect(jsonPath("$.entranceTime", equalTo("10:00:00")))

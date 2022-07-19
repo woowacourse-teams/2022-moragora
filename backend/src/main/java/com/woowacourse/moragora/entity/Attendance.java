@@ -29,7 +29,9 @@ public class Attendance {
 
     private boolean isTardy;
 
-    public Attendance(final Participant participant, final LocalDate attendanceDate, final boolean isTardy) {
+    public Attendance(final Participant participant,
+                      final LocalDate attendanceDate,
+                      final boolean isTardy) {
         this.participant = participant;
         this.attendanceDate = attendanceDate;
         this.isTardy = isTardy;

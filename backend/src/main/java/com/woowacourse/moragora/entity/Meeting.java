@@ -26,9 +26,6 @@ public class Meeting {
     private String name;
 
     @Column(nullable = false)
-    private int attendanceCount;
-
-    @Column(nullable = false)
     private LocalDate startDate;
 
     @Column(nullable = false)
@@ -47,15 +44,10 @@ public class Meeting {
                    final LocalTime leaveTime) {
         validateStartEndDate(startDate, endDate);
         this.name = name;
-        this.attendanceCount = 0;
         this.startDate = startDate;
         this.endDate = endDate;
         this.entranceTime = entranceTime;
         this.leaveTime = leaveTime;
-    }
-
-    public void increaseMeetingCount() {
-        attendanceCount++;
     }
 
     private void validateStartEndDate(final LocalDate startDate, final LocalDate endDate) {
