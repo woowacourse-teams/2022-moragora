@@ -31,7 +31,7 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<SearchedUsersResponse> search(@RequestParam final String keyword) {
-        final SearchedUsersResponse response = userService.search(keyword);
+        final SearchedUsersResponse response = userService.searchByKeyword(keyword);
         return ResponseEntity.ok(response);
     }
 }

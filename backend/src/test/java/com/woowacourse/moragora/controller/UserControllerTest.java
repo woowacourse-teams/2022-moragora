@@ -52,8 +52,8 @@ public class UserControllerTest {
 
         // when, then
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userRequest)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", equalTo("/users/" + 1)));
@@ -79,8 +79,8 @@ public class UserControllerTest {
 
         // when, then
         mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userRequest)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
@@ -92,7 +92,7 @@ public class UserControllerTest {
     void search() throws Exception {
         // given
         final String keyword = "foo";
-        given(userService.search(keyword))
+        given(userService.searchByKeyword(keyword))
                 .willReturn(new SearchedUsersResponse(
                         List.of(
                                 new SearchedUserResponse(1L, "aaa111@foo.com", "아스피"),
@@ -106,7 +106,7 @@ public class UserControllerTest {
 
         // when, then
         mockMvc.perform(get("/users?keyword=" + keyword)
-                        .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.users[*].id", containsInAnyOrder(1, 2, 3, 4, 5, 6, 7)))
@@ -127,12 +127,12 @@ public class UserControllerTest {
     void search_throwsException_ifNoKeyword() throws Exception {
         // given
         final String keyword = "";
-        given(userService.search(keyword))
+        given(userService.searchByKeyword(keyword))
                 .willThrow(new NoKeywordException());
 
         // when, then
         mockMvc.perform(get("/users?keyword=" + keyword)
-                        .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", equalTo("검색어가 입력되지 않았습니다.")));

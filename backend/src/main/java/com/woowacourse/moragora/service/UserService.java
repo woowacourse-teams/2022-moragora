@@ -29,7 +29,7 @@ public class UserService {
         return savedUser.getId();
     }
 
-    public SearchedUsersResponse search(final String keyword) {
+    public SearchedUsersResponse searchByKeyword(final String keyword) {
         validateKeyword(keyword);
         final List<User> searchedUsers = userRepository.findByNicknameOrEmailContaining(keyword);
         final List<SearchedUserResponse> responses = searchedUsers.stream()

@@ -34,12 +34,12 @@ class UserServiceTest {
 
     @DisplayName("keyword로 회원을 검색한다.")
     @Test
-    void search() {
+    void searchByKeyword() {
         // given
         final String keyword = "foo";
 
         // when
-        final SearchedUsersResponse response = userService.search(keyword);
+        final SearchedUsersResponse response = userService.searchByKeyword(keyword);
 
         // then
         assertThat(response.getUsers()).hasSize(7);
@@ -47,9 +47,9 @@ class UserServiceTest {
 
     @DisplayName("keyword를 입력하지 않고 검색하면 예외가 발생한다.")
     @Test
-    void search_throwsException_ifNoKeyword() {
+    void searchByKeyword_throwsException_ifNoKeyword() {
         // given, when, then
-        assertThatThrownBy(() -> userService.search(""))
+        assertThatThrownBy(() -> userService.searchByKeyword(""))
                 .isInstanceOf(NoKeywordException.class);
     }
 }
