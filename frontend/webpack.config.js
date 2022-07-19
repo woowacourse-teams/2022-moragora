@@ -6,12 +6,20 @@ const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 module.exports = {
   entry: './src/index.tsx',
   mode: 'development',
+  devtool: 'eval-source-map',
+  output: {
+    path: path.resolve(__dirname, 'build'),
+    publicPath: '/build',
+    filename: '[name].bundle.js',
+    assetModuleFilename: 'images/[hash][ext][query]',
+    clean: true,
+  },
   module: {
     rules: [
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        loader: 'ts-loader',
+        loader: 'babel-loader',
       },
       {
         test: /\.css$/,
@@ -23,21 +31,20 @@ module.exports = {
       },
     ],
   },
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: 'Moragora',
+    }),
+    new ESLintPlugin(),
+  ],
   resolve: {
-    extensions: ['*', '.tsx', '.ts', '.js'],
+    extensions: ['*', '.tsx', '.ts', '.jsx', '.js'],
     plugins: [
       new TsconfigPathsPlugin({
-        extensions: ['*', '.tsx', '.ts', '.js'],
+        extensions: ['*', '.tsx', '.ts', '.jsx', '.js'],
         baseUrl: './src/',
       }),
     ],
-  },
-  output: {
-    path: path.resolve(__dirname, 'build'),
-    publicPath: '/build',
-    filename: '[name].bundle.js',
-    assetModuleFilename: 'images/[hash][ext][query]',
-    clean: true,
   },
   devServer: {
     static: {
@@ -48,11 +55,4 @@ module.exports = {
     hot: true,
     historyApiFallback: true,
   },
-  devtool: 'inline-source-map',
-  plugins: [
-    new HtmlWebpackPlugin({
-      title: 'Moragora',
-    }),
-    new ESLintPlugin(),
-  ],
 };
