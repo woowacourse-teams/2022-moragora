@@ -64,7 +64,6 @@ public class MeetingService {
     }
 
     // TODO 1 + N 최적화 대상
-
     public MeetingResponse findById(final Long meetingId, final Long loginId) {
         final Meeting meeting = findMeeting(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
@@ -87,9 +86,9 @@ public class MeetingService {
 
         return MeetingResponse.of(meeting, userResponses);
     }
+
     // TODO update (1 + N) -> 최적하기
     // TODO 출석 제출할 때 구현 예정
-
     @Transactional
     public void updateAttendance(final Long meetingId, final UserAttendancesRequest requests) {
 /*
