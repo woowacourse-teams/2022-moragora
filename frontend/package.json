@@ -18,8 +18,8 @@
   "license": "MIT",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack serve --config webpack.config.js",
-    "build": "webpack",
+    "start": "webpack serve --open --progress --config ./webpack/webpack.dev.js",
+    "build": "webpack --progress --config ./webpack/webpack.prod.js",
     "storybook": "start-storybook -s public -p 6006",
     "build-storybook": "build-storybook"
   },

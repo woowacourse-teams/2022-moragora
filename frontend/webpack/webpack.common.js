@@ -1,15 +1,14 @@
-const path = require('path');
+const { join, resolve } = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ESLintPlugin = require('eslint-webpack-plugin');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 module.exports = {
-  entry: './src/index.tsx',
   mode: 'development',
+  entry: join(__dirname, '../src/index.tsx'),
   devtool: 'eval-source-map',
   output: {
-    path: path.resolve(__dirname, 'build'),
-    publicPath: '/build',
+    path: resolve(__dirname, '../build'),
     filename: '[name].bundle.js',
     assetModuleFilename: 'images/[hash][ext][query]',
     clean: true,
@@ -33,7 +32,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Moragora',
+      template: join(__dirname, '../public/index.html'),
     }),
     new ESLintPlugin(),
   ],
@@ -45,14 +44,5 @@ module.exports = {
         baseUrl: './src/',
       }),
     ],
-  },
-  devServer: {
-    static: {
-      directory: path.join(__dirname, 'public'),
-    },
-    port: 8000,
-    open: true,
-    hot: true,
-    historyApiFallback: true,
   },
 };
