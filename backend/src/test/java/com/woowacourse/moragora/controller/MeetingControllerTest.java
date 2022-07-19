@@ -16,6 +16,8 @@ import com.woowacourse.auth.support.JwtTokenProvider;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.UserResponse;
+import com.woowacourse.moragora.exception.IllegalParticipantException;
+import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import com.woowacourse.moragora.service.MeetingService;
 import java.time.LocalDate;
@@ -73,8 +75,8 @@ class MeetingControllerTest {
 
         // then
         mockMvc.perform(post("/meetings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(meetingRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(meetingRequest)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", equalTo("/meetings/" + 1)));
@@ -103,8 +105,8 @@ class MeetingControllerTest {
 
         // then
         mockMvc.perform(post("/meetings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(meetingRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(meetingRequest)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
@@ -135,8 +137,8 @@ class MeetingControllerTest {
 
         // then
         mockMvc.perform(post("/meetings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(meetingRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(meetingRequest)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
@@ -171,12 +173,136 @@ class MeetingControllerTest {
 
         // then
         mockMvc.perform(post("/meetings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(params)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
                         .value("입력 형식이 올바르지 않습니다."));
+    }
+
+    @DisplayName("미팅 방을 생성 시 참가자 명단에 중복 아이디가 있응 경우 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifUserIdsDuplicate() throws Exception {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 6, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(2L, 2L, 3L, 4L, 5L, 6L, 7L)
+        );
+
+        // when
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(1L)))
+                .willThrow(new IllegalParticipantException());
+
+        // then
+        mockMvc.perform(post("/meetings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(meetingRequest)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("참가자 정보가 잘못되었습니다."));
+    }
+
+    @DisplayName("미팅 방을 생성 시 참가자 명단이 비어있을 경우 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifUserIdsEmpty() throws Exception {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 6, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of()
+        );
+
+        // when
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(1L)))
+                .willThrow(new IllegalParticipantException());
+
+        // then
+        mockMvc.perform(post("/meetings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(meetingRequest)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("참가자 정보가 잘못되었습니다."));
+    }
+
+    @DisplayName("미팅 방을 생성 시 참가자 명단에 생성자 아이디가 있을 경우 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifUserIdsContainLoginId() throws Exception {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 6, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
+        );
+
+        // when
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(1L)))
+                .willThrow(new IllegalParticipantException());
+
+        // then
+        mockMvc.perform(post("/meetings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(meetingRequest)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("참가자 정보가 잘못되었습니다."));
+    }
+
+    @DisplayName("미팅 방을 생성 시 참가자 명단에 존재하지 않는 아이디가 있을 경우 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifUserIdNotExist() throws Exception {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 6, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(1L, 2L, 3L, 4L, 5L, 6L, 8L)
+        );
+
+        // when
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(1L)))
+                .willThrow(new UserNotFoundException());
+
+        // then
+        mockMvc.perform(post("/meetings")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(meetingRequest)))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("message")
+                        .value("유저가 존재하지 않습니다."));
     }
 
     // TODO userResponse 테스트 작성
@@ -209,7 +335,7 @@ class MeetingControllerTest {
 
         // then
         mockMvc.perform(get("/meetings/1")
-                        .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", equalTo(1)))
