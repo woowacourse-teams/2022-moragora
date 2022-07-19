@@ -84,7 +84,7 @@ class MeetingServiceTest {
                 1L,
                 "모임1",
                 0,
-                LocalDate.now(),
+                LocalDate.of(2022, 7, 10),
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
