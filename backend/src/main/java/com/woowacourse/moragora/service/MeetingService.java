@@ -77,7 +77,7 @@ public class MeetingService {
             final List<Attendance> attendances = attendanceRepository.findByParticipantId(participant.getId());
 
             final int tardyCount = (int) attendances.stream()
-                    .filter(attendance -> attendance.getStatus().equals(Status.TARDY))
+                    .filter(attendance -> attendance.isSameStatus(Status.TARDY))
                     .count();
 
             final User foundUser = participant.getUser();

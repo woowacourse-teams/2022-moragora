@@ -41,4 +41,8 @@ public class Attendance {
     public void changeAttendanceStatus(Status status) {
         this.status = status;
     }
+
+    public boolean isSameStatus(Status status) {
+        return this.status == status;
+    }
 }
