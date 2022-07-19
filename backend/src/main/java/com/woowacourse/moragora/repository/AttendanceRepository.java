@@ -31,11 +31,11 @@ public class AttendanceRepository {
                 .getResultList();
     }
 
-    public long findAttendanceCountById(final List<Long> participantIds) {
+    public long findAttendanceCountById(final Long participantId) {
         return entityManager.createQuery(
                         "select count(distinct a.attendanceDate) from Attendance a "
-                                + "where a.id in :ids", Long.class)
-                .setParameter("ids", participantIds)
+                                + "where a.participant.id = :id", Long.class)
+                .setParameter("id", participantId)
                 .getSingleResult();
     }
 }

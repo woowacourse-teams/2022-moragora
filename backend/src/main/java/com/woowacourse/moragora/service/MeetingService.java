@@ -87,7 +87,7 @@ public class MeetingService {
                 .map(Participant::getId)
                 .collect(Collectors.toUnmodifiableList());
 
-        final long meetingAttendanceCount = attendanceRepository.findAttendanceCountById(participantIds);
+        final long meetingAttendanceCount = attendanceRepository.findAttendanceCountById(participantIds.get(0));
 
         return MeetingResponse.of(meeting, userResponses, meetingAttendanceCount);
     }

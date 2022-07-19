@@ -79,12 +79,26 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
         final Attendance attendance1 = new Attendance(participant1, LocalDate.of(2022, 7, 12), true);
         final Attendance attendance2 = new Attendance(participant2, LocalDate.of(2022, 7, 12), false);
         final Attendance attendance3 = new Attendance(participant3, LocalDate.of(2022, 7, 12), true);
-        final Attendance attendance4 = new Attendance(participant1, LocalDate.of(2022, 7, 13), false);
-        final Attendance attendance5 = new Attendance(participant2, LocalDate.of(2022, 7, 13), true);
-        final Attendance attendance6 = new Attendance(participant3, LocalDate.of(2022, 7, 13), false);
-        final Attendance attendance7 = new Attendance(participant1, LocalDate.of(2022, 7, 14), true);
-        final Attendance attendance8 = new Attendance(participant2, LocalDate.of(2022, 7, 14), false);
-        final Attendance attendance9 = new Attendance(participant3, LocalDate.of(2022, 7, 14), true);
+        final Attendance attendance4 = new Attendance(participant4, LocalDate.of(2022, 7, 12), true);
+        final Attendance attendance5 = new Attendance(participant5, LocalDate.of(2022, 7, 12), true);
+        final Attendance attendance6 = new Attendance(participant6, LocalDate.of(2022, 7, 12), true);
+        final Attendance attendance7 = new Attendance(participant7, LocalDate.of(2022, 7, 12), true);
+
+        final Attendance attendance8 = new Attendance(participant1, LocalDate.of(2022, 7, 13), false);
+        final Attendance attendance9 = new Attendance(participant2, LocalDate.of(2022, 7, 13), true);
+        final Attendance attendance10 = new Attendance(participant3, LocalDate.of(2022, 7, 13), false);
+        final Attendance attendance11 = new Attendance(participant4, LocalDate.of(2022, 7, 13), false);
+        final Attendance attendance12 = new Attendance(participant5, LocalDate.of(2022, 7, 13), false);
+        final Attendance attendance13 = new Attendance(participant6, LocalDate.of(2022, 7, 13), false);
+        final Attendance attendance14 = new Attendance(participant7, LocalDate.of(2022, 7, 13), false);
+
+        final Attendance attendance15 = new Attendance(participant1, LocalDate.of(2022, 7, 14), true);
+        final Attendance attendance16 = new Attendance(participant2, LocalDate.of(2022, 7, 14), false);
+        final Attendance attendance17 = new Attendance(participant3, LocalDate.of(2022, 7, 14), true);
+        final Attendance attendance18 = new Attendance(participant4, LocalDate.of(2022, 7, 14), true);
+        final Attendance attendance19 = new Attendance(participant5, LocalDate.of(2022, 7, 14), true);
+        final Attendance attendance20 = new Attendance(participant6, LocalDate.of(2022, 7, 14), true);
+        final Attendance attendance21 = new Attendance(participant7, LocalDate.of(2022, 7, 14), true);
 
         attendanceRepository.save(attendance1);
         attendanceRepository.save(attendance2);
@@ -93,7 +107,21 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
         attendanceRepository.save(attendance5);
         attendanceRepository.save(attendance6);
         attendanceRepository.save(attendance7);
+
         attendanceRepository.save(attendance8);
         attendanceRepository.save(attendance9);
+        attendanceRepository.save(attendance10);
+        attendanceRepository.save(attendance11);
+        attendanceRepository.save(attendance12);
+        attendanceRepository.save(attendance13);
+        attendanceRepository.save(attendance14);
+
+        attendanceRepository.save(attendance15);
+        attendanceRepository.save(attendance16);
+        attendanceRepository.save(attendance17);
+        attendanceRepository.save(attendance18);
+        attendanceRepository.save(attendance19);
+        attendanceRepository.save(attendance20);
+        attendanceRepository.save(attendance21);
     }
 }
