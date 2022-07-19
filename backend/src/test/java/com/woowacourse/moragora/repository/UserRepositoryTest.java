@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,5 +55,16 @@ class UserRepositoryTest {
 
         // then
         assertThat(user.isPresent()).isTrue();
+    }
+
+    @DisplayName("keyword로 유저를 검색할 수 있다.")
+    @ParameterizedTest
+    @CsvSource(value = {"foo,7", "ggg777@foo.com,1"})
+    void findByNicknameOrEmailContaining(final String keyword, final int expectedSize) {
+        // given, when
+        final List<User> users = userRepository.findByNicknameOrEmailContaining(keyword);
+
+        // then
+        assertThat(users).hasSize(expectedSize);
     }
 }

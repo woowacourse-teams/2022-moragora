@@ -1,8 +1,10 @@
 package com.woowacourse.moragora.controller;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -11,8 +13,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.auth.config.WebConfig;
+import com.woowacourse.moragora.dto.SearchedUserResponse;
+import com.woowacourse.moragora.dto.SearchedUsersResponse;
 import com.woowacourse.moragora.dto.UserRequest;
+import com.woowacourse.moragora.exception.NoKeywordException;
 import com.woowacourse.moragora.service.UserService;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -79,5 +85,56 @@ public class UserControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
                         .value("입력 형식이 올바르지 않습니다."));
+    }
+
+    @DisplayName("keyword로 유저를 검색해 반환한다.")
+    @Test
+    void search() throws Exception {
+        // given
+        final String keyword = "foo";
+        given(userService.searchByKeyword(keyword))
+                .willReturn(new SearchedUsersResponse(
+                        List.of(
+                                new SearchedUserResponse(1L, "aaa111@foo.com", "아스피"),
+                                new SearchedUserResponse(2L, "bbb222@foo.com", "필즈"),
+                                new SearchedUserResponse(3L, "ccc333@foo.com", "포키"),
+                                new SearchedUserResponse(4L, "ddd444@foo.com", "썬"),
+                                new SearchedUserResponse(5L, "eee555@foo.com", "우디"),
+                                new SearchedUserResponse(6L, "fff666@foo.com", "쿤"),
+                                new SearchedUserResponse(7L, "ggg777@foo.com", "반듯"))
+                ));
+
+        // when, then
+        mockMvc.perform(get("/users?keyword=" + keyword)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.users[*].id", containsInAnyOrder(1, 2, 3, 4, 5, 6, 7)))
+                .andExpect(jsonPath("$.users[*].email", containsInAnyOrder(
+                        "aaa111@foo.com",
+                        "bbb222@foo.com",
+                        "ccc333@foo.com",
+                        "ddd444@foo.com",
+                        "eee555@foo.com",
+                        "fff666@foo.com",
+                        "ggg777@foo.com")))
+                .andExpect(jsonPath("$.users[*].nickname", containsInAnyOrder(
+                        "아스피", "필즈", "포키", "썬", "우디", "쿤", "반듯")));
+    }
+
+    @DisplayName("keyword를 입력하지 않고 검색하면 예외가 발생한다.")
+    @Test
+    void search_throwsException_ifNoKeyword() throws Exception {
+        // given
+        final String keyword = "";
+        given(userService.searchByKeyword(keyword))
+                .willThrow(new NoKeywordException());
+
+        // when, then
+        mockMvc.perform(get("/users?keyword=" + keyword)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", equalTo("검색어가 입력되지 않았습니다.")));
     }
 }
