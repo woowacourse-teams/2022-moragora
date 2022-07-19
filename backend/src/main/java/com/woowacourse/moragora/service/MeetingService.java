@@ -9,6 +9,7 @@ import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.AttendanceNotFoundException;
 import com.woowacourse.moragora.exception.ClosingTimeExcessException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.ParticipantNotFoundException;
@@ -18,7 +19,7 @@ import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
 import com.woowacourse.moragora.service.closingstrategy.ServerTime;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,23 +93,23 @@ public class MeetingService {
     // TODO 출석 제출할 때 구현 예정
     @Transactional
     public void updateAttendance(final Long meetingId, final Long userId, final UserAttendanceRequest request) {
+        LocalDateTime nowDateTime = LocalDateTime.now();
+
         final Meeting meeting = findMeeting(meetingId);
         final User user = findUser(userId);
 
         final LocalTime entranceTime = meeting.getEntranceTime();
-        final boolean isExcess = serverTime.isExcessClosingTime(LocalTime.now(), entranceTime);
+        final boolean isExcess = serverTime.isExcessClosingTime(nowDateTime.toLocalTime(), entranceTime);
         if (isExcess) {
             throw new ClosingTimeExcessException();
         }
 
-        final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
-        final Participant participant = participants.stream()
-                .filter(p -> p.isSameUser(user))
-                .findAny()
+        final Participant participant = attendanceRepository.findByMeetingIdAndUserId(meeting.getId(), user.getId())
                 .orElseThrow(ParticipantNotFoundException::new);
 
         final Attendance attendance = attendanceRepository.findByParticipantIdAndAttendanceDate(participant.getId(),
-                LocalDate.now());
+                        nowDateTime.toLocalDate())
+                .orElseThrow(AttendanceNotFoundException::new);
 
         attendance.changeAttendanceStatus(request.getAttendanceStatus());
     }

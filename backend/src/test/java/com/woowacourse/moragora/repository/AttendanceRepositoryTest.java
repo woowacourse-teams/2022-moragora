@@ -1,12 +1,12 @@
 package com.woowacourse.moragora.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.woowacourse.moragora.entity.Attendance;
-import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.entity.Participant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,14 +41,26 @@ class AttendanceRepositoryTest {
         final LocalDate attendanceDate = LocalDate.now();
 
         // when
-        final Attendance attendance = attendanceRepository.findByParticipantIdAndAttendanceDate(participantId,
+        final Optional<Attendance> attendance = attendanceRepository.findByParticipantIdAndAttendanceDate(
+                participantId,
                 attendanceDate);
 
         // then
-        assertAll(
-                () -> assertThat(attendance.getAttendanceDate()).isEqualTo(attendanceDate),
-                () -> assertThat(attendance.getParticipant().getId()).isEqualTo(participantId),
-                () -> assertThat(attendance.getStatus().equals(Status.TARDY))
-        );
+        assertThat(attendance.isPresent()).isTrue();
+    }
+
+    @DisplayName("미팅 참가자 Id와 미팅 Id로 출석 정보를 조회한다.")
+    @Test
+    void findByMeetingIdAndUserId() {
+        // given
+        final Long meetingId = 1L;
+        final Long userId = 1L;
+
+        // when
+        final Optional<Participant> participant = attendanceRepository.findByMeetingIdAndUserId(meetingId,
+                userId);
+
+        // then
+        assertThat(participant.isPresent()).isTrue();
     }
 }
