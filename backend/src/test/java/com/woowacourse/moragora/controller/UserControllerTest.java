@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.woowacourse.auth.config.WebConfig;
+import com.woowacourse.auth.support.JwtTokenProvider;
 import com.woowacourse.moragora.dto.SearchedUserResponse;
 import com.woowacourse.moragora.dto.SearchedUsersResponse;
 import com.woowacourse.moragora.dto.UserRequest;
@@ -30,7 +30,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = {UserController.class})
-@MockBean(value = {WebConfig.class})
 public class UserControllerTest {
 
     @Autowired
@@ -42,6 +41,9 @@ public class UserControllerTest {
     @MockBean
     private UserService userService;
 
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
     @DisplayName("회원가입에 성공한다.")
     @Test
     void signUp() throws Exception {
@@ -50,7 +52,13 @@ public class UserControllerTest {
         given(userService.create(any(UserRequest.class)))
                 .willReturn(1L);
 
-        // when, then
+        // when
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+
+        // then
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequest)))
@@ -77,7 +85,13 @@ public class UserControllerTest {
         // given
         final UserRequest userRequest = new UserRequest(email, password, nickname);
 
-        // when, then
+        // when
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+
+        // then
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(userRequest)))
