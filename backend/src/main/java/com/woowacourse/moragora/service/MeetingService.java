@@ -108,7 +108,7 @@ public class MeetingService {
                 .findAny()
                 .orElseThrow(ParticipantNotFoundException::new);
 
-        final Attendance attendance = attendanceRepository.findByParticipantIdAndDate(participant.getId(),
+        final Attendance attendance = attendanceRepository.findByParticipantIdAndAttendanceDate(participant.getId(),
                 LocalDate.now());
 
         attendance.changeAttendanceStatus(request.getAttendanceStatus());

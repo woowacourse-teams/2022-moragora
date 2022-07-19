@@ -41,7 +41,7 @@ class AttendanceRepositoryTest {
         final LocalDate attendanceDate = LocalDate.now();
 
         // when
-        final Attendance attendance = attendanceRepository.findByParticipantIdAndDate(participantId,
+        final Attendance attendance = attendanceRepository.findByParticipantIdAndAttendanceDate(participantId,
                 attendanceDate);
 
         // then

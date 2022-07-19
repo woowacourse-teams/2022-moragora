@@ -32,7 +32,7 @@ public class AttendanceRepository {
                 .getResultList();
     }
 
-    public Attendance findByParticipantIdAndDate(final Long participantId, final LocalDate attendanceDate) {
+    public Attendance findByParticipantIdAndAttendanceDate(final Long participantId, final LocalDate attendanceDate) {
         return entityManager.createQuery(
                         "select a from Attendance a where a.participant.id = :participantId and a.attendanceDate = :attendanceDate",
                         Attendance.class)

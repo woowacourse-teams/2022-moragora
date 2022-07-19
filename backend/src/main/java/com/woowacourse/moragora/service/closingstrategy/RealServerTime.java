@@ -6,11 +6,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class RealServerTime implements ServerTime {
 
-    private static final int EXTRA_TIME = 5;
+    private static final int ATTENDANCE_CHECK_DURATION = 5;
 
     @Override
     public boolean isExcessClosingTime(final LocalTime now, final LocalTime entranceTime) {
-        final LocalTime closingTime = entranceTime.plusMinutes(EXTRA_TIME);
+        final LocalTime closingTime = entranceTime.plusMinutes(ATTENDANCE_CHECK_DURATION);
         return now.isAfter(closingTime);
     }
 }
