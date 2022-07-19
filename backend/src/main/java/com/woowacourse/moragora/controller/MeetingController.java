@@ -45,8 +45,9 @@ public class MeetingController {
     @PutMapping("/{meetingId}/users/{userId}")
     public ResponseEntity<UserAttendanceRequest> checkAttendance(@PathVariable final Long meetingId,
                                                                  @PathVariable final Long userId,
-                                                                 @RequestBody final UserAttendanceRequest request) {
-        meetingService.updateAttendance(meetingId, userId, request);
+                                                                 @RequestBody final UserAttendanceRequest request,
+                                                                 @AuthenticationPrincipal final Long loginId) {
+        meetingService.updateAttendance(meetingId, userId, request, loginId);
         return ResponseEntity.noContent().build();
     }
 }

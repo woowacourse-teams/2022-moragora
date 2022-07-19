@@ -236,6 +236,11 @@ class MeetingControllerTest {
         final Long userId = 1L;
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+
         // when, then
         mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -252,9 +257,14 @@ class MeetingControllerTest {
         final Long userId = 1L;
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+
         doThrow(MeetingNotFoundException.class)
                 .when(meetingService)
-                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class), eq(1L));
 
         // when, then
         mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)
@@ -272,9 +282,14 @@ class MeetingControllerTest {
         final Long userId = 8L;
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+
         doThrow(ParticipantNotFoundException.class)
                 .when(meetingService)
-                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class), eq(1L));
 
         // when, then
         mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)

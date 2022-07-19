@@ -92,7 +92,8 @@ public class MeetingService {
     // TODO update (1 + N) -> 최적하기
     // TODO 출석 제출할 때 구현 예정
     @Transactional
-    public void updateAttendance(final Long meetingId, final Long userId, final UserAttendanceRequest request) {
+    public void updateAttendance(final Long meetingId, final Long userId, final UserAttendanceRequest request,
+                                 final Long loginId) {
         LocalDateTime nowDateTime = LocalDateTime.now();
 
         final Meeting meeting = findMeeting(meetingId);
