@@ -5,6 +5,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.woowacourse.auth.exception.LoginFailException;
 import com.woowacourse.moragora.dto.ErrorResponse;
+import com.woowacourse.moragora.exception.AttendanceNotFoundException;
 import com.woowacourse.moragora.exception.ClosingTimeExcessException;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
@@ -77,6 +78,12 @@ public class ControllerAdvice {
     @ExceptionHandler(ClosingTimeExcessException.class)
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleClosingTimeExcessException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(AttendanceNotFoundException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handleAttendanceNotFoundException(final Exception exception) {
         return new ErrorResponse(exception.getMessage());
     }
 }
