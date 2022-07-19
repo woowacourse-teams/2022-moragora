@@ -138,7 +138,7 @@ public class MeetingService {
 
     private void validateNotExistUser(final List<Long> userIds, final List<User> users) {
         if (users.size() != userIds.size()) {
-            throw new IllegalParticipantException();
+            throw new UserNotFoundException();
         }
     }
 }

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.exception.IllegalParticipantException;
+import com.woowacourse.moragora.exception.UserNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -113,7 +114,7 @@ class MeetingServiceTest {
 
         // when, then
         assertThatThrownBy(() -> meetingService.save(meetingRequest, 1L))
-                .isInstanceOf(IllegalParticipantException.class);
+                .isInstanceOf(UserNotFoundException.class);
     }
 
     // TODO userResponse 테스트 작성

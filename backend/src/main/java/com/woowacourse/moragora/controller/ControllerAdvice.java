@@ -8,6 +8,7 @@ import com.woowacourse.moragora.dto.ErrorResponse;
 import com.woowacourse.moragora.exception.IllegalParticipantException;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import java.util.List;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -34,6 +35,12 @@ public class ControllerAdvice {
     @ExceptionHandler(MeetingNotFoundException.class)
     @ResponseStatus(NOT_FOUND)
     public ErrorResponse handleMeetingNotFoundException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(NOT_FOUND)
+    public ErrorResponse handleUserNotFoundException(final Exception exception) {
         return new ErrorResponse(exception.getMessage());
     }
 
