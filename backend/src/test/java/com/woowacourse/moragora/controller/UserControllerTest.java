@@ -2,7 +2,9 @@ package com.woowacourse.moragora.controller;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -12,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.auth.config.WebConfig;
 import com.woowacourse.moragora.dto.UserRequest;
+import com.woowacourse.moragora.dto.UserResponse2;
 import com.woowacourse.moragora.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -79,5 +82,26 @@ public class UserControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
                         .value("입력 형식이 올바르지 않습니다."));
+    }
+
+    @DisplayName("로그인한 회원의 정보를 조회한다.")
+    @Test
+    void findMe() throws Exception {
+        // given
+        final long id = 1L;
+        final String email = "foo@email.com";
+        final String nickname = "foo";
+        final UserResponse2 userResponse2 = new UserResponse2(id, email, nickname);
+
+        given(userService.findById(nullable(Long.class)))
+                .willReturn(userResponse2);
+
+        // when, then
+        mockMvc.perform(get("/users/me")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(jsonPath("id").value(id))
+                .andExpect(jsonPath("email").value(email))
+                .andExpect(jsonPath("nickname").value(nickname));
     }
 }

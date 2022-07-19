@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.acceptance;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.woowacourse.moragora.dto.UserRequest;
@@ -24,4 +25,18 @@ public class UserAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.CREATED.value())
                 .header("Location", notNullValue());
     }
+
+    @DisplayName("로그인 한 상태에서 자신의 회원정보를 요청하면 회원정보와 상태코드 200을 반환받는다.")
+    @Test
+    void findMe() {
+        // given, when
+        ValidatableResponse response = get("/users/me", signUpAndGetToken());
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("id", notNullValue())
+                .body("email", equalTo("test@naver.com"))
+                .body("nickname", equalTo("kun"));
+    }
+
 }
