@@ -6,10 +6,11 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.BDDMockito.doThrow;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -21,7 +22,11 @@ import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
+import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
+import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.exception.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import com.woowacourse.moragora.service.MeetingService;
 import java.time.LocalDate;
@@ -75,7 +80,7 @@ class MeetingControllerTest {
                 .willReturn(true);
         given(jwtTokenProvider.getPayload(any()))
                 .willReturn("1");
-        given(meetingService.save(any(MeetingRequest.class), nullable(Long.class)))
+        given(meetingService.save(any(MeetingRequest.class), eq(1L)))
                 .willReturn(1L);
 
         // then
@@ -105,7 +110,7 @@ class MeetingControllerTest {
                 .willReturn(true);
         given(jwtTokenProvider.getPayload(any()))
                 .willReturn("1");
-        given(meetingService.save(any(MeetingRequest.class), nullable(Long.class)))
+        given(meetingService.save(any(MeetingRequest.class), eq(1L)))
                 .willThrow(new IllegalStartEndDateException());
 
         // then
@@ -140,7 +145,7 @@ class MeetingControllerTest {
         given(jwtTokenProvider.getPayload(any()))
                 .willReturn("1");
 
-        // when, then
+        // then
         mockMvc.perform(post("/meetings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(meetingRequest)))
@@ -211,7 +216,7 @@ class MeetingControllerTest {
                 .willReturn(true);
         given(jwtTokenProvider.getPayload(any()))
                 .willReturn("1");
-        given(meetingService.findById(eq(1L), nullable(Long.class)))
+        given(meetingService.findById(eq(1L), eq(1L)))
                 .willReturn(meetingResponse);
 
         // then
@@ -276,5 +281,76 @@ class MeetingControllerTest {
                 .andExpect(jsonPath("$.meetings[*].endDate", containsInAnyOrder("2022-08-10", "2022-08-15")))
                 .andExpect(jsonPath("$.meetings[*].entranceTime", containsInAnyOrder("09:00:00", "10:00:00")))
                 .andExpect(jsonPath("$.meetings[*].closingTime", containsInAnyOrder("09:05:00", "10:05:00")));
+    }
+
+    @DisplayName("사용자 출석여부를 반영한다.")
+    @Test
+    void endAttendance() throws Exception {
+        // given
+        final Long meetingId = 1L;
+        final Long userId = 1L;
+        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+
+        // when, then
+        mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
+
+    @DisplayName("출석을 제출하려는 방이 존재하지 않는 경우 예외가 발생한다.")
+    @Test
+    void endAttendance_throwsException_ifMeetingNotFound() throws Exception {
+        // given
+        final Long meetingId = 99L;
+        final Long userId = 1L;
+        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+
+        doThrow(MeetingNotFoundException.class)
+                .when(meetingService)
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class), eq(1L));
+
+        // when, then
+        mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @DisplayName("출석을 제출하려는 사용자가 미팅에 존재하지 않으면 예외가 발생한다.")
+    @Test
+    void endAttendance_throwsException_ifParticipantNotFound() throws Exception {
+        // given
+        final Long meetingId = 1L;
+        final Long userId = 8L;
+        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+
+        doThrow(ParticipantNotFoundException.class)
+                .when(meetingService)
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class), eq(1L));
+
+        // when, then
+        mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }

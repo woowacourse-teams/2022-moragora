@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.dto;
 
+import com.woowacourse.moragora.entity.Status;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -7,11 +8,9 @@ import lombok.NoArgsConstructor;
 @Getter
 public class UserAttendanceRequest {
 
-    private Long id;
-    private Boolean isTardy;
+    private Status attendanceStatus;
 
-    public UserAttendanceRequest(final Long id, final Boolean isTardy) {
-        this.id = id;
-        this.isTardy = isTardy;
+    public UserAttendanceRequest(final Status attendanceStatus) {
+        this.attendanceStatus = attendanceStatus;
     }
 }

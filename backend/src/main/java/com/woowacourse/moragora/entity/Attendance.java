@@ -2,6 +2,8 @@ package com.woowacourse.moragora.entity;
 
 import java.time.LocalDate;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -27,11 +29,20 @@ public class Attendance {
 
     private LocalDate attendanceDate;
 
-    private boolean isTardy;
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
-    public Attendance(final Participant participant, final LocalDate attendanceDate, final boolean isTardy) {
+    public Attendance(final Participant participant, final LocalDate attendanceDate, final Status status) {
         this.participant = participant;
         this.attendanceDate = attendanceDate;
-        this.isTardy = isTardy;
+        this.status = status;
+    }
+
+    public void changeAttendanceStatus(Status status) {
+        this.status = status;
+    }
+
+    public boolean isSameStatus(Status status) {
+        return this.status == status;
     }
 }

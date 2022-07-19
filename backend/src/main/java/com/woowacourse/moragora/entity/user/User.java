@@ -2,6 +2,7 @@ package com.woowacourse.moragora.entity.user;
 
 import com.woowacourse.auth.exception.LoginFailException;
 import com.woowacourse.moragora.exception.InvalidFormatException;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.persistence.Column;
@@ -64,5 +65,22 @@ public class User {
         if (!password.isSamePassword(plainPassword)) {
             throw new LoginFailException();
         }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
