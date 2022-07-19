@@ -10,8 +10,7 @@
         // 이렇게 해야 jsx에 달려있는 css prop를 해석하고 className으로 변환할 수 있기 때문이다.
       }
     ],
-    "@babel/preset-typescript",
-    "@emotion/babel-preset-css-prop"
+    "@babel/preset-typescript"
   ],
   "plugins": [
     "@babel/plugin-transform-runtime",
