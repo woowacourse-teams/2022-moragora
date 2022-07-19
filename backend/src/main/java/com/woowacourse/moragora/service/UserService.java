@@ -1,11 +1,13 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse2;
 import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.NoKeywordException;
+import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.repository.UserRepository;
 import java.util.List;
@@ -28,6 +30,14 @@ public class UserService {
                 userRequest.getNickname());
         final User savedUser = userRepository.save(user);
         return savedUser.getId();
+    }
+
+    public EmailCheckResponse isEmailExist(final String email) {
+        if (email.isBlank()) {
+            throw new NoParameterException();
+        }
+        final boolean isExist = userRepository.findByEmail(email).isPresent();
+        return new EmailCheckResponse(isExist);
     }
 
     public UsersResponse searchByKeyword(final String keyword) {

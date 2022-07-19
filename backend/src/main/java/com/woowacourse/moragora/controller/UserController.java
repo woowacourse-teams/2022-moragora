@@ -2,6 +2,7 @@ package com.woowacourse.moragora.controller;
 
 import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
+import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse2;
 import com.woowacourse.moragora.dto.UsersResponse;
@@ -32,6 +33,12 @@ public class UserController {
         return ResponseEntity.created(URI.create("/users/" + id)).build();
     }
 
+    @GetMapping("/check-email")
+    public ResponseEntity<EmailCheckResponse> checkEmail(@RequestParam final String email) {
+        final EmailCheckResponse response = userService.isEmailExist(email);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping
     public ResponseEntity<UsersResponse> search(@RequestParam final String keyword) {
         final UsersResponse response = userService.searchByKeyword(keyword);
@@ -40,7 +47,7 @@ public class UserController {
 
     @GetMapping("/me")
     @Authentication
-    public ResponseEntity<UserResponse2> findMe(@AuthenticationPrincipal final Long id) {
+    public ResponseEntity<UserResponse2> findMyInfo(@AuthenticationPrincipal final Long id) {
         UserResponse2 response = userService.findById(id);
         return ResponseEntity.ok(response);
     }
