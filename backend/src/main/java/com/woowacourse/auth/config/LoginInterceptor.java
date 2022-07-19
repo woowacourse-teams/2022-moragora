@@ -8,9 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+@Component
 public class LoginInterceptor implements HandlerInterceptor {
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -20,7 +22,8 @@ public class LoginInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response,
+    public boolean preHandle(final HttpServletRequest request,
+                             final HttpServletResponse response,
                              final Object handler) {
         if (request.getMethod().equals((HttpMethod.OPTIONS.name()))) {
             return true;
@@ -30,7 +33,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        if (!isValidateToken(request)) {
+        if (!isValidToken(request)) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             return false;
         }
@@ -44,7 +47,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         return Objects.isNull(classAnnotation) && Objects.isNull(methodAnnotation);
     }
 
-    private boolean isValidateToken(final HttpServletRequest request) {
+    private boolean isValidToken(final HttpServletRequest request) {
         final String token = AuthorizationExtractor.extract(request);
         return jwtTokenProvider.validateToken(token);
     }
