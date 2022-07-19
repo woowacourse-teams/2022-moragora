@@ -6,7 +6,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
-import com.woowacourse.moragora.dto.UserAttendancesRequest;
+import com.woowacourse.moragora.entity.Status;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDate;
@@ -75,24 +75,17 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
     @Test
     void endAttendance() {
         // given
-        final int id = 1;
-        final UserAttendancesRequest userAttendancesRequest = new UserAttendancesRequest(List.of(
-                new UserAttendanceRequest(1L, false),
-                new UserAttendanceRequest(2L, false),
-                new UserAttendanceRequest(3L, true),
-                new UserAttendanceRequest(4L, true),
-                new UserAttendanceRequest(5L, true),
-                new UserAttendanceRequest(6L, true),
-                new UserAttendanceRequest(7L, true)
-        ));
+        final int meetingId = 1;
+        final int userId = 1;
+        final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
 
         // when
         final ValidatableResponse response = RestAssured.given().log().all()
                 .auth().oauth2(signUpAndGetToken())
-                .body(userAttendancesRequest)
+                .body(userAttendanceRequest)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .when().patch("/meetings/" + id)
+                .when().put("/meetings/" + meetingId + "/users/" + userId)
                 .then().log().all();
 
         // then
