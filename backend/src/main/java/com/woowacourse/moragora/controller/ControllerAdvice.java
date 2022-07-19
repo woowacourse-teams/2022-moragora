@@ -8,6 +8,7 @@ import com.woowacourse.moragora.dto.ErrorResponse;
 import com.woowacourse.moragora.exception.IllegalParticipantException;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.NoKeywordException;
 import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import java.util.List;
@@ -25,7 +26,6 @@ public class ControllerAdvice {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleInvalidRequest(final BindingResult bindingResult) {
-
         final List<FieldError> fieldErrors = bindingResult.getFieldErrors();
         final FieldError mainError = fieldErrors.get(0);
 
@@ -71,6 +71,12 @@ public class ControllerAdvice {
     @ExceptionHandler(IllegalParticipantException.class)
     @ResponseStatus(BAD_REQUEST)
     public ErrorResponse handleIllegalParticipantException(final Exception exception) {
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(NoKeywordException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handleNoKeywordException(final Exception exception) {
         return new ErrorResponse(exception.getMessage());
     }
 }
