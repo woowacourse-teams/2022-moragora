@@ -28,4 +28,32 @@ class UserServiceTest {
         // then
         assertThat(id).isNotNull();
     }
+
+    @DisplayName("중복되지 않은 이메일의 중복 여부를 확인한다.")
+    @Test
+    void isEmailExist_ifNotExists() {
+        // given
+        final String uniqueEmail = "someUniqueEmail@email.unique";
+
+        // when
+        final boolean isExist = userService.isEmailExist(uniqueEmail);
+
+        // then
+        assertThat(isExist).isFalse();
+    }
+
+    @DisplayName("중복된 이메일의 중복 여부를 확인한다.")
+    @Test
+    void isEmailExist_ifExists() {
+        // given
+        final String existingEmail = "kun@naver.com";
+        final UserRequest userRequest = new UserRequest(existingEmail, "1234smart!", "kun");
+        userService.create(userRequest);
+
+        // when
+        final boolean isExist = userService.isEmailExist(existingEmail);
+
+        // then
+        assertThat(isExist).isTrue();
+    }
 }

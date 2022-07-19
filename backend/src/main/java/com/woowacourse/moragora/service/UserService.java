@@ -23,4 +23,8 @@ public class UserService {
         final User savedUser = userRepository.save(user);
         return savedUser.getId();
     }
+
+    public boolean isEmailExist(final String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
 }
