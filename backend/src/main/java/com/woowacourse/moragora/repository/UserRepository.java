@@ -50,7 +50,7 @@ public class UserRepository {
 
     public List<User> findByNicknameOrEmailContaining(final String keyword) {
         return entityManager.createQuery(
-                "select u from User u where u.email like :keyword or u.nickname like :keyword", User.class)
+                        "select u from User u where u.email like :keyword or u.nickname like :keyword", User.class)
                 .setParameter("keyword", "%" + keyword + "%")
                 .getResultList();
     }

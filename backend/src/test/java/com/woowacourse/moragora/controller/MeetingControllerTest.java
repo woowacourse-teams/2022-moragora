@@ -204,7 +204,7 @@ class MeetingControllerTest {
                 .willReturn(true);
         given(jwtTokenProvider.getPayload(any()))
                 .willReturn("1");
-        given(meetingService.findById(eq(1L), eq(1L)))
+        given(meetingService.findById(eq(1L)))
                 .willReturn(meetingResponse);
 
         // then
