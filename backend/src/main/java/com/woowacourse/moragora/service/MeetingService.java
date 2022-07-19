@@ -2,6 +2,7 @@ package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendancesRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Attendance;
@@ -110,5 +111,9 @@ public class MeetingService {
     private User findUser(final Long id) {
         return userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
+    }
+
+    public MyMeetingsResponse findAllByUserId(final long l) {
+        return null;
     }
 }
