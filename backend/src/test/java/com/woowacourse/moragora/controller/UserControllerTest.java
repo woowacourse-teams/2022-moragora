@@ -13,11 +13,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.auth.config.WebConfig;
 import com.woowacourse.moragora.dto.UserRequest;
+import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -98,5 +100,22 @@ public class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isExist").value(isExist));
+    }
+
+    @DisplayName("이메일을 입력하지 않고 중복 여부를 확인하면 예외가 발생한다.")
+    @ParameterizedTest
+    @EmptySource
+    @ValueSource(strings = {" "})
+    void checkEmail_throwsException_ifBlank(final String email) throws Exception {
+        // given
+        given(userService.isEmailExist(email))
+                .willThrow(new NoParameterException());
+
+        // when, then
+        mockMvc.perform(get("/users/check-email?email=" + email)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("값이 입력되지 않았습니다."));
     }
 }

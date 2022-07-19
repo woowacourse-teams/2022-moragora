@@ -1,10 +1,15 @@
 package com.woowacourse.moragora.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.UserRequest;
+import com.woowacourse.moragora.exception.NoParameterException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,5 +60,15 @@ class UserServiceTest {
 
         // then
         assertThat(isExist).isTrue();
+    }
+
+    @DisplayName("이메일을 입력하지 않고 중복 여부를 확인하면 예외가 발생한다.")
+    @ParameterizedTest
+    @EmptySource
+    @ValueSource(strings = {" "})
+    void isEmailExist_throwsException_ifBlank(final String email) {
+        // given, when, then
+        assertThatThrownBy(() -> userService.isEmailExist(email))
+                .isInstanceOf(NoParameterException.class);
     }
 }

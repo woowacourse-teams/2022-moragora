@@ -3,6 +3,7 @@ package com.woowacourse.moragora.service;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,9 @@ public class UserService {
     }
 
     public boolean isEmailExist(final String email) {
+        if (email.isBlank()) {
+            throw new NoParameterException();
+        }
         return userRepository.findByEmail(email).isPresent();
     }
 }
