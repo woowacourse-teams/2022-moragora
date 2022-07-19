@@ -95,6 +95,7 @@ public class MeetingService {
     @Transactional
     public void updateAttendance(final Long meetingId, final Long userId, final UserAttendanceRequest request) {
         final Meeting meeting = findMeeting(meetingId);
+        final User user = findUser(userId);
 
         final LocalTime entranceTime = meeting.getEntranceTime();
         final boolean isExcess = serverTime.isExcessClosingTime(LocalTime.now(), entranceTime);
@@ -104,7 +105,7 @@ public class MeetingService {
 
         final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
         final Participant participant = participants.stream()
-                .filter(p -> p.isSameUser(userId))
+                .filter(p -> p.isSameUser(user))
                 .findAny()
                 .orElseThrow(ParticipantNotFoundException::new);
 

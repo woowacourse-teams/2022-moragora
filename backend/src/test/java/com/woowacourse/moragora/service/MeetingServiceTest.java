@@ -134,7 +134,7 @@ class MeetingServiceTest {
                 LocalTime.now(),
                 LocalTime.now(), List.of(2L, 3L, 4L, 5L));
         final Long meetingId = meetingService.save(meetingRequest, 1L);
-        final Long userId = 9L;
+        final Long userId = 6L;
 
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
