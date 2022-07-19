@@ -106,7 +106,7 @@ public class MeetingService {
     @Transactional
     public void updateAttendance(final Long meetingId, final Long userId, final UserAttendanceRequest request,
                                  final Long loginId) {
-        LocalDateTime nowDateTime = LocalDateTime.now();
+        final LocalDateTime nowDateTime = LocalDateTime.now();
 
         final Meeting meeting = findMeeting(meetingId);
         final User user = findUser(userId);
