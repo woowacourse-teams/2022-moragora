@@ -4,9 +4,11 @@ import * as S from './LoginPage.styled';
 import useForm from 'hooks/useForm';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
-import { User } from 'types/userType';
+import { GetMeDataResponseBody, User } from 'types/userType';
+import { userContext, UserContextValues } from 'contexts/userContext';
+import useContextValues from 'hooks/useContextValues';
 
-const submitLogin = async (
+const submitLogin = (
   url: string,
   payload: Pick<User, 'email' | 'password'>
 ) => {
@@ -19,8 +21,21 @@ const submitLogin = async (
   });
 };
 
+const getMeData = (url: string, accessToken: string) => {
+  return fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  });
+};
+
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { setUser } = useContextValues<UserContextValues>(
+    userContext
+  ) as UserContextValues;
   const { errors, isSubmitting, onSubmit, register } = useForm();
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -31,13 +46,27 @@ const LoginPage = () => {
       'email' | 'password'
     >;
 
-    const res = await submitLogin('/login', formDataObject);
-    if (!res.ok) {
+    const loginResponse = await submitLogin('/login', formDataObject);
+    if (!loginResponse.ok) {
       alert('로그인 실패');
       return;
     }
 
-    const accessToken = await res.json().then((data) => data.accessToken);
+    const accessToken = await loginResponse
+      .json()
+      .then((data) => data.accessToken);
+
+    localStorage.setItem('accessToken', accessToken);
+
+    const getMeResponse = await getMeData('/users/me', accessToken);
+    if (!getMeResponse.ok) {
+      alert('내 정보 가져오기 실패');
+      return;
+    }
+
+    const MeData = (await getMeResponse.json()) as GetMeDataResponseBody;
+    setUser(MeData);
+
     navigate('/meeting');
   };
 

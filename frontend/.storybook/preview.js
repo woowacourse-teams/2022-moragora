@@ -4,6 +4,7 @@ import { ThemeProvider } from '@emotion/react';
 import handlers from 'mocks/handlers';
 import GlobalStyles from 'styles/GlobalStyles';
 import { theme } from 'styles/themes/theme';
+import { UserContextProvider } from 'contexts/userContext';
 
 // Initialize MSW
 initialize();
@@ -16,7 +17,9 @@ export const decorators = [
     <>
       <GlobalStyles />
       <ThemeProvider theme={theme}>
-        <Story />
+        <UserContextProvider>
+          <Story />
+        </UserContextProvider>
       </ThemeProvider>
     </>
   ),

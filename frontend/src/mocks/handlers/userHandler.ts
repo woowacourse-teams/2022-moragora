@@ -121,4 +121,16 @@ export default [
       ctx.delay(DELAY)
     );
   }),
+
+  rest.get('/users/me', (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.json({
+        id: 1,
+        email: 'badguygamwoo@gmail.com',
+        nickname: 'kun',
+      }),
+      ctx.delay(DELAY)
+    );
+  }),
 ];
