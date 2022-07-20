@@ -16,6 +16,4 @@ const meetings = generateIndexes(100).map<Meeting>((id) => ({
   attendanceCount: 10,
 }));
 
-console.log(meetings);
-
 export default meetings;
