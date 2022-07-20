@@ -5,6 +5,7 @@ import MeetingPage from 'pages/MeetingPage';
 import RegisterPage from 'pages/RegisterPage';
 import LoginPage from 'pages/LoginPage';
 import Auth from './Auth';
+import SettingsPage from 'pages/SettingsPage';
 
 const Router = () => {
   return useRoutes([
@@ -27,6 +28,10 @@ const Router = () => {
             { path: 'create', element: <MeetingCreatePage /> },
             { path: '*', element: <div>에러페이지</div> },
           ],
+        },
+        {
+          path: '/settings',
+          element: <SettingsPage />,
         },
       ],
     },
