@@ -15,8 +15,10 @@ import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.exception.IllegalParticipantException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.ParticipantNotFoundException;
+import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -139,6 +141,106 @@ class MeetingControllerTest extends ControllerTest {
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
                         .value("입력 형식이 올바르지 않습니다."));
+    }
+
+    @DisplayName("미팅 방을 생성 시 참가자 명단에 중복 아이디가 있응 경우 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifUserIdsDuplicate() throws Exception {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 6, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(2L, 2L, 3L, 4L, 5L, 6L, 7L)
+        );
+        final Long loginId = validateToken("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
+                .willThrow(new IllegalParticipantException("참가자 명단에 중복이 있습니다."));
+
+        // when
+        final ResultActions resultActions = performPost("/meetings", meetingRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("참가자 명단에 중복이 있습니다."));
+    }
+
+    @DisplayName("미팅 방을 생성 시 참가자 명단이 비어있을 경우 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifUserIdsEmpty() throws Exception {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 6, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of()
+        );
+        final Long loginId = validateToken("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
+                .willThrow(new IllegalParticipantException("생성자를 제외한 참가자가 없습니다."));
+
+        // when
+        final ResultActions resultActions = performPost("/meetings", meetingRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("생성자를 제외한 참가자가 없습니다."));
+    }
+
+    @DisplayName("미팅 방을 생성 시 참가자 명단에 생성자 아이디가 있을 경우 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifUserIdsContainLoginId() throws Exception {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 6, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
+        );
+        final Long loginId = validateToken("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
+                .willThrow(new IllegalParticipantException("생성자가 참가자 명단에 포함되어 있습니다."));
+
+        // when
+        final ResultActions resultActions = performPost("/meetings", meetingRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("생성자가 참가자 명단에 포함되어 있습니다."));
+    }
+
+    @DisplayName("미팅 방을 생성 시 참가자 명단에 존재하지 않는 아이디가 있을 경우 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifUserIdNotExist() throws Exception {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 6, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(1L, 2L, 3L, 4L, 5L, 6L, 8L)
+        );
+        final Long loginId = validateToken("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
+                .willThrow(new UserNotFoundException());
+
+        // when
+        final ResultActions resultActions = performPost("/meetings", meetingRequest);
+
+        // then
+        resultActions.andExpect(status().isNotFound())
+                .andExpect(jsonPath("message")
+                        .value("유저가 존재하지 않습니다."));
     }
 
     // TODO userResponse 테스트 작성
