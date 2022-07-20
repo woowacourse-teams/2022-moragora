@@ -13,7 +13,14 @@ const useFetch = <ResponseBodyType = any>(url: string) => {
   useEffect(() => {
     setLoading(true);
 
-    fetch(url)
+    const headers = new Headers();
+    const accessToken = localStorage.getItem('accessToken');
+
+    if (accessToken) {
+      headers.append('Authorization', `Bearer ${accessToken}`);
+    }
+
+    fetch(url, { headers })
       .then((res) => res.json())
       .then((body) => {
         setData(body);

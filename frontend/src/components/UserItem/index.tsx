@@ -15,10 +15,13 @@ const ATTENDANCE_STATUS: Record<AttendanceStatus, boolean> = {
 } as const;
 
 const userAttendanceFetch = (url: string, payload: any) => {
+  const accessToken = localStorage.getItem('accessToken');
+
   return fetch(url, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify(payload),
   });

@@ -20,8 +20,14 @@ const useQuerySelectItems = <T extends { id: number }>(
   const queryWithKeyword = async (keyword: string) => {
     setLoading(true);
 
+    const accessToken = localStorage.getItem('accessToken');
+
     try {
-      const res = await fetch(`${url}${keyword}`);
+      const res = await fetch(`${url}${keyword}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       if (!res.ok) {
         throw new Error('회원 조회를 실패했습니다.');

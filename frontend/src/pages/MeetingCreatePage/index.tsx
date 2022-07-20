@@ -68,11 +68,14 @@ const MeetingCreatePage = () => {
       userIds,
     };
 
+    const accessToken = localStorage.getItem('accessToken');
+
     try {
       const meatingCreateResult = await asyncFetch('/meetings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(formDataObject),
       });
@@ -80,7 +83,12 @@ const MeetingCreatePage = () => {
       alert('모임 생성을 완료했습니다.');
 
       const meetingGetResult = await asyncFetch<MeetingResponseBody>(
-        meatingCreateResult.res.headers.get('location') as string
+        meatingCreateResult.res.headers.get('location') as string,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
       );
 
       navigate(`/meeting/${meetingGetResult.body.id}`);

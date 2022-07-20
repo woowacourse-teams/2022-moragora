@@ -26,7 +26,7 @@ const getMeData = (url: string, accessToken: string) => {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: accessToken,
+      Authorization: `Bearer ${accessToken}`,
     },
   });
 };
