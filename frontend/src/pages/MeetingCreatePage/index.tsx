@@ -9,7 +9,32 @@ import useQuerySelectItems from 'hooks/useQuerySelectItems';
 import { UserQueryWithKeywordResponse } from 'types/userType';
 import { dateToFormattedString } from 'utils/timeUtil';
 
-const MAX_SELECTED_USER_COUNT = 50;
+type DefaultResponseBody = {};
+
+const MAX_SELECTED_USER_COUNT = 129;
+
+const postData = async <
+  ResponseBody extends DefaultResponseBody = DefaultResponseBody
+>(
+  url: string,
+  payload: any
+) => {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    throw new Error('모임 생성에 실패했습니다.');
+  }
+
+  const data = (await res.json().catch((e) => ({}))) as ResponseBody;
+
+  return data;
+};
 
 const MeetingCreatePage = () => {
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
@@ -27,9 +52,9 @@ const MeetingCreatePage = () => {
   const currentDate = new Date();
   const isParticipantSelected = selectedItems.length > 0;
 
-  const handleCreateMeetingSubmit: React.FormEventHandler<HTMLFormElement> = (
-    e
-  ) => {
+  const handleCreateMeetingSubmit: React.FormEventHandler<
+    HTMLFormElement
+  > = async (e) => {
     if (!isParticipantSelected) {
       return;
     }
@@ -43,7 +68,13 @@ const MeetingCreatePage = () => {
       userIds,
     };
 
-    console.log(formDataObject);
+    try {
+      await postData('/meetings', formDataObject);
+
+      alert('모임 생성을 완료했습니다.');
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
@@ -72,7 +103,7 @@ const MeetingCreatePage = () => {
                 시작 날짜
                 <Input
                   type="date"
-                  {...register('start-date', {
+                  {...register('startDate', {
                     onClick: (e) => {
                       const target = e.target as HTMLInputElement & {
                         showPicker: () => void;
@@ -86,8 +117,8 @@ const MeetingCreatePage = () => {
                 />
               </S.Label>
               <InputHint
-                isShow={errors['start-date'] !== ''}
-                message={errors['start-date']}
+                isShow={errors['startDate'] !== ''}
+                message={errors['startDate']}
               />
             </S.FieldBox>
             <S.FieldBox>
@@ -95,7 +126,7 @@ const MeetingCreatePage = () => {
                 마감 날짜
                 <Input
                   type="date"
-                  {...register('end-date', {
+                  {...register('endDate', {
                     onClick: (e) => {
                       const target = e.target as HTMLInputElement & {
                         showPicker: () => void;
@@ -103,17 +134,17 @@ const MeetingCreatePage = () => {
 
                       target.showPicker();
                     },
-                    min: values['start-date']
-                      ? values['start-date']
+                    min: values['startDate']
+                      ? values['startDate']
                       : dateToFormattedString(currentDate),
                     required: true,
                   })}
-                  disabled={errors['start-date'] !== ''}
+                  disabled={errors['startDate'] !== ''}
                 />
               </S.Label>
               <InputHint
-                isShow={errors['end-date'] !== ''}
-                message={errors['end-date']}
+                isShow={errors['endDate'] !== ''}
+                message={errors['endDate']}
               />
             </S.FieldBox>
           </S.FieldGroupBox>
@@ -123,7 +154,7 @@ const MeetingCreatePage = () => {
                 시작 시간
                 <Input
                   type="time"
-                  {...register('start-time', {
+                  {...register('entranceTime', {
                     onClick: (e) => {
                       const target = e.target as HTMLInputElement & {
                         showPicker: () => void;
@@ -136,8 +167,8 @@ const MeetingCreatePage = () => {
                 />
               </S.Label>
               <InputHint
-                isShow={errors['start-time'] !== ''}
-                message={errors['start-time']}
+                isShow={errors['entranceTime'] !== ''}
+                message={errors['entranceTime']}
               />
             </S.FieldBox>
             <S.FieldBox>
@@ -145,7 +176,7 @@ const MeetingCreatePage = () => {
                 마감 시간
                 <Input
                   type="time"
-                  {...register('end-time', {
+                  {...register('leaveTime', {
                     onClick: (e) => {
                       const target = e.target as HTMLInputElement & {
                         showPicker: () => void;
@@ -155,12 +186,12 @@ const MeetingCreatePage = () => {
                     },
                     required: true,
                   })}
-                  disabled={errors['start-time'] !== ''}
+                  disabled={errors['entranceTime'] !== ''}
                 />
               </S.Label>
               <InputHint
-                isShow={errors['end-time'] !== ''}
-                message={errors['end-time']}
+                isShow={errors['leaveTime'] !== ''}
+                message={errors['leaveTime']}
               />
             </S.FieldBox>
           </S.FieldGroupBox>
