@@ -91,7 +91,7 @@ public class MeetingService {
         return MeetingResponse.of(meeting, userResponses);
     }
 
-    public MyMeetingsResponse findAllByUserId(final long userId) {
+    public MyMeetingsResponse findAllByUserId(final Long userId) {
         final LocalTime serverTime = LocalTime.now();
         final List<Participant> participants = participantRepository.findByUserId(userId);
         final List<Meeting> meetings = participants.stream()

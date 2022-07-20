@@ -133,7 +133,6 @@ class MeetingServiceTest {
                         LocalTime.now(),
                         List.of(meeting, meetingRequest.toEntity()))
                 );
-
     }
 
     @DisplayName("사용자들의 출석 여부를 변경한다.")
