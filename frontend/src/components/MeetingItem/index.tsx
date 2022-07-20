@@ -1,6 +1,6 @@
-import * as S from './MeetingItem.styled';
-import MeetingIconSVG from '../../assets/meeting.svg';
 import React from 'react';
+import * as S from './MeetingItem.styled';
+import MeetingIconSVG from 'assets/meeting.svg';
 import { addMinute } from 'utils/timeUtil';
 
 type MeetingItemProps = {

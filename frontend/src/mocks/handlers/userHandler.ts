@@ -1,5 +1,5 @@
 import { rest } from 'msw';
-import users from '../fixtures/users';
+import users from 'mocks/fixtures/users';
 import {
   UserRegisterRequestBody,
   UserLoginRequestBody,

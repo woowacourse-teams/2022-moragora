@@ -1,5 +1,5 @@
 import MemberAddInput from '.';
-import useQuerySelectItems from '../../hooks/useQuerySelectItems';
+import useQuerySelectItems from 'hooks/useQuerySelectItems';
 
 export default {
   title: 'Components/MemberAddInput',

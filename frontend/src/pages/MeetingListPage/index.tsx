@@ -1,9 +1,8 @@
-import React from 'react';
-import Button from '../../components/@shared/Button';
-import Footer from '../../components/layouts/Footer';
 import * as S from './MeetingListPage.styled';
-import MeetingItem from '../../components/MeetingItem';
-import CoffeeStackItem from '../../components/CoffeeStackItem';
+import Button from 'components/@shared/Button';
+import Footer from 'components/layouts/Footer';
+import MeetingItem from 'components/MeetingItem';
+import CoffeeStackItem from 'components/CoffeeStackItem';
 import { MeetingListResponseBody } from 'types/meetingType';
 
 const MeetingListPage = () => {

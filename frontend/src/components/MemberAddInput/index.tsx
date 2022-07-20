@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import useQuerySelectItems from '../../hooks/useQuerySelectItems';
-import Input from '../@shared/Input';
 import * as S from './MemberAddInput.styled';
+import useQuerySelectItems from 'hooks/useQuerySelectItems';
+import Input from 'components/@shared/Input';
 import { UserQueryWithKeywordResponse } from 'types/userType';
 
 const MemberAddInput: React.FC<

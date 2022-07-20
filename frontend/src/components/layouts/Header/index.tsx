@@ -1,8 +1,7 @@
-import React from 'react';
-import * as S from './Header.styled';
-import ChevronLeftIconSVG from '../../../assets/chevron-left.svg';
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import Avatar from '../../@shared/Avatar';
+import * as S from './Header.styled';
+import ChevronLeftIconSVG from 'assets/chevron-left.svg';
+import Avatar from 'components/@shared/Avatar';
 
 const Header = () => {
   const navigate = useNavigate();

@@ -1,9 +1,9 @@
 import React from 'react';
-import Footer from '../../components/layouts/Footer';
-import Input from '../../components/@shared/Input';
 import * as S from './MeetingCreatePage.styled';
-import useQuerySelectItems from '../../hooks/useQuerySelectItems';
-import MemberAddInput from '../../components/MemberAddInput';
+import Footer from 'components/layouts/Footer';
+import Input from 'components/@shared/Input';
+import MemberAddInput from 'components/MemberAddInput';
+import useQuerySelectItems from 'hooks/useQuerySelectItems';
 import { UserQueryWithKeywordResponse } from 'types/userType';
 
 const MAX_SELECTED_USER_COUNT = 3;

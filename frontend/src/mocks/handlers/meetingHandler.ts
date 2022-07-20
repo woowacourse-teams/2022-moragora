@@ -1,6 +1,6 @@
 import { DefaultBodyType, rest } from 'msw';
-import meetings from '../fixtures/meeting';
-import users from '../fixtures/users';
+import meetings from 'mocks/fixtures/meeting';
+import users from 'mocks/fixtures/users';
 import { UserAttendanceCheckRequestBody } from 'types/userType';
 
 const DELAY = 700;
