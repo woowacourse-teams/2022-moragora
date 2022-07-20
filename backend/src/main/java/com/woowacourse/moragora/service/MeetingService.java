@@ -89,29 +89,22 @@ public class MeetingService {
         final Meeting meeting = findMeeting(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
 
-        List<UserResponse> userResponses = new ArrayList<>();
-
-        for (final Participant participant : participants) {
-            final List<Attendance> attendances = attendanceRepository.findByParticipantId(participant.getId());
-
-            final int tardyCount = (int) attendances.stream()
-                    .filter(attendance -> attendance.isSameStatus(Status.TARDY))
-                    .count();
-
-            final User foundUser = participant.getUser();
-            final UserResponse userResponse = new UserResponse(
-                    foundUser.getId(),
-                    foundUser.getEmail(),
-                    foundUser.getNickname(),
-                    tardyCount);
-
-            userResponses.add(userResponse);
-        }
+        final List<UserResponse> userResponses = participants.stream()
+                .map(participant -> UserResponse.of(participant.getUser(), getTardyCount(participant)))
+                .collect(Collectors.toUnmodifiableList());
 
         final Long anyParticipantId = participants.get(0).getId();
         final long meetingAttendanceCount = attendanceRepository.findAttendanceCountById(anyParticipantId);
 
         return MeetingResponse.of(meeting, userResponses, meetingAttendanceCount);
+    }
+
+    private int getTardyCount(final Participant participant) {
+        final List<Attendance> attendances = attendanceRepository.findByParticipantId(participant.getId());
+        final int tardyCount = (int) attendances.stream()
+                .filter(attendance -> attendance.isSameStatus(Status.TARDY))
+                .count();
+        return tardyCount;
     }
 
     // TODO update (1 + N) -> 최적하기

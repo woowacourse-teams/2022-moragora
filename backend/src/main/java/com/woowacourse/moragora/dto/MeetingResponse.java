@@ -36,7 +36,8 @@ public class MeetingResponse {
         this.users = usersResponse;
     }
 
-    public static MeetingResponse of(final Meeting meeting, final List<UserResponse> userResponses,
+    public static MeetingResponse of(final Meeting meeting,
+                                     final List<UserResponse> userResponses,
                                      final long meetingAttendanceCount) {
         return new MeetingResponse(
                 meeting.getId(),

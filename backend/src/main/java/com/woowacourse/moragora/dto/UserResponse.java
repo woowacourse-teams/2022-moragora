@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.dto;
 
+import com.woowacourse.moragora.entity.user.User;
 import lombok.Getter;
 
 @Getter
@@ -18,5 +19,9 @@ public class UserResponse {
         this.email = email;
         this.nickname = nickname;
         this.tardyCount = tardyCount;
+    }
+
+    public static UserResponse of(final User foundUser, final int tardyCount) {
+        return new UserResponse(foundUser.getId(), foundUser.getEmail(), foundUser.getNickname(), tardyCount);
     }
 }
