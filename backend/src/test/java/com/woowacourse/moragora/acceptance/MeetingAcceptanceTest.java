@@ -57,8 +57,8 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("attendanceCount", equalTo(0))
                 .body("startDate", equalTo("2022-07-10"))
                 .body("endDate", equalTo("2022-08-10"))
-                .body("entranceTime", equalTo("10:00:00"))
-                .body("leaveTime", equalTo("18:00:00"))
+                .body("entranceTime", equalTo("10:00"))
+                .body("leaveTime", equalTo("18:00"))
                 .body("users.id", containsInAnyOrder(1, 2, 3, 4, 5, 6, 7))
                 .body("users.nickname", containsInAnyOrder("아스피", "필즈", "포키",
                         "썬", "우디", "쿤", "반듯"))
@@ -104,8 +104,8 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.name", containsInAnyOrder("모임1", "모임2"))
                 .body("meetings.startDate", containsInAnyOrder("2022-07-10", "2022-07-13"))
                 .body("meetings.endDate", containsInAnyOrder("2022-08-10", "2022-08-13"))
-                .body("meetings.entranceTime", containsInAnyOrder("10:00:00", "09:00:00"))
-                .body("meetings.closingTime", containsInAnyOrder("10:05:00", "09:05:00"));
+                .body("meetings.entranceTime", containsInAnyOrder("10:00", "09:00"))
+                .body("meetings.closingTime", containsInAnyOrder("10:05", "09:05"));
     }
 
     @DisplayName("모임의 출석을 마감하면 총 모임 횟수와 결석한 참가자들의 결일을 증가시키고 상태코드 204을 반환한다.")

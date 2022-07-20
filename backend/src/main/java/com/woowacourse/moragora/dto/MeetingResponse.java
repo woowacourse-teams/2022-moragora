@@ -3,19 +3,22 @@ package com.woowacourse.moragora.dto;
 import com.woowacourse.moragora.entity.Meeting;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.Getter;
 
 @Getter
 public class MeetingResponse {
 
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
     private final Long id;
     private final String name;
     private final int attendanceCount;
     private final LocalDate startDate;
     private final LocalDate endDate;
-    private final LocalTime entranceTime;
-    private final LocalTime leaveTime;
+    private final String entranceTime;
+    private final String leaveTime;
     private final List<UserResponse> users;
 
     public MeetingResponse(final Long id,
@@ -31,8 +34,8 @@ public class MeetingResponse {
         this.attendanceCount = attendanceCount;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.entranceTime = entranceTime;
-        this.leaveTime = leaveTime;
+        this.entranceTime = entranceTime.format(TIME_FORMATTER);
+        this.leaveTime = leaveTime.format(TIME_FORMATTER);
         this.users = usersResponse;
     }
 
