@@ -4,18 +4,21 @@ import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import lombok.Getter;
 
 @Getter
 public class MyMeetingResponse {
+
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     private final Long id;
     private final String name;
     private final boolean active;
     private final LocalDate startDate;
     private final LocalDate endDate;
-    private final LocalTime entranceTime;
-    private final LocalTime closingTime;
+    private final String entranceTime;
+    private final String closingTime;
 
     private MyMeetingResponse(final Long id,
                               final String name,
@@ -29,8 +32,8 @@ public class MyMeetingResponse {
         this.active = active;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.entranceTime = entranceTime;
-        this.closingTime = closingTime;
+        this.entranceTime = entranceTime.format(TIME_FORMATTER);
+        this.closingTime = closingTime.format(TIME_FORMATTER);
     }
 
     public static MyMeetingResponse of(final LocalTime now, final TimeChecker timeChecker, final Meeting meeting) {

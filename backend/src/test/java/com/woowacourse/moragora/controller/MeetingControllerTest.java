@@ -282,8 +282,8 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.attendanceCount", equalTo(0)))
                 .andExpect(jsonPath("$.startDate", equalTo("2022-07-10")))
                 .andExpect(jsonPath("$.endDate", equalTo("2022-08-10")))
-                .andExpect(jsonPath("$.entranceTime", equalTo("10:00:00")))
-                .andExpect(jsonPath("$.leaveTime", equalTo("18:00:00")));
+                .andExpect(jsonPath("$.entranceTime", equalTo("10:00")))
+                .andExpect(jsonPath("$.leaveTime", equalTo("18:00")));
     }
 
     @DisplayName("유저가 소속된 모든 미팅 방을 조회한다.")
@@ -324,8 +324,8 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.meetings[*].active", containsInAnyOrder(true, true)))
                 .andExpect(jsonPath("$.meetings[*].startDate", containsInAnyOrder("2022-07-10", "2022-07-15")))
                 .andExpect(jsonPath("$.meetings[*].endDate", containsInAnyOrder("2022-08-10", "2022-08-15")))
-                .andExpect(jsonPath("$.meetings[*].entranceTime", containsInAnyOrder("09:00:00", "10:00:00")))
-                .andExpect(jsonPath("$.meetings[*].closingTime", containsInAnyOrder("09:05:00", "10:05:00")));
+                .andExpect(jsonPath("$.meetings[*].entranceTime", containsInAnyOrder("09:00", "10:00")))
+                .andExpect(jsonPath("$.meetings[*].closingTime", containsInAnyOrder("09:05", "10:05")));
     }
 
     @DisplayName("사용자 출석여부를 반영한다.")

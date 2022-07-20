@@ -198,20 +198,24 @@ class MeetingServiceTest {
     void findAllByUserId() {
         // given
         final long userId = 1L;
+        final LocalTime entranceTime = LocalTime.of(10, 0);
         final Meeting meeting = new Meeting(
                 "모임1",
                 LocalDate.of(2022, 7, 10),
                 LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
+                entranceTime,
                 LocalTime.of(18, 0));
         final MeetingRequest meetingRequest = new MeetingRequest(
                 "모임2",
                 LocalDate.of(2022, 7, 10),
                 LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
+                entranceTime,
                 LocalTime.of(18, 0),
                 List.of(2L, 3L)
         );
+        given(timeChecker.calculateClosingTime(entranceTime))
+                .willReturn(entranceTime.plusMinutes(5));
+
         meetingService.save(meetingRequest, userId);
 
         // when
