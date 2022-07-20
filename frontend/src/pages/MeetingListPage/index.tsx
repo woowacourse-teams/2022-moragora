@@ -78,6 +78,14 @@ const MeetingListPage = () => {
     );
   }
 
+  const activeMeetings = meetingListState.meetings.filter(
+    ({ active }) => active
+  );
+  const inactiveMeetings = meetingListState.meetings.filter(
+    ({ active }) => !active
+  );
+  const sortedMeetings = [...activeMeetings, ...inactiveMeetings];
+
   return (
     <>
       <S.Layout>
@@ -103,7 +111,7 @@ const MeetingListPage = () => {
             <S.PageLink to="/meeting/create">생성하기</S.PageLink>
           </S.TitleBox>
           <S.MeetingList>
-            {meetingListState.meetings.map((meeting) => (
+            {sortedMeetings.map((meeting) => (
               <li key={meeting.id}>
                 <MeetingItem meeting={meeting} />
               </li>
