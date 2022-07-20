@@ -6,6 +6,7 @@ import RegisterPage from 'pages/RegisterPage';
 import LoginPage from 'pages/LoginPage';
 import Auth from './Auth';
 import SettingsPage from 'pages/SettingsPage';
+import NotFoundPage from 'pages/NotFoundPage';
 
 const Router = () => {
   return useRoutes([
@@ -26,7 +27,6 @@ const Router = () => {
             { path: '', element: <MeetingListPage /> },
             { path: ':id', element: <MeetingPage /> },
             { path: 'create', element: <MeetingCreatePage /> },
-            { path: '*', element: <div>에러페이지</div> },
           ],
         },
         {
@@ -35,7 +35,7 @@ const Router = () => {
         },
       ],
     },
-    { path: '*', element: <div>에러페이지</div> },
+    { path: '*', element: <NotFoundPage /> },
   ]);
 };
 
