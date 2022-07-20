@@ -25,6 +25,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,20 +59,23 @@ public class MeetingService {
     // TODO: master 지정해야함
     @Transactional
     public Long save(final MeetingRequest request, final Long loginId) {
-        final User loginUser = findUser(loginId);
         final Meeting meeting = meetingRepository.save(request.toEntity());
-
-        final Participant participant = new Participant(loginUser, meeting);
-        participantRepository.save(participant);
 
         final List<Long> userIds = request.getUserIds();
         validateUserIds(userIds, loginId);
+
+        final User loginUser = findUser(loginId);
         final List<User> users = userRepository.findByIds(userIds);
+        validateUserExists(userIds, users);
 
-        validateNotExistUser(userIds, users);
+        final Participant loginParticipant = new Participant(loginUser, meeting);
+        final List<Participant> participants = users.stream()
+                .map(user -> new Participant(user, meeting))
+                .collect(Collectors.toList());
+        participants.add(loginParticipant);
 
-        for (User user : users) {
-            participantRepository.save(new Participant(user, meeting));
+        for (Participant participant : participants) {
+            participantRepository.save(participant);
         }
 
         return meeting.getId();
@@ -111,11 +115,7 @@ public class MeetingService {
         final Meeting meeting = findMeeting(meetingId);
         final User user = findUser(userId);
 
-        final LocalTime entranceTime = meeting.getEntranceTime();
-        final boolean isExcess = serverTime.isExcessClosingTime(nowDateTime.toLocalTime(), entranceTime);
-        if (isExcess) {
-            throw new ClosingTimeExcessException();
-        }
+        validateAttendanceTime(nowDateTime, meeting);
 
         final Participant participant = attendanceRepository.findByMeetingIdAndUserId(meeting.getId(), user.getId())
                 .orElseThrow(ParticipantNotFoundException::new);
@@ -154,9 +154,17 @@ public class MeetingService {
         }
     }
 
-    private void validateNotExistUser(final List<Long> userIds, final List<User> users) {
+    private void validateUserExists(final List<Long> userIds, final List<User> users) {
         if (users.size() != userIds.size()) {
             throw new UserNotFoundException();
+        }
+    }
+
+    private void validateAttendanceTime(final LocalDateTime nowDateTime, final Meeting meeting) {
+        final LocalTime entranceTime = meeting.getEntranceTime();
+        final boolean isOver = serverTime.isExcessClosingTime(nowDateTime.toLocalTime(), entranceTime);
+        if (isOver) {
+            throw new ClosingTimeExcessException();
         }
     }
 }
