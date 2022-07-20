@@ -1,4 +1,4 @@
-import { DefaultBodyType, rest } from 'msw';
+import { DefaultBodyType, rest, RestRequest } from 'msw';
 import meetings from 'mocks/fixtures/meeting';
 import users from 'mocks/fixtures/users';
 import { UserAttendanceCheckRequestBody } from 'types/userType';
@@ -7,8 +7,8 @@ import {
   MeetingCreateRequestBody,
 } from 'types/meetingType';
 import { addMinute } from 'utils/timeUtil';
-
-const DELAY = 700;
+import { DELAY } from 'mocks/configs';
+import { extractIdFromHeader } from 'mocks/utils';
 
 type MeetingPathParams = {
   meetingId: string;
@@ -17,9 +17,26 @@ type MeetingPathParams = {
 
 export default [
   rest.get('/meetings/me', (req, res, ctx) => {
-    const userId = 6;
-    const myMeetings = meetings.filter((meeting) =>
-      meeting.userIds.includes(userId)
+    const token = extractIdFromHeader(req);
+
+    if (!token.isValidToken) {
+      return res(
+        ctx.status(401),
+        ctx.json({ message: '유효하지 않은 토큰입니다.' })
+      );
+    }
+
+    const user = users.find(({ id }) => id === token.id);
+
+    if (!user) {
+      return res(
+        ctx.status(404),
+        ctx.json({ message: '유저가 존재하지 않습니다.' })
+      );
+    }
+
+    const myMeetings = meetings.filter(({ userIds }) =>
+      userIds.includes(user.id)
     );
     const responseBody: MeetingListResponseBody = {
       serverTime: '11:57',
@@ -37,6 +54,24 @@ export default [
   rest.get<DefaultBodyType, Pick<MeetingPathParams, 'meetingId'>>(
     '/meetings/:meetingId',
     (req, res, ctx) => {
+      const token = extractIdFromHeader(req);
+
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      const user = users.find(({ id }) => id === token.id);
+
+      if (!user) {
+        return res(
+          ctx.status(404),
+          ctx.json({ message: '유저가 존재하지 않습니다.' })
+        );
+      }
+
       const { meetingId } = req.params;
       const meeting = meetings.find(({ id }) => id === Number(meetingId));
 
@@ -64,8 +99,25 @@ export default [
   rest.put<UserAttendanceCheckRequestBody, MeetingPathParams>(
     `/meetings/:meetingId/users/:userId`,
     (req, res, ctx) => {
-      const { meetingId, userId } = req.params;
+      const token = extractIdFromHeader(req);
 
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      const user = users.find(({ id }) => id === token.id);
+
+      if (!user) {
+        return res(
+          ctx.status(404),
+          ctx.json({ message: '유저가 존재하지 않습니다.' })
+        );
+      }
+
+      const { meetingId, userId } = req.params;
       const targetMeeting = meetings.find(
         (meeting) => meeting.id === Number(meetingId)
       );
@@ -83,6 +135,24 @@ export default [
   ),
 
   rest.post<MeetingCreateRequestBody>('/meetings', (req, res, ctx) => {
+    const token = extractIdFromHeader(req);
+
+    if (!token.isValidToken) {
+      return res(
+        ctx.status(401),
+        ctx.json({ message: '유효하지 않은 토큰입니다.' })
+      );
+    }
+
+    const user = users.find(({ id }) => id === token.id);
+
+    if (!user) {
+      return res(
+        ctx.status(404),
+        ctx.json({ message: '유저가 존재하지 않습니다.' })
+      );
+    }
+
     const meeting = req.body;
     const id = meetings.length;
 
