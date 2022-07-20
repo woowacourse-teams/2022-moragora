@@ -11,7 +11,7 @@ public class MeetingResponse {
 
     private final Long id;
     private final String name;
-    private final int attendanceCount;
+    private final long attendanceCount;
     private final LocalDate startDate;
     private final LocalDate endDate;
     private final LocalTime entranceTime;
@@ -20,7 +20,7 @@ public class MeetingResponse {
 
     public MeetingResponse(final Long id,
                            final String name,
-                           final int attendanceCount,
+                           final long attendanceCount,
                            final LocalDate startDate,
                            final LocalDate endDate,
                            final LocalTime entranceTime,
@@ -36,12 +36,13 @@ public class MeetingResponse {
         this.users = usersResponse;
     }
 
-
-    public static MeetingResponse of(final Meeting meeting, final List<UserResponse> userResponses) {
+    public static MeetingResponse of(final Meeting meeting,
+                                     final List<UserResponse> userResponses,
+                                     final long meetingAttendanceCount) {
         return new MeetingResponse(
                 meeting.getId(),
                 meeting.getName(),
-                meeting.getAttendanceCount(),
+                meetingAttendanceCount,
                 meeting.getStartDate(),
                 meeting.getEndDate(),
                 meeting.getEntranceTime(),

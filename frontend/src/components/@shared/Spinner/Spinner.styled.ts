@@ -9,8 +9,6 @@ export const SpinnerBox = styled.div`
 `;
 
 export const SpinnerSVG = styled.svg`
-  fill: inherit;
-
   animation: spin 1s linear infinite;
 
   @keyframes spin {

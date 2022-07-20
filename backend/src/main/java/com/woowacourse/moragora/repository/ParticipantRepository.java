@@ -28,11 +28,10 @@ public class ParticipantRepository {
 
     public List<Participant> findByMeetingId(final Long meetingId) {
         return entityManager.createQuery("select p from Participant p where p.meeting.id = :meetingId",
-                Participant.class)
+                        Participant.class)
                 .setParameter("meetingId", meetingId)
                 .getResultList();
     }
-
 
     public Optional<Participant> findByMeetingIdAndUserId(final Long meetingId, final Long userId) {
         try {
@@ -46,5 +45,12 @@ public class ParticipantRepository {
         } catch (NoResultException exception) {
             return Optional.empty();
         }
+    }
+
+    public List<Participant> findByUserId(final Long userId) {
+        return entityManager.createQuery("select p from Participant p where p.user.id = :userId",
+                        Participant.class)
+                .setParameter("userId", userId)
+                .getResultList();
     }
 }

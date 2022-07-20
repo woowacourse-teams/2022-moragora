@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import Input from '../../components/@shared/Input';
-import * as S from './RegisterPage.styled';
-import useForm from '../../hooks/useForm';
 import { useNavigate } from 'react-router-dom';
-import InputHint from '../../components/@shared/InputHint';
+import * as S from './RegisterPage.styled';
+import Input from 'components/@shared/Input';
+import InputHint from 'components/@shared/InputHint';
+import useForm from 'hooks/useForm';
 
 const checkEmail = async (url: string) => {
   return fetch(url, {
@@ -13,6 +13,7 @@ const checkEmail = async (url: string) => {
     },
   });
 };
+
 const submitData = async (url: string, payload: any) => {
   return fetch(url, {
     method: 'POST',

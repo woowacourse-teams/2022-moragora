@@ -8,15 +8,19 @@ import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
+import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.ClosingTimeExcessException;
 import com.woowacourse.moragora.exception.IllegalParticipantException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.UserNotFoundException;
-import com.woowacourse.moragora.service.closingstrategy.ServerTime;
+import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
+import com.woowacourse.moragora.util.CurrentDateTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +38,10 @@ class MeetingServiceTest {
     private MeetingService meetingService;
 
     @MockBean
-    private ServerTime serverTime;
+    private TimeChecker timeChecker;
+
+    @MockBean
+    private CurrentDateTime currentDateTime;
 
     @DisplayName("미팅 방을 저장한다.")
     @Test
@@ -130,7 +137,6 @@ class MeetingServiceTest {
                 .isInstanceOf(UserNotFoundException.class);
     }
 
-    // TODO userResponse 테스트 작성
     @DisplayName("id로 모임 상세 정보를 조회한다.")
     @Test
     void findById() {
@@ -139,7 +145,7 @@ class MeetingServiceTest {
         final MeetingResponse expectedMeetingResponse = new MeetingResponse(
                 1L,
                 "모임1",
-                0,
+                3,
                 LocalDate.of(2022, 7, 10),
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
@@ -147,13 +153,78 @@ class MeetingServiceTest {
                 null
         );
 
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.of(2022, 7, 14, 0, 0));
+
         // when
-        final MeetingResponse response = meetingService.findById(id, 1L);
+        final MeetingResponse response = meetingService.findById(id);
 
         // then
         assertThat(response).usingRecursiveComparison()
                 .ignoringFields("users")
                 .isEqualTo(expectedMeetingResponse);
+    }
+
+    @DisplayName("id로 모임 상세 정보를 조회한다_당일 출석부가 없는 경우 추가 후 조회한다.")
+    @Test
+    void findById_putAttendanceIfAbsent() {
+        // given
+        final Long id = 1L;
+        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
+                1L,
+                "모임1",
+                4,
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                null
+        );
+
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.now());
+
+        // when
+        final MeetingResponse response = meetingService.findById(id);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .ignoringFields("users")
+                .isEqualTo(expectedMeetingResponse);
+    }
+
+    @DisplayName("유저 id로 유저가 속한 모든 모임을 조회한다.")
+    @Test
+    void findAllByUserId() {
+        // given
+        final long userId = 1L;
+        final Meeting meeting = new Meeting(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0));
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임2",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(2L, 3L)
+        );
+        meetingService.save(meetingRequest, userId);
+
+        // when
+        final MyMeetingsResponse myMeetingsResponse = meetingService.findAllByUserId(userId);
+
+        // then
+        assertThat(myMeetingsResponse).usingRecursiveComparison()
+                .ignoringFields("serverTime", "meetings.id")
+                .isEqualTo(MyMeetingsResponse.of(
+                        LocalTime.now(),
+                        timeChecker,
+                        List.of(meeting, meetingRequest.toEntity()))
+                );
     }
 
     @DisplayName("사용자들의 출석 여부를 변경한다.")
@@ -163,6 +234,8 @@ class MeetingServiceTest {
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
         final Long meetingId = 1L;
         final Long userId = 1L;
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.of(2022, 07, 14, 0, 0));
 
         // when, then
         assertThatCode(() -> meetingService.updateAttendance(meetingId, userId, request, 1L))
@@ -205,7 +278,7 @@ class MeetingServiceTest {
         // given
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
-        given(serverTime.isExcessClosingTime(any(LocalTime.class), any(LocalTime.class)))
+        given(timeChecker.isExcessClosingTime(any(LocalTime.class)))
                 .willReturn(true);
 
         // when, then

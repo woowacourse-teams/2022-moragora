@@ -5,12 +5,12 @@ export const Button = styled.button`
   height: 4rem;
   padding: 1rem;
   border-radius: 50%;
-  border: 2px solid ${({ theme: { colors } }) => colors['primary']};
-  color: ${({ theme: { colors } }) => colors['primary']};
+  border: 2px solid ${({ theme: { colors } }) => colors['primary-subtle']};
+  color: ${({ theme: { colors } }) => colors['primary-subtle']};
 
   :hover {
-    border-color: ${({ theme: { colors } }) => colors['subtle-light']};
-    color: ${({ theme: { colors } }) => colors['subtle-light']};
+    border-color: ${({ theme: { colors } }) => colors['primary']};
+    color: ${({ theme: { colors } }) => colors['primary']};
   }
 
   :disabled {

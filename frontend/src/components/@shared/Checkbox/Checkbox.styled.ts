@@ -9,7 +9,7 @@ export const Label = styled.label`
 export const Input = styled.input`
   -webkit-appearance: none;
   appearance: none;
-  background-color: #fff;
+  background-color: ${({ theme: { colors } }) => colors['white']};
   margin: 0;
 
   font: inherit;
@@ -38,8 +38,7 @@ export const Input = styled.input`
 
   :checked::before {
     inset: 0.75rem;
-    color: ${({ theme: { colors } }) => colors['background']};
-    background-color: ;
+    color: ${({ theme: { colors } }) => colors['white']};
   }
 
   :disabled {

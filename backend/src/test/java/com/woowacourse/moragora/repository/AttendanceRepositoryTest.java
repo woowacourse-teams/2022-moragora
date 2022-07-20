@@ -37,12 +37,11 @@ class AttendanceRepositoryTest {
     void findByParticipantIdAndDate() {
         // given
         final Long participantId = 1L;
-        final LocalDate attendanceDate = LocalDate.now();
+        final LocalDate attendanceDate = LocalDate.of(2022, 7, 14);
 
         // when
-        final Optional<Attendance> attendance = attendanceRepository.findByParticipantIdAndAttendanceDate(
-                participantId,
-                attendanceDate);
+        final Optional<Attendance> attendance = attendanceRepository
+                .findByParticipantIdAndAttendanceDate(participantId, attendanceDate);
 
         // then
         assertThat(attendance.isPresent()).isTrue();
