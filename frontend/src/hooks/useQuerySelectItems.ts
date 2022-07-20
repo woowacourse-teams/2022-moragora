@@ -4,7 +4,6 @@ const throttle = <T extends (...args: any) => any>(
   callback: T,
   wait: number = 0
 ) => {
-  const time = Date.now();
   let timerId: NodeJS.Timeout | null = null;
   let lastArgs: {
     current: Parameters<T>;
@@ -12,20 +11,19 @@ const throttle = <T extends (...args: any) => any>(
     current: null,
   };
 
-  return (...args: Parameters<T>) =>
-    new Promise<ReturnType<T>>((resolve) => {
-      lastArgs.current = args;
+  return (...args: Parameters<T>) => {
+    lastArgs.current = args;
 
-      if (timerId) {
-        return;
-      }
+    if (timerId) {
+      return;
+    }
 
-      timerId = setTimeout(() => {
-        resolve(callback(...lastArgs.current));
+    timerId = setTimeout(() => {
+      callback(...lastArgs.current);
 
-        timerId = null;
-      }, wait);
-    });
+      timerId = null;
+    }, wait);
+  };
 };
 
 const useQuerySelectItems = <T extends { id: number }>(
