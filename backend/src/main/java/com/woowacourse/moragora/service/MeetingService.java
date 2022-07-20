@@ -19,7 +19,8 @@ import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
-import com.woowacourse.moragora.service.closingstrategy.ServerTime;
+import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
+import com.woowacourse.moragora.util.CurrentDateTime;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -131,7 +132,7 @@ public class MeetingService {
         if (isExcess) {
             throw new ClosingTimeExcessException();
         }
-        validateAttendanceTime(nowDateTime, meeting);
+        validateAttendanceTime(meeting);
 
         final Participant participant = attendanceRepository
                 .findByMeetingIdAndUserId(meeting.getId(), user.getId())
@@ -177,9 +178,9 @@ public class MeetingService {
         }
     }
 
-    private void validateAttendanceTime(final LocalDateTime nowDateTime, final Meeting meeting) {
+    private void validateAttendanceTime(final Meeting meeting) {
         final LocalTime entranceTime = meeting.getEntranceTime();
-        final boolean isOver = serverTime.isExcessClosingTime(nowDateTime.toLocalTime(), entranceTime);
+        final boolean isOver = timeChecker.isExcessClosingTime(entranceTime);
         if (isOver) {
             throw new ClosingTimeExcessException();
         }
