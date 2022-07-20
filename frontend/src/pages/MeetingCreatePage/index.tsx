@@ -8,35 +8,35 @@ import useForm from 'hooks/useForm';
 import useQuerySelectItems from 'hooks/useQuerySelectItems';
 import { UserQueryWithKeywordResponse } from 'types/userType';
 import { dateToFormattedString } from 'utils/timeUtil';
+import { useNavigate } from 'react-router-dom';
+import { MeetingResponseBody } from 'types/meetingType';
 
 type DefaultResponseBody = {};
 
 const MAX_SELECTED_USER_COUNT = 129;
 
-const postData = async <
+const asyncFetch = async <
   ResponseBody extends DefaultResponseBody = DefaultResponseBody
 >(
   url: string,
-  payload: any
+  option?: RequestInit
 ) => {
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
+  const res = await fetch(url, option);
 
   if (!res.ok) {
     throw new Error('모임 생성에 실패했습니다.');
   }
 
-  const data = (await res.json().catch((e) => ({}))) as ResponseBody;
+  const body = (await res.json().catch((e) => ({}))) as ResponseBody;
 
-  return data;
+  return {
+    res,
+    body,
+  };
 };
 
 const MeetingCreatePage = () => {
+  const navigate = useNavigate();
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
   const {
     queryResult,
@@ -69,9 +69,21 @@ const MeetingCreatePage = () => {
     };
 
     try {
-      await postData('/meetings', formDataObject);
+      const meatingCreateResult = await asyncFetch('/meetings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formDataObject),
+      });
 
       alert('모임 생성을 완료했습니다.');
+
+      const meetingGetResult = await asyncFetch<MeetingResponseBody>(
+        meatingCreateResult.res.headers.get('location') as string
+      );
+
+      navigate(`/meeting/${meetingGetResult.body.id}`);
     } catch (e) {
       console.error(e);
     }
@@ -89,12 +101,12 @@ const MeetingCreatePage = () => {
               모임명
               <Input
                 type="text"
-                {...register('title', { maxLength: 50, required: true })}
+                {...register('name', { maxLength: 50, required: true })}
               />
             </S.Label>
             <InputHint
-              isShow={errors['title'] !== ''}
-              message={errors['title']}
+              isShow={errors['name'] !== ''}
+              message={errors['name']}
             />
           </S.FieldBox>
           <S.FieldGroupBox>

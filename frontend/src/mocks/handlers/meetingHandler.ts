@@ -63,15 +63,20 @@ export default [
 
   rest.post<MeetingCreateRequestBody>('/meetings', (req, res, ctx) => {
     const meeting = req.body;
+    const id = meetings.length;
 
     meetings.push({
       ...meeting,
-      id: meetings.length,
+      id,
       closingTime: addMinute(meeting.entranceTime, 5),
       active: true,
       attendanceCount: 0,
     });
 
-    return res(ctx.status(201), ctx.delay(DELAY));
+    return res(
+      ctx.status(201),
+      ctx.set('Location', `/meetings/${id}`),
+      ctx.delay(DELAY)
+    );
   }),
 ];
