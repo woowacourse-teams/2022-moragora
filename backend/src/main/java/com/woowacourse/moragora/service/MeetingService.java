@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -174,12 +173,13 @@ public class MeetingService {
     }
 
     private void putAttendanceIfAbsent(final List<Participant> participants) {
-        final Participant anyParticipant = participants.get(0);
+        final List<Long> participantIds = participants.stream()
+                .map(Participant::getId)
+                .collect(Collectors.toList());
         final LocalDate today = LocalDate.now();
-        final Optional<Attendance> attendance =
-                attendanceRepository.findByParticipantIdAndAttendanceDate(anyParticipant.getId(), today);
+        final List<Attendance> attendances = attendanceRepository.findByParticipantIds(participantIds);
 
-        if (attendance.isEmpty()) {
+        if (attendances.size() == 0) {
             saveAttendance(participants, today);
         }
     }
