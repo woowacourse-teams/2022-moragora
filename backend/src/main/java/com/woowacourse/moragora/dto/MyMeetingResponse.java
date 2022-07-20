@@ -16,13 +16,13 @@ public class MyMeetingResponse {
     private final LocalTime entranceTime;
     private final LocalTime closingTime;
 
-    public MyMeetingResponse(final Long id,
-                             final String name,
-                             final boolean active,
-                             final LocalDate startDate,
-                             final LocalDate endDate,
-                             final LocalTime entranceTime,
-                             final LocalTime closingTime) {
+    private MyMeetingResponse(final Long id,
+                              final String name,
+                              final boolean active,
+                              final LocalDate startDate,
+                              final LocalDate endDate,
+                              final LocalTime entranceTime,
+                              final LocalTime closingTime) {
         this.id = id;
         this.name = name;
         this.active = active;

@@ -12,7 +12,7 @@ public class MyMeetingsResponse {
     private final LocalTime serverTime;
     private final List<MyMeetingResponse> meetings;
 
-    public MyMeetingsResponse(final LocalTime serverTime, final List<MyMeetingResponse> meetings) {
+    private MyMeetingsResponse(final LocalTime serverTime, final List<MyMeetingResponse> meetings) {
         this.serverTime = serverTime;
         this.meetings = meetings;
     }

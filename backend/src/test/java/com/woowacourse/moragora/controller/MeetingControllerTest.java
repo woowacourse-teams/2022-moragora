@@ -20,10 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.auth.support.JwtTokenProvider;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
-import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
+import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.ParticipantNotFoundException;
@@ -237,34 +237,29 @@ class MeetingControllerTest {
     @Test
     void findAllByUserId() throws Exception {
         // given
-        final MyMeetingResponse myMeetingResponse1 = new MyMeetingResponse(
-                1L,
+        final Meeting meeting1 = new Meeting(
                 "모임1",
-                true,
                 LocalDate.of(2022, 7, 10),
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(10, 5)
         );
-        final MyMeetingResponse myMeetingResponse2 = new MyMeetingResponse(
-                2L,
+        final Meeting meeting2 = new Meeting(
                 "모임2",
-                false,
                 LocalDate.of(2022, 7, 15),
                 LocalDate.of(2022, 8, 15),
                 LocalTime.of(9, 0),
                 LocalTime.of(9, 5)
         );
-        final LocalTime serverTime = LocalTime.of(10, 0);
-        final MyMeetingsResponse meetingsResponse = new MyMeetingsResponse(
-                serverTime, List.of(myMeetingResponse1, myMeetingResponse2));
+        final LocalTime serverTime = LocalTime.of(10, 1);
+        final MyMeetingsResponse meetingsResponse = MyMeetingsResponse.of(serverTime, List.of(meeting1, meeting2));
 
         // when
         given(jwtTokenProvider.validateToken(any()))
                 .willReturn(true);
         given(jwtTokenProvider.getPayload(any()))
                 .willReturn("1");
-        given(meetingService.findAllByUserId(anyLong()))
+        given(meetingService.findAllByUserId(eq(1L)))
                 .willReturn(meetingsResponse);
 
         // then
@@ -273,8 +268,7 @@ class MeetingControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.serverTime", is("10:00:00")))
-                .andExpect(jsonPath("$.meetings[*].id", containsInAnyOrder(1, 2)))
+                .andExpect(jsonPath("$.serverTime", is("10:01:00")))
                 .andExpect(jsonPath("$.meetings[*].name", containsInAnyOrder("모임1", "모임2")))
                 .andExpect(jsonPath("$.meetings[*].active", containsInAnyOrder(true, false)))
                 .andExpect(jsonPath("$.meetings[*].startDate", containsInAnyOrder("2022-07-10", "2022-07-15")))
