@@ -1,15 +1,15 @@
 import React, { useContext } from 'react';
 
-const useSelector = <ContextValues>(
+const useContextValues = <ContextValues>(
   context: React.Context<ContextValues | null>
 ) => {
   const values = useContext(context);
 
   if (!values) {
-    throw new Error('데이터가 없습니다.');
+    return;
   }
 
   return values;
 };
 
-export default useSelector;
+export default useContextValues;
