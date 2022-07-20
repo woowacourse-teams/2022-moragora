@@ -18,6 +18,11 @@ export type MeetingItem = Omit<
   'leaveTime' | 'attendanceCount' | 'userIds'
 >;
 
+export type MeetingCreateRequestBody = Pick<
+  Meeting,
+  'name' | 'startDate' | 'endDate' | 'entranceTime' | 'leaveTime' | 'userIds'
+>;
+
 export type MeetingListResponseBody = {
   serverTime: string;
   meetings: MeetingItem[];

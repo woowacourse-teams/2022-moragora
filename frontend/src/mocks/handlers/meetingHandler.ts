@@ -2,6 +2,8 @@ import { DefaultBodyType, rest } from 'msw';
 import meetings from 'mocks/fixtures/meeting';
 import users from 'mocks/fixtures/users';
 import { UserAttendanceCheckRequestBody } from 'types/userType';
+import { MeetingCreateRequestBody } from 'types/meetingType';
+import { addMinute } from 'utils/timeUtil';
 
 const DELAY = 700;
 
@@ -15,7 +17,6 @@ export default [
     '/meetings/:meetingId',
     (req, res, ctx) => {
       const { meetingId } = req.params;
-
       const meeting = meetings.find(({ id }) => id === Number(meetingId));
 
       if (!meeting) {
@@ -59,4 +60,18 @@ export default [
       return res(ctx.status(204), ctx.delay(DELAY));
     }
   ),
+
+  rest.post<MeetingCreateRequestBody>('/meetings', (req, res, ctx) => {
+    const meeting = req.body;
+
+    meetings.push({
+      ...meeting,
+      id: meetings.length,
+      closingTime: addMinute(meeting.entranceTime, 5),
+      active: true,
+      attendanceCount: 0,
+    });
+
+    return res(ctx.status(201), ctx.delay(DELAY));
+  }),
 ];
