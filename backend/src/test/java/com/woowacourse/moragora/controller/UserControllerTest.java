@@ -32,10 +32,8 @@ public class UserControllerTest extends ControllerTest {
         final UserRequest userRequest = new UserRequest("kun@naver.com", "1234smart!", "kun");
         given(userService.create(any(UserRequest.class)))
                 .willReturn(1L);
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
+
+        validateToken("1");
 
         // when
         final ResultActions resultActions = performPost("/users", userRequest);
@@ -63,10 +61,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final UserRequest userRequest = new UserRequest(email, password, nickname);
 
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
+        validateToken("1");
 
         // when
         final ResultActions resultActions = performPost("/users", userRequest);

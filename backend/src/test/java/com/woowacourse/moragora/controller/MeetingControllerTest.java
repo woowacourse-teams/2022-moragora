@@ -46,11 +46,8 @@ class MeetingControllerTest extends ControllerTest {
                 List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
 
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
-        given(meetingService.save(any(MeetingRequest.class), eq(1L)))
+        final Long loginId = validateToken("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
                 .willReturn(1L);
         // when
         final ResultActions resultActions = performPost("/meetings", meetingRequest);
@@ -73,11 +70,8 @@ class MeetingControllerTest extends ControllerTest {
                 List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
 
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
-        given(meetingService.save(any(MeetingRequest.class), eq(1L)))
+        final Long loginId = validateToken("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
                 .willThrow(new IllegalStartEndDateException());
 
         // when
@@ -105,10 +99,7 @@ class MeetingControllerTest extends ControllerTest {
                 List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
 
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
+        validateToken("1");
 
         // when
         final ResultActions resultActions = performPost("/meetings", meetingRequest);
@@ -139,10 +130,7 @@ class MeetingControllerTest extends ControllerTest {
         params.put("entranceTime", entranceTime);
         params.put("leaveTime", leaveTime);
 
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
+        validateToken("1");
 
         // when
         final ResultActions resultActions = performPost("/meetings", params);
@@ -173,11 +161,8 @@ class MeetingControllerTest extends ControllerTest {
                 usersResponse
         );
 
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
-        given(meetingService.findById(eq(1L), eq(1L)))
+        final Long loginId = validateToken("1");
+        given(meetingService.findById(eq(1L), eq(loginId)))
                 .willReturn(meetingResponse);
 
         // when
@@ -202,10 +187,7 @@ class MeetingControllerTest extends ControllerTest {
         final Long userId = 1L;
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
+        validateToken("1");
 
         // when
         final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
@@ -222,14 +204,11 @@ class MeetingControllerTest extends ControllerTest {
         final Long userId = 1L;
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
+        final Long loginId = validateToken("1");
 
         doThrow(MeetingNotFoundException.class)
                 .when(meetingService)
-                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class), eq(1L));
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class), eq(loginId));
 
         // when
         final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
@@ -246,14 +225,11 @@ class MeetingControllerTest extends ControllerTest {
         final Long userId = 8L;
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
+        final Long loginId = validateToken("1");
 
         doThrow(ParticipantNotFoundException.class)
                 .when(meetingService)
-                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class), eq(1L));
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class), eq(loginId));
 
         // when
         final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);

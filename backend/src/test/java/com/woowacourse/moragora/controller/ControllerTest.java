@@ -1,5 +1,7 @@
 package com.woowacourse.moragora.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
@@ -56,5 +58,13 @@ public class ControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print());
+    }
+
+    protected Long validateToken(String id) {
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn(id);
+        return Long.valueOf(id);
     }
 }
