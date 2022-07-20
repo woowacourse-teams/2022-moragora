@@ -53,6 +53,8 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
     void findOne() {
         // given
         final int id = 1;
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.now());
 
         // when
         final ValidatableResponse response = get("/meetings/" + id, signUpAndGetToken());
@@ -61,7 +63,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.OK.value())
                 .body("id", equalTo(id))
                 .body("name", equalTo("모임1"))
-                .body("attendanceCount", equalTo(3))
+                .body("attendanceCount", equalTo(4))
                 .body("startDate", equalTo("2022-07-10"))
                 .body("endDate", equalTo("2022-08-10"))
                 .body("entranceTime", equalTo("10:00:00"))

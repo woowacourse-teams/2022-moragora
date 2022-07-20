@@ -1,7 +1,6 @@
 package com.woowacourse.moragora.repository;
 
 import com.woowacourse.moragora.entity.Attendance;
-import com.woowacourse.moragora.entity.Participant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -30,15 +29,15 @@ public class AttendanceRepository {
 
     public List<Attendance> findByParticipantId(final Long participantId) {
         return entityManager.createQuery("select a from Attendance a where a.participant.id = :participantId",
-                        Attendance.class)
+                Attendance.class)
                 .setParameter("participantId", participantId)
                 .getResultList();
     }
 
     public long findAttendanceCountById(final Long participantId) {
         return entityManager.createQuery(
-                        "select count(distinct a.attendanceDate) from Attendance a "
-                                + "where a.participant.id = :id", Long.class)
+                "select count(distinct a.attendanceDate) from Attendance a "
+                        + "where a.participant.id = :id", Long.class)
                 .setParameter("id", participantId)
                 .getSingleResult();
     }
@@ -61,17 +60,20 @@ public class AttendanceRepository {
         }
     }
 
-    public Optional<Participant> findByMeetingIdAndUserId(final Long meetingId, final Long userId) {
-        try {
-            final Participant participant = entityManager.createQuery(
-                            "select p from Participant p where p.meeting.id = :meetingId and p.user.id = :userId",
-                            Participant.class)
-                    .setParameter("meetingId", meetingId)
-                    .setParameter("userId", userId)
-                    .getSingleResult();
-            return Optional.ofNullable(participant);
-        } catch (NoResultException exception) {
-            return Optional.empty();
-        }
+    public List<Attendance> findByParticipantIds(final List<Long> participantIds) {
+        return entityManager.createQuery("select a from Attendance a where a.participant.id in :participantIds",
+                Attendance.class)
+                .setParameter("participantIds", participantIds)
+                .getResultList();
+    }
+
+    public List<Attendance> findByParticipantIdsAndAttendanceDate(final List<Long> participantIds,
+                                                                  final LocalDate attendanceDate) {
+        return entityManager.createQuery("select a from Attendance a "
+                        + "where a.participant.id in :participantIds and a.attendanceDate = :attendanceDate",
+                Attendance.class)
+                .setParameter("participantIds", participantIds)
+                .setParameter("attendanceDate", attendanceDate)
+                .getResultList();
     }
 }

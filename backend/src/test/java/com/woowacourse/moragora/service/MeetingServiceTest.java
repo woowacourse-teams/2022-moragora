@@ -153,6 +153,37 @@ class MeetingServiceTest {
                 null
         );
 
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.of(2022, 7, 14, 0, 0));
+
+        // when
+        final MeetingResponse response = meetingService.findById(id);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .ignoringFields("users")
+                .isEqualTo(expectedMeetingResponse);
+    }
+
+    @DisplayName("id로 모임 상세 정보를 조회한다_당일 출석부가 없는 경우 추가 후 조회한다.")
+    @Test
+    void findById_putAttendanceIfAbsent() {
+        // given
+        final Long id = 1L;
+        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
+                1L,
+                "모임1",
+                4,
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                null
+        );
+
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.now());
+
         // when
         final MeetingResponse response = meetingService.findById(id);
 
