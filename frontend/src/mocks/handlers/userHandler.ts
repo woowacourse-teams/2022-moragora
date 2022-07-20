@@ -61,6 +61,7 @@ export default [
       password,
       nickname,
       accessToken: null,
+      attendanceStatus: 'tardy',
     };
 
     users.push(newUser);
