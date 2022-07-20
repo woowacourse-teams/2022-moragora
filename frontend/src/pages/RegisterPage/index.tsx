@@ -4,6 +4,9 @@ import * as S from './RegisterPage.styled';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
 import useForm from 'hooks/useForm';
+import useContextValues from 'hooks/useContextValues';
+import { userContext, UserContextValues } from 'contexts/userContext';
+import { GetMeDataResponseBody } from 'types/userType';
 
 const checkEmail = async (url: string) => {
   return fetch(url, {
@@ -24,8 +27,21 @@ const submitData = async (url: string, payload: any) => {
   });
 };
 
+const getMeData = (url: string, accessToken: string) => {
+  return fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  });
+};
+
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { setUser } = useContextValues<UserContextValues>(
+    userContext
+  ) as UserContextValues;
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
   const [isEmailExist, setIsEmailExist] = useState(true);
   const [isValidPasswordConfirm, setIsValidPasswordConfirm] = useState(true);
@@ -78,7 +94,18 @@ const RegisterPage = () => {
 
     const accessToken = await loginRes.json().then((data) => data.accessToken);
 
-    navigate('/meeting');
+    localStorage.setItem('accessToken', accessToken);
+
+    const getMeResponse = await getMeData('/users/me', accessToken);
+    if (!getMeResponse.ok) {
+      alert('내 정보 가져오기 실패');
+      return;
+    }
+
+    const MeData = (await getMeResponse.json()) as GetMeDataResponseBody;
+
+    setUser(MeData);
+    navigate('/');
   };
 
   return (

@@ -67,7 +67,7 @@ const LoginPage = () => {
     const MeData = (await getMeResponse.json()) as GetMeDataResponseBody;
     setUser(MeData);
 
-    navigate('/meeting');
+    navigate('/');
   };
 
   return (
