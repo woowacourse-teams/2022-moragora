@@ -18,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.auth.support.JwtTokenProvider;
+import com.woowacourse.moragora.FakeServerTime;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
@@ -251,8 +252,9 @@ class MeetingControllerTest {
                 LocalTime.of(9, 0),
                 LocalTime.of(9, 5)
         );
-        final LocalTime serverTime = LocalTime.of(10, 1);
-        final MyMeetingsResponse meetingsResponse = MyMeetingsResponse.of(serverTime, List.of(meeting1, meeting2));
+        final LocalTime now = LocalTime.of(10, 1);
+        final MyMeetingsResponse meetingsResponse = MyMeetingsResponse.of(now, new FakeServerTime(),
+                List.of(meeting1, meeting2));
 
         // when
         given(jwtTokenProvider.validateToken(any()))
@@ -270,7 +272,7 @@ class MeetingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.serverTime", is("10:01:00")))
                 .andExpect(jsonPath("$.meetings[*].name", containsInAnyOrder("모임1", "모임2")))
-                .andExpect(jsonPath("$.meetings[*].active", containsInAnyOrder(true, false)))
+                .andExpect(jsonPath("$.meetings[*].active", containsInAnyOrder(true, true)))
                 .andExpect(jsonPath("$.meetings[*].startDate", containsInAnyOrder("2022-07-10", "2022-07-15")))
                 .andExpect(jsonPath("$.meetings[*].endDate", containsInAnyOrder("2022-08-10", "2022-08-15")))
                 .andExpect(jsonPath("$.meetings[*].entranceTime", containsInAnyOrder("09:00:00", "10:00:00")))

@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.dto;
 
 import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.service.closingstrategy.ServerTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import lombok.Getter;
@@ -32,24 +33,16 @@ public class MyMeetingResponse {
         this.closingTime = closingTime;
     }
 
-    public static MyMeetingResponse of(final Meeting meeting, final LocalTime serverTime) {
-        final LocalTime entranceTime = meeting.getEntranceTime();
-        final LocalTime closingTime = entranceTime.plusMinutes(5);
+    public static MyMeetingResponse of(final LocalTime now, final ServerTime serverTime, final Meeting meeting) {
 
         return new MyMeetingResponse(
                 meeting.getId(),
                 meeting.getName(),
-                isActive(serverTime, entranceTime, closingTime),
+                serverTime.isAttendanceTime(now, meeting.getEntranceTime()),
                 meeting.getStartDate(),
                 meeting.getEndDate(),
-                entranceTime,
-                closingTime
+                meeting.getEntranceTime(),
+                serverTime.calculateClosingTime(meeting.getEntranceTime())
         );
-    }
-
-    private static boolean isActive(final LocalTime serverTime,
-                                    final LocalTime entranceTime,
-                                    final LocalTime closingTime) {
-        return serverTime.isAfter(entranceTime) && serverTime.isBefore(closingTime);
     }
 }

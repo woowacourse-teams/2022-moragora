@@ -92,13 +92,13 @@ public class MeetingService {
     }
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
-        final LocalTime serverTime = LocalTime.now();
+        final LocalTime now = LocalTime.now();
         final List<Participant> participants = participantRepository.findByUserId(userId);
         final List<Meeting> meetings = participants.stream()
                 .map(Participant::getMeeting)
                 .collect(Collectors.toList());
 
-        return MyMeetingsResponse.of(serverTime, meetings);
+        return MyMeetingsResponse.of(now, serverTime, meetings);
     }
 
     // TODO update (1 + N) -> 최적하기

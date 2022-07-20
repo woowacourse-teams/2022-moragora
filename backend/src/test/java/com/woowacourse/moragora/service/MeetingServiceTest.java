@@ -131,6 +131,7 @@ class MeetingServiceTest {
                 .ignoringFields("serverTime", "meetings.id")
                 .isEqualTo(MyMeetingsResponse.of(
                         LocalTime.now(),
+                        serverTime,
                         List.of(meeting, meetingRequest.toEntity()))
                 );
     }
