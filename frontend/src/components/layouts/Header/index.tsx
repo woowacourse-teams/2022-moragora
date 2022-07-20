@@ -13,6 +13,10 @@ const Header = () => {
     navigate(-1);
   };
 
+  const currentDate = new Date();
+  const hours = currentDate.getHours();
+  const greetingMessage = hours < 12 ? '좋은 아침입니다' : '반갑습니다';
+
   return (
     <S.Layout>
       <Routes>
@@ -24,7 +28,7 @@ const Header = () => {
                 <Avatar />
               </S.Box>
               <S.WelcomeMessageBox>
-                <p>반갑습니다.</p>
+                <p>{greetingMessage}</p>
                 <S.NicknameParagraph>
                   {userState?.user?.nickname || 'unknown'}
                 </S.NicknameParagraph>
