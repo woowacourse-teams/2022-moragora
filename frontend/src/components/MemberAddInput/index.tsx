@@ -2,16 +2,14 @@ import React, { useState } from 'react';
 import useQuerySelectItems from '../../hooks/useQuerySelectItems';
 import Input from '../@shared/Input';
 import * as S from './MemberAddInput.styled';
-
-type User = {
-  id: number;
-  nickname: string;
-  email: string;
-};
+import { UserQueryWithKeywordResponse } from 'types/userType';
 
 const MemberAddInput: React.FC<
   Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> &
-    Omit<ReturnType<typeof useQuerySelectItems<User>>, 'loading'>
+    Omit<
+      ReturnType<typeof useQuerySelectItems<UserQueryWithKeywordResponse>>,
+      'loading'
+    >
 > = ({
   queryResult,
   selectedItems,

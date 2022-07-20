@@ -1,16 +1,10 @@
 import { rest } from 'msw';
-import users, { User } from '../fixtures/users';
-
-type UserRegisterRequestBody = {
-  email: string;
-  nickname: string;
-  password: string;
-};
-
-type UserLoginRequestBody = {
-  email: string;
-  password: string;
-};
+import users from '../fixtures/users';
+import {
+  UserRegisterRequestBody,
+  UserLoginRequestBody,
+  User,
+} from 'types/userType';
 
 const DELAY = 700;
 const TOKEN_PREFIX = 'badwoody';
@@ -61,7 +55,6 @@ export default [
       password,
       nickname,
       accessToken: null,
-      attendanceStatus: 'tardy',
     };
 
     users.push(newUser);

@@ -4,8 +4,12 @@ import Input from '../../components/@shared/Input';
 import * as S from './LoginPage.styled';
 import useForm from '../../hooks/useForm';
 import InputHint from '../../components/@shared/InputHint';
+import { User } from 'types/userType';
 
-const submitLogin = async (url: string, payload: any) => {
+const submitLogin = async (
+  url: string,
+  payload: Pick<User, 'email' | 'password'>
+) => {
   return fetch(url, {
     method: 'POST',
     headers: {
@@ -22,7 +26,10 @@ const LoginPage = () => {
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     const target = e.target as HTMLFormElement;
     const formData = new FormData(target);
-    const formDataObject = Object.fromEntries(formData.entries());
+    const formDataObject = Object.fromEntries(formData.entries()) as Pick<
+      User,
+      'email' | 'password'
+    >;
 
     const res = await submitLogin('/login', formDataObject);
     if (!res.ok) {

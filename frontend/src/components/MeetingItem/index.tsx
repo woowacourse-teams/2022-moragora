@@ -1,6 +1,7 @@
 import * as S from './MeetingItem.styled';
 import MeetingIconSVG from '../../assets/meeting.svg';
 import React from 'react';
+import { Meeting } from 'types/meetingType';
 
 // minute이 60을 넘어갈 때 hour + 1
 // 24시를 넘어갈 때 0으로 수정
@@ -28,18 +29,16 @@ function addMinute(startTime: string, minute: number) {
   return reconcileTime(addedTime);
 }
 
-type Meeting = {
-  id: number;
-  name: string;
-  startDate: string;
-  endDate: string;
-  entranceTime: string;
-  leaveTime: string;
-  attendanceCount: number;
-};
-
 type MeetingItemProps = {
-  meeting: Meeting;
+  meeting: {
+    id: 1;
+    name: '모임1';
+    active: true; // true면 출석 중, false면 출석 준비 중
+    startDate: 'yyyy-mm-dd';
+    endDate: 'yyyy-mm-dd';
+    entranceTime: 'hh:mm';
+    closingTime: 'hh:mm'; // 출석 마감 시간
+  };
 };
 
 const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {

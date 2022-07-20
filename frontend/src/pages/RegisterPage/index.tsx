@@ -13,6 +13,7 @@ const checkEmail = async (url: string) => {
     },
   });
 };
+
 const submitData = async (url: string, payload: any) => {
   return fetch(url, {
     method: 'POST',

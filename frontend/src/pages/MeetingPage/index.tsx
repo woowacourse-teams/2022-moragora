@@ -8,38 +8,18 @@ import DivideLine from '../../components/@shared/DivideLine';
 import ReloadButton from '../../components/@shared/ReloadButton';
 import { useParams } from 'react-router-dom';
 import UserItem from '../../components/UserItem';
-
-type User = {
-  id: number;
-  email: string;
-  password: string;
-  nickname: string;
-  accessToken: null | string;
-  tardyCount: number;
-  attendanceStatus: 'present' | 'tardy';
-};
-
-type MeetingResponseBody = {
-  id: number;
-  name: string;
-  startDate: string;
-  endDate: string;
-  entranceTime: string;
-  leaveTime: string;
-  users: Omit<User, 'accessToken'>[];
-  attendanceCount: number;
-};
+import { MeetingResponseBody } from 'types/meetingType';
 
 const MeetingPage = () => {
   const { id } = useParams();
   const {
     data: meetingState,
-    loading: isLoading,
-    error: isError,
+    loading,
+    error,
     refetch,
   } = useFetch<MeetingResponseBody>(`/meetings/${id}`);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <>
         <S.Layout>
@@ -52,7 +32,7 @@ const MeetingPage = () => {
     );
   }
 
-  if (isError) {
+  if (error || !id || !meetingState) {
     return (
       <>
         <S.Layout>

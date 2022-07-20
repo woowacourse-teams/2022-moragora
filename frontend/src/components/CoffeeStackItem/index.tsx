@@ -1,22 +1,13 @@
 import React from 'react';
 import * as S from './CoffeeStackItem.styled';
 import CoffeeIconSVG from '../../assets/coffee.svg';
+import { MeetingItem } from 'types/meetingType';
 
-type Meeting = {
-  id: number;
-  name: string;
-  startDate: string;
-  endDate: string;
-  entranceTime: string;
-  leaveTime: string;
-  attendanceCount: number;
-};
+type CoffeeStackItemProps = { meeting: MeetingItem };
 
-type CoffeeStackItemProps = {
-  name: Pick<Meeting, 'name'>['name'];
-};
-
-const CoffeeStackItem: React.FC<CoffeeStackItemProps> = ({ name }) => {
+const CoffeeStackItem: React.FC<CoffeeStackItemProps> = ({
+  meeting: { name },
+}) => {
   return (
     <S.Layout>
       <span>{name}</span>
