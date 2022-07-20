@@ -17,8 +17,8 @@ class ParticipantRepositoryTest {
 
     @Autowired
     private ParticipantRepository participantRepository;
-    
-    @DisplayName("마팅 Id로 참자가 정보를 조회한다.")
+
+    @DisplayName("미팅 Id로 참자가 정보를 조회한다.")
     @Test
     void findByMeetingId() {
         // given
