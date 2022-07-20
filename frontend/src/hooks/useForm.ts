@@ -20,13 +20,13 @@ const useForm = () => {
 
   const handleChange =
     (
-      onChange?: React.FormEventHandler<HTMLInputElement>
-    ): React.FormEventHandler<HTMLInputElement> =>
+      onChange?: React.ChangeEventHandler<HTMLInputElement>
+    ): React.ChangeEventHandler<HTMLInputElement> =>
     (e) => {
       const { target } = e;
-      const { name, value } = target as HTMLInputElement;
+      const { name, value } = target;
 
-      validate(target as HTMLInputElement);
+      validate(target);
 
       setValues((prev) => ({
         ...prev,

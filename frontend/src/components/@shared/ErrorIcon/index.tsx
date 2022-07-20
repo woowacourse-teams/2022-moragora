@@ -1,4 +1,3 @@
-import React from 'react';
 import * as S from './ErrorIcon.styled';
 
 const ErrorIcon = () => {

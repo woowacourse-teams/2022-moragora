@@ -9,6 +9,7 @@ export const Layout = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: ${({ theme: { colors } }) => colors['white']};
 `;
 
 export const Image = styled.img`

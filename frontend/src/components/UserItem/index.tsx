@@ -1,30 +1,20 @@
-import { css } from '@emotion/react';
 import React, { useState } from 'react';
 import * as S from './UserItem.styled';
-import CoffeeIconSVG from '../../assets/coffee.svg';
-import Checkbox from '../../components/@shared/Checkbox';
-
-type User = {
-  id: number;
-  email: string;
-  password: string;
-  nickname: string;
-  accessToken: null | string;
-  tardyCount: number;
-  attendanceStatus: 'present' | 'tardy';
-};
+import Checkbox from 'components/@shared/Checkbox';
+import CoffeeIconSVG from 'assets/coffee.svg';
+import { Participant, AttendanceStatus } from 'types/userType';
 
 type UserItemProps = {
-  user: Omit<User, 'accessToken'>;
+  user: Participant;
   meetingId: string;
 };
 
-const ATTENDANCE_STATUS = {
+const ATTENDANCE_STATUS: Record<AttendanceStatus, boolean> = {
   tardy: false,
   present: true,
 } as const;
 
-const userAttendanceFetch = async (url: string, payload: any) => {
+const userAttendanceFetch = (url: string, payload: any) => {
   return fetch(url, {
     method: 'PUT',
     headers: {
@@ -56,7 +46,7 @@ const UserItem: React.FC<UserItemProps> = ({ user, meetingId }) => {
         setChecked(!checked);
       }
     } catch (error) {
-      alert('출석체크중 오류가 발생했습니다.');
+      alert('출석체크 중 오류가 발생했습니다.');
     }
   };
 

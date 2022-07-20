@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
-import Button from '../../components/@shared/Button';
-import DialogButton from '../../components/@shared/DialogButton';
-import Input from '../../components/@shared/Input';
+import Button from 'components/@shared/Button';
+import DialogButton from 'components/@shared/DialogButton';
+import Input from 'components/@shared/Input';
 
 export const Layout = styled.div`
   display: flex;

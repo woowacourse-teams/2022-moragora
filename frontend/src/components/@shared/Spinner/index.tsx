@@ -1,4 +1,3 @@
-import React from 'react';
 import * as S from './Spinner.styled';
 
 const Spinner = () => {
@@ -7,7 +6,7 @@ const Spinner = () => {
       <S.SpinnerSVG
         role="status"
         viewBox="0 0 100 101"
-        fill="none"
+        fill="inherit"
         xmlns="http://www.w3.org/2000/svg"
       >
         <path

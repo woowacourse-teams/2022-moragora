@@ -1,9 +1,9 @@
-import MeetingCreatePage from '../pages/MeetingCreatePage';
-import MeetingListPage from '../pages/MeetingListPage';
-import MeetingPage from '../pages/MeetingPage';
-import RegisterPage from '../pages/RegisterPage';
 import { Navigate, useRoutes } from 'react-router-dom';
-import LoginPage from '../pages/LoginPage';
+import MeetingCreatePage from 'pages/MeetingCreatePage';
+import MeetingListPage from 'pages/MeetingListPage';
+import MeetingPage from 'pages/MeetingPage';
+import RegisterPage from 'pages/RegisterPage';
+import LoginPage from 'pages/LoginPage';
 
 const Router = () => {
   return useRoutes([

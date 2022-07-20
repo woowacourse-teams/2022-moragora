@@ -1,8 +1,7 @@
-import React from 'react';
 import { rest } from 'msw';
-import MobileLayout from '../../components/layouts/MobileLayout';
-import Header from '../../components/layouts/Header';
 import LoginPage from '.';
+import MobileLayout from 'components/layouts/MobileLayout';
+import Header from 'components/layouts/Header';
 
 export default {
   title: 'Pages/LoginPage',
