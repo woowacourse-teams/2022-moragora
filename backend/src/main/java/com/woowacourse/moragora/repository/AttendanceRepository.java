@@ -35,12 +35,23 @@ public class AttendanceRepository {
                 .getResultList();
     }
 
+    public long findAttendanceCountById(final Long participantId) {
+        return entityManager.createQuery(
+                        "select count(distinct a.attendanceDate) from Attendance a "
+                                + "where a.participant.id = :id", Long.class)
+                .setParameter("id", participantId)
+                .getSingleResult();
+    }
+
     public Optional<Attendance> findByParticipantIdAndAttendanceDate(final Long participantId,
                                                                      final LocalDate attendanceDate) {
         try {
-            final Attendance attendance = entityManager.createQuery(
-                            "select a from Attendance a where a.participant.id = :participantId and a.attendanceDate = :attendanceDate",
-                            Attendance.class)
+            final String sql =
+                    "select a from Attendance a "
+                            + "where a.participant.id = :participantId "
+                            + "and a.attendanceDate = :attendanceDate";
+
+            final Attendance attendance = entityManager.createQuery(sql, Attendance.class)
                     .setParameter("participantId", participantId)
                     .setParameter("attendanceDate", attendanceDate)
                     .getSingleResult();

@@ -3,22 +3,29 @@ package com.woowacourse.moragora.acceptance;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.util.CurrentDateTime;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 @DisplayName("모임 관련 기능")
 public class MeetingAcceptanceTest extends AcceptanceTest {
+
+    @MockBean
+    private CurrentDateTime currentDateTime;
 
     @DisplayName("사용자가 모임을 등록하고 상태코드 200 OK 를 반환받는다.")
     @Test
@@ -54,7 +61,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.OK.value())
                 .body("id", equalTo(id))
                 .body("name", equalTo("모임1"))
-                .body("attendanceCount", equalTo(0))
+                .body("attendanceCount", equalTo(3))
                 .body("startDate", equalTo("2022-07-10"))
                 .body("endDate", equalTo("2022-08-10"))
                 .body("entranceTime", equalTo("10:00"))
@@ -115,6 +122,9 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         final int meetingId = 1;
         final int userId = 1;
         final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
+
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.of(2022, 7, 14, 0, 0));
 
         // when
         final ValidatableResponse response = RestAssured.given().log().all()
