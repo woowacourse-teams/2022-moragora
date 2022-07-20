@@ -32,6 +32,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MeetingService {
 
+    private static final String USER_IDS_DUPLICATION_ERROR_MESSAGE = "참가자 명단에 중복이 있습니다.";
+    private static final String USER_IDS_CONTAIN_LOGIN_ID_ERROR_MESSAGE = "생성자가 참가자 명단에 포함되어 있습니다.";
+    private static final String EMPTY_USER_IDS_ERROR_MESSAGE = "생성자를 제외한 참가자가 없습니다.";
+
     private final MeetingRepository meetingRepository;
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
@@ -117,7 +121,7 @@ public class MeetingService {
                 .orElseThrow(ParticipantNotFoundException::new);
 
         final Attendance attendance = attendanceRepository.findByParticipantIdAndAttendanceDate(participant.getId(),
-                        nowDateTime.toLocalDate())
+                nowDateTime.toLocalDate())
                 .orElseThrow(AttendanceNotFoundException::new);
 
         attendance.changeAttendanceStatus(request.getAttendanceStatus());
@@ -138,15 +142,15 @@ public class MeetingService {
      */
     private void validateUserIds(final List<Long> userIds, final Long loginId) {
         if (Set.copyOf(userIds).size() != userIds.size()) {
-            throw new IllegalParticipantException();
+            throw new IllegalParticipantException(USER_IDS_DUPLICATION_ERROR_MESSAGE);
         }
 
         if (userIds.contains(loginId)) {
-            throw new IllegalParticipantException();
+            throw new IllegalParticipantException(USER_IDS_CONTAIN_LOGIN_ID_ERROR_MESSAGE);
         }
 
         if (userIds.size() == 0) {
-            throw new IllegalParticipantException();
+            throw new IllegalParticipantException(EMPTY_USER_IDS_ERROR_MESSAGE);
         }
     }
 

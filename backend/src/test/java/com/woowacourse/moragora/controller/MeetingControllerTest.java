@@ -20,11 +20,11 @@ import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
-import com.woowacourse.moragora.exception.IllegalParticipantException;
-import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.exception.IllegalParticipantException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.ParticipantNotFoundException;
+import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import com.woowacourse.moragora.service.MeetingService;
 import java.time.LocalDate;
@@ -82,8 +82,8 @@ class MeetingControllerTest {
 
         // then
         mockMvc.perform(post("/meetings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(meetingRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(meetingRequest)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", equalTo("/meetings/" + 1)));
@@ -112,8 +112,8 @@ class MeetingControllerTest {
 
         // then
         mockMvc.perform(post("/meetings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(meetingRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(meetingRequest)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
@@ -144,8 +144,8 @@ class MeetingControllerTest {
 
         // then
         mockMvc.perform(post("/meetings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(meetingRequest)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(meetingRequest)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
@@ -180,8 +180,8 @@ class MeetingControllerTest {
 
         // then
         mockMvc.perform(post("/meetings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(params)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
@@ -207,7 +207,7 @@ class MeetingControllerTest {
         given(jwtTokenProvider.getPayload(any()))
                 .willReturn("1");
         given(meetingService.save(any(MeetingRequest.class), eq(1L)))
-                .willThrow(new IllegalParticipantException());
+                .willThrow(new IllegalParticipantException("참가자 명단에 중복이 있습니다."));
 
         // then
         mockMvc.perform(post("/meetings")
@@ -216,7 +216,7 @@ class MeetingControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
-                        .value("참가자 정보가 잘못되었습니다."));
+                        .value("참가자 명단에 중복이 있습니다."));
     }
 
     @DisplayName("미팅 방을 생성 시 참가자 명단이 비어있을 경우 예외가 발생한다.")
@@ -238,7 +238,7 @@ class MeetingControllerTest {
         given(jwtTokenProvider.getPayload(any()))
                 .willReturn("1");
         given(meetingService.save(any(MeetingRequest.class), eq(1L)))
-                .willThrow(new IllegalParticipantException());
+                .willThrow(new IllegalParticipantException("생성자를 제외한 참가자가 없습니다."));
 
         // then
         mockMvc.perform(post("/meetings")
@@ -247,7 +247,7 @@ class MeetingControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
-                        .value("참가자 정보가 잘못되었습니다."));
+                        .value("생성자를 제외한 참가자가 없습니다."));
     }
 
     @DisplayName("미팅 방을 생성 시 참가자 명단에 생성자 아이디가 있을 경우 예외가 발생한다.")
@@ -269,7 +269,7 @@ class MeetingControllerTest {
         given(jwtTokenProvider.getPayload(any()))
                 .willReturn("1");
         given(meetingService.save(any(MeetingRequest.class), eq(1L)))
-                .willThrow(new IllegalParticipantException());
+                .willThrow(new IllegalParticipantException("생성자가 참가자 명단에 포함되어 있습니다."));
 
         // then
         mockMvc.perform(post("/meetings")
@@ -278,7 +278,7 @@ class MeetingControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
-                        .value("참가자 정보가 잘못되었습니다."));
+                        .value("생성자가 참가자 명단에 포함되어 있습니다."));
     }
 
     @DisplayName("미팅 방을 생성 시 참가자 명단에 존재하지 않는 아이디가 있을 경우 예외가 발생한다.")
@@ -342,7 +342,7 @@ class MeetingControllerTest {
 
         // then
         mockMvc.perform(get("/meetings/1")
-                        .accept(MediaType.APPLICATION_JSON))
+                .accept(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", equalTo(1)))
@@ -369,8 +369,8 @@ class MeetingControllerTest {
 
         // when, then
         mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isNoContent());
     }
@@ -394,8 +394,8 @@ class MeetingControllerTest {
 
         // when, then
         mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
@@ -419,8 +419,8 @@ class MeetingControllerTest {
 
         // when, then
         mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
