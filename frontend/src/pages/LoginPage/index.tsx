@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as S from './LoginPage.styled';
 import useForm from 'hooks/useForm';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
-import { User } from 'types/userType';
+import { GetMeDataResponseBody, User } from 'types/userType';
+import { userContext, UserContextValues } from 'contexts/userContext';
+import useSelector from 'hooks/useSelector';
+
+// async빼도 되는지 확인
 
 const submitLogin = async (
   url: string,
@@ -19,8 +23,19 @@ const submitLogin = async (
   });
 };
 
+const getMeData = async (url: string, accessToken: string) => {
+  return fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: accessToken,
+    },
+  });
+};
+
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { setUser } = useSelector<UserContextValues>(userContext);
   const { errors, isSubmitting, onSubmit, register } = useForm();
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -31,13 +46,27 @@ const LoginPage = () => {
       'email' | 'password'
     >;
 
-    const res = await submitLogin('/login', formDataObject);
-    if (!res.ok) {
+    const loginResponse = await submitLogin('/login', formDataObject);
+    if (!loginResponse.ok) {
       alert('로그인 실패');
       return;
     }
 
-    const accessToken = await res.json().then((data) => data.accessToken);
+    const accessToken = await loginResponse
+      .json()
+      .then((data) => data.accessToken);
+
+    localStorage.setItem('accessToken', accessToken);
+
+    const getMeResponse = await getMeData('/users/me', accessToken);
+    if (!getMeResponse.ok) {
+      alert('내 정보 가져오기 실패');
+      return;
+    }
+
+    const MeData = (await getMeResponse.json()) as GetMeDataResponseBody;
+    setUser(MeData);
+
     navigate('/meeting');
   };
 
