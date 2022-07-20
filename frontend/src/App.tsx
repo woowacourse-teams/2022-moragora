@@ -1,8 +1,7 @@
-import React from 'react';
-import MobileLayout from './components/layouts/MobileLayout';
-import Header from './components/layouts/Header';
+import Router from 'router';
 import { css } from '@emotion/react';
-import Router from './router';
+import MobileLayout from 'components/layouts/MobileLayout';
+import Header from 'components/layouts/Header';
 
 const App = () => {
   return (

@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import Button from '../../components/@shared/Button';
+import Button from 'components/@shared/Button';
 
 export const Layout = styled.div`
   display: flex;
@@ -25,7 +25,6 @@ export const Label = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  overflow: hidden;
 `;
 
 export const AddMemberParagraph = styled.p`

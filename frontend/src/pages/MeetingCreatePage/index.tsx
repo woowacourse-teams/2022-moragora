@@ -1,9 +1,26 @@
 import React from 'react';
-import Footer from '../../components/layouts/Footer';
-import Input from '../../components/@shared/Input';
 import * as S from './MeetingCreatePage.styled';
+import Footer from 'components/layouts/Footer';
+import Input from 'components/@shared/Input';
+import MemberAddInput from 'components/MemberAddInput';
+import useQuerySelectItems from 'hooks/useQuerySelectItems';
+import { UserQueryWithKeywordResponse } from 'types/userType';
+
+const MAX_SELECTED_USER_COUNT = 3;
 
 const MeetingCreatePage = () => {
+  const {
+    queryResult,
+    selectedItems,
+    queryWithKeyword,
+    selectItem,
+    unselectItem,
+    clearQueryResult,
+  } = useQuerySelectItems<UserQueryWithKeywordResponse>('/users?keyword=', {
+    wait: 150,
+    maxSelectCount: MAX_SELECTED_USER_COUNT,
+  });
+
   const handleCreateMeetingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -92,9 +109,20 @@ const MeetingCreatePage = () => {
             <S.Label>
               <S.AddMemberParagraph>
                 멤버 추가하기
-                <span>1/15</span>
+                <span>
+                  {selectedItems.length}/{MAX_SELECTED_USER_COUNT}
+                </span>
               </S.AddMemberParagraph>
-              <Input type="text" name="member" />
+              <MemberAddInput
+                placeholder="닉네임 또는 이메일로 검색하세요."
+                disabled={selectedItems.length >= MAX_SELECTED_USER_COUNT}
+                queryResult={queryResult}
+                selectedItems={selectedItems}
+                queryWithKeyword={queryWithKeyword}
+                selectItem={selectItem}
+                unselectItem={unselectItem}
+                clearQueryResult={clearQueryResult}
+              />
             </S.Label>
           </S.FieldBox>
         </S.Form>

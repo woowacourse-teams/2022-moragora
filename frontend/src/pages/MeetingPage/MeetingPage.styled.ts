@@ -59,7 +59,7 @@ export const UserDataBox = styled.div`
   justify-content: center;
 `;
 
-export const Form = styled.form`
+export const UserListBox = styled.div`
   display: flex;
   overflow: hidden;
 `;

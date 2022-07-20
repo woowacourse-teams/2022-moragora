@@ -3,8 +3,8 @@ import StyledButton from './Button.styled';
 
 const Button: React.FC<
   React.PropsWithChildren<React.ButtonHTMLAttributes<HTMLButtonElement>>
-> = ({ children, ...rest }) => {
-  return <StyledButton {...rest}>{children}</StyledButton>;
+> = ({ children, ...props }) => {
+  return <StyledButton {...props}>{children}</StyledButton>;
 };
 
 export default Button;

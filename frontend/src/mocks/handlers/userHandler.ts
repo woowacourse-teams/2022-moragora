@@ -1,16 +1,10 @@
 import { rest } from 'msw';
-import users, { User } from '../fixtures/users';
-
-type UserRegisterRequestBody = {
-  email: string;
-  nickname: string;
-  password: string;
-};
-
-type UserLoginRequestBody = {
-  email: string;
-  password: string;
-};
+import users from 'mocks/fixtures/users';
+import {
+  UserRegisterRequestBody,
+  UserLoginRequestBody,
+  User,
+} from 'types/userType';
 
 const DELAY = 700;
 const TOKEN_PREFIX = 'badwoody';
@@ -107,6 +101,23 @@ export default [
       ctx.json({
         isExist,
       }),
+      ctx.delay(DELAY)
+    );
+  }),
+
+  rest.get('/users', (req, res, ctx) => {
+    const keyword = req.url.searchParams.get('keyword');
+    const queryResult = [...users]
+      .splice(30, 10)
+      .map(({ id, email, nickname }) => ({
+        id,
+        email,
+        nickname,
+      }));
+
+    return res(
+      ctx.status(200),
+      ctx.json({ users: queryResult }),
       ctx.delay(DELAY)
     );
   }),

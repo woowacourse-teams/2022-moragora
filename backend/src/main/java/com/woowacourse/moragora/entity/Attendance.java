@@ -32,7 +32,9 @@ public class Attendance {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    public Attendance(final Participant participant, final LocalDate attendanceDate, final Status status) {
+    public Attendance(final Participant participant,
+                      final LocalDate attendanceDate,
+                      final Status status) {
         this.participant = participant;
         this.attendanceDate = attendanceDate;
         this.status = status;

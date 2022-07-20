@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import React from 'react';
 import * as S from './Checkbox.styled';
 

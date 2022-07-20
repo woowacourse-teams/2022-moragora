@@ -2,6 +2,7 @@ package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Attendance;
@@ -19,7 +20,8 @@ import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
-import com.woowacourse.moragora.service.closingstrategy.ServerTime;
+import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
+import com.woowacourse.moragora.util.CurrentDateTime;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -42,21 +44,23 @@ public class MeetingService {
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
-    private final ServerTime serverTime;
+    private final TimeChecker timeChecker;
+    private final CurrentDateTime currentDateTime;
 
     public MeetingService(final MeetingRepository meetingRepository,
                           final ParticipantRepository participantRepository,
                           final AttendanceRepository attendanceRepository,
                           final UserRepository userRepository,
-                          final ServerTime serverTime) {
+                          final TimeChecker timeChecker, final CurrentDateTime currentDateTime) {
         this.meetingRepository = meetingRepository;
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
-        this.serverTime = serverTime;
+        this.timeChecker = timeChecker;
+        this.currentDateTime = currentDateTime;
     }
 
-    // TODO: for 문 안에 insert문 한번에 날리는 것 고려
+    // TODO: for 문 안에 insert 한번에 날리는 것 고려
     // TODO: master 지정해야함
     @Transactional
     public Long save(final MeetingRequest request, final Long loginId) {
@@ -83,46 +87,57 @@ public class MeetingService {
     }
 
     // TODO 1 + N 최적화 대상
-    public MeetingResponse findById(final Long meetingId, final Long loginId) {
+    @Transactional
+    public MeetingResponse findById(final Long meetingId) {
         final Meeting meeting = findMeeting(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
-        final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = currentDateTime.getValue();
+
+        putAttendanceIfAbsent(participants, now);
 
         final List<UserResponse> userResponses = new ArrayList<>();
 
-        for (final Participant participant : participants) {
-            final int tardyCount = getTardyCount(meeting.getEntranceTime(), now, participant);
-
-            final User foundUser = participant.getUser();
+        for (Participant participant : participants) {
             final Attendance attendance = attendanceRepository
                     .findByParticipantIdAndAttendanceDate(participant.getId(), now.toLocalDate())
                     .orElseThrow(AttendanceNotFoundException::new);
-            final UserResponse userResponse = new UserResponse(foundUser.getId(), foundUser.getEmail(),
-                    foundUser.getNickname(), attendance.getStatus(), tardyCount);
 
-            userResponses.add(userResponse);
+            userResponses.add(UserResponse.of(participant.getUser(), attendance.getStatus(),
+                    getTardyCount(meeting.getEntranceTime(), now, participant)));
         }
 
-        return MeetingResponse.of(meeting, userResponses);
+        return MeetingResponse.of(meeting, userResponses, getMeetingAttendanceCount(participants.get(0)));
+    }
+
+    public MyMeetingsResponse findAllByUserId(final Long userId) {
+        final LocalTime now = currentDateTime.getValue().toLocalTime();
+        final List<Participant> participants = participantRepository.findByUserId(userId);
+        final List<Meeting> meetings = participants.stream()
+                .map(Participant::getMeeting)
+                .collect(Collectors.toList());
+
+        return MyMeetingsResponse.of(now, timeChecker, meetings);
     }
 
     // TODO update (1 + N) -> 최적하기
     // TODO 출석 제출할 때 구현 예정
     @Transactional
-    public void updateAttendance(final Long meetingId, final Long userId, final UserAttendanceRequest request,
+    public void updateAttendance(final Long meetingId,
+                                 final Long userId,
+                                 final UserAttendanceRequest request,
                                  final Long loginId) {
-        LocalDateTime nowDateTime = LocalDateTime.now();
+        LocalDateTime nowDateTime = currentDateTime.getValue();
 
         final Meeting meeting = findMeeting(meetingId);
         final User user = findUser(userId);
 
-        validateAttendanceTime(nowDateTime, meeting);
+        validateAttendanceTime(meeting);
 
-        final Participant participant = attendanceRepository.findByMeetingIdAndUserId(meeting.getId(), user.getId())
+        final Participant participant = participantRepository.findByMeetingIdAndUserId(meeting.getId(), user.getId())
                 .orElseThrow(ParticipantNotFoundException::new);
 
-        final Attendance attendance = attendanceRepository.findByParticipantIdAndAttendanceDate(participant.getId(),
-                nowDateTime.toLocalDate())
+        final Attendance attendance = attendanceRepository
+                .findByParticipantIdAndAttendanceDate(participant.getId(), nowDateTime.toLocalDate())
                 .orElseThrow(AttendanceNotFoundException::new);
 
         attendance.changeAttendanceStatus(request.getAttendanceStatus());
@@ -162,7 +177,7 @@ public class MeetingService {
     }
 
     private int getTardyCount(final LocalTime entranceTime, final LocalDateTime now, final Participant participant) {
-        final boolean isOver = serverTime.isExcessClosingTime(now.toLocalTime(), entranceTime);
+        final boolean isOver = timeChecker.isExcessClosingTime(now.toLocalTime(), entranceTime);
         final List<Attendance> attendances = getAttendancesByParticipant(isOver, participant, now.toLocalDate());
 
         return (int) attendances.stream()
@@ -179,11 +194,34 @@ public class MeetingService {
         return attendanceRepository.findByParticipantIdAndAttendanceDateNot(participant.getId(), today);
     }
 
-    private void validateAttendanceTime(final LocalDateTime nowDateTime, final Meeting meeting) {
+    private void validateAttendanceTime(final Meeting meeting) {
         final LocalTime entranceTime = meeting.getEntranceTime();
-        final boolean isOver = serverTime.isExcessClosingTime(nowDateTime.toLocalTime(), entranceTime);
+        final boolean isOver = timeChecker.isExcessClosingTime(entranceTime);
         if (isOver) {
             throw new ClosingTimeExcessException();
         }
+    }
+
+    private void putAttendanceIfAbsent(final List<Participant> participants, final LocalDateTime now) {
+        final List<Long> participantIds = participants.stream()
+                .map(Participant::getId)
+                .collect(Collectors.toList());
+        final LocalDate today = now.toLocalDate();
+        final List<Attendance> attendances =
+                attendanceRepository.findByParticipantIdsAndAttendanceDate(participantIds, today);
+
+        if (attendances.size() == 0) {
+            saveAttendances(participants, today);
+        }
+    }
+
+    private void saveAttendances(final List<Participant> participants, final LocalDate today) {
+        for (final Participant participant : participants) {
+            attendanceRepository.save(new Attendance(participant, today, Status.TARDY));
+        }
+    }
+
+    private long getMeetingAttendanceCount(final Participant anyParticipant) {
+        return attendanceRepository.findAttendanceCountById(anyParticipant.getId());
     }
 }

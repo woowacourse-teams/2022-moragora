@@ -1,10 +1,4 @@
-export type User = {
-  id: number;
-  email: string;
-  password: string;
-  nickname: string;
-  accessToken: string | null;
-};
+import { User } from 'types/userType';
 
 const generateIndexes = (length: number) => Array.from({ length });
 
