@@ -94,8 +94,11 @@ public class MeetingService {
             final int tardyCount = getTardyCount(meeting.getEntranceTime(), now, participant);
 
             final User foundUser = participant.getUser();
+            final Attendance attendance = attendanceRepository
+                    .findByParticipantIdAndAttendanceDate(participant.getId(), now.toLocalDate())
+                    .orElseThrow(AttendanceNotFoundException::new);
             final UserResponse userResponse = new UserResponse(foundUser.getId(), foundUser.getEmail(),
-                    foundUser.getNickname(), tardyCount);
+                    foundUser.getNickname(), attendance.getStatus(), tardyCount);
 
             userResponses.add(userResponse);
         }

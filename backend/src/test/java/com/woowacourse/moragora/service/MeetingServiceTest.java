@@ -171,13 +171,13 @@ class MeetingServiceTest {
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
                 List.of(
-                        new UserResponse(1L, "aaa111@foo.com", "아스피", 2),
-                        new UserResponse(2L, "bbb222@foo.com", "필즈", 3),
-                        new UserResponse(3L, "ccc333@foo.com", "포키", 3),
-                        new UserResponse(4L, "ddd444@foo.com", "썬", 0),
-                        new UserResponse(5L, "eee555@foo.com", "우디", 0),
-                        new UserResponse(6L, "fff666@foo.com", "쿤", 0),
-                        new UserResponse(7L, "ggg777@foo.com", "반듯", 0)
+                        new UserResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 2),
+                        new UserResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 3),
+                        new UserResponse(3L, "ccc333@foo.com", "포키", Status.TARDY, 3),
+                        new UserResponse(4L, "ddd444@foo.com", "썬", Status.TARDY, 0),
+                        new UserResponse(5L, "eee555@foo.com", "우디", Status.TARDY, 0),
+                        new UserResponse(6L, "fff666@foo.com", "쿤", Status.TARDY, 0),
+                        new UserResponse(7L, "ggg777@foo.com", "반듯", Status.TARDY, 0)
                 )
         );
 
@@ -203,13 +203,13 @@ class MeetingServiceTest {
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
                 List.of(
-                        new UserResponse(1L, "aaa111@foo.com", "아스피", 3),
-                        new UserResponse(2L, "bbb222@foo.com", "필즈", 3),
-                        new UserResponse(3L, "ccc333@foo.com", "포키", 3),
-                        new UserResponse(4L, "ddd444@foo.com", "썬", 0),
-                        new UserResponse(5L, "eee555@foo.com", "우디", 0),
-                        new UserResponse(6L, "fff666@foo.com", "쿤", 0),
-                        new UserResponse(7L, "ggg777@foo.com", "반듯", 0)
+                        new UserResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 3),
+                        new UserResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 3),
+                        new UserResponse(3L, "ccc333@foo.com", "포키", Status.TARDY, 3),
+                        new UserResponse(4L, "ddd444@foo.com", "썬", Status.TARDY, 0),
+                        new UserResponse(5L, "eee555@foo.com", "우디", Status.TARDY, 0),
+                        new UserResponse(6L, "fff666@foo.com", "쿤", Status.TARDY, 0),
+                        new UserResponse(7L, "ggg777@foo.com", "반듯", Status.TARDY, 0)
                 )
         );
         given(serverTime.isExcessClosingTime(any(LocalTime.class), any(LocalTime.class)))

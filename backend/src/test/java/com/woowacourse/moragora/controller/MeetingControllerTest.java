@@ -249,8 +249,8 @@ class MeetingControllerTest extends ControllerTest {
     void findOne() throws Exception {
         // given
         final List<UserResponse> usersResponse = new ArrayList<>();
-        usersResponse.add(new UserResponse(1L, "abc@naver.com", "foo", 5));
-        usersResponse.add(new UserResponse(2L, "def@naver.com", "boo", 8));
+        usersResponse.add(new UserResponse(1L, "abc@naver.com", "foo", Status.TARDY, 5));
+        usersResponse.add(new UserResponse(2L, "def@naver.com", "boo", Status.TARDY, 8));
 
         final MeetingResponse meetingResponse = new MeetingResponse(
                 1L,
