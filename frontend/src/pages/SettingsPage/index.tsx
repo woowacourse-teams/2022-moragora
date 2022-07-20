@@ -2,7 +2,6 @@ import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Footer from 'components/layouts/Footer';
 import * as S from './SettingsPage.styled';
-import AvatarIconSVG from 'assets/avatar.svg';
 import Button from 'components/@shared/Button';
 import ModalPortal from 'components/ModalPortal';
 import ModalWindow from 'components/@shared/ModalWindow';
@@ -22,7 +21,7 @@ const SettingsPage = () => {
   };
 
   const handleConfirm = () => {
-    localStorage.removeItem('accessToken');
+    userState?.logout();
     navigate('/');
   };
 

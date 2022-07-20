@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import * as S from './MeetingCreatePage.styled';
 import Footer from 'components/layouts/Footer';
 import Input from 'components/@shared/Input';
@@ -7,9 +8,10 @@ import InputHint from 'components/@shared/InputHint';
 import useForm from 'hooks/useForm';
 import useQuerySelectItems from 'hooks/useQuerySelectItems';
 import { UserQueryWithKeywordResponse } from 'types/userType';
-import { dateToFormattedString } from 'utils/timeUtil';
-import { useNavigate } from 'react-router-dom';
 import { MeetingResponseBody } from 'types/meetingType';
+import { dateToFormattedString } from 'utils/timeUtil';
+import { TOKEN_ERROR_STATUS_CODES } from 'consts';
+import { userContext, UserContextValues } from 'contexts/userContext';
 
 type DefaultResponseBody = {};
 
@@ -19,11 +21,16 @@ const asyncFetch = async <
   ResponseBody extends DefaultResponseBody = DefaultResponseBody
 >(
   url: string,
+  userState: UserContextValues | null,
   option?: RequestInit
 ) => {
   const res = await fetch(url, option);
 
   if (!res.ok) {
+    if (TOKEN_ERROR_STATUS_CODES.includes(res.status)) {
+      userState?.logout();
+    }
+
     throw new Error('모임 생성에 실패했습니다.');
   }
 
@@ -51,6 +58,7 @@ const MeetingCreatePage = () => {
   });
   const currentDate = new Date();
   const isParticipantSelected = selectedItems.length > 0;
+  const userState = useContext(userContext);
 
   const handleCreateMeetingSubmit: React.FormEventHandler<
     HTMLFormElement
@@ -68,14 +76,12 @@ const MeetingCreatePage = () => {
       userIds,
     };
 
-    const accessToken = localStorage.getItem('accessToken');
-
     try {
-      const meatingCreateResult = await asyncFetch('/meetings', {
+      const meatingCreateResult = await asyncFetch('/meetings', userState, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${userState?.user?.accessToken}`,
         },
         body: JSON.stringify(formDataObject),
       });
@@ -84,6 +90,7 @@ const MeetingCreatePage = () => {
 
       const meetingGetResult = await asyncFetch<MeetingResponseBody>(
         meatingCreateResult.res.headers.get('location') as string,
+        userState,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,

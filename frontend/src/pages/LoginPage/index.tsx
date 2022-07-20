@@ -7,6 +7,7 @@ import InputHint from 'components/@shared/InputHint';
 import { GetMeDataResponseBody, User } from 'types/userType';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import useContextValues from 'hooks/useContextValues';
+import { TOKEN_ERROR_STATUS_CODES } from 'consts';
 
 const submitLogin = (
   url: string,
@@ -33,7 +34,7 @@ const getMeData = (url: string, accessToken: string) => {
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { setUser } = useContextValues<UserContextValues>(
+  const { login, logout } = useContextValues<UserContextValues>(
     userContext
   ) as UserContextValues;
   const { errors, isSubmitting, onSubmit, register } = useForm();
@@ -56,17 +57,20 @@ const LoginPage = () => {
       .json()
       .then((data) => data.accessToken);
 
-    localStorage.setItem('accessToken', accessToken);
-
     const getMeResponse = await getMeData('/users/me', accessToken);
+
     if (!getMeResponse.ok) {
+      if (TOKEN_ERROR_STATUS_CODES.includes(getMeResponse.status)) {
+        logout();
+      }
+
       alert('내 정보 가져오기 실패');
       return;
     }
 
     const MeData = (await getMeResponse.json()) as GetMeDataResponseBody;
-    setUser(MeData);
 
+    login(MeData, accessToken);
     navigate('/');
   };
 

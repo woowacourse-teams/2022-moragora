@@ -7,6 +7,7 @@ import useForm from 'hooks/useForm';
 import useContextValues from 'hooks/useContextValues';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { GetMeDataResponseBody } from 'types/userType';
+import { TOKEN_ERROR_STATUS_CODES } from 'consts';
 
 const checkEmail = async (url: string) => {
   return fetch(url, {
@@ -39,7 +40,7 @@ const getMeData = (url: string, accessToken: string) => {
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const { setUser } = useContextValues<UserContextValues>(
+  const { login, logout } = useContextValues<UserContextValues>(
     userContext
   ) as UserContextValues;
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
@@ -94,17 +95,21 @@ const RegisterPage = () => {
 
     const accessToken = await loginRes.json().then((data) => data.accessToken);
 
-    localStorage.setItem('accessToken', accessToken);
-
     const getMeResponse = await getMeData('/users/me', accessToken);
     if (!getMeResponse.ok) {
+      if (TOKEN_ERROR_STATUS_CODES.includes(getMeResponse.status)) {
+        logout();
+      }
+
+      throw new Error('요청에 실패했습니다.');
+
       alert('내 정보 가져오기 실패');
       return;
     }
 
     const MeData = (await getMeResponse.json()) as GetMeDataResponseBody;
 
-    setUser(MeData);
+    login(MeData, accessToken);
     navigate('/');
   };
 
