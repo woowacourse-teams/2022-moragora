@@ -30,16 +30,6 @@ type MeetingResponseBody = {
   attendanceCount: number;
 };
 
-const userAttendanceFetch = async (url: string, payload: any) => {
-  return fetch(url, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-};
-
 const MeetingPage = () => {
   const { id } = useParams();
   const {
@@ -48,24 +38,6 @@ const MeetingPage = () => {
     error: isError,
     refetch,
   } = useFetch<MeetingResponseBody>(`/meetings/${id}`);
-
-  const handleAttendanceCheck = async (
-    user: Omit<User, 'accessToken'>,
-    checked: boolean
-  ) => {
-    const response = await userAttendanceFetch(
-      `/meetings/${id}/users/${user.id}`,
-      {
-        attendanceStatus: checked ? 'present' : 'tardy',
-      }
-    );
-
-    if (!response.ok) {
-      alert('출석체크에 실패했습니다.');
-    }
-
-    refetch();
-  };
 
   if (isLoading) {
     return (
@@ -111,13 +83,10 @@ const MeetingPage = () => {
         <S.UserListSection>
           <S.UserListBox>
             <S.UserList>
-              {meetingState.users.map((user) => (
-                <UserItem
-                  key={user.id}
-                  user={user}
-                  onAttendanceCheck={handleAttendanceCheck}
-                />
-              ))}
+              {meetingState &&
+                meetingState.users.map((user) => (
+                  <UserItem key={user.id} meetingId={id} user={user} />
+                ))}
             </S.UserList>
           </S.UserListBox>
         </S.UserListSection>
