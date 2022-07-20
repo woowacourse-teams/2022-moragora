@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as S from './LoginPage.styled';
 import useForm from 'hooks/useForm';
@@ -6,11 +6,9 @@ import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
 import { GetMeDataResponseBody, User } from 'types/userType';
 import { userContext, UserContextValues } from 'contexts/userContext';
-import useSelector from 'hooks/useSelector';
+import useContextValues from 'hooks/useContextValues';
 
-// async빼도 되는지 확인
-
-const submitLogin = async (
+const submitLogin = (
   url: string,
   payload: Pick<User, 'email' | 'password'>
 ) => {
@@ -23,7 +21,7 @@ const submitLogin = async (
   });
 };
 
-const getMeData = async (url: string, accessToken: string) => {
+const getMeData = (url: string, accessToken: string) => {
   return fetch(url, {
     method: 'GET',
     headers: {
@@ -35,7 +33,9 @@ const getMeData = async (url: string, accessToken: string) => {
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { setUser } = useSelector<UserContextValues>(userContext);
+  const { setUser } = useContextValues<UserContextValues>(
+    userContext
+  ) as UserContextValues;
   const { errors, isSubmitting, onSubmit, register } = useForm();
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {

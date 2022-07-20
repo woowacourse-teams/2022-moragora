@@ -1,11 +1,11 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Footer from 'components/layouts/Footer';
 import * as S from './SettingsPage.styled';
 import AvatarIconSVG from 'assets/avatar.svg';
 import Button from 'components/@shared/Button';
 import ModalPortal from 'components/ModalPortal';
 import ModalWindow from 'components/@shared/ModalWindow';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const SettingsPage = () => {
   const navigate = useNavigate();

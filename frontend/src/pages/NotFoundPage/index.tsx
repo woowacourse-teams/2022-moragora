@@ -1,5 +1,4 @@
 import * as S from './NotFoundPage.styled';
-import ErrorIcon from 'components/@shared/ErrorIcon';
 import Footer from 'components/layouts/Footer';
 
 const NotFoundPage = () => {
