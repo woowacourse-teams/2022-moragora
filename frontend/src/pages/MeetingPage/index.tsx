@@ -16,7 +16,7 @@ type User = {
   nickname: string;
   accessToken: null | string;
   tardyCount: number;
-  attendanceStatus: string;
+  attendanceStatus: 'present' | 'tardy';
 };
 
 type MeetingResponseBody = {

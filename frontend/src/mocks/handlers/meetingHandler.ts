@@ -8,7 +8,7 @@ type MeetingAttendanceRequestBody = {
 }[];
 
 type UserAttendanceCheckRequestBody = {
-  attendanceStatus: string;
+  attendanceStatus: 'present' | 'tardy';
 };
 
 const DELAY = 700;

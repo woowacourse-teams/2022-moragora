@@ -4,7 +4,7 @@ export type User = {
   password: string;
   nickname: string;
   accessToken: string | null;
-  attendanceStatus: string;
+  attendanceStatus: 'present' | 'tardy';
 };
 
 const generateIndexes = (length: number) => Array.from({ length });
