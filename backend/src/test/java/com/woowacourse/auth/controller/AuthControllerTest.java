@@ -2,37 +2,18 @@ package com.woowacourse.auth.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.auth.dto.LoginRequest;
 import com.woowacourse.auth.dto.LoginResponse;
 import com.woowacourse.auth.exception.LoginFailException;
-import com.woowacourse.auth.service.AuthService;
-import com.woowacourse.auth.support.JwtTokenProvider;
+import com.woowacourse.moragora.controller.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
-@WebMvcTest(controllers = {AuthController.class})
-@MockBean(value = {JwtTokenProvider.class})
-public class AuthControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
-    private AuthService authService;
+public class AuthControllerTest extends ControllerTest {
 
     @DisplayName("로그인에 성공한다.")
     @Test
@@ -44,12 +25,11 @@ public class AuthControllerTest {
         given(authService.createToken(any(LoginRequest.class)))
                 .willReturn(new LoginResponse(accessToken));
 
-        // when, then
-        mockMvc.perform(post("/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
-                .andDo(print())
-                .andExpect(status().isOk())
+        // when
+        final ResultActions resultActions = performPost("/login", loginRequest);
+
+        // then
+        resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("accessToken").value(accessToken));
     }
 
@@ -62,12 +42,11 @@ public class AuthControllerTest {
         given(authService.createToken(any(LoginRequest.class)))
                 .willThrow(new LoginFailException());
 
-        // when, then
-        mockMvc.perform(post("/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
+        // when
+        final ResultActions resultActions = performPost("/login", loginRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message").value("이메일이나 비밀번호가 틀렸습니다."));
     }
 }
