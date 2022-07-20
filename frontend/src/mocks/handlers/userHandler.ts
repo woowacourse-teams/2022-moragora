@@ -61,6 +61,7 @@ export default [
       password,
       nickname,
       accessToken: null,
+      attendanceStatus: 'tardy',
     };
 
     users.push(newUser);
@@ -107,6 +108,23 @@ export default [
       ctx.json({
         isExist,
       }),
+      ctx.delay(DELAY)
+    );
+  }),
+
+  rest.get('/users', (req, res, ctx) => {
+    const keyword = req.url.searchParams.get('keyword');
+    const queryResult = [...users]
+      .splice(30, 10)
+      .map(({ id, email, nickname }) => ({
+        id,
+        email,
+        nickname,
+      }));
+
+    return res(
+      ctx.status(200),
+      ctx.json({ users: queryResult }),
       ctx.delay(DELAY)
     );
   }),
