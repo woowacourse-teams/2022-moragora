@@ -56,6 +56,7 @@ const RegisterPage = () => {
 
     const target = e.target as HTMLFormElement;
     const formData = new FormData(target);
+    formData.delete('passwordConfirm');
     const formDataObject = Object.fromEntries(formData.entries());
 
     const registerRes = await submitData('/users', formDataObject);
