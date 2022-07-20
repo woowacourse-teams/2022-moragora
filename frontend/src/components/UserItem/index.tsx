@@ -54,7 +54,6 @@ const UserItem: React.FC<UserItemProps> = ({ user, meetingId }) => {
 
       if (!response.ok) {
         setChecked(!checked);
-        alert('출석체크에 실패했습니다.');
       }
     } catch (error) {
       alert('출석체크중 오류가 발생했습니다.');
