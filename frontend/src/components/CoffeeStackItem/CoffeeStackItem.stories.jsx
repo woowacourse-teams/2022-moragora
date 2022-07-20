@@ -12,5 +12,6 @@ const Template = (args) => {
 
 export const Default = Template.bind({});
 Default.args = {
-  name: '모임 1',
+  name: '모임1',
+  tardyCount: 7,
 };
