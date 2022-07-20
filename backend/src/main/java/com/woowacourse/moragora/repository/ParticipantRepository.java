@@ -30,4 +30,11 @@ public class ParticipantRepository {
                 .setParameter("meetingId", meetingId)
                 .getResultList();
     }
+
+    public List<Participant> findByUserId(final Long userId) {
+        return entityManager.createQuery("select p from Participant p where p.user.id = :userId",
+                        Participant.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
 }

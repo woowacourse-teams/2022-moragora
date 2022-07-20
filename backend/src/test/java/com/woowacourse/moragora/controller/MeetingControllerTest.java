@@ -1,6 +1,8 @@
 package com.woowacourse.moragora.controller;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,8 +14,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
+import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.IllegalParticipantException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
@@ -279,6 +283,48 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.endDate", equalTo("2022-08-10")))
                 .andExpect(jsonPath("$.entranceTime", equalTo("10:00:00")))
                 .andExpect(jsonPath("$.leaveTime", equalTo("18:00:00")));
+    }
+
+    @DisplayName("유저가 소속된 모든 미팅 방을 조회한다.")
+    @Test
+    void findAllByUserId() throws Exception {
+        // given
+        final Meeting meeting1 = new Meeting(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(10, 5)
+        );
+        final Meeting meeting2 = new Meeting(
+                "모임2",
+                LocalDate.of(2022, 7, 15),
+                LocalDate.of(2022, 8, 15),
+                LocalTime.of(9, 0),
+                LocalTime.of(9, 5)
+        );
+        final LocalTime now = LocalTime.of(10, 1);
+        final MyMeetingsResponse meetingsResponse = MyMeetingsResponse.of(now, new FakeServerTime(),
+                List.of(meeting1, meeting2));
+
+        // when
+        given(jwtTokenProvider.validateToken(any()))
+                .willReturn(true);
+        given(jwtTokenProvider.getPayload(any()))
+                .willReturn("1");
+        given(meetingService.findAllByUserId(eq(1L)))
+                .willReturn(meetingsResponse);
+
+        // then
+        performGet("/meetings")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.serverTime", is("10:01:00")))
+                .andExpect(jsonPath("$.meetings[*].name", containsInAnyOrder("모임1", "모임2")))
+                .andExpect(jsonPath("$.meetings[*].active", containsInAnyOrder(true, true)))
+                .andExpect(jsonPath("$.meetings[*].startDate", containsInAnyOrder("2022-07-10", "2022-07-15")))
+                .andExpect(jsonPath("$.meetings[*].endDate", containsInAnyOrder("2022-08-10", "2022-08-15")))
+                .andExpect(jsonPath("$.meetings[*].entranceTime", containsInAnyOrder("09:00:00", "10:00:00")))
+                .andExpect(jsonPath("$.meetings[*].closingTime", containsInAnyOrder("09:05:00", "10:05:00")));
     }
 
     @DisplayName("사용자 출석여부를 반영한다.")

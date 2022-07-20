@@ -8,7 +8,9 @@ import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
+import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.ClosingTimeExcessException;
 import com.woowacourse.moragora.exception.IllegalParticipantException;
@@ -158,6 +160,40 @@ class MeetingServiceTest {
         assertThat(response).usingRecursiveComparison()
                 .ignoringFields("users")
                 .isEqualTo(expectedMeetingResponse);
+    }
+
+    @DisplayName("유저 id로 유저가 속한 모든 모임을 조회한다.")
+    @Test
+    void findAllByUserId() {
+        // given
+        final long userId = 1L;
+        final Meeting meeting = new Meeting(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0));
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임2",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(2L, 3L)
+        );
+        meetingService.save(meetingRequest, userId);
+
+        // when
+        final MyMeetingsResponse myMeetingsResponse = meetingService.findAllByUserId(userId);
+
+        // then
+        assertThat(myMeetingsResponse).usingRecursiveComparison()
+                .ignoringFields("serverTime", "meetings.id")
+                .isEqualTo(MyMeetingsResponse.of(
+                        LocalTime.now(),
+                        serverTime,
+                        List.of(meeting, meetingRequest.toEntity()))
+                );
     }
 
     @DisplayName("사용자들의 출석 여부를 변경한다.")

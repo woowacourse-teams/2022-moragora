@@ -4,6 +4,7 @@ import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.service.MeetingService;
 import java.net.URI;
@@ -39,6 +40,12 @@ public class MeetingController {
     public ResponseEntity<MeetingResponse> findOne(@PathVariable final Long id) {
         final MeetingResponse meetingResponse = meetingService.findById(id);
         return ResponseEntity.ok(meetingResponse);
+    }
+
+    @GetMapping
+    public ResponseEntity<MyMeetingsResponse> findMy(@AuthenticationPrincipal final Long id) {
+        final MyMeetingsResponse meetingsResponse = meetingService.findAllByUserId(id);
+        return ResponseEntity.ok(meetingsResponse);
     }
 
     @PutMapping("/{meetingId}/users/{userId}")

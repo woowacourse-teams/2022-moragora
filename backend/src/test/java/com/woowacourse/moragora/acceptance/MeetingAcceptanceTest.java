@@ -78,6 +78,43 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                         "ggg777@foo.com"));
     }
 
+    @DisplayName("사용자가 자신이 속한 모든 모임을 조회하면 모임 정보와 상태코드 200을 반환한다.")
+    @Test
+    void findMy() {
+        // given
+        final MeetingRequest meetingRequest1 = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
+        );
+        final MeetingRequest meetingRequest2 = new MeetingRequest(
+                "모임2",
+                LocalDate.of(2022, 7, 13),
+                LocalDate.of(2022, 8, 13),
+                LocalTime.of(9, 0),
+                LocalTime.of(17, 0),
+                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
+        );
+        final String token = signUpAndGetToken();
+        post("/meetings", meetingRequest1, token);
+        post("/meetings", meetingRequest2, token);
+
+        // when
+        final ValidatableResponse response = get("/meetings", token);
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("meetings.id", containsInAnyOrder(2, 3))
+                .body("meetings.name", containsInAnyOrder("모임1", "모임2"))
+                .body("meetings.startDate", containsInAnyOrder("2022-07-10", "2022-07-13"))
+                .body("meetings.endDate", containsInAnyOrder("2022-08-10", "2022-08-13"))
+                .body("meetings.entranceTime", containsInAnyOrder("10:00:00", "09:00:00"))
+                .body("meetings.closingTime", containsInAnyOrder("10:05:00", "09:05:00"));
+    }
+
     @DisplayName("모임의 출석을 마감하면 총 모임 횟수와 결석한 참가자들의 결일을 증가시키고 상태코드 204을 반환한다.")
     @Test
     void endAttendance() {

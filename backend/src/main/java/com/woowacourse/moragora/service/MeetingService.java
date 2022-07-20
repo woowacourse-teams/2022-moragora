@@ -2,6 +2,7 @@ package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Attendance;
@@ -23,7 +24,6 @@ import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
 import com.woowacourse.moragora.util.CurrentDateTime;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -107,6 +107,16 @@ public class MeetingService {
         return tardyCount;
     }
 
+    public MyMeetingsResponse findAllByUserId(final Long userId) {
+        final LocalTime now = LocalTime.now();
+        final List<Participant> participants = participantRepository.findByUserId(userId);
+        final List<Meeting> meetings = participants.stream()
+                .map(Participant::getMeeting)
+                .collect(Collectors.toList());
+
+        return MyMeetingsResponse.of(now, timeChecker, meetings);
+    }
+
     // TODO update (1 + N) -> 최적하기
     // TODO 출석 제출할 때 구현 예정
     @Transactional
@@ -119,16 +129,9 @@ public class MeetingService {
         final Meeting meeting = findMeeting(meetingId);
         final User user = findUser(userId);
 
-        final LocalTime entranceTime = meeting.getEntranceTime();
-        final boolean isExcess = timeChecker.isExcessClosingTime(entranceTime);
-
-        if (isExcess) {
-            throw new ClosingTimeExcessException();
-        }
         validateAttendanceTime(meeting);
 
-        final Participant participant = attendanceRepository
-                .findByMeetingIdAndUserId(meeting.getId(), user.getId())
+        final Participant participant = attendanceRepository.findByMeetingIdAndUserId(meeting.getId(), user.getId())
                 .orElseThrow(ParticipantNotFoundException::new);
 
         final Attendance attendance = attendanceRepository

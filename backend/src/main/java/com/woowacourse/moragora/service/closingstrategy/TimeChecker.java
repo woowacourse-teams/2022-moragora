@@ -11,5 +11,11 @@ public abstract class TimeChecker {
         this.currentDateTime = currentDateTime;
     }
 
+    public abstract boolean isAttendanceTime(final LocalTime now, final LocalTime entranceTime);
+
     public abstract boolean isExcessClosingTime(final LocalTime entranceTime);
+
+    public abstract boolean isExcessClosingTime(final LocalTime now, final LocalTime entranceTime);
+
+    public abstract LocalTime calculateClosingTime(final LocalTime entranceTime);
 }
