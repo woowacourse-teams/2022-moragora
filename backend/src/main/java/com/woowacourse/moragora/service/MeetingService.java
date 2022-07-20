@@ -133,8 +133,8 @@ public class MeetingService {
     private void putAttendanceIfAbsent(final List<Participant> participants) {
         final Participant anyParticipant = participants.get(0);
         final LocalDate today = LocalDate.now();
-        Optional<Attendance> attendance = attendanceRepository
-                .findByParticipantIdAndAttendanceDate(anyParticipant.getId(), today);
+        final Optional<Attendance> attendance =
+                attendanceRepository.findByParticipantIdAndAttendanceDate(anyParticipant.getId(), today);
 
         if (attendance.isEmpty()) {
             saveAttendance(participants, today);
@@ -142,7 +142,7 @@ public class MeetingService {
     }
 
     private void saveAttendance(final List<Participant> participants, final LocalDate today) {
-        for (Participant participant : participants) {
+        for (final Participant participant : participants) {
             attendanceRepository.save(new Attendance(participant, today, Status.TARDY));
         }
     }
