@@ -8,6 +8,22 @@ export const Layout = styled.div`
   overflow: hidden;
 `;
 
+export const SpinnerBox = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const ErrorBox = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+`;
+
 export const DateBox = styled.div`
   flex: 1;
   display: flex;
@@ -72,6 +88,7 @@ export const CoffeeStackSection = styled.section`
 export const CoffeeStackList = styled.ul`
   // reset margin
   margin: 0;
+  list-style: none;
 
   padding: 0.75rem;
   display: flex;

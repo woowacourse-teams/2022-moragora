@@ -2,17 +2,10 @@ import React from 'react';
 import * as S from './MeetingItem.styled';
 import MeetingIconSVG from 'assets/meeting.svg';
 import { addMinute } from 'utils/timeUtil';
+import { MeetingWithTardyCount } from 'types/meetingType';
 
 type MeetingItemProps = {
-  meeting: {
-    id: 1;
-    name: '모임1';
-    active: true; // true면 출석 중, false면 출석 준비 중
-    startDate: 'yyyy-mm-dd';
-    endDate: 'yyyy-mm-dd';
-    entranceTime: 'hh:mm';
-    closingTime: 'hh:mm'; // 출석 마감 시간
-  };
+  meeting: MeetingWithTardyCount;
 };
 
 const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {

@@ -2,7 +2,10 @@ import { DefaultBodyType, rest } from 'msw';
 import meetings from 'mocks/fixtures/meeting';
 import users from 'mocks/fixtures/users';
 import { UserAttendanceCheckRequestBody } from 'types/userType';
-import { MeetingCreateRequestBody } from 'types/meetingType';
+import {
+  MeetingListResponseBody,
+  MeetingCreateRequestBody,
+} from 'types/meetingType';
 import { addMinute } from 'utils/timeUtil';
 
 const DELAY = 700;
@@ -13,6 +16,24 @@ type MeetingPathParams = {
 };
 
 export default [
+  rest.get('/meetings/me', (req, res, ctx) => {
+    const userId = 6;
+    const myMeetings = meetings.filter((meeting) =>
+      meeting.userIds.includes(userId)
+    );
+    const responseBody: MeetingListResponseBody = {
+      serverTime: '11:57',
+      meetings: myMeetings.map(
+        ({ leaveTime, attendanceCount, userIds, ...meeting }) => ({
+          ...meeting,
+          tardyCount: 3,
+        })
+      ),
+    };
+
+    return res(ctx.status(200), ctx.json(responseBody), ctx.delay(DELAY));
+  }),
+
   rest.get<DefaultBodyType, Pick<MeetingPathParams, 'meetingId'>>(
     '/meetings/:meetingId',
     (req, res, ctx) => {
@@ -26,7 +47,7 @@ export default [
       const { userIds, ...joinedMeeting } = {
         ...meeting,
         users: meeting.userIds.map((id) => {
-          const { accessToken, ...user } = users[id];
+          const { password, accessToken, ...user } = users[id];
 
           return {
             ...user,

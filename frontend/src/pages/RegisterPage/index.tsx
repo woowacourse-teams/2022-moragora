@@ -98,6 +98,7 @@ const RegisterPage = () => {
                 })}
               />
               <S.EmailCheckButton
+                type="button"
                 variant="confirm"
                 onClick={handleCheckEmailButtonClick}
                 disabled={!isEmailExist}
