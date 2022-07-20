@@ -1,6 +1,5 @@
 package com.woowacourse.moragora.entity;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -36,24 +35,5 @@ class MeetingTest {
                 LocalTime.of(12, 0),
                 LocalTime.of(15, 0)
         )).isInstanceOf(IllegalStartEndDateException.class);
-    }
-
-    @DisplayName("총 출석일 수를 증가시킨다.")
-    @Test
-    void increaseMeetingCount() {
-        // given
-        final Meeting meeting = new Meeting(
-                "모임",
-                LocalDate.of(2022, 6, 11),
-                LocalDate.of(2022, 6, 14),
-                LocalTime.of(12, 0),
-                LocalTime.of(15, 0)
-        );
-
-        // when
-        meeting.increaseMeetingCount();
-
-        // then
-        assertThat(meeting.getAttendanceCount()).isOne();
     }
 }

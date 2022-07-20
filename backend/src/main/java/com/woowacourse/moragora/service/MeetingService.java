@@ -20,10 +20,10 @@ import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
-import com.woowacourse.moragora.service.closingstrategy.ServerTime;
+import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
+import com.woowacourse.moragora.util.CurrentDateTime;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,21 +42,23 @@ public class MeetingService {
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
-    private final ServerTime serverTime;
+    private final TimeChecker timeChecker;
+    private final CurrentDateTime currentDateTime;
 
     public MeetingService(final MeetingRepository meetingRepository,
                           final ParticipantRepository participantRepository,
                           final AttendanceRepository attendanceRepository,
                           final UserRepository userRepository,
-                          final ServerTime serverTime) {
+                          final TimeChecker timeChecker, final CurrentDateTime currentDateTime) {
         this.meetingRepository = meetingRepository;
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
-        this.serverTime = serverTime;
+        this.timeChecker = timeChecker;
+        this.currentDateTime = currentDateTime;
     }
 
-    // TODO: for 문 안에 insert문 한번에 날리는 것 고려
+    // TODO: for 문 안에 insert 한번에 날리는 것 고려
     // TODO: master 지정해야함
     @Transactional
     public Long save(final MeetingRequest request, final Long loginId) {
@@ -83,27 +85,26 @@ public class MeetingService {
     }
 
     // TODO 1 + N 최적화 대상
-    public MeetingResponse findById(final Long meetingId, final Long loginId) {
+    public MeetingResponse findById(final Long meetingId) {
         final Meeting meeting = findMeeting(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
 
-        List<UserResponse> userResponses = new ArrayList<>();
+        final List<UserResponse> userResponses = participants.stream()
+                .map(participant -> UserResponse.of(participant.getUser(), getTardyCount(participant)))
+                .collect(Collectors.toUnmodifiableList());
 
-        for (final Participant participant : participants) {
-            final List<Attendance> attendances = attendanceRepository.findByParticipantId(participant.getId());
+        final Long anyParticipantId = participants.get(0).getId();
+        final long meetingAttendanceCount = attendanceRepository.findAttendanceCountById(anyParticipantId);
 
-            final int tardyCount = (int) attendances.stream()
-                    .filter(attendance -> attendance.isSameStatus(Status.TARDY))
-                    .count();
+        return MeetingResponse.of(meeting, userResponses, meetingAttendanceCount);
+    }
 
-            final User foundUser = participant.getUser();
-            final UserResponse userResponse = new UserResponse(foundUser.getId(), foundUser.getEmail(),
-                    foundUser.getNickname(), tardyCount);
-
-            userResponses.add(userResponse);
-        }
-
-        return MeetingResponse.of(meeting, userResponses);
+    private int getTardyCount(final Participant participant) {
+        final List<Attendance> attendances = attendanceRepository.findByParticipantId(participant.getId());
+        final int tardyCount = (int) attendances.stream()
+                .filter(attendance -> attendance.isSameStatus(Status.TARDY))
+                .count();
+        return tardyCount;
     }
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
@@ -113,26 +114,28 @@ public class MeetingService {
                 .map(Participant::getMeeting)
                 .collect(Collectors.toList());
 
-        return MyMeetingsResponse.of(now, serverTime, meetings);
+        return MyMeetingsResponse.of(now, timeChecker, meetings);
     }
 
     // TODO update (1 + N) -> 최적하기
     // TODO 출석 제출할 때 구현 예정
     @Transactional
-    public void updateAttendance(final Long meetingId, final Long userId, final UserAttendanceRequest request,
+    public void updateAttendance(final Long meetingId,
+                                 final Long userId,
+                                 final UserAttendanceRequest request,
                                  final Long loginId) {
-        final LocalDateTime nowDateTime = LocalDateTime.now();
+        LocalDateTime nowDateTime = currentDateTime.getValue();
 
         final Meeting meeting = findMeeting(meetingId);
         final User user = findUser(userId);
 
-        validateAttendanceTime(nowDateTime, meeting);
+        validateAttendanceTime(meeting);
 
         final Participant participant = attendanceRepository.findByMeetingIdAndUserId(meeting.getId(), user.getId())
                 .orElseThrow(ParticipantNotFoundException::new);
 
-        final Attendance attendance = attendanceRepository.findByParticipantIdAndAttendanceDate(participant.getId(),
-                        nowDateTime.toLocalDate())
+        final Attendance attendance = attendanceRepository
+                .findByParticipantIdAndAttendanceDate(participant.getId(), nowDateTime.toLocalDate())
                 .orElseThrow(AttendanceNotFoundException::new);
 
         attendance.changeAttendanceStatus(request.getAttendanceStatus());
@@ -171,9 +174,9 @@ public class MeetingService {
         }
     }
 
-    private void validateAttendanceTime(final LocalDateTime nowDateTime, final Meeting meeting) {
+    private void validateAttendanceTime(final Meeting meeting) {
         final LocalTime entranceTime = meeting.getEntranceTime();
-        final boolean isOver = serverTime.isExcessClosingTime(nowDateTime.toLocalTime(), entranceTime);
+        final boolean isOver = timeChecker.isExcessClosingTime(entranceTime);
         if (isOver) {
             throw new ClosingTimeExcessException();
         }

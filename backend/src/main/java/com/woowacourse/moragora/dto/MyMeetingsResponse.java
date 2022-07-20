@@ -1,7 +1,7 @@
 package com.woowacourse.moragora.dto;
 
 import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.service.closingstrategy.ServerTime;
+import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,10 +19,10 @@ public class MyMeetingsResponse {
     }
 
     public static MyMeetingsResponse of(final LocalTime now,
-                                        final ServerTime serverTime,
+                                        final TimeChecker timeChecker,
                                         final List<Meeting> meetings) {
         final List<MyMeetingResponse> myMeetingResponses = meetings.stream()
-                .map(meeting -> MyMeetingResponse.of(now, serverTime, meeting))
+                .map(meeting -> MyMeetingResponse.of(now, timeChecker, meeting))
                 .collect(Collectors.toList());
 
         return new MyMeetingsResponse(now, myMeetingResponses);
