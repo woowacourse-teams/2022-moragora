@@ -20,6 +20,7 @@ import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
 import com.woowacourse.moragora.service.closingstrategy.ServerTime;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -85,15 +86,12 @@ public class MeetingService {
     public MeetingResponse findById(final Long meetingId, final Long loginId) {
         final Meeting meeting = findMeeting(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
+        final LocalDateTime now = LocalDateTime.now();
 
-        List<UserResponse> userResponses = new ArrayList<>();
+        final List<UserResponse> userResponses = new ArrayList<>();
 
         for (final Participant participant : participants) {
-            final List<Attendance> attendances = attendanceRepository.findByParticipantId(participant.getId());
-
-            final int tardyCount = (int) attendances.stream()
-                    .filter(attendance -> attendance.isSameStatus(Status.TARDY))
-                    .count();
+            final int tardyCount = getTardyCount(meeting.getEntranceTime(), now, participant);
 
             final User foundUser = participant.getUser();
             final UserResponse userResponse = new UserResponse(foundUser.getId(), foundUser.getEmail(),
@@ -158,6 +156,24 @@ public class MeetingService {
         if (users.size() != userIds.size()) {
             throw new UserNotFoundException();
         }
+    }
+
+    private int getTardyCount(final LocalTime entranceTime, final LocalDateTime now, final Participant participant) {
+        final boolean isOver = serverTime.isExcessClosingTime(now.toLocalTime(), entranceTime);
+        final List<Attendance> attendances = getAttendancesByParticipant(isOver, participant, now.toLocalDate());
+
+        return (int) attendances.stream()
+                .filter(attendance -> attendance.isSameStatus(Status.TARDY))
+                .count();
+    }
+
+    private List<Attendance> getAttendancesByParticipant(final boolean isOver, final Participant participant,
+                                                         final LocalDate today) {
+        if (isOver) {
+            return attendanceRepository.findByParticipantId(participant.getId());
+        }
+
+        return attendanceRepository.findByParticipantIdAndAttendanceDateNot(participant.getId(), today);
     }
 
     private void validateAttendanceTime(final LocalDateTime nowDateTime, final Meeting meeting) {

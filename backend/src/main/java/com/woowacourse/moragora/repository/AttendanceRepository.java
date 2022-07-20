@@ -30,7 +30,7 @@ public class AttendanceRepository {
 
     public List<Attendance> findByParticipantId(final Long participantId) {
         return entityManager.createQuery("select a from Attendance a where a.participant.id = :participantId",
-                        Attendance.class)
+                Attendance.class)
                 .setParameter("participantId", participantId)
                 .getResultList();
     }
@@ -39,8 +39,8 @@ public class AttendanceRepository {
                                                                      final LocalDate attendanceDate) {
         try {
             final Attendance attendance = entityManager.createQuery(
-                            "select a from Attendance a where a.participant.id = :participantId and a.attendanceDate = :attendanceDate",
-                            Attendance.class)
+                    "select a from Attendance a where a.participant.id = :participantId and a.attendanceDate = :attendanceDate",
+                    Attendance.class)
                     .setParameter("participantId", participantId)
                     .setParameter("attendanceDate", attendanceDate)
                     .getSingleResult();
@@ -53,8 +53,9 @@ public class AttendanceRepository {
     public Optional<Participant> findByMeetingIdAndUserId(final Long meetingId, final Long userId) {
         try {
             final Participant participant = entityManager.createQuery(
-                            "select p from Participant p where p.meeting.id = :meetingId and p.user.id = :userId",
-                            Participant.class)
+                    "select p from Participant p where p.meeting.id = :meetingId "
+                            + "and p.user.id = :userId",
+                    Participant.class)
                     .setParameter("meetingId", meetingId)
                     .setParameter("userId", userId)
                     .getSingleResult();
@@ -62,5 +63,13 @@ public class AttendanceRepository {
         } catch (NoResultException exception) {
             return Optional.empty();
         }
+    }
+
+    public List<Attendance> findByParticipantIdAndAttendanceDateNot(final Long participantId, final LocalDate today) {
+        return entityManager.createQuery("select a from Attendance a where a.participant.id = :participantId "
+                + "and a.attendanceDate <> :today", Attendance.class)
+                .setParameter("participantId", participantId)
+                .setParameter("today", today)
+                .getResultList();
     }
 }
