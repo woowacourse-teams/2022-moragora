@@ -1,30 +1,5 @@
 import { useCallback, useState } from 'react';
-
-const throttle = <T extends (...args: any) => any>(
-  callback: T,
-  wait: number = 0
-) => {
-  let timerId: NodeJS.Timeout | null = null;
-  let lastArgs: {
-    current: Parameters<T>;
-  } = {
-    current: null,
-  };
-
-  return (...args: Parameters<T>) => {
-    lastArgs.current = args;
-
-    if (timerId) {
-      return;
-    }
-
-    timerId = setTimeout(() => {
-      callback(...lastArgs.current);
-
-      timerId = null;
-    }, wait);
-  };
-};
+import { throttle } from 'utils/throttle';
 
 const useQuerySelectItems = <T extends { id: number }>(
   url: string,
@@ -61,7 +36,7 @@ const useQuerySelectItems = <T extends { id: number }>(
       }
     } catch (e) {
       if (options.onError) {
-        options.onError(e);
+        options.onError(e as Error);
       }
     } finally {
       setLoading(false);
