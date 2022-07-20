@@ -2,6 +2,7 @@ package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Attendance;
@@ -105,12 +106,22 @@ public class MeetingService {
         return MeetingResponse.of(meeting, userResponses);
     }
 
+    public MyMeetingsResponse findAllByUserId(final Long userId) {
+        final LocalTime now = LocalTime.now();
+        final List<Participant> participants = participantRepository.findByUserId(userId);
+        final List<Meeting> meetings = participants.stream()
+                .map(Participant::getMeeting)
+                .collect(Collectors.toList());
+
+        return MyMeetingsResponse.of(now, serverTime, meetings);
+    }
+
     // TODO update (1 + N) -> 최적하기
     // TODO 출석 제출할 때 구현 예정
     @Transactional
     public void updateAttendance(final Long meetingId, final Long userId, final UserAttendanceRequest request,
                                  final Long loginId) {
-        LocalDateTime nowDateTime = LocalDateTime.now();
+        final LocalDateTime nowDateTime = LocalDateTime.now();
 
         final Meeting meeting = findMeeting(meetingId);
         final User user = findUser(userId);
@@ -121,7 +132,7 @@ public class MeetingService {
                 .orElseThrow(ParticipantNotFoundException::new);
 
         final Attendance attendance = attendanceRepository.findByParticipantIdAndAttendanceDate(participant.getId(),
-                nowDateTime.toLocalDate())
+                        nowDateTime.toLocalDate())
                 .orElseThrow(AttendanceNotFoundException::new);
 
         attendance.changeAttendanceStatus(request.getAttendanceStatus());
