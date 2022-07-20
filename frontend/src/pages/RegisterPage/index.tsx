@@ -133,7 +133,9 @@ const RegisterPage = () => {
                 type="button"
                 variant="confirm"
                 onClick={handleCheckEmailButtonClick}
-                disabled={!isEmailExist}
+                disabled={
+                  !values['email'] || errors['email'] !== '' || !isEmailExist
+                }
               >
                 중복확인
               </S.EmailCheckButton>
