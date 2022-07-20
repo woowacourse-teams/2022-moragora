@@ -8,13 +8,13 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class WebConfig implements WebMvcConfigurer {
+public class AuthWebConfig implements WebMvcConfigurer {
 
     private final List<HandlerInterceptor> interceptors;
     private final List<HandlerMethodArgumentResolver> resolvers;
 
-    public WebConfig(final List<HandlerInterceptor> interceptors,
-                     final List<HandlerMethodArgumentResolver> resolvers) {
+    public AuthWebConfig(final List<HandlerInterceptor> interceptors,
+                         final List<HandlerMethodArgumentResolver> resolvers) {
         this.interceptors = interceptors;
         this.resolvers = resolvers;
     }

@@ -2,21 +2,28 @@ package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
-import com.woowacourse.moragora.dto.UserAttendancesRequest;
+import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
+import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.AttendanceNotFoundException;
+import com.woowacourse.moragora.exception.ClosingTimeExcessException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
+import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
+import com.woowacourse.moragora.util.CurrentDateTime;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,16 +36,20 @@ public class MeetingService {
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
-
+    private final TimeChecker timeChecker;
+    private final CurrentDateTime currentDateTime;
 
     public MeetingService(final MeetingRepository meetingRepository,
                           final ParticipantRepository participantRepository,
                           final AttendanceRepository attendanceRepository,
-                          final UserRepository userRepository) {
+                          final UserRepository userRepository,
+                          final TimeChecker timeChecker, final CurrentDateTime currentDateTime) {
         this.meetingRepository = meetingRepository;
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
+        this.timeChecker = timeChecker;
+        this.currentDateTime = currentDateTime;
     }
 
     // TODO: for 문 안에 insert 한번에 날리는 것 고려
@@ -55,7 +66,6 @@ public class MeetingService {
         for (User user : users) {
             participantRepository.save(new Participant(user, meeting));
         }
-
         return meeting.getId();
     }
 
@@ -70,7 +80,7 @@ public class MeetingService {
             final List<Attendance> attendances = attendanceRepository.findByParticipantId(participant.getId());
 
             final int tardyCount = (int) attendances.stream()
-                    .filter(Attendance::isTardy)
+                    .filter(attendance -> attendance.isSameStatus(Status.TARDY))
                     .count();
 
             final User foundUser = participant.getUser();
@@ -83,11 +93,8 @@ public class MeetingService {
             userResponses.add(userResponse);
         }
 
-        final List<Long> participantIds = participants.stream()
-                .map(Participant::getId)
-                .collect(Collectors.toUnmodifiableList());
-
-        final long meetingAttendanceCount = attendanceRepository.findAttendanceCountById(participantIds.get(0));
+        final Long anyParticipantId = participants.get(0).getId();
+        final long meetingAttendanceCount = attendanceRepository.findAttendanceCountById(anyParticipantId);
 
         return MeetingResponse.of(meeting, userResponses, meetingAttendanceCount);
     }
@@ -95,23 +102,31 @@ public class MeetingService {
     // TODO update (1 + N) -> 최적하기
     // TODO 출석 제출할 때 구현 예정
     @Transactional
-    public void updateAttendance(final Long meetingId, final UserAttendancesRequest requests) {
-/*
+    public void updateAttendance(final Long meetingId,
+                                 final Long userId,
+                                 final UserAttendanceRequest request,
+                                 final Long loginId) {
+        LocalDateTime nowDateTime = currentDateTime.getValue();
+
         final Meeting meeting = findMeeting(meetingId);
-        meeting.increaseMeetingCount();
+        final User user = findUser(userId);
 
-        final List<Long> absentUserIds = requests.getUsers().stream()
-                .filter(UserAttendanceRequest::getIsTardy)
-                .map(UserAttendanceRequest::getId)
-                .collect(Collectors.toList());
+        final LocalTime entranceTime = meeting.getEntranceTime();
+        final boolean isExcess = timeChecker.isExcessClosingTime(entranceTime);
 
-        final List<Attendance> attendances = attendanceRepository.findByMeetingId(meetingId);
-        for (final Attendance attendance : attendances) {
-            if (absentUserIds.contains(attendance.getUser().getId())) {
-                attendance.increaseTardyCount();
-            }
+        if (isExcess) {
+            throw new ClosingTimeExcessException();
         }
-*/
+
+        final Participant participant = attendanceRepository
+                .findByMeetingIdAndUserId(meeting.getId(), user.getId())
+                .orElseThrow(ParticipantNotFoundException::new);
+
+        final Attendance attendance = attendanceRepository
+                .findByParticipantIdAndAttendanceDate(participant.getId(), nowDateTime.toLocalDate())
+                .orElseThrow(AttendanceNotFoundException::new);
+
+        attendance.changeAttendanceStatus(request.getAttendanceStatus());
     }
 
     private Meeting findMeeting(final Long id) {

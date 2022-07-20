@@ -5,10 +5,13 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: create # ddl-auto
-logging.level:
-  org.hibernate:
-    SQL: debug
-    type: trace
+
+logging:
+  level:
+    org.hibernate:
+      SQL: debug
+      type: trace
+
 security:
   jwt:
     token:
