@@ -11,6 +11,7 @@ import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.AttendanceNotFoundException;
 import com.woowacourse.moragora.exception.ClosingTimeExcessException;
+import com.woowacourse.moragora.exception.IllegalParticipantException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.UserNotFoundException;
@@ -18,12 +19,13 @@ import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
-import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
-import com.woowacourse.moragora.util.CurrentDateTime;
+import com.woowacourse.moragora.service.closingstrategy.ServerTime;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MeetingService {
 
+    private static final String USER_IDS_DUPLICATION_ERROR_MESSAGE = "참가자 명단에 중복이 있습니다.";
+    private static final String USER_IDS_CONTAIN_LOGIN_ID_ERROR_MESSAGE = "생성자가 참가자 명단에 포함되어 있습니다.";
+    private static final String EMPTY_USER_IDS_ERROR_MESSAGE = "생성자를 제외한 참가자가 없습니다.";
 
     private final MeetingRepository meetingRepository;
     private final ParticipantRepository participantRepository;
@@ -55,17 +60,26 @@ public class MeetingService {
     // TODO: for 문 안에 insert 한번에 날리는 것 고려
     // TODO: master 지정해야함
     @Transactional
-    public Long save(final MeetingRequest request, final Long userId) {
-        final User loginUser = findUser(userId);
+    public Long save(final MeetingRequest request, final Long loginId) {
         final Meeting meeting = meetingRepository.save(request.toEntity());
 
-        final Participant participant = new Participant(loginUser, meeting);
-        participantRepository.save(participant);
+        final List<Long> userIds = request.getUserIds();
+        validateUserIds(userIds, loginId);
 
-        final List<User> users = userRepository.findByIds(request.getUserIds());
-        for (User user : users) {
-            participantRepository.save(new Participant(user, meeting));
+        final User loginUser = findUser(loginId);
+        final List<User> users = userRepository.findByIds(userIds);
+        validateUserExists(userIds, users);
+
+        final Participant loginParticipant = new Participant(loginUser, meeting);
+        final List<Participant> participants = users.stream()
+                .map(user -> new Participant(user, meeting))
+                .collect(Collectors.toList());
+        participants.add(loginParticipant);
+
+        for (Participant participant : participants) {
+            participantRepository.save(participant);
         }
+
         return meeting.getId();
     }
 
@@ -117,6 +131,7 @@ public class MeetingService {
         if (isExcess) {
             throw new ClosingTimeExcessException();
         }
+        validateAttendanceTime(nowDateTime, meeting);
 
         final Participant participant = attendanceRepository
                 .findByMeetingIdAndUserId(meeting.getId(), user.getId())
@@ -137,5 +152,36 @@ public class MeetingService {
     private User findUser(final Long id) {
         return userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
+    }
+
+    /**
+     * 참가자 userIds 내부에 loginId가 있는지 검증해야 userIds.size()가 0인지 검증이 정상적으로 이루어집니다.
+     */
+    private void validateUserIds(final List<Long> userIds, final Long loginId) {
+        if (Set.copyOf(userIds).size() != userIds.size()) {
+            throw new IllegalParticipantException(USER_IDS_DUPLICATION_ERROR_MESSAGE);
+        }
+
+        if (userIds.contains(loginId)) {
+            throw new IllegalParticipantException(USER_IDS_CONTAIN_LOGIN_ID_ERROR_MESSAGE);
+        }
+
+        if (userIds.size() == 0) {
+            throw new IllegalParticipantException(EMPTY_USER_IDS_ERROR_MESSAGE);
+        }
+    }
+
+    private void validateUserExists(final List<Long> userIds, final List<User> users) {
+        if (users.size() != userIds.size()) {
+            throw new UserNotFoundException();
+        }
+    }
+
+    private void validateAttendanceTime(final LocalDateTime nowDateTime, final Meeting meeting) {
+        final LocalTime entranceTime = meeting.getEntranceTime();
+        final boolean isOver = serverTime.isExcessClosingTime(nowDateTime.toLocalTime(), entranceTime);
+        if (isOver) {
+            throw new ClosingTimeExcessException();
+        }
     }
 }

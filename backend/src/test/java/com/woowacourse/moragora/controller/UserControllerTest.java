@@ -4,22 +4,16 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.woowacourse.auth.support.JwtTokenProvider;
 import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.SearchedUserResponse;
 import com.woowacourse.moragora.dto.SearchedUsersResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.exception.NoKeywordException;
 import com.woowacourse.moragora.exception.NoParameterException;
-import com.woowacourse.moragora.service.UserService;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,26 +21,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
-@WebMvcTest(controllers = {UserController.class})
-public class UserControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
-    private UserService userService;
-
-    @MockBean
-    private JwtTokenProvider jwtTokenProvider;
+public class UserControllerTest extends ControllerTest {
 
     @DisplayName("회원가입에 성공한다.")
     @Test
@@ -56,18 +33,13 @@ public class UserControllerTest {
         given(userService.create(any(UserRequest.class)))
                 .willReturn(1L);
 
+        validateToken("1");
+
         // when
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
+        final ResultActions resultActions = performPost("/users", userRequest);
 
         // then
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequest)))
-                .andDo(print())
-                .andExpect(status().isCreated())
+        resultActions.andExpect(status().isCreated())
                 .andExpect(header().string("Location", equalTo("/users/" + 1)));
     }
 
@@ -89,18 +61,13 @@ public class UserControllerTest {
         // given
         final UserRequest userRequest = new UserRequest(email, password, nickname);
 
+        validateToken("1");
+
         // when
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
+        final ResultActions resultActions = performPost("/users", userRequest);
 
         // then
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequest)))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
+        resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
                         .value("입력 형식이 올바르지 않습니다."));
     }
@@ -114,11 +81,11 @@ public class UserControllerTest {
         given(userService.isEmailExist(email))
                 .willReturn(new EmailCheckResponse(isExist));
 
-        // when, then
-        mockMvc.perform(get("/users/check-email?email=" + email)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
+        // when
+        final ResultActions resultActions = performGet("/users/check-email?email=" + email);
+
+        // then
+        resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("$.isExist").value(isExist));
     }
 
@@ -131,11 +98,11 @@ public class UserControllerTest {
         given(userService.isEmailExist(email))
                 .willThrow(new NoParameterException());
 
-        // when, then
-        mockMvc.perform(get("/users/check-email?email=" + email)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
+        // when
+        final ResultActions resultActions = performGet("/users/check-email?email=" + email);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("값이 입력되지 않았습니다."));
     }
 
@@ -144,6 +111,7 @@ public class UserControllerTest {
     void search() throws Exception {
         // given
         final String keyword = "foo";
+
         given(userService.searchByKeyword(keyword))
                 .willReturn(new SearchedUsersResponse(
                         List.of(
@@ -156,11 +124,11 @@ public class UserControllerTest {
                                 new SearchedUserResponse(7L, "ggg777@foo.com", "반듯"))
                 ));
 
-        // when, then
-        mockMvc.perform(get("/users?keyword=" + keyword)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
+        // when
+        final ResultActions resultActions = performGet("/users?keyword=" + keyword);
+
+        // then
+        resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("$.users[*].id", containsInAnyOrder(1, 2, 3, 4, 5, 6, 7)))
                 .andExpect(jsonPath("$.users[*].email", containsInAnyOrder(
                         "aaa111@foo.com",
@@ -182,11 +150,11 @@ public class UserControllerTest {
         given(userService.searchByKeyword(keyword))
                 .willThrow(new NoKeywordException());
 
-        // when, then
-        mockMvc.perform(get("/users?keyword=" + keyword)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
+        // when
+        final ResultActions resultActions = performGet("/users?keyword=" + keyword);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", equalTo("검색어가 입력되지 않았습니다.")));
     }
 }

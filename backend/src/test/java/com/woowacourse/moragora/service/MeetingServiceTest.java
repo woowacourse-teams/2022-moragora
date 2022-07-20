@@ -11,10 +11,13 @@ import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.ClosingTimeExcessException;
+import com.woowacourse.moragora.exception.IllegalParticipantException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.ParticipantNotFoundException;
 import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
 import com.woowacourse.moragora.util.CurrentDateTime;
+import com.woowacourse.moragora.exception.UserNotFoundException;
+import com.woowacourse.moragora.service.closingstrategy.ServerTime;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -49,7 +52,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
+                List.of(2L, 3L, 4L, 5L, 6L, 7L)
         );
 
         // when
@@ -59,9 +62,47 @@ class MeetingServiceTest {
         assertThat(expected).isNotNull();
     }
 
-    @DisplayName("미팅 방을 저장한다.")
+    @DisplayName("미팅이 생성될 때, 참가자 명단에 미팅 생성자가 있는 경우 예외를 반환한다.")
     @Test
-    void save2() {
+    void save_throwException_ifUserIdsContainLoginId() {
+        // given
+        final Long loginId = 1L;
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(loginId, 2L, 3L, 4L, 5L, 6L, 7L)
+        );
+
+        // when, then
+        assertThatThrownBy(() -> meetingService.save(meetingRequest, loginId))
+                .isInstanceOf(IllegalParticipantException.class);
+    }
+
+    @DisplayName("미팅이 생성될 때, 참가자 명단에 중복이 있는 경우 예외를 반환한다.")
+    @Test
+    void save_throwException_ifUserIdsDuplicated() {
+        // given
+        final Long duplicatedId = 2L;
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(duplicatedId, duplicatedId, 3L, 4L, 5L, 6L, 7L)
+        );
+
+        // when, then
+        assertThatThrownBy(() -> meetingService.save(meetingRequest, 1L))
+                .isInstanceOf(IllegalParticipantException.class);
+    }
+
+    @DisplayName("미팅이 생성될 때, 참가자 명단이 비어있는 경우 예외를 반환한다.")
+    @Test
+    void save_throwException_ifUserIdsBlank() {
         // given
         final MeetingRequest meetingRequest = new MeetingRequest(
                 "모임1",
@@ -69,14 +110,30 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                List.of(2L, 3L, 4L, 5L, 6L, 7L)
+                List.of()
         );
 
-        // when
-        final Long expected = meetingService.save(meetingRequest, 1L);
+        // when, then
+        assertThatThrownBy(() -> meetingService.save(meetingRequest, 1L))
+                .isInstanceOf(IllegalParticipantException.class);
+    }
 
-        // then
-        assertThat(expected).isNotNull();
+    @DisplayName("미팅이 생성될 때, 참가자 명단에 존재하지 않는 user가 들어가있는 경우 예외를 반환한다.")
+    @Test
+    void save_throwException_ifNotExistIdInUserIds() {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(2L, 8L)
+        );
+
+        // when, then
+        assertThatThrownBy(() -> meetingService.save(meetingRequest, 1L))
+                .isInstanceOf(UserNotFoundException.class);
     }
 
     @DisplayName("id로 모임 상세 정보를 조회한다.")
@@ -119,7 +176,7 @@ class MeetingServiceTest {
                 .doesNotThrowAnyException();
     }
 
-    @DisplayName("사용자의 출석 여부를 변경하려고 할 때, 미팅방이 존재하지 않는다면 예외가 발생한다. ")
+    @DisplayName("사용자의 출석 여부를 변경하려고 할 때, 미팅방이 존재하지 않는다면 예외가 발생한다.")
     @Test
     void updateAttendance_throwsException_ifMeetingNotFound() {
         // given
@@ -132,7 +189,7 @@ class MeetingServiceTest {
                 .isInstanceOf(MeetingNotFoundException.class);
     }
 
-    @DisplayName("사용자의 출석 여부를 변경하려고 할 때, 미팅 참가자가 존재하지 않는다면 예외가 발생한다. ")
+    @DisplayName("사용자의 출석 여부를 변경하려고 할 때, 미팅 참가자가 존재하지 않는다면 예외가 발생한다.")
     @Test
     void updateAttendance_throwsException_ifParticipantNotFound() {
         // given
