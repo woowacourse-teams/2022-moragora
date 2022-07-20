@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.woowacourse.moragora.FakeTimeChecker;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
@@ -304,7 +305,7 @@ class MeetingControllerTest extends ControllerTest {
                 LocalTime.of(9, 5)
         );
         final LocalTime now = LocalTime.of(10, 1);
-        final MyMeetingsResponse meetingsResponse = MyMeetingsResponse.of(now, new FakeServerTime(),
+        final MyMeetingsResponse meetingsResponse = MyMeetingsResponse.of(now, new FakeTimeChecker(),
                 List.of(meeting1, meeting2));
 
         // when

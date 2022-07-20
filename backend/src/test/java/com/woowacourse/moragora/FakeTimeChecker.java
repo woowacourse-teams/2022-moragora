@@ -10,6 +10,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class FakeTimeChecker extends TimeChecker {
 
+    public FakeTimeChecker() {
+        super(new CurrentDateTime());
+    }
+
     public FakeTimeChecker(final CurrentDateTime currentDateTime) {
         super(currentDateTime);
     }
