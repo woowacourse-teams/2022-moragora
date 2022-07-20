@@ -20,7 +20,7 @@ export const Image = styled.img`
 `;
 
 export const AvatarBorder = styled.div`
-  border: 4px solid lightgray;
+  border: 4px solid ${({ theme: { colors } }) => colors['subtle-light']};
   border-radius: 50%;
 `;
 
