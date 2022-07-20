@@ -43,7 +43,7 @@ public class MeetingController {
         return ResponseEntity.ok(meetingResponse);
     }
 
-    @GetMapping
+    @GetMapping("/me")
     public ResponseEntity<MyMeetingsResponse> findMy(@AuthenticationPrincipal final Long id) {
         final MyMeetingsResponse meetingsResponse = meetingService.findAllByUserId(id);
         return ResponseEntity.ok(meetingsResponse);

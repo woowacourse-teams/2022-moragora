@@ -317,7 +317,7 @@ class MeetingControllerTest extends ControllerTest {
                 .willReturn(meetingsResponse);
 
         // then
-        performGet("/meetings")
+        performGet("/meetings/me")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.serverTime", is("10:01:00")))
                 .andExpect(jsonPath("$.meetings[*].name", containsInAnyOrder("모임1", "모임2")))

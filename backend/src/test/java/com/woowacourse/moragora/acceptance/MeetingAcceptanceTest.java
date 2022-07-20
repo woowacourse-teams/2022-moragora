@@ -96,7 +96,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         post("/meetings", meetingRequest2, token);
 
         // when
-        final ValidatableResponse response = get("/meetings", token);
+        final ValidatableResponse response = get("/meetings/me", token);
 
         // then
         response.statusCode(HttpStatus.OK.value())
