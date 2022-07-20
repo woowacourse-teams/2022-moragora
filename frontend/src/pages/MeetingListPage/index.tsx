@@ -2,12 +2,12 @@ import { css } from '@emotion/react';
 import * as S from './MeetingListPage.styled';
 import Footer from 'components/layouts/Footer';
 import MeetingItem from 'components/MeetingItem';
+import MeetingItemSkeleton from 'components/MeetingItemSkeleton';
 import CoffeeStackItem from 'components/CoffeeStackItem';
-import Spinner from 'components/@shared/Spinner';
+import CoffeeStackItemSkeleton from 'components/CoffeeStackItemSkeleton';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import ReloadButton from 'components/@shared/ReloadButton';
 import DivideLine from 'components/@shared/DivideLine';
-import Button from 'components/@shared/Button';
 import useFetch from 'hooks/useFetch';
 import NoSearchResultIconSVG from 'assets/NoSearchResult.svg';
 import { MeetingListResponseBody } from 'types/meetingType';
@@ -24,9 +24,62 @@ const MeetingListPage = () => {
     return (
       <>
         <S.Layout>
-          <S.SpinnerBox>
-            <Spinner />
-          </S.SpinnerBox>
+          <S.TimeSection>
+            <S.DateBox>
+              <S.Title>Today</S.Title>
+              <S.DateParagraph>
+                <div
+                  css={css`
+                    margin: 0.35rem;
+                    border-radius: 0.5rem;
+                    height: 1rem;
+                    width: 10rem;
+                    animation: skeleton-gradient 1.5s infinite ease-in-out;
+                  `}
+                />
+              </S.DateParagraph>
+            </S.DateBox>
+            <S.DateBox>
+              <S.Title>Time</S.Title>
+              <div
+                css={css`
+                  margin: 0.35rem;
+                  border-radius: 0.5rem;
+                  height: 1rem;
+                  width: 6rem;
+                  animation: skeleton-gradient 1.5s infinite ease-in-out;
+                `}
+              />
+            </S.DateBox>
+          </S.TimeSection>
+          <S.MeetingListSection>
+            <S.TitleBox>
+              <S.Title>참여 중인 모임</S.Title>
+            </S.TitleBox>
+            <S.MeetingList
+              css={css`
+                overflow: hidden;
+              `}
+            >
+              {Array.from({ length: 2 }).map((_, id) => (
+                <li key={id}>
+                  <MeetingItemSkeleton />
+                </li>
+              ))}
+            </S.MeetingList>
+          </S.MeetingListSection>
+          <S.CoffeeStackSection>
+            <S.TitleBox>
+              <S.Title>커피 스택</S.Title>
+            </S.TitleBox>
+            <S.CoffeeStackList>
+              {Array.from({ length: 3 }).map((_, id) => (
+                <li key={id}>
+                  <CoffeeStackItemSkeleton />
+                </li>
+              ))}
+            </S.CoffeeStackList>
+          </S.CoffeeStackSection>
         </S.Layout>
         <Footer />
       </>
@@ -61,13 +114,6 @@ const MeetingListPage = () => {
             <S.EmptyStateParagraph>
               직접 모임을 등록하러 가볼까요?
             </S.EmptyStateParagraph>
-            <DivideLine
-              css={css`
-                width: 75%;
-                margin-top: 1rem;
-                margin-bottom: 0.5rem;
-              `}
-            />
             <S.MeetingCreateLink to="/meeting/create">
               모임 생성하기
             </S.MeetingCreateLink>
@@ -134,11 +180,7 @@ const MeetingListPage = () => {
           </S.CoffeeStackList>
         </S.CoffeeStackSection>
       </S.Layout>
-      <Footer>
-        <Button form="attendance-form" type="submit">
-          추가하기
-        </Button>
-      </Footer>
+      <Footer />
     </>
   );
 };

@@ -7,13 +7,15 @@ import useContextValues from 'hooks/useContextValues';
 import { useEffect } from 'react';
 import useFetch from 'hooks/useFetch';
 import { GetMeDataResponseBody } from 'types/userType';
+import Spinner from 'components/@shared/Spinner';
+import * as S from './App.styled';
 
 const App = () => {
-  const { login, logout } = useContextValues<UserContextValues>(
+  const { login } = useContextValues<UserContextValues>(
     userContext
   ) as UserContextValues;
 
-  const { data } = useFetch<GetMeDataResponseBody>('/users/me');
+  const { data, loading } = useFetch<GetMeDataResponseBody>('/users/me');
 
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
@@ -35,8 +37,18 @@ const App = () => {
         `}
       >
         <MobileLayout>
-          <Header />
-          <Router />
+          {loading ? (
+            <S.Layout>
+              <S.SpinnerBox>
+                <Spinner />
+              </S.SpinnerBox>
+            </S.Layout>
+          ) : (
+            <>
+              <Header />
+              <Router />
+            </>
+          )}
         </MobileLayout>
       </div>
       <div id="root-modal" />

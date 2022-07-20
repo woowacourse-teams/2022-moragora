@@ -93,7 +93,7 @@ const MeetingCreatePage = () => {
         userState,
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${userState?.user?.accessToken}`,
           },
         }
       );
@@ -255,7 +255,7 @@ const MeetingCreatePage = () => {
           모임 생성하기
         </S.MeetingCreateButton>
       </S.Layout>
-      <Footer></Footer>
+      <Footer />
     </>
   );
 };

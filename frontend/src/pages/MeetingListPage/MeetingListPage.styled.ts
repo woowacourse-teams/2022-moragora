@@ -113,12 +113,18 @@ export const MeetingCreateLink = styled(Link)`
   color: inherit;
   text-decoration: inherit;
 
+  margin-top: 1.5rem;
   text-align: center;
   width: 100%;
   background-color: ${({ theme: { colors } }) => colors['primary']};
   color: ${({ theme: { colors } }) => colors['white']};
   padding: 0.75rem 0;
   border-radius: 1.5rem;
+
+  opacity: 0;
+  animation: dissolve 1.5s;
+  animation-delay: 2.7s;
+  animation-fill-mode: forwards;
 
   :hover {
     background-color: ${({ theme: { colors } }) => colors['primary-subtle']};
@@ -132,18 +138,28 @@ export const MeetingCreateLink = styled(Link)`
 `;
 
 export const EmptyStateImage = styled.img`
-  margin-top: -2rem;
+  margin-top: -4rem;
   padding-bottom: 2rem;
   width: 100%;
+  opacity: 0;
+  animation: smooth-appear 2s;
+  animation-fill-mode: forwards;
 `;
 
 export const EmptyStateTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 600;
   color: ${({ theme: { colors } }) => colors['subtle-dark']};
+  opacity: 0;
+  animation: smooth-appear 2s;
+  animation-fill-mode: forwards;
 `;
 
 export const EmptyStateParagraph = styled.p`
   font-size: 1rem;
   color: ${({ theme: { colors } }) => colors['subtle-light']};
+  opacity: 0;
+  animation: dissolve 1s;
+  animation-delay: 1.5s;
+  animation-fill-mode: forwards;
 `;
