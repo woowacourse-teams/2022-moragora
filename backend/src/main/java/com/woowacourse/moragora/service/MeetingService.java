@@ -191,13 +191,12 @@ public class MeetingService {
         final List<Attendance> attendances =
                 attendanceRepository.findByParticipantIdsAndAttendanceDate(participantIds, today);
 
-        System.out.println("attendances.size() = " + attendances.size());
         if (attendances.size() == 0) {
-            saveAttendance(participants, today);
+            saveAttendances(participants, today);
         }
     }
 
-    private void saveAttendance(final List<Participant> participants, final LocalDate today) {
+    private void saveAttendances(final List<Participant> participants, final LocalDate today) {
         for (final Participant participant : participants) {
             attendanceRepository.save(new Attendance(participant, today, Status.TARDY));
         }
