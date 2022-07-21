@@ -1,0 +1,50 @@
+= Auth
+:toc: left
+:toclevels: 2
+:sectlinks:
+:source-highlighter: highlightjs
+
+[[home]]
+== home
+
+* link:index.html[홈으로 가기]
+
+[[login]]
+== 로그인
+
+[[login-success]]
+=== HTTP request
+
+include::{snippets}/auth/login/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/auth/login/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/auth/login/request-fields.adoc[]
+
+=== Response fields
+
+include::{snippets}/auth/login/response-fields.adoc[]
+
+[[login]]
+== 로그인 실패
+
+[[login-fail]]
+=== HTTP request
+
+include::{snippets}/auth/login-fail/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/auth/login-fail/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/auth/login-fail/request-fields.adoc[]
+
+=== Reponse fields
+
+include::{snippets}/auth/login-fail/response-fields.adoc[]
