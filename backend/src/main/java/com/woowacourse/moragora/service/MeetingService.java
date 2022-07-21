@@ -2,6 +2,7 @@ package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
@@ -112,11 +113,16 @@ public class MeetingService {
     public MyMeetingsResponse findAllByUserId(final Long userId) {
         final LocalDateTime now = currentDateTime.getValue();
         final List<Participant> participants = participantRepository.findByUserId(userId);
-        final List<Meeting> meetings = participants.stream()
-                .map(Participant::getMeeting)
-                .collect(Collectors.toList());
 
-        return MyMeetingsResponse.of(now, timeChecker, meetings);
+        final List<MyMeetingResponse> meetingResponses = new ArrayList<>();
+
+        for (final Participant participant : participants) {
+            final Meeting meeting = participant.getMeeting();
+            meetingResponses.add(MyMeetingResponse.of(now.toLocalTime(), timeChecker, meeting,
+                    getTardyCount(meeting.getEntranceTime(), now, participant)));
+        }
+
+        return MyMeetingsResponse.of(now, meetingResponses);
     }
 
     // TODO update (1 + N) -> 최적하기

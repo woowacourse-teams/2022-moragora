@@ -19,6 +19,7 @@ public class MyMeetingResponse {
     private final LocalDate endDate;
     private final String entranceTime;
     private final String closingTime;
+    private final int tardyCount;
 
     public MyMeetingResponse(final Long id,
                              final String name,
@@ -26,7 +27,8 @@ public class MyMeetingResponse {
                              final LocalDate startDate,
                              final LocalDate endDate,
                              final LocalTime entranceTime,
-                             final LocalTime closingTime) {
+                             final LocalTime closingTime,
+                             final int tardyCount) {
         this.id = id;
         this.name = name;
         this.isActive = isActive;
@@ -34,9 +36,13 @@ public class MyMeetingResponse {
         this.endDate = endDate;
         this.entranceTime = entranceTime.format(TIME_FORMATTER);
         this.closingTime = closingTime.format(TIME_FORMATTER);
+        this.tardyCount = tardyCount;
     }
 
-    public static MyMeetingResponse of(final LocalTime now, final TimeChecker timeChecker, final Meeting meeting) {
+    public static MyMeetingResponse of(final LocalTime now,
+                                       final TimeChecker timeChecker,
+                                       final Meeting meeting,
+                                       final int tardyCount) {
 
         return new MyMeetingResponse(
                 meeting.getId(),
@@ -45,7 +51,9 @@ public class MyMeetingResponse {
                 meeting.getStartDate(),
                 meeting.getEndDate(),
                 meeting.getEntranceTime(),
-                timeChecker.calculateClosingTime(meeting.getEntranceTime())
+                timeChecker.calculateClosingTime(meeting.getEntranceTime()),
+                tardyCount
         );
     }
+
 }

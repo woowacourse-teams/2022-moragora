@@ -77,7 +77,7 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
         participantRepository.save(participant6);
         participantRepository.save(participant7);
 
-        final Attendance attendance1 = new Attendance(participant1, LocalDate.of(2022, 7, 12), Status.PRESENT);
+        final Attendance attendance1 = new Attendance(participant1, LocalDate.of(2022, 7, 12), Status.TARDY);
         final Attendance attendance2 = new Attendance(participant2, LocalDate.of(2022, 7, 12), Status.TARDY);
         final Attendance attendance3 = new Attendance(participant3, LocalDate.of(2022, 7, 12), Status.PRESENT);
         final Attendance attendance4 = new Attendance(participant4, LocalDate.of(2022, 7, 12), Status.PRESENT);
