@@ -5,17 +5,10 @@ import {
   UserLoginRequestBody,
   User,
 } from 'types/userType';
-
-const DELAY = 700;
-const TOKEN_PREFIX = 'badwoody';
-
-const generateToken = (id: number) => `${TOKEN_PREFIX}${id}`;
+import { DELAY } from 'mocks/configs';
+import { extractIdFromHeader, generateToken } from 'mocks/utils';
 
 export default [
-  rest.get('/meetings/1/users', (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(users), ctx.delay(DELAY));
-  }),
-
   rest.post<UserRegisterRequestBody>('/users', (req, res, ctx) => {
     const { email, nickname, password } = req.body;
 
@@ -118,6 +111,36 @@ export default [
     return res(
       ctx.status(200),
       ctx.json({ users: queryResult }),
+      ctx.delay(DELAY)
+    );
+  }),
+
+  rest.get('/users/me', (req, res, ctx) => {
+    const token = extractIdFromHeader(req);
+
+    if (!token.isValidToken) {
+      return res(
+        ctx.status(401),
+        ctx.json({ message: '유효하지 않은 토큰입니다.' })
+      );
+    }
+
+    const user = users.find(({ id }) => id === token.id);
+
+    if (!user) {
+      return res(
+        ctx.status(404),
+        ctx.json({ message: '유저가 존재하지 않습니다.' })
+      );
+    }
+
+    return res(
+      ctx.status(200),
+      ctx.json({
+        id: user.id,
+        email: user.email,
+        nickname: user.nickname,
+      }),
       ctx.delay(DELAY)
     );
   }),

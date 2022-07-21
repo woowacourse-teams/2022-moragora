@@ -299,7 +299,7 @@ class MeetingServiceTest {
         assertThat(myMeetingsResponse).usingRecursiveComparison()
                 .ignoringFields("serverTime", "meetings.id")
                 .isEqualTo(MyMeetingsResponse.of(
-                        LocalTime.now(),
+                        LocalDateTime.now(),
                         timeChecker,
                         List.of(meeting, meetingRequest.toEntity()))
                 );

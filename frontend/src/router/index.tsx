@@ -4,21 +4,38 @@ import MeetingListPage from 'pages/MeetingListPage';
 import MeetingPage from 'pages/MeetingPage';
 import RegisterPage from 'pages/RegisterPage';
 import LoginPage from 'pages/LoginPage';
+import Auth from './Auth';
+import SettingsPage from 'pages/SettingsPage';
+import NotFoundPage from 'pages/NotFoundPage';
 
 const Router = () => {
   return useRoutes([
-    { path: '/', element: <Navigate to="/login" replace /> },
-    { path: '/login', element: <LoginPage /> },
-    { path: '/register', element: <RegisterPage /> },
+    { path: '/', element: <Navigate to="/meeting" replace /> },
     {
-      path: '/meeting',
+      element: <Auth shouldLogin={false} />,
       children: [
-        { path: '', element: <MeetingListPage /> },
-        { path: ':id', element: <MeetingPage /> },
-        { path: 'create', element: <MeetingCreatePage /> },
+        { path: '/login', element: <LoginPage /> },
+        { path: '/register', element: <RegisterPage /> },
       ],
     },
-    { path: '*', element: <div>에러페이지</div> },
+    {
+      element: <Auth shouldLogin={true} />,
+      children: [
+        {
+          path: '/meeting',
+          children: [
+            { path: '', element: <MeetingListPage /> },
+            { path: ':id', element: <MeetingPage /> },
+            { path: 'create', element: <MeetingCreatePage /> },
+          ],
+        },
+        {
+          path: '/settings',
+          element: <SettingsPage />,
+        },
+      ],
+    },
+    { path: '*', element: <NotFoundPage /> },
   ]);
 };
 

@@ -1,0 +1,43 @@
+= Moragora API Spec
+:toc: left
+:toclevels: 2
+:sectlinks:
+:source-highlighter: highlightjs
+
+== API Documents
+
+* link:auth.html[Auth]
+* link:user.html[User]
+* link:meeting.html[Meeting]
+
+[[overview]]
+== Overview
+
+[[overview-http-status-codes]]
+=== HTTP status codes
+
+|===
+| 상태 코드 | 설명
+
+| `200 OK`
+| 요청 성공
+
+| `201 Created`
+| 요청 성공 및 새로운 리소스가 생성
+
+| `204 No content`
+| 요청 성공했지만 응답으로 보낼 데이터는 없음
+
+| `400 Bad Request`
+| 잘못된 요청
+
+| `401 Unauthorized`
+| 비인증 상태
+
+| `404 Not Found`
+| 존재하지 않는 요청 리소스
+
+| `500 Internal Server Error`
+| 서버 에러
+|===
+

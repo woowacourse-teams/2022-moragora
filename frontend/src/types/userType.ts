@@ -29,3 +29,5 @@ export type UserAttendanceCheckRequestBody = Pick<
   Participant,
   'attendanceStatus'
 >;
+
+export type GetMeDataResponseBody = Pick<User, 'id' | 'nickname' | 'email'>;

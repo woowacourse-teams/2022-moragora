@@ -8,24 +8,29 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.doThrow;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.woowacourse.moragora.FakeTimeChecker;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
-import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.IllegalParticipantException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 class MeetingControllerTest extends ControllerTest {
@@ -44,14 +50,15 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void add() throws Exception {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
-        );
+        final String name = "모임1";
+        final LocalDate startDate = LocalDate.of(2022, 7, 10);
+        final LocalDate endDate = LocalDate.of(2022, 8, 10);
+        final LocalTime entranceTime = LocalTime.of(10, 0);
+        final LocalTime leaveTime = LocalTime.of(18, 0);
+        final List<Long> userIds = List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L);
+
+        final MeetingRequest meetingRequest = new MeetingRequest(name, startDate, endDate, entranceTime, leaveTime,
+                userIds);
 
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
@@ -61,7 +68,17 @@ class MeetingControllerTest extends ControllerTest {
 
         // then
         resultActions.andExpect(status().isCreated())
-                .andExpect(header().string("Location", equalTo("/meetings/" + 1)));
+                .andExpect(header().string("Location", equalTo("/meetings/" + 1)))
+                .andDo(document("meeting/create-meeting",
+                        requestFields(
+                                fieldWithPath("name").type(JsonFieldType.STRING).description(name),
+                                fieldWithPath("startDate").type(JsonFieldType.STRING).description(startDate),
+                                fieldWithPath("endDate").type(JsonFieldType.STRING).description(endDate),
+                                fieldWithPath("entranceTime").type(JsonFieldType.STRING).description(entranceTime),
+                                fieldWithPath("leaveTime").type(JsonFieldType.STRING).description(leaveTime),
+                                fieldWithPath("userIds").type(JsonFieldType.ARRAY).description(userIds)
+                        )
+                ));
     }
 
     @DisplayName("미팅 방을 생성 시 시작 날짜보다 종료 날짜가 이른 경우 예외가 발생한다.")
@@ -148,7 +165,7 @@ class MeetingControllerTest extends ControllerTest {
                         .value("입력 형식이 올바르지 않습니다."));
     }
 
-    @DisplayName("미팅 방을 생성 시 참가자 명단에 중복 아이디가 있응 경우 예외가 발생한다.")
+    @DisplayName("미팅 방을 생성 시 참가자 명단에 중복 아이디가 있을 경우 예외가 발생한다.")
     @Test
     void add_throwsException_ifUserIdsDuplicate() throws Exception {
         // given
@@ -257,18 +274,18 @@ class MeetingControllerTest extends ControllerTest {
         usersResponse.add(new UserResponse(1L, "abc@naver.com", "foo", Status.TARDY, 5));
         usersResponse.add(new UserResponse(2L, "def@naver.com", "boo", Status.TARDY, 8));
 
-        final MeetingResponse meetingResponse = new MeetingResponse(
-                1L,
-                "모임1",
-                0,
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                usersResponse
+        final long id = 1L;
+        final String name = "모임1";
+        final int attendanceCount = 0;
+        final LocalDate startDate = LocalDate.of(2022, 7, 10);
+        final LocalDate endDate = LocalDate.of(2022, 8, 10);
+        final LocalTime entranceTime = LocalTime.of(10, 0);
+        final LocalTime leaveTime = LocalTime.of(18, 0);
+        final MeetingResponse meetingResponse = new MeetingResponse(id, name, attendanceCount, startDate, endDate,
+                entranceTime, leaveTime, usersResponse
         );
 
-        final Long loginId = validateToken("1");
+        validateToken("1");
         given(meetingService.findById(eq(1L)))
                 .willReturn(meetingResponse);
 
@@ -283,49 +300,81 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.startDate", equalTo("2022-07-10")))
                 .andExpect(jsonPath("$.endDate", equalTo("2022-08-10")))
                 .andExpect(jsonPath("$.entranceTime", equalTo("10:00")))
-                .andExpect(jsonPath("$.leaveTime", equalTo("18:00")));
+                .andExpect(jsonPath("$.leaveTime", equalTo("18:00")))
+                .andExpect(jsonPath("$.users[*].id", containsInAnyOrder(1, 2)))
+                .andExpect(jsonPath("$.users[*].email", containsInAnyOrder("abc@naver.com", "def@naver.com")))
+                .andExpect(jsonPath("$.users[*].nickname", containsInAnyOrder("foo", "boo")))
+                .andExpect(jsonPath("$.users[*].attendanceStatus", containsInAnyOrder("tardy", "tardy")))
+                .andExpect(jsonPath("$.users[*].tardyCount", containsInAnyOrder(5, 8)))
+                .andDo(document("meeting/find-one-meeting",
+                        responseFields(
+                                fieldWithPath("id").type(JsonFieldType.NUMBER).description(1L),
+                                fieldWithPath("name").type(JsonFieldType.STRING).description(name),
+                                fieldWithPath("attendanceCount").type(JsonFieldType.NUMBER)
+                                        .description(attendanceCount),
+                                fieldWithPath("startDate").type(JsonFieldType.STRING).description(startDate),
+                                fieldWithPath("endDate").type(JsonFieldType.STRING).description(endDate),
+                                fieldWithPath("entranceTime").type(JsonFieldType.STRING).description(entranceTime),
+                                fieldWithPath("leaveTime").type(JsonFieldType.STRING).description(leaveTime),
+                                fieldWithPath("users[].id").type(JsonFieldType.NUMBER).description(1L),
+                                fieldWithPath("users[].email").type(JsonFieldType.STRING).description("abc@email.com"),
+                                fieldWithPath("users[].nickname").type(JsonFieldType.STRING).description("foo"),
+                                fieldWithPath("users[].attendanceStatus").type(JsonFieldType.STRING)
+                                        .description("tardy"),
+                                fieldWithPath("users[].tardyCount").type(JsonFieldType.NUMBER).description(5)
+                        )
+                ));
     }
 
     @DisplayName("유저가 소속된 모든 미팅 방을 조회한다.")
     @Test
     void findAllByUserId() throws Exception {
         // given
-        final Meeting meeting1 = new Meeting(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(10, 5)
-        );
-        final Meeting meeting2 = new Meeting(
-                "모임2",
-                LocalDate.of(2022, 7, 15),
-                LocalDate.of(2022, 8, 15),
-                LocalTime.of(9, 0),
-                LocalTime.of(9, 5)
-        );
-        final LocalTime now = LocalTime.of(10, 1);
-        final MyMeetingsResponse meetingsResponse = MyMeetingsResponse.of(now, new FakeTimeChecker(),
-                List.of(meeting1, meeting2));
+        final LocalDateTime now = LocalTime.of(10, 1).atDate(LocalDate.now());
+        final MyMeetingResponse myMeetingResponse = new MyMeetingResponse(1L, "모임1", true, LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10), LocalTime.of(10, 0), LocalTime.of(10, 5));
+
+        final MyMeetingResponse myMeetingResponse2 = new MyMeetingResponse(2L, "모임2", true, LocalDate.of(2022, 7, 15),
+                LocalDate.of(2022, 8, 15), LocalTime.of(9, 0), LocalTime.of(9, 5));
+
+        final MyMeetingsResponse meetingsResponse = new MyMeetingsResponse(Timestamp.valueOf(now).getTime(),
+                List.of(myMeetingResponse, myMeetingResponse2));
+
+        validateToken("1");
 
         // when
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
         given(meetingService.findAllByUserId(eq(1L)))
                 .willReturn(meetingsResponse);
 
         // then
         performGet("/meetings/me")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.serverTime", is("10:01")))
+                .andExpect(jsonPath("$.serverTime", is(Timestamp.valueOf(now).getTime())))
+                .andExpect(jsonPath("$.meetings[*].id", containsInAnyOrder(1, 2)))
+                .andExpect(jsonPath("$.serverTime", is(Timestamp.valueOf(now).getTime())))
                 .andExpect(jsonPath("$.meetings[*].name", containsInAnyOrder("모임1", "모임2")))
-                .andExpect(jsonPath("$.meetings[*].active", containsInAnyOrder(true, true)))
+                .andExpect(jsonPath("$.meetings[*].isActive", containsInAnyOrder(true, true)))
                 .andExpect(jsonPath("$.meetings[*].startDate", containsInAnyOrder("2022-07-10", "2022-07-15")))
                 .andExpect(jsonPath("$.meetings[*].endDate", containsInAnyOrder("2022-08-10", "2022-08-15")))
                 .andExpect(jsonPath("$.meetings[*].entranceTime", containsInAnyOrder("09:00", "10:00")))
-                .andExpect(jsonPath("$.meetings[*].closingTime", containsInAnyOrder("09:05", "10:05")));
+                .andExpect(jsonPath("$.meetings[*].closingTime", containsInAnyOrder("09:05", "10:05")))
+                .andDo(document("meeting/find-my-meetings",
+                        responseFields(
+                                fieldWithPath("serverTime").type(JsonFieldType.NUMBER)
+                                        .description(Timestamp.valueOf(now).getTime()),
+                                fieldWithPath("meetings[].id").type(JsonFieldType.NUMBER).description(1L),
+                                fieldWithPath("meetings[].name").type(JsonFieldType.STRING).description("모임1"),
+                                fieldWithPath("meetings[].isActive").type(JsonFieldType.BOOLEAN).description(true),
+                                fieldWithPath("meetings[].startDate").type(JsonFieldType.STRING)
+                                        .description("2022-07-10"),
+                                fieldWithPath("meetings[].endDate").type(JsonFieldType.STRING)
+                                        .description("2022-08-10"),
+                                fieldWithPath("meetings[].entranceTime").type(JsonFieldType.STRING)
+                                        .description("09:00"),
+                                fieldWithPath("meetings[].closingTime").type(JsonFieldType.STRING)
+                                        .description("09:05")
+                        )
+                ));
     }
 
     @DisplayName("사용자 출석여부를 반영한다.")
@@ -342,7 +391,12 @@ class MeetingControllerTest extends ControllerTest {
         final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
 
         // then
-        resultActions.andExpect(status().isNoContent());
+        resultActions.andExpect(status().isNoContent())
+                .andDo(document("meeting/enter-Attendance",
+                        requestFields(
+                                fieldWithPath("attendanceStatus").type(JsonFieldType.STRING).description("present")
+                        )
+                ));
     }
 
     @DisplayName("출석을 제출하려는 방이 존재하지 않는 경우 예외가 발생한다.")

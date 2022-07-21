@@ -4,6 +4,10 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,6 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 public class UserControllerTest extends ControllerTest {
@@ -29,7 +34,11 @@ public class UserControllerTest extends ControllerTest {
     @Test
     void signUp() throws Exception {
         // given
-        final UserRequest userRequest = new UserRequest("kun@naver.com", "1234smart!", "kun");
+        final String email = "kun@email.com";
+        final String password = "1234asdfg!";
+        final String nickname = "kun";
+        final UserRequest userRequest = new UserRequest(email, password, nickname);
+
         given(userService.create(any(UserRequest.class)))
                 .willReturn(1L);
 
@@ -40,7 +49,14 @@ public class UserControllerTest extends ControllerTest {
 
         // then
         resultActions.andExpect(status().isCreated())
-                .andExpect(header().string("Location", equalTo("/users/" + 1)));
+                .andExpect(header().string("Location", equalTo("/users/" + 1)))
+                .andDo(document("user/sign-up",
+                        requestFields(
+                                fieldWithPath("email").type(JsonFieldType.STRING).description(email),
+                                fieldWithPath("password").type(JsonFieldType.STRING).description(password),
+                                fieldWithPath("nickname").type(JsonFieldType.STRING).description(nickname)
+                        )
+                ));
     }
 
     @DisplayName("회원 가입 양식이 잘못된 경우 예외를 발생한다.")
@@ -54,7 +70,7 @@ public class UserControllerTest extends ControllerTest {
             "kun@email.com,1234smart!,kunasdf!!!!",
             "kun@email.com,1234smart!,forkyforkyforkyy",
             "kun@email.com,1234smart!,forky forky",
-            "kun@a,1234smart!,kun",
+            "kun@a,1234adsfg!,kun",
     })
     void signUp_throwsException_ifInputValueIsInvalid(final String email, final String password, final String nickname)
             throws Exception {
@@ -77,7 +93,7 @@ public class UserControllerTest extends ControllerTest {
     @ValueSource(booleans = {true, false})
     void checkEmail(final boolean isExist) throws Exception {
         // given
-        final String email = "kun@naver.com";
+        final String email = "kun@email.com";
         given(userService.isEmailExist(email))
                 .willReturn(new EmailCheckResponse(isExist));
 
@@ -86,7 +102,12 @@ public class UserControllerTest extends ControllerTest {
 
         // then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.isExist").value(isExist));
+                .andExpect(jsonPath("$.isExist").value(isExist))
+                .andDo(document("user/check-duplicate-email",
+                        responseFields(
+                                fieldWithPath("isExist").type(JsonFieldType.BOOLEAN).description(isExist)
+                        )
+                ));
     }
 
     @DisplayName("이메일을 입력하지 않고 중복 여부를 확인하면 예외가 발생한다.")
@@ -112,17 +133,19 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String keyword = "foo";
 
+        final SearchedUsersResponse searchedUsersResponse = new SearchedUsersResponse(
+                List.of(
+                        new SearchedUserResponse(1L, "aaa111@foo.com", "아스피"),
+                        new SearchedUserResponse(2L, "bbb222@foo.com", "필즈"),
+                        new SearchedUserResponse(3L, "ccc333@foo.com", "포키"),
+                        new SearchedUserResponse(4L, "ddd444@foo.com", "썬"),
+                        new SearchedUserResponse(5L, "eee555@foo.com", "우디"),
+                        new SearchedUserResponse(6L, "fff666@foo.com", "쿤"),
+                        new SearchedUserResponse(7L, "ggg777@foo.com", "반듯"))
+        );
+
         given(userService.searchByKeyword(keyword))
-                .willReturn(new SearchedUsersResponse(
-                        List.of(
-                                new SearchedUserResponse(1L, "aaa111@foo.com", "아스피"),
-                                new SearchedUserResponse(2L, "bbb222@foo.com", "필즈"),
-                                new SearchedUserResponse(3L, "ccc333@foo.com", "포키"),
-                                new SearchedUserResponse(4L, "ddd444@foo.com", "썬"),
-                                new SearchedUserResponse(5L, "eee555@foo.com", "우디"),
-                                new SearchedUserResponse(6L, "fff666@foo.com", "쿤"),
-                                new SearchedUserResponse(7L, "ggg777@foo.com", "반듯"))
-                ));
+                .willReturn(searchedUsersResponse);
 
         // when
         final ResultActions resultActions = performGet("/users?keyword=" + keyword);
@@ -139,7 +162,14 @@ public class UserControllerTest extends ControllerTest {
                         "fff666@foo.com",
                         "ggg777@foo.com")))
                 .andExpect(jsonPath("$.users[*].nickname", containsInAnyOrder(
-                        "아스피", "필즈", "포키", "썬", "우디", "쿤", "반듯")));
+                        "아스피", "필즈", "포키", "썬", "우디", "쿤", "반듯")))
+                .andDo(document("user/keyword-search",
+                        responseFields(
+                                fieldWithPath("users[].id").type(JsonFieldType.NUMBER).description(1L),
+                                fieldWithPath("users[].email").type(JsonFieldType.STRING).description("aaa111@foo.com"),
+                                fieldWithPath("users[].nickname").type(JsonFieldType.STRING).description("아스피")
+                        )
+                ));
     }
 
     @DisplayName("keyword를 입력하지 않고 검색하면 예외가 발생한다.")
