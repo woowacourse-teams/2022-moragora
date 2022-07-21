@@ -5,6 +5,7 @@ export const Layout = styled.li`
   display: flex;
   gap: 0.5rem;
   justify-content: space-between;
+  align-items: center;
   border-radius: 1rem;
   background-color: ${({ theme: { colors } }) => colors['white']};
 `;
