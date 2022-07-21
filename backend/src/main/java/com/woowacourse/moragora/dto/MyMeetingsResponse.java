@@ -14,7 +14,7 @@ public class MyMeetingsResponse {
     private final long serverTime;
     private final List<MyMeetingResponse> meetings;
 
-    private MyMeetingsResponse(final long serverTime, final List<MyMeetingResponse> meetings) {
+    public MyMeetingsResponse(final long serverTime, final List<MyMeetingResponse> meetings) {
         this.serverTime = serverTime;
         this.meetings = meetings;
     }

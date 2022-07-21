@@ -1,0 +1,74 @@
+= Meeting
+:toc: left
+:toclevels: 2
+:sectlinks:
+:source-highlighter: highlightjs
+
+[[home]]
+== home
+
+* link:index.html[홈으로 가기]
+
+[[add]]
+== 생성
+
+[[add-success]]
+=== HTTP request
+
+include::{snippets}/meeting/create-meeting/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/meeting/create-meeting/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/meeting/create-meeting/request-fields.adoc[]
+
+[[findOne]]
+== 단일 조회
+
+[[findOne-success]]
+=== HTTP request
+
+include::{snippets}/meeting/find-one-meeting/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/meeting/find-one-meeting/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/meeting/find-one-meeting/response-fields.adoc[]
+
+[[findMy]]
+== 내 목록 조회
+
+[[findMy-success]]
+=== HTTP request
+
+include::{snippets}/meeting/find-my-meetings/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/meeting/find-my-meetings/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/meeting/find-my-meetings/response-fields.adoc[]
+
+[[checkAttendance]]
+== 출석 제출
+
+[[checkAttendance-success]]
+=== HTTP request
+
+include::{snippets}/meeting/enter-Attendance/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/meeting/enter-Attendance/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/meeting/enter-Attendance/request-fields.adoc[]

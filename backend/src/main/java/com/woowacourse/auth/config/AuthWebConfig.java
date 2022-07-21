@@ -23,7 +23,7 @@ public class AuthWebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(final InterceptorRegistry registry) {
         interceptors.forEach(interceptor -> registry.addInterceptor(interceptor)
-                .addPathPatterns("/**"));
+                .addPathPatterns("/users", "/meetings"));
     }
 
     @Override
