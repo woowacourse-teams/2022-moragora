@@ -316,7 +316,7 @@ class MeetingServiceTest {
                 .willReturn(LocalDateTime.of(2022, 07, 14, 0, 0));
 
         // when, then
-        assertThatCode(() -> meetingService.updateAttendance(meetingId, userId, request, 1L))
+        assertThatCode(() -> meetingService.updateAttendance(meetingId, userId, request))
                 .doesNotThrowAnyException();
     }
 
@@ -329,7 +329,7 @@ class MeetingServiceTest {
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
         // when, then
-        assertThatThrownBy(() -> meetingService.updateAttendance(meetingId, userId, request, 1L))
+        assertThatThrownBy(() -> meetingService.updateAttendance(meetingId, userId, request))
                 .isInstanceOf(MeetingNotFoundException.class);
     }
 
@@ -346,7 +346,7 @@ class MeetingServiceTest {
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
         // when, then
-        assertThatThrownBy(() -> meetingService.updateAttendance(meetingId, userId, request, 1L))
+        assertThatThrownBy(() -> meetingService.updateAttendance(meetingId, userId, request))
                 .isInstanceOf(ParticipantNotFoundException.class);
     }
 
@@ -360,7 +360,7 @@ class MeetingServiceTest {
                 .willReturn(true);
 
         // when, then
-        assertThatThrownBy(() -> meetingService.updateAttendance(1L, 1L, request, 1L))
+        assertThatThrownBy(() -> meetingService.updateAttendance(1L, 1L, request))
                 .isInstanceOf(ClosingTimeExcessException.class);
     }
 }

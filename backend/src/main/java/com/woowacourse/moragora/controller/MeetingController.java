@@ -53,7 +53,7 @@ public class MeetingController {
                                                                  @PathVariable final Long userId,
                                                                  @RequestBody final UserAttendanceRequest request,
                                                                  @AuthenticationPrincipal final Long loginId) {
-        meetingService.updateAttendance(meetingId, userId, request, loginId);
+        meetingService.updateAttendance(meetingId, userId, request);
         return ResponseEntity.noContent().build();
     }
 }

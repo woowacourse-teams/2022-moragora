@@ -124,8 +124,7 @@ public class MeetingService {
     @Transactional
     public void updateAttendance(final Long meetingId,
                                  final Long userId,
-                                 final UserAttendanceRequest request,
-                                 final Long loginId) {
+                                 final UserAttendanceRequest request) {
         LocalDateTime nowDateTime = currentDateTime.getValue();
 
         final Meeting meeting = findMeeting(meetingId);

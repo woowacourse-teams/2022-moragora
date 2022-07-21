@@ -353,11 +353,11 @@ class MeetingControllerTest extends ControllerTest {
         final Long userId = 1L;
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
-        final Long loginId = validateToken("1");
+        validateToken("1");
 
         doThrow(MeetingNotFoundException.class)
                 .when(meetingService)
-                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class), eq(loginId));
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
 
         // when
         final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
@@ -374,11 +374,11 @@ class MeetingControllerTest extends ControllerTest {
         final Long userId = 8L;
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
-        final Long loginId = validateToken("1");
+        validateToken("1");
 
         doThrow(ParticipantNotFoundException.class)
                 .when(meetingService)
-                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class), eq(loginId));
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
 
         // when
         final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
