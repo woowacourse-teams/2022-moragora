@@ -174,10 +174,10 @@ public class MeetingService {
                 .findByParticipantIdAndAttendanceDate(participant.getId(), now.toLocalDate())
                 .orElseThrow(AttendanceNotFoundException::new);
         return UserResponse.of(participant.getUser(), attendance.getStatus(),
-                getTardyCount(meeting.getEntranceTime(), now, participant));
+                countTardy(meeting.getEntranceTime(), now, participant));
     }
 
-    private int getTardyCount(final LocalTime entranceTime, final LocalDateTime now, final Participant participant) {
+    private int countTardy(final LocalTime entranceTime, final LocalDateTime now, final Participant participant) {
         final List<Attendance> attendances = getAttendancesByParticipant(entranceTime, now, participant);
 
         return (int) attendances.stream()
