@@ -176,21 +176,21 @@ public class MeetingService {
     }
 
     private int getTardyCount(final LocalTime entranceTime, final LocalDateTime now, final Participant participant) {
-        final boolean isOver = timeChecker.isExcessClosingTime(now.toLocalTime(), entranceTime);
-        final List<Attendance> attendances = getAttendancesByParticipant(isOver, participant, now.toLocalDate());
+        final List<Attendance> attendances = getAttendancesByParticipant(entranceTime, now, participant);
 
         return (int) attendances.stream()
                 .filter(attendance -> attendance.isSameStatus(Status.TARDY))
                 .count();
     }
 
-    private List<Attendance> getAttendancesByParticipant(final boolean isOver, final Participant participant,
-                                                         final LocalDate today) {
+    private List<Attendance> getAttendancesByParticipant(final LocalTime entranceTime, final LocalDateTime now,
+                                                         final Participant participant) {
+        final boolean isOver = timeChecker.isExcessClosingTime(now.toLocalTime(), entranceTime);
         if (isOver) {
             return attendanceRepository.findByParticipantId(participant.getId());
         }
 
-        return attendanceRepository.findByParticipantIdAndAttendanceDateNot(participant.getId(), today);
+        return attendanceRepository.findByParticipantIdAndAttendanceDateNot(participant.getId(), now.toLocalDate());
     }
 
     private void validateAttendanceTime(final Meeting meeting) {
