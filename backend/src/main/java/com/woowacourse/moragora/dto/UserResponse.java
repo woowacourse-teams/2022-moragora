@@ -14,7 +14,10 @@ public class UserResponse {
     private final String attendanceStatus;
     private final int tardyCount;
 
-    private UserResponse(final Long id, final String email, final String nickname, final String attendanceStatus,
+    private UserResponse(final Long id,
+                         final String email,
+                         final String nickname,
+                         final String attendanceStatus,
                          final int tardyCount) {
         this.id = id;
         this.email = email;
