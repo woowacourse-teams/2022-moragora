@@ -24,7 +24,7 @@ class RawPasswordTest {
     @Test
     void encode() {
         // given
-        final String value = "1234smart!";
+        final String value = "1234Pass!";
         final RawPassword rawPassword = new RawPassword(value);
 
         // when
