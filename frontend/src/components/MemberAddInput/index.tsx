@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import * as S from './MemberAddInput.styled';
 import useQuerySelectItems from 'hooks/useQuerySelectItems';
 import Input from 'components/@shared/Input';
 import { UserQueryWithKeywordResponse } from 'types/userType';
+import { userContext } from 'contexts/userContext';
 
 const MemberAddInput: React.FC<
   Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> &
@@ -20,6 +21,11 @@ const MemberAddInput: React.FC<
   ...props
 }) => {
   const [isDropdownOpened, setIsDropdownOpened] = useState(false);
+  const currentUserState = useContext(userContext);
+
+  const filteredQueryResult = queryResult.filter(
+    ({ id }) => id !== currentUserState?.user?.id
+  );
 
   const openDropdown = () => {
     setIsDropdownOpened(true);
@@ -62,9 +68,9 @@ const MemberAddInput: React.FC<
         }}
         {...props}
       />
-      {isDropdownOpened && queryResult.length > 0 && (
+      {isDropdownOpened && filteredQueryResult.length > 0 && (
         <S.QueryResultList>
-          {queryResult.map((user) => (
+          {filteredQueryResult.map((user) => (
             <S.QueryResultListItem
               key={user.id}
               onMouseDown={(e) => {
