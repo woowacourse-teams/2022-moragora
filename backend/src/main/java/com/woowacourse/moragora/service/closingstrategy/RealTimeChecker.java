@@ -35,6 +35,11 @@ public class RealTimeChecker extends TimeChecker {
     }
 
     @Override
+    public LocalTime calculateOpeningTime(final LocalTime entranceTime) {
+        return entranceTime.minusMinutes(ATTENDANCE_START_INTERVAL);
+    }
+
+    @Override
     public LocalTime calculateClosingTime(final LocalTime entranceTime) {
         return entranceTime.plusMinutes(ATTENDANCE_END_INTERVAL);
     }

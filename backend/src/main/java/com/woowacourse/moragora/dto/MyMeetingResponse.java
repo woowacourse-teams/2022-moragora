@@ -18,6 +18,8 @@ public class MyMeetingResponse {
     private final LocalDate startDate;
     private final LocalDate endDate;
     private final String entranceTime;
+    private final String leaveTime;
+    private final String openingTime;
     private final String closingTime;
     private final int tardyCount;
 
@@ -27,6 +29,8 @@ public class MyMeetingResponse {
                              final LocalDate startDate,
                              final LocalDate endDate,
                              final LocalTime entranceTime,
+                             final LocalTime leaveTime,
+                             final LocalTime openingTime,
                              final LocalTime closingTime,
                              final int tardyCount) {
         this.id = id;
@@ -35,6 +39,8 @@ public class MyMeetingResponse {
         this.startDate = startDate;
         this.endDate = endDate;
         this.entranceTime = entranceTime.format(TIME_FORMATTER);
+        this.leaveTime = leaveTime.format(TIME_FORMATTER);
+        this.openingTime = openingTime.format(TIME_FORMATTER);
         this.closingTime = closingTime.format(TIME_FORMATTER);
         this.tardyCount = tardyCount;
     }
@@ -51,6 +57,8 @@ public class MyMeetingResponse {
                 meeting.getStartDate(),
                 meeting.getEndDate(),
                 meeting.getEntranceTime(),
+                meeting.getLeaveTime(),
+                timeChecker.calculateOpeningTime(meeting.getEntranceTime()),
                 timeChecker.calculateClosingTime(meeting.getEntranceTime()),
                 tardyCount
         );
