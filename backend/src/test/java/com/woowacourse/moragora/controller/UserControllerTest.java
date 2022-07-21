@@ -13,9 +13,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.woowacourse.moragora.dto.EmailCheckResponse;
-import com.woowacourse.moragora.dto.SearchedUserResponse;
-import com.woowacourse.moragora.dto.SearchedUsersResponse;
 import com.woowacourse.moragora.dto.UserRequest;
+import com.woowacourse.moragora.dto.UserResponse;
+import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.exception.NoKeywordException;
 import com.woowacourse.moragora.exception.NoParameterException;
 import java.util.List;
@@ -133,19 +133,19 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String keyword = "foo";
 
-        final SearchedUsersResponse searchedUsersResponse = new SearchedUsersResponse(
+        final UsersResponse usersResponse = new UsersResponse(
                 List.of(
-                        new SearchedUserResponse(1L, "aaa111@foo.com", "아스피"),
-                        new SearchedUserResponse(2L, "bbb222@foo.com", "필즈"),
-                        new SearchedUserResponse(3L, "ccc333@foo.com", "포키"),
-                        new SearchedUserResponse(4L, "ddd444@foo.com", "썬"),
-                        new SearchedUserResponse(5L, "eee555@foo.com", "우디"),
-                        new SearchedUserResponse(6L, "fff666@foo.com", "쿤"),
-                        new SearchedUserResponse(7L, "ggg777@foo.com", "반듯"))
+                        new UserResponse(1L, "aaa111@foo.com", "아스피"),
+                        new UserResponse(2L, "bbb222@foo.com", "필즈"),
+                        new UserResponse(3L, "ccc333@foo.com", "포키"),
+                        new UserResponse(4L, "ddd444@foo.com", "썬"),
+                        new UserResponse(5L, "eee555@foo.com", "우디"),
+                        new UserResponse(6L, "fff666@foo.com", "쿤"),
+                        new UserResponse(7L, "ggg777@foo.com", "반듯"))
         );
 
         given(userService.searchByKeyword(keyword))
-                .willReturn(searchedUsersResponse);
+                .willReturn(usersResponse);
 
         // when
         final ResultActions resultActions = performGet("/users?keyword=" + keyword);
@@ -186,5 +186,35 @@ public class UserControllerTest extends ControllerTest {
         // then
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", equalTo("검색어가 입력되지 않았습니다.")));
+    }
+
+    @DisplayName("로그인한 회원의 정보를 조회한다.")
+    @Test
+    void findMe() throws Exception {
+        // given
+        final long id = 1L;
+        final String email = "foo@email.com";
+        final String nickname = "foo";
+        final UserResponse userResponse = new UserResponse(id, email, nickname);
+
+        validateToken("1");
+        given(userService.findById(id))
+                .willReturn(userResponse);
+
+        // when
+        final ResultActions resultActions = performGet("/users/me");
+
+        // then
+        resultActions
+                .andExpect(jsonPath("id").value(id))
+                .andExpect(jsonPath("email").value(email))
+                .andExpect(jsonPath("nickname").value(nickname))
+                .andDo(document("user/find-my-info",
+                        responseFields(
+                                fieldWithPath("id").type(JsonFieldType.NUMBER).description(1L),
+                                fieldWithPath("email").type(JsonFieldType.STRING).description("foo@email.com"),
+                                fieldWithPath("nickname").type(JsonFieldType.STRING).description("foo")
+                        )
+                ));
     }
 }

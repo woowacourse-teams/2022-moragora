@@ -20,8 +20,8 @@ import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
+import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
-import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.IllegalParticipantException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
@@ -270,9 +270,9 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void findOne() throws Exception {
         // given
-        final List<UserResponse> usersResponse = new ArrayList<>();
-        usersResponse.add(new UserResponse(1L, "abc@naver.com", "foo", Status.TARDY, 5));
-        usersResponse.add(new UserResponse(2L, "def@naver.com", "boo", Status.TARDY, 8));
+        final List<ParticipantResponse> participantResponses = new ArrayList<>();
+        participantResponses.add(new ParticipantResponse(1L, "abc@naver.com", "foo", Status.TARDY, 5));
+        participantResponses.add(new ParticipantResponse(2L, "def@naver.com", "boo", Status.TARDY, 8));
 
         final long id = 1L;
         final String name = "모임1";
@@ -282,7 +282,7 @@ class MeetingControllerTest extends ControllerTest {
         final LocalTime entranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
         final MeetingResponse meetingResponse = new MeetingResponse(id, name, attendanceCount, startDate, endDate,
-                entranceTime, leaveTime, usersResponse
+                entranceTime, leaveTime, participantResponses
         );
 
         validateToken("1");

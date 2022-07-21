@@ -35,6 +35,21 @@ class UserRepositoryTest {
         assertThat(savedUser.getId()).isNotNull();
     }
 
+    @DisplayName("id로 유저를 검색할 수 있다.")
+    @Test
+    void findById() {
+        // given, when
+        final EncodedPassword encodedPassword = EncodedPassword.fromRawValue("asdfqer1!");
+        final User savedUser = userRepository.save(new User("kun@naver.com", encodedPassword, "kun"));
+
+        // when
+        final User user = userRepository.findById(savedUser.getId()).get();
+
+        assertThat(user).usingRecursiveComparison()
+                .ignoringFields("id")
+                .isEqualTo(savedUser);
+    }
+
     @DisplayName("여러 id로 여러명의 유저를 검색할 수 있다.")
     @Test
     void findByIds() {

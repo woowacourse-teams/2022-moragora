@@ -10,8 +10,8 @@ import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
+import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
-import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.ClosingTimeExcessException;
@@ -209,13 +209,13 @@ class MeetingServiceTest {
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
                 List.of(
-                        new UserResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
-                        new UserResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
-                        new UserResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
-                        new UserResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
-                        new UserResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
-                        new UserResponse(6L, "fff666@foo.com", "쿤", Status.PRESENT, 0),
-                        new UserResponse(7L, "ggg777@foo.com", "반듯", Status.PRESENT, 0)
+                        new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
+                        new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
+                        new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
+                        new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
+                        new ParticipantResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
+                        new ParticipantResponse(6L, "fff666@foo.com", "쿤", Status.PRESENT, 0),
+                        new ParticipantResponse(7L, "ggg777@foo.com", "반듯", Status.PRESENT, 0)
                 )
         );
         given(currentDateTime.getValue())
@@ -243,13 +243,13 @@ class MeetingServiceTest {
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
                 List.of(
-                        new UserResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
-                        new UserResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 3),
-                        new UserResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
-                        new UserResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
-                        new UserResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
-                        new UserResponse(6L, "fff666@foo.com", "쿤", Status.PRESENT, 0),
-                        new UserResponse(7L, "ggg777@foo.com", "반듯", Status.PRESENT, 0)
+                        new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
+                        new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 3),
+                        new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
+                        new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
+                        new ParticipantResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
+                        new ParticipantResponse(6L, "fff666@foo.com", "쿤", Status.PRESENT, 0),
+                        new ParticipantResponse(7L, "ggg777@foo.com", "반듯", Status.PRESENT, 0)
                 )
         );
 

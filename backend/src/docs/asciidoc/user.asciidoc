@@ -56,3 +56,20 @@ include::{snippets}/user/keyword-search/http-response.adoc[]
 === Response fields
 
 include::{snippets}/user/keyword-search/response-fields.adoc[]
+
+[[findMyInfo]]
+== 로그인한 회원 정보 조회
+
+[[findMyInfo-success]]
+=== HTTP request
+
+include::{snippets}/user/find-my-info/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/user/find-my-info/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/user/find-my-info/response-fields.adoc[]
+

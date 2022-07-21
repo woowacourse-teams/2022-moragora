@@ -79,4 +79,17 @@ public class UserAcceptanceTest extends AcceptanceTest {
                         "fff666@foo.com",
                         "ggg777@foo.com"));
     }
+
+    @DisplayName("로그인 한 상태에서 자신의 회원정보를 요청하면 회원정보와 상태코드 200을 반환받는다.")
+    @Test
+    void findMe() {
+        // given, when
+        ValidatableResponse response = get("/users/me", signUpAndGetToken());
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("id", notNullValue())
+                .body("email", equalTo("test@naver.com"))
+                .body("nickname", equalTo("kun"));
+    }
 }

@@ -19,7 +19,7 @@ public class MeetingResponse {
     private final LocalDate endDate;
     private final String entranceTime;
     private final String leaveTime;
-    private final List<UserResponse> users;
+    private final List<ParticipantResponse> users;
 
     public MeetingResponse(final Long id,
                            final String name,
@@ -28,7 +28,7 @@ public class MeetingResponse {
                            final LocalDate endDate,
                            final LocalTime entranceTime,
                            final LocalTime leaveTime,
-                           final List<UserResponse> usersResponse) {
+                           final List<ParticipantResponse> usersResponse) {
         this.id = id;
         this.name = name;
         this.attendanceCount = attendanceCount;
@@ -40,7 +40,7 @@ public class MeetingResponse {
     }
 
     public static MeetingResponse of(final Meeting meeting,
-                                     final List<UserResponse> userResponses,
+                                     final List<ParticipantResponse> participantResponses,
                                      final long meetingAttendanceCount) {
         return new MeetingResponse(
                 meeting.getId(),
@@ -50,7 +50,7 @@ public class MeetingResponse {
                 meeting.getEndDate(),
                 meeting.getEntranceTime(),
                 meeting.getLeaveTime(),
-                userResponses
+                participantResponses
         );
     }
 }

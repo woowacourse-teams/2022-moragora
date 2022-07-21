@@ -36,3 +36,6 @@ out/
 
 ### MAC Template
 *.DS_Store
+
+### Rest Docs Resource
+/src/main/resources/static/docs

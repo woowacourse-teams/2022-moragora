@@ -4,8 +4,8 @@ import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
+import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
-import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
@@ -95,11 +95,11 @@ public class MeetingService {
 
         putAttendanceIfAbsent(participants, now);
 
-        final List<UserResponse> userResponses = participants.stream()
+        final List<ParticipantResponse> participantResponses = participants.stream()
                 .map(participant -> generateUserResponse(meeting, now, participant))
                 .collect(Collectors.toList());
 
-        return MeetingResponse.of(meeting, userResponses, getMeetingAttendanceCount(participants.get(0)));
+        return MeetingResponse.of(meeting, participantResponses, getMeetingAttendanceCount(participants.get(0)));
     }
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
@@ -115,7 +115,6 @@ public class MeetingService {
 
     // TODO update (1 + N) -> 최적하기
     // TODO 출석 제출할 때 구현 예정
-
     @Transactional
     public void updateAttendance(final Long meetingId,
                                  final Long userId,
@@ -170,12 +169,12 @@ public class MeetingService {
         }
     }
 
-    private UserResponse generateUserResponse(final Meeting meeting, final LocalDateTime now,
-                                              final Participant participant) {
+    private ParticipantResponse generateUserResponse(final Meeting meeting, final LocalDateTime now,
+                                                     final Participant participant) {
         final Attendance attendance = attendanceRepository
                 .findByParticipantIdAndAttendanceDate(participant.getId(), now.toLocalDate())
                 .orElseThrow(AttendanceNotFoundException::new);
-        return UserResponse.of(participant.getUser(), attendance.getStatus(),
+        return ParticipantResponse.of(participant.getUser(), attendance.getStatus(),
                 countTardy(meeting.getEntranceTime(), now, participant));
     }
 
@@ -200,7 +199,7 @@ public class MeetingService {
     private MyMeetingResponse generateMyMeetingResponse(final LocalDateTime now, final Participant participant) {
         final Meeting meeting = participant.getMeeting();
         return MyMeetingResponse.of(now.toLocalTime(), timeChecker, meeting,
-                getTardyCount(meeting.getEntranceTime(), now, participant));
+                countTardy(meeting.getEntranceTime(), now, participant));
     }
 
     private void validateAttendanceTime(final Meeting meeting) {
