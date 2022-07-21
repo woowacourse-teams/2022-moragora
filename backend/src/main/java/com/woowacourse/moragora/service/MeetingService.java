@@ -114,19 +114,16 @@ public class MeetingService {
         final LocalDateTime now = currentDateTime.getValue();
         final List<Participant> participants = participantRepository.findByUserId(userId);
 
-        final List<MyMeetingResponse> meetingResponses = new ArrayList<>();
+        final List<MyMeetingResponse> myMeetingResponses = participants.stream()
+                .map(participant -> getMyMeetings(now, participant))
+                .collect(Collectors.toList());
 
-        for (final Participant participant : participants) {
-            final Meeting meeting = participant.getMeeting();
-            meetingResponses.add(MyMeetingResponse.of(now.toLocalTime(), timeChecker, meeting,
-                    getTardyCount(meeting.getEntranceTime(), now, participant)));
-        }
-
-        return MyMeetingsResponse.of(now, meetingResponses);
+        return MyMeetingsResponse.of(now, myMeetingResponses);
     }
 
     // TODO update (1 + N) -> 최적하기
     // TODO 출석 제출할 때 구현 예정
+
     @Transactional
     public void updateAttendance(final Long meetingId,
                                  final Long userId,
@@ -147,7 +144,7 @@ public class MeetingService {
 
         attendance.changeAttendanceStatus(request.getAttendanceStatus());
     }
-
+    
     private Meeting findMeeting(final Long id) {
         return meetingRepository.findById(id)
                 .orElseThrow(MeetingNotFoundException::new);
@@ -197,6 +194,12 @@ public class MeetingService {
         }
 
         return attendanceRepository.findByParticipantIdAndAttendanceDateNot(participant.getId(), now.toLocalDate());
+    }
+
+    private MyMeetingResponse getMyMeetings(final LocalDateTime now, final Participant participant) {
+        final Meeting meeting = participant.getMeeting();
+        return MyMeetingResponse.of(now.toLocalTime(), timeChecker, meeting,
+                getTardyCount(meeting.getEntranceTime(), now, participant));
     }
 
     private void validateAttendanceTime(final Meeting meeting) {
