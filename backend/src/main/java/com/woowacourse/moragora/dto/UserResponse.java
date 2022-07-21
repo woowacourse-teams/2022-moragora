@@ -14,26 +14,22 @@ public class UserResponse {
     private final String attendanceStatus;
     private final int tardyCount;
 
-    public UserResponse(final Long id,
-                        final String email,
-                        final String nickname,
-                        final Status attendanceStatus,
-                        final int tardyCount) {
-        this.id = id;
-        this.email = email;
-        this.nickname = nickname;
-        this.attendanceStatus = attendanceStatus.name()
-                .toLowerCase(Locale.ROOT);
-        this.tardyCount = tardyCount;
-    }
-
-    public UserResponse(final Long id, final String email, final String nickname, final String attendanceStatus,
-                        final int tardyCount) {
+    private UserResponse(final Long id, final String email, final String nickname, final String attendanceStatus,
+                         final int tardyCount) {
         this.id = id;
         this.email = email;
         this.nickname = nickname;
         this.attendanceStatus = attendanceStatus;
         this.tardyCount = tardyCount;
+    }
+
+    public UserResponse(final Long id,
+                        final String email,
+                        final String nickname,
+                        final Status attendanceStatus,
+                        final int tardyCount) {
+        this(id, email, nickname,
+                attendanceStatus.name().toLowerCase(Locale.ROOT), tardyCount);
     }
 
     public static UserResponse of(final User foundUser, final Status attendanceStatus, final int tardyCount) {
