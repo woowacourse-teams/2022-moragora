@@ -101,7 +101,7 @@ public class MeetingService {
     }
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
-        final LocalTime now = LocalTime.now();
+        final LocalDateTime now = LocalDateTime.now();
         final List<Participant> participants = participantRepository.findByUserId(userId);
         final List<Meeting> meetings = participants.stream()
                 .map(Participant::getMeeting)

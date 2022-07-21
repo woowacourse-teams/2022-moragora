@@ -25,7 +25,9 @@ import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -304,7 +306,7 @@ class MeetingControllerTest extends ControllerTest {
                 LocalTime.of(9, 0),
                 LocalTime.of(9, 5)
         );
-        final LocalTime now = LocalTime.of(10, 1);
+        final LocalDateTime now = LocalTime.of(10, 1).atDate(LocalDate.now());
         final MyMeetingsResponse meetingsResponse = MyMeetingsResponse.of(now, new FakeTimeChecker(),
                 List.of(meeting1, meeting2));
 
@@ -319,7 +321,7 @@ class MeetingControllerTest extends ControllerTest {
         // then
         performGet("/meetings/me")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.serverTime", is("10:01:00")))
+                .andExpect(jsonPath("$.serverTime", is(Timestamp.valueOf(now).getTime())))
                 .andExpect(jsonPath("$.meetings[*].name", containsInAnyOrder("모임1", "모임2")))
                 .andExpect(jsonPath("$.meetings[*].active", containsInAnyOrder(true, true)))
                 .andExpect(jsonPath("$.meetings[*].startDate", containsInAnyOrder("2022-07-10", "2022-07-15")))
