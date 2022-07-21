@@ -9,7 +9,7 @@ public enum Status {
     @JsonCreator
     public static Status fromEnum(String value) {
         for (Status status : Status.values()) {
-            if (status.name().equals(value)) {
+            if (status.name().equalsIgnoreCase(value)) {
                 return status;
             }
         }
