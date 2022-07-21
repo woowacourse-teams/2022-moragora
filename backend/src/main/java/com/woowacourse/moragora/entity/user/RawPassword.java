@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 public class RawPassword {
 
-    private static final String REGEX = "^(?=.*[0-9])(?=.*[a-z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,30}$";
+    private static final String REGEX = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,30}$";
     private static final Pattern PATTERN = Pattern.compile(REGEX);
 
     private final String value;

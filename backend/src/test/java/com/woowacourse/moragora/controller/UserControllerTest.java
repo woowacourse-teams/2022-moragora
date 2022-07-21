@@ -35,7 +35,7 @@ public class UserControllerTest extends ControllerTest {
     void signUp() throws Exception {
         // given
         final String email = "kun@email.com";
-        final String password = "1234asdfg!";
+        final String password = "1234Asdfg!";
         final String nickname = "kun";
         final UserRequest userRequest = new UserRequest(email, password, nickname);
 
@@ -62,14 +62,14 @@ public class UserControllerTest extends ControllerTest {
     @DisplayName("회원 가입 양식이 잘못된 경우 예외를 발생한다.")
     @ParameterizedTest
     @CsvSource(value = {
-            "kun,1234smart!,kun",
-            "kun@email.com,1234smart,kun",
+            "kun,1234pass!,kun",
+            "kun@email.com,1234pass,kun",
             "kun@email.com,1234!!!!,쿤",
-            "kun@email.com,smart!!!!,kun",
-            "kun@email.com,smart1!,kun",
-            "kun@email.com,1234smart!,kunasdf!!!!",
-            "kun@email.com,1234smart!,forkyforkyforkyy",
-            "kun@email.com,1234smart!,forky forky",
+            "kun@email.com,pass!!!!,kun",
+            "kun@email.com,pass1!,kun",
+            "kun@email.com,1234pass!,kunasdf!!!!",
+            "kun@email.com,1234pass!,forkyforkyforkyy",
+            "kun@email.com,1234pass!,forky forky",
             "kun@a,1234adsfg!,kun",
     })
     void signUp_throwsException_ifInputValueIsInvalid(final String email, final String password, final String nickname)
