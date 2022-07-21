@@ -15,7 +15,7 @@ public class RealTimeChecker extends TimeChecker {
     @Override
     public boolean isAttendanceTime(final LocalTime now, final LocalTime entranceTime) {
         final LocalTime attendanceStartTime = entranceTime.minusMinutes(ATTENDANCE_START_INTERVAL);
-        final LocalTime attendanceClosingTime = now.plusMinutes(ATTENDANCE_END_INTERVAL);
+        final LocalTime attendanceClosingTime = entranceTime.plusMinutes(ATTENDANCE_END_INTERVAL);
 
         return (now.isAfter(attendanceStartTime) && now.isBefore(attendanceClosingTime)) ||
                 now.equals(attendanceStartTime);
