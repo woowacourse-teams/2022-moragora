@@ -1,10 +1,10 @@
-import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
 import { BrowserRouter } from 'react-router-dom';
-import { css, ThemeProvider } from '@emotion/react';
-import { theme } from './styles/themes/theme';
-import GlobalStyles from './styles/GlobalStyles';
+import { ThemeProvider } from '@emotion/react';
+import App from './App';
+import { theme } from 'styles/themes/theme';
+import GlobalStyles from 'styles/GlobalStyles';
+import { UserContextProvider } from 'contexts/userContext';
 
 if (process.env.NODE_ENV === 'development') {
   const { worker } = require('./mocks/browser');
@@ -13,10 +13,12 @@ if (process.env.NODE_ENV === 'development') {
 
 ReactDOM.render(
   <BrowserRouter>
-    <GlobalStyles />
-    <ThemeProvider theme={theme}>
-      <App />
-    </ThemeProvider>
+    <UserContextProvider>
+      <GlobalStyles />
+      <ThemeProvider theme={theme}>
+        <App />
+      </ThemeProvider>
+    </UserContextProvider>
   </BrowserRouter>,
   document.getElementById('root')
 );

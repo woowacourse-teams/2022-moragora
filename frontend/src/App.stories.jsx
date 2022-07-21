@@ -1,4 +1,3 @@
-import React from 'react';
 import App from './App';
 
 export default {
@@ -7,7 +6,7 @@ export default {
 };
 
 const Template = (args) => {
-  return <App></App>;
+  return <App {...args} />;
 };
 
 export const Default = Template.bind({});

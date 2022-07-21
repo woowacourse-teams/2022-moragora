@@ -1,7 +1,6 @@
 package com.woowacourse.moragora.repository;
 
 import com.woowacourse.moragora.entity.Attendance;
-import com.woowacourse.moragora.entity.Participant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -35,12 +34,23 @@ public class AttendanceRepository {
                 .getResultList();
     }
 
+    public long findAttendanceCountById(final Long participantId) {
+        return entityManager.createQuery(
+                "select count(distinct a.attendanceDate) from Attendance a "
+                        + "where a.participant.id = :id", Long.class)
+                .setParameter("id", participantId)
+                .getSingleResult();
+    }
+
     public Optional<Attendance> findByParticipantIdAndAttendanceDate(final Long participantId,
                                                                      final LocalDate attendanceDate) {
         try {
-            final Attendance attendance = entityManager.createQuery(
-                            "select a from Attendance a where a.participant.id = :participantId and a.attendanceDate = :attendanceDate",
-                            Attendance.class)
+            final String sql =
+                    "select a from Attendance a "
+                            + "where a.participant.id = :participantId "
+                            + "and a.attendanceDate = :attendanceDate";
+
+            final Attendance attendance = entityManager.createQuery(sql, Attendance.class)
                     .setParameter("participantId", participantId)
                     .setParameter("attendanceDate", attendanceDate)
                     .getSingleResult();
@@ -50,17 +60,28 @@ public class AttendanceRepository {
         }
     }
 
-    public Optional<Participant> findByMeetingIdAndUserId(final Long meetingId, final Long userId) {
-        try {
-            final Participant participant = entityManager.createQuery(
-                            "select p from Participant p where p.meeting.id = :meetingId and p.user.id = :userId",
-                            Participant.class)
-                    .setParameter("meetingId", meetingId)
-                    .setParameter("userId", userId)
-                    .getSingleResult();
-            return Optional.ofNullable(participant);
-        } catch (NoResultException exception) {
-            return Optional.empty();
-        }
+    public List<Attendance> findByParticipantIds(final List<Long> participantIds) {
+        return entityManager.createQuery("select a from Attendance a where a.participant.id in :participantIds",
+                Attendance.class)
+                .setParameter("participantIds", participantIds)
+                .getResultList();
+    }
+
+    public List<Attendance> findByParticipantIdsAndAttendanceDate(final List<Long> participantIds,
+                                                                  final LocalDate attendanceDate) {
+        return entityManager.createQuery("select a from Attendance a "
+                        + "where a.participant.id in :participantIds and a.attendanceDate = :attendanceDate",
+                Attendance.class)
+                .setParameter("participantIds", participantIds)
+                .setParameter("attendanceDate", attendanceDate)
+                .getResultList();
+    }
+
+    public List<Attendance> findByParticipantIdAndAttendanceDateNot(final Long participantId, final LocalDate today) {
+        return entityManager.createQuery("select a from Attendance a where a.participant.id = :participantId "
+                + "and a.attendanceDate <> :today", Attendance.class)
+                .setParameter("participantId", participantId)
+                .setParameter("today", today)
+                .getResultList();
     }
 }

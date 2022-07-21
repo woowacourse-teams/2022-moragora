@@ -1,29 +1,21 @@
 import React from 'react';
 import * as S from './CoffeeStackItem.styled';
 import CoffeeIconSVG from '../../assets/coffee.svg';
+import { MeetingWithTardyCount } from 'types/meetingType';
 
-type Meeting = {
-  id: number;
-  name: string;
-  startDate: string;
-  endDate: string;
-  entranceTime: string;
-  leaveTime: string;
-  attendanceCount: number;
-};
+type CoffeeStackItemProps = Pick<MeetingWithTardyCount, 'name' | 'tardyCount'>;
 
-type CoffeeStackItemProps = {
-  name: Pick<Meeting, 'name'>['name'];
-};
-
-const CoffeeStackItem: React.FC<CoffeeStackItemProps> = ({ name }) => {
+const CoffeeStackItem: React.FC<CoffeeStackItemProps> = ({
+  name,
+  tardyCount,
+}) => {
   return (
     <S.Layout>
       <span>{name}</span>
       <S.Box>
-        <S.CoffeeIconImage src={CoffeeIconSVG} />
-        <S.CoffeeIconImage src={CoffeeIconSVG} />
-        <S.CoffeeIconImage src={CoffeeIconSVG} />
+        {Array.from({ length: tardyCount }).map((_, index) => (
+          <S.CoffeeIconImage key={index} src={CoffeeIconSVG} />
+        ))}
       </S.Box>
     </S.Layout>
   );

@@ -1,31 +1,36 @@
 package com.woowacourse.moragora.controller;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.doThrow;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.woowacourse.auth.support.JwtTokenProvider;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.exception.IllegalParticipantException;
 import com.woowacourse.moragora.exception.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.ParticipantNotFoundException;
+import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
-import com.woowacourse.moragora.service.MeetingService;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,55 +41,44 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.test.web.servlet.ResultActions;
 
-@WebMvcTest(controllers = {MeetingController.class})
-class MeetingControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockBean
-    private MeetingService meetingService;
-
-    @MockBean
-    private JwtTokenProvider jwtTokenProvider;
+class MeetingControllerTest extends ControllerTest {
 
     @DisplayName("미팅 방을 생성한다.")
     @Test
     void add() throws Exception {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
-        );
+        final String name = "모임1";
+        final LocalDate startDate = LocalDate.of(2022, 7, 10);
+        final LocalDate endDate = LocalDate.of(2022, 8, 10);
+        final LocalTime entranceTime = LocalTime.of(10, 0);
+        final LocalTime leaveTime = LocalTime.of(18, 0);
+        final List<Long> userIds = List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L);
 
-        // when
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
-        given(meetingService.save(any(MeetingRequest.class), eq(1L)))
+        final MeetingRequest meetingRequest = new MeetingRequest(name, startDate, endDate, entranceTime, leaveTime,
+                userIds);
+
+        final Long loginId = validateToken("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
                 .willReturn(1L);
+        // when
+        final ResultActions resultActions = performPost("/meetings", meetingRequest);
 
         // then
-        mockMvc.perform(post("/meetings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(meetingRequest)))
-                .andDo(print())
-                .andExpect(status().isCreated())
-                .andExpect(header().string("Location", equalTo("/meetings/" + 1)));
+        resultActions.andExpect(status().isCreated())
+                .andExpect(header().string("Location", equalTo("/meetings/" + 1)))
+                .andDo(document("meeting/create-meeting",
+                        requestFields(
+                                fieldWithPath("name").type(JsonFieldType.STRING).description(name),
+                                fieldWithPath("startDate").type(JsonFieldType.STRING).description(startDate),
+                                fieldWithPath("endDate").type(JsonFieldType.STRING).description(endDate),
+                                fieldWithPath("entranceTime").type(JsonFieldType.STRING).description(entranceTime),
+                                fieldWithPath("leaveTime").type(JsonFieldType.STRING).description(leaveTime),
+                                fieldWithPath("userIds").type(JsonFieldType.ARRAY).description(userIds)
+                        )
+                ));
     }
 
     @DisplayName("미팅 방을 생성 시 시작 날짜보다 종료 날짜가 이른 경우 예외가 발생한다.")
@@ -100,20 +94,15 @@ class MeetingControllerTest {
                 List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
 
-        // when
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
-        given(meetingService.save(any(MeetingRequest.class), eq(1L)))
+        final Long loginId = validateToken("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
                 .willThrow(new IllegalStartEndDateException());
 
+        // when
+        final ResultActions resultActions = performPost("/meetings", meetingRequest);
+
         // then
-        mockMvc.perform(post("/meetings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(meetingRequest)))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
+        resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
                         .value("시작 날짜보다 종료 날짜가 이를 수 없습니다."));
     }
@@ -134,18 +123,13 @@ class MeetingControllerTest {
                 List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
 
+        validateToken("1");
+
         // when
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
+        final ResultActions resultActions = performPost("/meetings", meetingRequest);
 
         // then
-        mockMvc.perform(post("/meetings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(meetingRequest)))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
+        resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
                         .value("모임 이름은 50자를 초과할 수 없습니다."));
     }
@@ -170,20 +154,115 @@ class MeetingControllerTest {
         params.put("entranceTime", entranceTime);
         params.put("leaveTime", leaveTime);
 
+        validateToken("1");
+
         // when
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
+        final ResultActions resultActions = performPost("/meetings", params);
 
         // then
-        mockMvc.perform(post("/meetings")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(params)))
-                .andDo(print())
-                .andExpect(status().isBadRequest())
+        resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
                         .value("입력 형식이 올바르지 않습니다."));
+    }
+
+    @DisplayName("미팅 방을 생성 시 참가자 명단에 중복 아이디가 있을 경우 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifUserIdsDuplicate() throws Exception {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 6, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(2L, 2L, 3L, 4L, 5L, 6L, 7L)
+        );
+        final Long loginId = validateToken("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
+                .willThrow(new IllegalParticipantException("참가자 명단에 중복이 있습니다."));
+
+        // when
+        final ResultActions resultActions = performPost("/meetings", meetingRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("참가자 명단에 중복이 있습니다."));
+    }
+
+    @DisplayName("미팅 방을 생성 시 참가자 명단이 비어있을 경우 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifUserIdsEmpty() throws Exception {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 6, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of()
+        );
+        final Long loginId = validateToken("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
+                .willThrow(new IllegalParticipantException("생성자를 제외한 참가자가 없습니다."));
+
+        // when
+        final ResultActions resultActions = performPost("/meetings", meetingRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("생성자를 제외한 참가자가 없습니다."));
+    }
+
+    @DisplayName("미팅 방을 생성 시 참가자 명단에 생성자 아이디가 있을 경우 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifUserIdsContainLoginId() throws Exception {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 6, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
+        );
+        final Long loginId = validateToken("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
+                .willThrow(new IllegalParticipantException("생성자가 참가자 명단에 포함되어 있습니다."));
+
+        // when
+        final ResultActions resultActions = performPost("/meetings", meetingRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("생성자가 참가자 명단에 포함되어 있습니다."));
+    }
+
+    @DisplayName("미팅 방을 생성 시 참가자 명단에 존재하지 않는 아이디가 있을 경우 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifUserIdNotExist() throws Exception {
+        // given
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 6, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(1L, 2L, 3L, 4L, 5L, 6L, 8L)
+        );
+        final Long loginId = validateToken("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
+                .willThrow(new UserNotFoundException());
+
+        // when
+        final ResultActions resultActions = performPost("/meetings", meetingRequest);
+
+        // then
+        resultActions.andExpect(status().isNotFound())
+                .andExpect(jsonPath("message")
+                        .value("유저가 존재하지 않습니다."));
     }
 
     // TODO userResponse 테스트 작성
@@ -192,40 +271,110 @@ class MeetingControllerTest {
     void findOne() throws Exception {
         // given
         final List<UserResponse> usersResponse = new ArrayList<>();
-        usersResponse.add(new UserResponse(1L, "abc@naver.com", "foo", 5));
-        usersResponse.add(new UserResponse(2L, "def@naver.com", "boo", 8));
+        usersResponse.add(new UserResponse(1L, "abc@naver.com", "foo", Status.TARDY, 5));
+        usersResponse.add(new UserResponse(2L, "def@naver.com", "boo", Status.TARDY, 8));
 
-        final MeetingResponse meetingResponse = new MeetingResponse(
-                1L,
-                "모임1",
-                0,
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                usersResponse
+        final long id = 1L;
+        final String name = "모임1";
+        final int attendanceCount = 0;
+        final LocalDate startDate = LocalDate.of(2022, 7, 10);
+        final LocalDate endDate = LocalDate.of(2022, 8, 10);
+        final LocalTime entranceTime = LocalTime.of(10, 0);
+        final LocalTime leaveTime = LocalTime.of(18, 0);
+        final MeetingResponse meetingResponse = new MeetingResponse(id, name, attendanceCount, startDate, endDate,
+                entranceTime, leaveTime, usersResponse
         );
 
-        // when
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
-        given(meetingService.findById(eq(1L), eq(1L)))
+        validateToken("1");
+        given(meetingService.findById(eq(1L)))
                 .willReturn(meetingResponse);
 
+        // when
+        final ResultActions resultActions = performGet("/meetings/1");
+
         // then
-        mockMvc.perform(get("/meetings/1")
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
+        resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", equalTo(1)))
                 .andExpect(jsonPath("$.name", equalTo("모임1")))
                 .andExpect(jsonPath("$.attendanceCount", equalTo(0)))
                 .andExpect(jsonPath("$.startDate", equalTo("2022-07-10")))
                 .andExpect(jsonPath("$.endDate", equalTo("2022-08-10")))
-                .andExpect(jsonPath("$.entranceTime", equalTo("10:00:00")))
-                .andExpect(jsonPath("$.leaveTime", equalTo("18:00:00")));
+                .andExpect(jsonPath("$.entranceTime", equalTo("10:00")))
+                .andExpect(jsonPath("$.leaveTime", equalTo("18:00")))
+                .andExpect(jsonPath("$.users[*].id", containsInAnyOrder(1, 2)))
+                .andExpect(jsonPath("$.users[*].email", containsInAnyOrder("abc@naver.com", "def@naver.com")))
+                .andExpect(jsonPath("$.users[*].nickname", containsInAnyOrder("foo", "boo")))
+                .andExpect(jsonPath("$.users[*].attendanceStatus", containsInAnyOrder("tardy", "tardy")))
+                .andExpect(jsonPath("$.users[*].tardyCount", containsInAnyOrder(5, 8)))
+                .andDo(document("meeting/find-one-meeting",
+                        responseFields(
+                                fieldWithPath("id").type(JsonFieldType.NUMBER).description(1L),
+                                fieldWithPath("name").type(JsonFieldType.STRING).description(name),
+                                fieldWithPath("attendanceCount").type(JsonFieldType.NUMBER)
+                                        .description(attendanceCount),
+                                fieldWithPath("startDate").type(JsonFieldType.STRING).description(startDate),
+                                fieldWithPath("endDate").type(JsonFieldType.STRING).description(endDate),
+                                fieldWithPath("entranceTime").type(JsonFieldType.STRING).description(entranceTime),
+                                fieldWithPath("leaveTime").type(JsonFieldType.STRING).description(leaveTime),
+                                fieldWithPath("users[].id").type(JsonFieldType.NUMBER).description(1L),
+                                fieldWithPath("users[].email").type(JsonFieldType.STRING).description("abc@email.com"),
+                                fieldWithPath("users[].nickname").type(JsonFieldType.STRING).description("foo"),
+                                fieldWithPath("users[].attendanceStatus").type(JsonFieldType.STRING)
+                                        .description("tardy"),
+                                fieldWithPath("users[].tardyCount").type(JsonFieldType.NUMBER).description(5)
+                        )
+                ));
+    }
+
+    @DisplayName("유저가 소속된 모든 미팅 방을 조회한다.")
+    @Test
+    void findAllByUserId() throws Exception {
+        // given
+        final LocalDateTime now = LocalTime.of(10, 1).atDate(LocalDate.now());
+        final MyMeetingResponse myMeetingResponse = new MyMeetingResponse(1L, "모임1", true, LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10), LocalTime.of(10, 0), LocalTime.of(10, 5));
+
+        final MyMeetingResponse myMeetingResponse2 = new MyMeetingResponse(2L, "모임2", true, LocalDate.of(2022, 7, 15),
+                LocalDate.of(2022, 8, 15), LocalTime.of(9, 0), LocalTime.of(9, 5));
+
+        final MyMeetingsResponse meetingsResponse = new MyMeetingsResponse(Timestamp.valueOf(now).getTime(),
+                List.of(myMeetingResponse, myMeetingResponse2));
+
+        validateToken("1");
+
+        // when
+        given(meetingService.findAllByUserId(eq(1L)))
+                .willReturn(meetingsResponse);
+
+        // then
+        performGet("/meetings/me")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.serverTime", is(Timestamp.valueOf(now).getTime())))
+                .andExpect(jsonPath("$.meetings[*].id", containsInAnyOrder(1, 2)))
+                .andExpect(jsonPath("$.serverTime", is(Timestamp.valueOf(now).getTime())))
+                .andExpect(jsonPath("$.meetings[*].name", containsInAnyOrder("모임1", "모임2")))
+                .andExpect(jsonPath("$.meetings[*].isActive", containsInAnyOrder(true, true)))
+                .andExpect(jsonPath("$.meetings[*].startDate", containsInAnyOrder("2022-07-10", "2022-07-15")))
+                .andExpect(jsonPath("$.meetings[*].endDate", containsInAnyOrder("2022-08-10", "2022-08-15")))
+                .andExpect(jsonPath("$.meetings[*].entranceTime", containsInAnyOrder("09:00", "10:00")))
+                .andExpect(jsonPath("$.meetings[*].closingTime", containsInAnyOrder("09:05", "10:05")))
+                .andDo(document("meeting/find-my-meetings",
+                        responseFields(
+                                fieldWithPath("serverTime").type(JsonFieldType.NUMBER)
+                                        .description(Timestamp.valueOf(now).getTime()),
+                                fieldWithPath("meetings[].id").type(JsonFieldType.NUMBER).description(1L),
+                                fieldWithPath("meetings[].name").type(JsonFieldType.STRING).description("모임1"),
+                                fieldWithPath("meetings[].isActive").type(JsonFieldType.BOOLEAN).description(true),
+                                fieldWithPath("meetings[].startDate").type(JsonFieldType.STRING)
+                                        .description("2022-07-10"),
+                                fieldWithPath("meetings[].endDate").type(JsonFieldType.STRING)
+                                        .description("2022-08-10"),
+                                fieldWithPath("meetings[].entranceTime").type(JsonFieldType.STRING)
+                                        .description("09:00"),
+                                fieldWithPath("meetings[].closingTime").type(JsonFieldType.STRING)
+                                        .description("09:05")
+                        )
+                ));
     }
 
     @DisplayName("사용자 출석여부를 반영한다.")
@@ -236,17 +385,18 @@ class MeetingControllerTest {
         final Long userId = 1L;
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
+        validateToken("1");
 
-        // when, then
-        mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andDo(print())
-                .andExpect(status().isNoContent());
+        // when
+        final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
+
+        // then
+        resultActions.andExpect(status().isNoContent())
+                .andDo(document("meeting/enter-Attendance",
+                        requestFields(
+                                fieldWithPath("attendanceStatus").type(JsonFieldType.STRING).description("present")
+                        )
+                ));
     }
 
     @DisplayName("출석을 제출하려는 방이 존재하지 않는 경우 예외가 발생한다.")
@@ -257,21 +407,17 @@ class MeetingControllerTest {
         final Long userId = 1L;
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
+        validateToken("1");
 
         doThrow(MeetingNotFoundException.class)
                 .when(meetingService)
-                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class), eq(1L));
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
 
-        // when, then
-        mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andDo(print())
-                .andExpect(status().isNotFound());
+        // when
+        final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
+
+        //then
+        resultActions.andExpect(status().isNotFound());
     }
 
     @DisplayName("출석을 제출하려는 사용자가 미팅에 존재하지 않으면 예외가 발생한다.")
@@ -282,20 +428,16 @@ class MeetingControllerTest {
         final Long userId = 8L;
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
-        given(jwtTokenProvider.getPayload(any()))
-                .willReturn("1");
+        validateToken("1");
 
         doThrow(ParticipantNotFoundException.class)
                 .when(meetingService)
-                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class), eq(1L));
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
 
-        // when, then
-        mockMvc.perform(put("/meetings/" + meetingId + "/users/" + userId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andDo(print())
-                .andExpect(status().isNotFound());
+        // when
+        final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
+
+        // then
+        resultActions.andExpect(status().isNotFound());
     }
 }

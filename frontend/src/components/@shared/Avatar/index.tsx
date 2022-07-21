@@ -1,6 +1,6 @@
 import React from 'react';
-import AvatarIconSVG from '../../../assets/avatar.svg';
 import * as S from './Avatar.styled';
+import AvatarIconSVG from 'assets/avatar.svg';
 
 const Avatar = () => {
   return (

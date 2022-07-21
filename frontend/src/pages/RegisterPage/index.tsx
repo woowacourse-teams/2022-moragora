@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
-import Input from '../../components/@shared/Input';
-import * as S from './RegisterPage.styled';
-import useForm from '../../hooks/useForm';
 import { useNavigate } from 'react-router-dom';
-import InputHint from '../../components/@shared/InputHint';
+import * as S from './RegisterPage.styled';
+import Input from 'components/@shared/Input';
+import InputHint from 'components/@shared/InputHint';
+import useForm from 'hooks/useForm';
+import useContextValues from 'hooks/useContextValues';
+import { userContext, UserContextValues } from 'contexts/userContext';
+import { GetMeDataResponseBody } from 'types/userType';
+import { TOKEN_ERROR_STATUS_CODES } from 'consts';
 
 const checkEmail = async (url: string) => {
   return fetch(url, {
@@ -13,6 +17,7 @@ const checkEmail = async (url: string) => {
     },
   });
 };
+
 const submitData = async (url: string, payload: any) => {
   return fetch(url, {
     method: 'POST',
@@ -23,8 +28,21 @@ const submitData = async (url: string, payload: any) => {
   });
 };
 
+const getMeData = (url: string, accessToken: string) => {
+  return fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+};
+
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const { login, logout } = useContextValues<UserContextValues>(
+    userContext
+  ) as UserContextValues;
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
   const [isEmailExist, setIsEmailExist] = useState(true);
   const [isValidPasswordConfirm, setIsValidPasswordConfirm] = useState(true);
@@ -55,6 +73,7 @@ const RegisterPage = () => {
 
     const target = e.target as HTMLFormElement;
     const formData = new FormData(target);
+    formData.delete('passwordConfirm');
     const formDataObject = Object.fromEntries(formData.entries());
 
     const registerRes = await submitData('/users', formDataObject);
@@ -76,7 +95,22 @@ const RegisterPage = () => {
 
     const accessToken = await loginRes.json().then((data) => data.accessToken);
 
-    navigate('/meeting');
+    const getMeResponse = await getMeData('/users/me', accessToken);
+    if (!getMeResponse.ok) {
+      if (TOKEN_ERROR_STATUS_CODES.includes(getMeResponse.status)) {
+        logout();
+      }
+
+      throw new Error('요청에 실패했습니다.');
+
+      alert('내 정보 가져오기 실패');
+      return;
+    }
+
+    const MeData = (await getMeResponse.json()) as GetMeDataResponseBody;
+
+    login(MeData, accessToken);
+    navigate('/');
   };
 
   return (
@@ -96,9 +130,12 @@ const RegisterPage = () => {
                 })}
               />
               <S.EmailCheckButton
+                type="button"
                 variant="confirm"
                 onClick={handleCheckEmailButtonClick}
-                disabled={!isEmailExist}
+                disabled={
+                  !values['email'] || errors['email'] !== '' || !isEmailExist
+                }
               >
                 중복확인
               </S.EmailCheckButton>

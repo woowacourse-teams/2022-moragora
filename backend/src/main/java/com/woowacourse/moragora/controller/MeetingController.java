@@ -4,6 +4,7 @@ import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.service.MeetingService;
 import java.net.URI;
@@ -36,10 +37,15 @@ public class MeetingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MeetingResponse> findOne(@PathVariable final Long id,
-                                                   @AuthenticationPrincipal final Long loginId) {
-        final MeetingResponse meetingResponse = meetingService.findById(id, loginId);
+    public ResponseEntity<MeetingResponse> findOne(@PathVariable final Long id) {
+        final MeetingResponse meetingResponse = meetingService.findById(id);
         return ResponseEntity.ok(meetingResponse);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<MyMeetingsResponse> findMy(@AuthenticationPrincipal final Long id) {
+        final MyMeetingsResponse meetingsResponse = meetingService.findAllByUserId(id);
+        return ResponseEntity.ok(meetingsResponse);
     }
 
     @PutMapping("/{meetingId}/users/{userId}")
@@ -47,7 +53,7 @@ public class MeetingController {
                                                                  @PathVariable final Long userId,
                                                                  @RequestBody final UserAttendanceRequest request,
                                                                  @AuthenticationPrincipal final Long loginId) {
-        meetingService.updateAttendance(meetingId, userId, request, loginId);
+        meetingService.updateAttendance(meetingId, userId, request);
         return ResponseEntity.noContent().build();
     }
 }

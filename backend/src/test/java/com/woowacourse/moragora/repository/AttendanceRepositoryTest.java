@@ -3,7 +3,6 @@ package com.woowacourse.moragora.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.entity.Attendance;
-import com.woowacourse.moragora.entity.Participant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -38,29 +37,13 @@ class AttendanceRepositoryTest {
     void findByParticipantIdAndDate() {
         // given
         final Long participantId = 1L;
-        final LocalDate attendanceDate = LocalDate.now();
+        final LocalDate attendanceDate = LocalDate.of(2022, 7, 14);
 
         // when
-        final Optional<Attendance> attendance = attendanceRepository.findByParticipantIdAndAttendanceDate(
-                participantId,
-                attendanceDate);
+        final Optional<Attendance> attendance = attendanceRepository
+                .findByParticipantIdAndAttendanceDate(participantId, attendanceDate);
 
         // then
         assertThat(attendance.isPresent()).isTrue();
-    }
-
-    @DisplayName("미팅 참가자 Id와 미팅 Id로 출석 정보를 조회한다.")
-    @Test
-    void findByMeetingIdAndUserId() {
-        // given
-        final Long meetingId = 1L;
-        final Long userId = 1L;
-
-        // when
-        final Optional<Participant> participant = attendanceRepository.findByMeetingIdAndUserId(meetingId,
-                userId);
-
-        // then
-        assertThat(participant.isPresent()).isTrue();
     }
 }

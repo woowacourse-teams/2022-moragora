@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import Button from '../../components/@shared/Button';
+import Button from 'components/@shared/Button';
 
 export const Layout = styled.div`
   display: flex;
@@ -15,8 +15,15 @@ export const Form = styled.form`
   gap: 1.5rem;
 `;
 
-export const FieldBox = styled.div`
+export const FieldGroupBox = styled.div`
   display: flex;
+  gap: 1rem;
+`;
+
+export const FieldBox = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
 `;
 
@@ -25,7 +32,6 @@ export const Label = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  overflow: hidden;
 `;
 
 export const AddMemberParagraph = styled.p`

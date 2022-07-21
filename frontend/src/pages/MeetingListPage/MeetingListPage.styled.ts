@@ -8,6 +8,22 @@ export const Layout = styled.div`
   overflow: hidden;
 `;
 
+export const SpinnerBox = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const ErrorBox = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+`;
+
 export const DateBox = styled.div`
   flex: 1;
   display: flex;
@@ -72,6 +88,7 @@ export const CoffeeStackSection = styled.section`
 export const CoffeeStackList = styled.ul`
   // reset margin
   margin: 0;
+  list-style: none;
 
   padding: 0.75rem;
   display: flex;
@@ -79,4 +96,70 @@ export const CoffeeStackList = styled.ul`
   gap: 1rem;
   overflow-x: hidden;
   overflow-y: scroll;
+`;
+
+export const EmptyStateBox = styled.div`
+  flex: 1;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+`;
+
+export const MeetingCreateLink = styled(Link)`
+  // reset
+  color: inherit;
+  text-decoration: inherit;
+
+  margin-top: 1.5rem;
+  text-align: center;
+  width: 100%;
+  background-color: ${({ theme: { colors } }) => colors['primary']};
+  color: ${({ theme: { colors } }) => colors['white']};
+  padding: 0.75rem 0;
+  border-radius: 1.5rem;
+
+  opacity: 0;
+  animation: dissolve 1.5s;
+  animation-delay: 2.7s;
+  animation-fill-mode: forwards;
+
+  :hover {
+    background-color: ${({ theme: { colors } }) => colors['primary-subtle']};
+  }
+
+  :disabled {
+    background-color: ${({ theme: { colors } }) => colors['background']};
+    color: ${({ theme: { colors } }) => colors['subtle-light']};
+    pointer-events: none;
+  }
+`;
+
+export const EmptyStateImage = styled.img`
+  margin-top: -4rem;
+  padding-bottom: 2rem;
+  width: 100%;
+  opacity: 0;
+  animation: smooth-appear 2s;
+  animation-fill-mode: forwards;
+`;
+
+export const EmptyStateTitle = styled.h2`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: ${({ theme: { colors } }) => colors['subtle-dark']};
+  opacity: 0;
+  animation: smooth-appear 2s;
+  animation-fill-mode: forwards;
+`;
+
+export const EmptyStateParagraph = styled.p`
+  font-size: 1rem;
+  color: ${({ theme: { colors } }) => colors['subtle-light']};
+  opacity: 0;
+  animation: dissolve 1s;
+  animation-delay: 1.5s;
+  animation-fill-mode: forwards;
 `;
