@@ -30,29 +30,11 @@ const MeetingListPage = () => {
           <S.TimeSection>
             <S.DateBox>
               <S.Title>Today</S.Title>
-              <S.DateParagraph>
-                <div
-                  css={css`
-                    margin: 0.35rem;
-                    border-radius: 0.5rem;
-                    height: 1rem;
-                    width: 10rem;
-                    animation: skeleton-gradient 1.5s infinite ease-in-out;
-                  `}
-                />
-              </S.DateParagraph>
+              <S.EmptyStateDateParagraph />
             </S.DateBox>
             <S.DateBox>
               <S.Title>Time</S.Title>
-              <div
-                css={css`
-                  margin: 0.35rem;
-                  border-radius: 0.5rem;
-                  height: 1rem;
-                  width: 6rem;
-                  animation: skeleton-gradient 1.5s infinite ease-in-out;
-                `}
-              />
+              <S.EmptyStateTimeParagraph />
             </S.DateBox>
           </S.TimeSection>
           <S.MeetingListSection>
