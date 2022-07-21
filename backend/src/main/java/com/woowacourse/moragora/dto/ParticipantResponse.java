@@ -22,7 +22,7 @@ public class ParticipantResponse {
         this.id = id;
         this.email = email;
         this.nickname = nickname;
-        this.attendanceStatus = attendanceStatus;
+        this.attendanceStatus = attendanceStatus.toLowerCase(Locale.ROOT);
         this.tardyCount = tardyCount;
     }
 
@@ -31,12 +31,15 @@ public class ParticipantResponse {
                                final String nickname,
                                final Status attendanceStatus,
                                final int tardyCount) {
-        this(id, email, nickname,
-                attendanceStatus.name().toLowerCase(Locale.ROOT), tardyCount);
+        this(id, email, nickname, attendanceStatus.name(), tardyCount);
     }
 
     public static ParticipantResponse of(final User foundUser, final Status attendanceStatus, final int tardyCount) {
-        return new ParticipantResponse(foundUser.getId(), foundUser.getEmail(), foundUser.getNickname(),
-                attendanceStatus.name().toLowerCase(Locale.ROOT), tardyCount);
+        return new ParticipantResponse(
+                foundUser.getId(),
+                foundUser.getEmail(),
+                foundUser.getNickname(),
+                attendanceStatus,
+                tardyCount);
     }
 }
