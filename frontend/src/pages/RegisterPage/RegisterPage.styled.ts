@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Link } from 'react-router-dom';
 import Button from 'components/@shared/Button';
 import DialogButton from 'components/@shared/DialogButton';
 import Input from 'components/@shared/Input';
@@ -58,9 +59,9 @@ export const RegisterButton = styled(Button)`
 
 export const LoginHintParagraph = styled.p``;
 
-export const LoginLink = styled.a`
+export const LoginLink = styled(Link)`
   margin-left: 0.5rem;
 
-  text-decoration: none;
+  text-decoration: inherit;
   color: ${({ theme: { colors } }) => colors['primary']};
 `;

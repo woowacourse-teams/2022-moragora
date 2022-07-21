@@ -118,7 +118,8 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.startDate", containsInAnyOrder("2022-07-10", "2022-07-13"))
                 .body("meetings.endDate", containsInAnyOrder("2022-08-10", "2022-08-13"))
                 .body("meetings.entranceTime", containsInAnyOrder("10:00", "09:00"))
-                .body("meetings.closingTime", containsInAnyOrder("10:05", "09:05"));
+                .body("meetings.closingTime", containsInAnyOrder("10:05", "09:05"))
+                .body("meetings.tardyCount", containsInAnyOrder(0, 0));
     }
 
     @DisplayName("모임의 출석을 마감하면 총 모임 횟수와 결석한 참가자들의 결일을 증가시키고 상태코드 204을 반환한다.")

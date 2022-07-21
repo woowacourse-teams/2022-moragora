@@ -12,6 +12,7 @@ import { MeetingResponseBody } from 'types/meetingType';
 import { dateToFormattedString } from 'utils/timeUtil';
 import { TOKEN_ERROR_STATUS_CODES } from 'consts';
 import { userContext, UserContextValues } from 'contexts/userContext';
+import { css } from '@emotion/react';
 
 type DefaultResponseBody = {};
 
@@ -120,7 +121,7 @@ const MeetingCreatePage = () => {
               />
             </S.Label>
             <InputHint
-              isShow={errors['name'] !== ''}
+              isShow={Boolean(errors['name']) && errors['name'] !== ''}
               message={errors['name']}
             />
           </S.FieldBox>
@@ -144,7 +145,9 @@ const MeetingCreatePage = () => {
                 />
               </S.Label>
               <InputHint
-                isShow={errors['startDate'] !== ''}
+                isShow={
+                  Boolean(errors['startDate']) && errors['startDate'] !== ''
+                }
                 message={errors['startDate']}
               />
             </S.FieldBox>
@@ -170,7 +173,7 @@ const MeetingCreatePage = () => {
                 />
               </S.Label>
               <InputHint
-                isShow={errors['endDate'] !== ''}
+                isShow={Boolean(errors['endDate']) && errors['endDate'] !== ''}
                 message={errors['endDate']}
               />
             </S.FieldBox>
@@ -194,7 +197,10 @@ const MeetingCreatePage = () => {
                 />
               </S.Label>
               <InputHint
-                isShow={errors['entranceTime'] !== ''}
+                isShow={
+                  Boolean(errors['entranceTime']) &&
+                  errors['entranceTime'] !== ''
+                }
                 message={errors['entranceTime']}
               />
             </S.FieldBox>
@@ -217,7 +223,9 @@ const MeetingCreatePage = () => {
                 />
               </S.Label>
               <InputHint
-                isShow={errors['leaveTime'] !== ''}
+                isShow={
+                  Boolean(errors['leaveTime']) && errors['leaveTime'] !== ''
+                }
                 message={errors['leaveTime']}
               />
             </S.FieldBox>
@@ -231,6 +239,9 @@ const MeetingCreatePage = () => {
                 </span>
               </S.AddMemberParagraph>
               <MemberAddInput
+                css={css`
+                  width: 100%;
+                `}
                 placeholder="닉네임 또는 이메일로 검색하세요."
                 disabled={selectedItems.length >= MAX_SELECTED_USER_COUNT}
                 queryResult={queryResult}

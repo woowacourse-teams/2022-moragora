@@ -8,6 +8,7 @@ import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
@@ -208,7 +209,7 @@ class MeetingServiceTest {
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
                 List.of(
-                        new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 0),
+                        new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
                         new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
                         new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
                         new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
@@ -242,7 +243,7 @@ class MeetingServiceTest {
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
                 List.of(
-                        new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 0),
+                        new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
                         new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 3),
                         new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
                         new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
@@ -299,9 +300,13 @@ class MeetingServiceTest {
         assertThat(myMeetingsResponse).usingRecursiveComparison()
                 .ignoringFields("serverTime", "meetings.id")
                 .isEqualTo(MyMeetingsResponse.of(
-                        LocalDateTime.now(),
-                        timeChecker,
-                        List.of(meeting, meetingRequest.toEntity()))
+                        currentDateTime.getValue(),
+                        List.of(
+                                MyMeetingResponse.of(currentDateTime.getValue().toLocalTime(), timeChecker,
+                                        meeting, 1),
+                                MyMeetingResponse.of(currentDateTime.getValue().toLocalTime(), timeChecker,
+                                        meetingRequest.toEntity(), 0)
+                        ))
                 );
     }
 

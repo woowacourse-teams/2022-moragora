@@ -2,6 +2,7 @@ package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
@@ -25,7 +26,6 @@ import com.woowacourse.moragora.util.CurrentDateTime;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -95,16 +95,9 @@ public class MeetingService {
 
         putAttendanceIfAbsent(participants, now);
 
-        final List<ParticipantResponse> participantResponses = new ArrayList<>();
-
-        for (Participant participant : participants) {
-            final Attendance attendance = attendanceRepository
-                    .findByParticipantIdAndAttendanceDate(participant.getId(), now.toLocalDate())
-                    .orElseThrow(AttendanceNotFoundException::new);
-
-            participantResponses.add(ParticipantResponse.of(participant.getUser(), attendance.getStatus(),
-                    getTardyCount(meeting.getEntranceTime(), now, participant)));
-        }
+        final List<ParticipantResponse> participantResponses = participants.stream()
+                .map(participant -> generateUserResponse(meeting, now, participant))
+                .collect(Collectors.toList());
 
         return MeetingResponse.of(meeting, participantResponses, getMeetingAttendanceCount(participants.get(0)));
     }
@@ -112,11 +105,12 @@ public class MeetingService {
     public MyMeetingsResponse findAllByUserId(final Long userId) {
         final LocalDateTime now = currentDateTime.getValue();
         final List<Participant> participants = participantRepository.findByUserId(userId);
-        final List<Meeting> meetings = participants.stream()
-                .map(Participant::getMeeting)
+
+        final List<MyMeetingResponse> myMeetingResponses = participants.stream()
+                .map(participant -> generateMyMeetingResponse(now, participant))
                 .collect(Collectors.toList());
 
-        return MyMeetingsResponse.of(now, timeChecker, meetings);
+        return MyMeetingsResponse.of(now, myMeetingResponses);
     }
 
     // TODO update (1 + N) -> 최적하기
@@ -175,7 +169,16 @@ public class MeetingService {
         }
     }
 
-    private int getTardyCount(final LocalTime entranceTime, final LocalDateTime now, final Participant participant) {
+    private ParticipantResponse generateUserResponse(final Meeting meeting, final LocalDateTime now,
+                                                     final Participant participant) {
+        final Attendance attendance = attendanceRepository
+                .findByParticipantIdAndAttendanceDate(participant.getId(), now.toLocalDate())
+                .orElseThrow(AttendanceNotFoundException::new);
+        return ParticipantResponse.of(participant.getUser(), attendance.getStatus(),
+                countTardy(meeting.getEntranceTime(), now, participant));
+    }
+
+    private int countTardy(final LocalTime entranceTime, final LocalDateTime now, final Participant participant) {
         final List<Attendance> attendances = getAttendancesByParticipant(entranceTime, now, participant);
 
         return (int) attendances.stream()
@@ -191,6 +194,12 @@ public class MeetingService {
         }
 
         return attendanceRepository.findByParticipantIdAndAttendanceDateNot(participant.getId(), now.toLocalDate());
+    }
+
+    private MyMeetingResponse generateMyMeetingResponse(final LocalDateTime now, final Participant participant) {
+        final Meeting meeting = participant.getMeeting();
+        return MyMeetingResponse.of(now.toLocalTime(), timeChecker, meeting,
+                countTardy(meeting.getEntranceTime(), now, participant));
     }
 
     private void validateAttendanceTime(final Meeting meeting) {
