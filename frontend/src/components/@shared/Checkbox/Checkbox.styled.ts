@@ -4,6 +4,8 @@ export const Label = styled.label`
   display: flex;
   align-items: center;
   gap: 0.5em;
+  width: fit-content;
+  height: fit-content;
 `;
 
 export const Input = styled.input`

@@ -127,7 +127,9 @@ const RegisterPage = () => {
                   onChange: () => {
                     setIsEmailExist(true);
                   },
+                  maxLength: 50,
                 })}
+                placeholder="이메일을 입력해주세요."
               />
               <S.EmailCheckButton
                 type="button"
@@ -142,7 +144,7 @@ const RegisterPage = () => {
             </S.EmailBox>
           </S.Label>
           <InputHint
-            isShow={errors['email'] !== ''}
+            isShow={Boolean(errors['email']) && errors['email'] !== ''}
             message={errors['email']}
           />
         </S.FieldBox>
@@ -153,18 +155,21 @@ const RegisterPage = () => {
               type="password"
               {...register('password', {
                 pattern:
-                  '(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,20}',
+                  '(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,30}',
                 onChange: (e) => {
                   setIsValidPasswordConfirm(
                     values['passwordConfirm'] === e.target.value
                   );
                 },
+                minLength: 8,
+                maxLength: 30,
                 required: true,
               })}
+              placeholder="8에서 30자리 이하의 영어, 숫자, 특수문자로 입력해주세요."
             />
           </S.Label>
           <InputHint
-            isShow={errors['password'] !== ''}
+            isShow={Boolean(errors['password']) && errors['password'] !== ''}
             message={errors['password']}
           />
         </S.FieldBox>
@@ -179,12 +184,17 @@ const RegisterPage = () => {
                     values['password'] === e.target.value
                   );
                 },
+                minLength: 8,
+                maxLength: 30,
                 required: true,
               })}
             />
           </S.Label>
           <InputHint
-            isShow={errors['passwordConfirm'] !== ''}
+            isShow={
+              Boolean(errors['passwordConfirm']) &&
+              errors['passwordConfirm'] !== ''
+            }
             message={errors['passwordConfirm']}
           />
           <InputHint
@@ -198,12 +208,16 @@ const RegisterPage = () => {
             <Input
               type="text"
               {...register('nickname', {
+                maxLength: 15,
+                pattern:
+                  '(?=.*[A-Za-z])(?=.*d)(?=.*[$@$!%*#?&])[A-Za-zd$@$!%*#?&]{8,30}',
                 required: true,
               })}
+              placeholder="15자 이하의 영어, 한글로 입력해주세요."
             />
           </S.Label>
           <InputHint
-            isShow={errors['nickname'] !== ''}
+            isShow={Boolean(errors['nickname']) && errors['nickname'] !== ''}
             message={errors['nickname']}
           />
         </S.FieldBox>
@@ -218,7 +232,7 @@ const RegisterPage = () => {
         </S.RegisterButton>
         <S.LoginHintParagraph>
           이미 가입된 계정이 있으신가요?
-          <S.LoginLink href="">로그인</S.LoginLink>
+          <S.LoginLink to="/login">로그인</S.LoginLink>
         </S.LoginHintParagraph>
       </S.ButtonBox>
     </S.Layout>
