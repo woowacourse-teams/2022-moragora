@@ -142,7 +142,7 @@ const RegisterPage = () => {
             </S.EmailBox>
           </S.Label>
           <InputHint
-            isShow={errors['email'] !== ''}
+            isShow={Boolean(errors['email']) && errors['email'] !== ''}
             message={errors['email']}
           />
         </S.FieldBox>
@@ -164,7 +164,7 @@ const RegisterPage = () => {
             />
           </S.Label>
           <InputHint
-            isShow={errors['password'] !== ''}
+            isShow={Boolean(errors['password']) && errors['password'] !== ''}
             message={errors['password']}
           />
         </S.FieldBox>
@@ -184,7 +184,10 @@ const RegisterPage = () => {
             />
           </S.Label>
           <InputHint
-            isShow={errors['passwordConfirm'] !== ''}
+            isShow={
+              Boolean(errors['passwordConfirm']) &&
+              errors['passwordConfirm'] !== ''
+            }
             message={errors['passwordConfirm']}
           />
           <InputHint
@@ -203,7 +206,7 @@ const RegisterPage = () => {
             />
           </S.Label>
           <InputHint
-            isShow={errors['nickname'] !== ''}
+            isShow={Boolean(errors['nickname']) && errors['nickname'] !== ''}
             message={errors['nickname']}
           />
         </S.FieldBox>
