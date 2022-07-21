@@ -16,7 +16,7 @@ type MeetingPathParams = {
 };
 
 export default [
-  rest.get('/meetings/me', (req, res, ctx) => {
+  rest.get(`${process.env.API_SERVER_HOST}/meetings/me`, (req, res, ctx) => {
     const token = extractIdFromHeader(req);
 
     if (!token.isValidToken) {
@@ -52,7 +52,7 @@ export default [
   }),
 
   rest.get<DefaultBodyType, Pick<MeetingPathParams, 'meetingId'>>(
-    '/meetings/:meetingId',
+    `${process.env.API_SERVER_HOST}/meetings/:meetingId`,
     (req, res, ctx) => {
       const token = extractIdFromHeader(req);
 
@@ -97,7 +97,7 @@ export default [
   ),
 
   rest.put<UserAttendanceCheckRequestBody, MeetingPathParams>(
-    `/meetings/:meetingId/users/:userId`,
+    `${process.env.API_SERVER_HOST}/meetings/:meetingId/users/:userId`,
     (req, res, ctx) => {
       const token = extractIdFromHeader(req);
 
@@ -134,40 +134,43 @@ export default [
     }
   ),
 
-  rest.post<MeetingCreateRequestBody>('/meetings', (req, res, ctx) => {
-    const token = extractIdFromHeader(req);
+  rest.post<MeetingCreateRequestBody>(
+    `${process.env.API_SERVER_HOST}/meetings`,
+    (req, res, ctx) => {
+      const token = extractIdFromHeader(req);
 
-    if (!token.isValidToken) {
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      const user = users.find(({ id }) => id === token.id);
+
+      if (!user) {
+        return res(
+          ctx.status(404),
+          ctx.json({ message: '유저가 존재하지 않습니다.' })
+        );
+      }
+
+      const meeting = req.body;
+      const id = meetings.length;
+
+      meetings.push({
+        ...meeting,
+        id,
+        closingTime: addMinute(meeting.entranceTime, 5),
+        isActive: true,
+        attendanceCount: 0,
+      });
+
       return res(
-        ctx.status(401),
-        ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        ctx.status(201),
+        ctx.set('Location', `/meetings/${id}`),
+        ctx.delay(DELAY)
       );
     }
-
-    const user = users.find(({ id }) => id === token.id);
-
-    if (!user) {
-      return res(
-        ctx.status(404),
-        ctx.json({ message: '유저가 존재하지 않습니다.' })
-      );
-    }
-
-    const meeting = req.body;
-    const id = meetings.length;
-
-    meetings.push({
-      ...meeting,
-      id,
-      closingTime: addMinute(meeting.entranceTime, 5),
-      isActive: true,
-      attendanceCount: 0,
-    });
-
-    return res(
-      ctx.status(201),
-      ctx.set('Location', `/meetings/${id}`),
-      ctx.delay(DELAY)
-    );
-  }),
+  ),
 ];

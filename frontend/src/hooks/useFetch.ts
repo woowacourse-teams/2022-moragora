@@ -20,7 +20,7 @@ const useFetch = <ResponseBodyType = any>(url: string) => {
       ? userState?.user?.accessToken
       : localStorage.getItem('accessToken');
 
-    fetch(url, {
+    fetch(`${process.env.API_SERVER_HOST}${url}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

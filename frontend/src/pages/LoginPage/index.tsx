@@ -13,7 +13,7 @@ const submitLogin = (
   url: string,
   payload: Pick<User, 'email' | 'password'>
 ) => {
-  return fetch(url, {
+  return fetch(`${process.env.API_SERVER_HOST}${url}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -23,7 +23,7 @@ const submitLogin = (
 };
 
 const getMeData = (url: string, accessToken: string) => {
-  return fetch(url, {
+  return fetch(`${process.env.API_SERVER_HOST}${url}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

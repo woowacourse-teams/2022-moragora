@@ -2,6 +2,10 @@ const { join, resolve } = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
+const dotenv = require('dotenv');
+const { DefinePlugin, EnvironmentPlugin } = require('webpack');
+
+dotenv.config();
 
 module.exports = {
   mode: 'development',
@@ -35,6 +39,12 @@ module.exports = {
       template: join(__dirname, '../public/index.html'),
     }),
     new ESLintPlugin(),
+    new DefinePlugin({
+      'process.env.API_SERVER_HOST': JSON.stringify(
+        process.env.API_SERVER_HOST
+      ),
+    }),
+    new EnvironmentPlugin(['API_SERVER_HOST']),
   ],
   resolve: {
     extensions: ['*', '.tsx', '.ts', '.jsx', '.js'],
