@@ -155,6 +155,24 @@ export const EmptyStateTitle = styled.h2`
   animation-fill-mode: forwards;
 `;
 
+export const EmptyStateDateParagraph = styled.p`
+  box-sizing: border-box;
+  margin-top: 0.25rem;
+  border-radius: 0.5rem;
+  height: 1.5rem;
+  width: 10rem;
+  animation: skeleton-gradient 1.5s infinite ease-in-out;
+`;
+
+export const EmptyStateTimeParagraph = styled.p`
+  box-sizing: border-box;
+  margin-top: 0.25rem;
+  border-radius: 0.5rem;
+  height: 1.5rem;
+  width: 6rem;
+  animation: skeleton-gradient 1.5s infinite ease-in-out;
+`;
+
 export const EmptyStateParagraph = styled.p`
   font-size: 1rem;
   color: ${({ theme: { colors } }) => colors['subtle-light']};
