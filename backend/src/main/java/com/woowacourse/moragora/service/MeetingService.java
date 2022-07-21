@@ -115,7 +115,7 @@ public class MeetingService {
         final List<Participant> participants = participantRepository.findByUserId(userId);
 
         final List<MyMeetingResponse> myMeetingResponses = participants.stream()
-                .map(participant -> getMyMeetings(now, participant))
+                .map(participant -> generateMyMeetingResponse(now, participant))
                 .collect(Collectors.toList());
 
         return MyMeetingsResponse.of(now, myMeetingResponses);
@@ -144,7 +144,7 @@ public class MeetingService {
 
         attendance.changeAttendanceStatus(request.getAttendanceStatus());
     }
-    
+
     private Meeting findMeeting(final Long id) {
         return meetingRepository.findById(id)
                 .orElseThrow(MeetingNotFoundException::new);
@@ -196,7 +196,7 @@ public class MeetingService {
         return attendanceRepository.findByParticipantIdAndAttendanceDateNot(participant.getId(), now.toLocalDate());
     }
 
-    private MyMeetingResponse getMyMeetings(final LocalDateTime now, final Participant participant) {
+    private MyMeetingResponse generateMyMeetingResponse(final LocalDateTime now, final Participant participant) {
         final Meeting meeting = participant.getMeeting();
         return MyMeetingResponse.of(now.toLocalTime(), timeChecker, meeting,
                 getTardyCount(meeting.getEntranceTime(), now, participant));
