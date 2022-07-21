@@ -127,7 +127,9 @@ const RegisterPage = () => {
                   onChange: () => {
                     setIsEmailExist(true);
                   },
+                  maxLength: 50,
                 })}
+                placeholder="이메일을 입력해주세요."
               />
               <S.EmailCheckButton
                 type="button"
@@ -153,14 +155,17 @@ const RegisterPage = () => {
               type="password"
               {...register('password', {
                 pattern:
-                  '(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,20}',
+                  '(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,30}',
                 onChange: (e) => {
                   setIsValidPasswordConfirm(
                     values['passwordConfirm'] === e.target.value
                   );
                 },
+                minLength: 8,
+                maxLength: 30,
                 required: true,
               })}
+              placeholder="8에서 30자리 이하의 영어, 숫자, 특수문자로 입력해주세요."
             />
           </S.Label>
           <InputHint
@@ -179,6 +184,8 @@ const RegisterPage = () => {
                     values['password'] === e.target.value
                   );
                 },
+                minLength: 8,
+                maxLength: 30,
                 required: true,
               })}
             />
@@ -201,8 +208,12 @@ const RegisterPage = () => {
             <Input
               type="text"
               {...register('nickname', {
+                maxLength: 15,
+                pattern:
+                  '(?=.*[A-Za-z])(?=.*d)(?=.*[$@$!%*#?&])[A-Za-zd$@$!%*#?&]{8,30}',
                 required: true,
               })}
+              placeholder="15자 이하의 영어, 한글로 입력해주세요."
             />
           </S.Label>
           <InputHint
