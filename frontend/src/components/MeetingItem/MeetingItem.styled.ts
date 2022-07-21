@@ -2,13 +2,15 @@ import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
 import { MeetingWithTardyCount } from 'types/meetingType';
 
-export const Layout = styled.div<{ active: MeetingWithTardyCount['active'] }>`
+export const Layout = styled.div<{
+  isActive: MeetingWithTardyCount['isActive'];
+}>`
   display: inline-block;
   border-radius: 2rem;
   box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.1);
 
-  color: ${({ active, theme: { colors } }) =>
-    active ? colors['primary'] : colors['subtle-light']};
+  color: ${({ isActive, theme: { colors } }) =>
+    isActive ? colors['primary'] : colors['subtle-light']};
 `;
 
 export const MeetingItemLink = styled(Link)`

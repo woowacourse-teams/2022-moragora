@@ -6,7 +6,7 @@ const generateIndexes = (length: number) =>
 const meetings = generateIndexes(100).map<Meeting>((id) => ({
   id,
   name: `모임${id}`,
-  active: true,
+  isActive: true,
   startDate: '2021-11-09',
   endDate: '2022-11-09',
   entranceTime: '10:00',

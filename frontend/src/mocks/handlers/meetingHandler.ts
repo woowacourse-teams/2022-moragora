@@ -39,7 +39,7 @@ export default [
       userIds.includes(user.id)
     );
     const responseBody: MeetingListResponseBody = {
-      serverTime: '11:57',
+      serverTime: 1658378126763,
       meetings: myMeetings.map(
         ({ leaveTime, attendanceCount, userIds, ...meeting }) => ({
           ...meeting,
@@ -160,7 +160,7 @@ export default [
       ...meeting,
       id,
       closingTime: addMinute(meeting.entranceTime, 5),
-      active: true,
+      isActive: true,
       attendanceCount: 0,
     });
 
