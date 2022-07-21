@@ -25,7 +25,7 @@ const asyncFetch = async <
   userState: UserContextValues | null,
   option?: RequestInit
 ) => {
-  const res = await fetch(url, option);
+  const res = await fetch(`${process.env.API_SERVER_HOST}${url}`, option);
 
   if (!res.ok) {
     if (TOKEN_ERROR_STATUS_CODES.includes(res.status)) {

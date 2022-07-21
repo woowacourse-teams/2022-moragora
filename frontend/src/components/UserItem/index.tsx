@@ -21,7 +21,7 @@ const userAttendanceFetch = (
   payload: any,
   accessToken?: User['accessToken']
 ) => {
-  return fetch(url, {
+  return fetch(`${process.env.API_SERVER_HOST}${url}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',

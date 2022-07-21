@@ -10,7 +10,7 @@ import { GetMeDataResponseBody } from 'types/userType';
 import { TOKEN_ERROR_STATUS_CODES } from 'consts';
 
 const checkEmail = async (url: string) => {
-  return fetch(url, {
+  return fetch(`${process.env.API_SERVER_HOST}${url}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -19,7 +19,7 @@ const checkEmail = async (url: string) => {
 };
 
 const submitData = async (url: string, payload: any) => {
-  return fetch(url, {
+  return fetch(`${process.env.API_SERVER_HOST}${url}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -29,7 +29,7 @@ const submitData = async (url: string, payload: any) => {
 };
 
 const getMeData = (url: string, accessToken: string) => {
-  return fetch(url, {
+  return fetch(`${process.env.API_SERVER_HOST}${url}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

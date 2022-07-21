@@ -1,7 +1,6 @@
 import { useCallback, useContext, useState } from 'react';
 import { throttle } from 'utils/throttle';
 import { TOKEN_ERROR_STATUS_CODES } from 'consts';
-import { User } from 'types/userType';
 import { userContext } from 'contexts/userContext';
 
 const useQuerySelectItems = <T extends { id: number }>(
@@ -25,11 +24,14 @@ const useQuerySelectItems = <T extends { id: number }>(
     setLoading(true);
 
     try {
-      const res = await fetch(`${url}${keyword}`, {
-        headers: {
-          Authorization: `Bearer ${options.accessToken}`,
-        },
-      });
+      const res = await fetch(
+        `${process.env.API_SERVER_HOST}${url}${keyword}`,
+        {
+          headers: {
+            Authorization: `Bearer ${userState?.user?.accessToken}`,
+          },
+        }
+      );
 
       if (!res.ok) {
         if (TOKEN_ERROR_STATUS_CODES.includes(res.status)) {
