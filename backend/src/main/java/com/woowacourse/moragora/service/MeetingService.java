@@ -95,7 +95,7 @@ public class MeetingService {
         putAttendanceIfAbsent(participants, now);
 
         final List<UserResponse> userResponses = participants.stream()
-                .map(participant -> getUserAndTardy(meeting, now, participant))
+                .map(participant -> generateUserResponse(meeting, now, participant))
                 .collect(Collectors.toList());
 
         return MeetingResponse.of(meeting, userResponses, getMeetingAttendanceCount(participants.get(0)));
@@ -168,8 +168,8 @@ public class MeetingService {
         }
     }
 
-    private UserResponse getUserAndTardy(final Meeting meeting, final LocalDateTime now,
-                                         final Participant participant) {
+    private UserResponse generateUserResponse(final Meeting meeting, final LocalDateTime now,
+                                              final Participant participant) {
         final Attendance attendance = attendanceRepository
                 .findByParticipantIdAndAttendanceDate(participant.getId(), now.toLocalDate())
                 .orElseThrow(AttendanceNotFoundException::new);
