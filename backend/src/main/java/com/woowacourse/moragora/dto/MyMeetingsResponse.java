@@ -14,8 +14,8 @@ public class MyMeetingsResponse {
     private final long serverTime;
     private final List<MyMeetingResponse> meetings;
 
-    private MyMeetingsResponse(final LocalDateTime serverTime, final List<MyMeetingResponse> meetings) {
-        this.serverTime = Timestamp.valueOf(serverTime).getTime();
+    private MyMeetingsResponse(final long serverTime, final List<MyMeetingResponse> meetings) {
+        this.serverTime = serverTime;
         this.meetings = meetings;
     }
 
@@ -26,6 +26,10 @@ public class MyMeetingsResponse {
                 .map(meeting -> MyMeetingResponse.of(now.toLocalTime(), timeChecker, meeting))
                 .collect(Collectors.toList());
 
-        return new MyMeetingsResponse(now, myMeetingResponses);
+        return new MyMeetingsResponse(toTimestamp(now), myMeetingResponses);
+    }
+
+    private static long toTimestamp(final LocalDateTime now) {
+        return Timestamp.valueOf(now).getTime();
     }
 }
