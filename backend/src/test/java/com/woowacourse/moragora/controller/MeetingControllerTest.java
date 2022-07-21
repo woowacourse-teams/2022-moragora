@@ -271,8 +271,8 @@ class MeetingControllerTest extends ControllerTest {
     void findOne() throws Exception {
         // given
         final List<UserResponse> usersResponse = new ArrayList<>();
-        usersResponse.add(new UserResponse(1L, "abc@naver.com", "foo", 5));
-        usersResponse.add(new UserResponse(2L, "def@naver.com", "boo", 8));
+        usersResponse.add(new UserResponse(1L, "abc@naver.com", "foo", Status.TARDY, 5));
+        usersResponse.add(new UserResponse(2L, "def@naver.com", "boo", Status.TARDY, 8));
 
         final long id = 1L;
         final String name = "모임1";
@@ -285,7 +285,7 @@ class MeetingControllerTest extends ControllerTest {
                 entranceTime, leaveTime, usersResponse
         );
 
-        final Long loginId = validateToken("1");
+        validateToken("1");
         given(meetingService.findById(eq(1L)))
                 .willReturn(meetingResponse);
 
@@ -301,6 +301,11 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.endDate", equalTo("2022-08-10")))
                 .andExpect(jsonPath("$.entranceTime", equalTo("10:00")))
                 .andExpect(jsonPath("$.leaveTime", equalTo("18:00")))
+                .andExpect(jsonPath("$.users[*].id", containsInAnyOrder(1, 2)))
+                .andExpect(jsonPath("$.users[*].email", containsInAnyOrder("abc@naver.com", "def@naver.com")))
+                .andExpect(jsonPath("$.users[*].nickname", containsInAnyOrder("foo", "boo")))
+                .andExpect(jsonPath("$.users[*].attendanceStatus", containsInAnyOrder("tardy", "tardy")))
+                .andExpect(jsonPath("$.users[*].tardyCount", containsInAnyOrder(5, 8)))
                 .andDo(document("meeting/find-one-meeting",
                         responseFields(
                                 fieldWithPath("id").type(JsonFieldType.NUMBER).description(1L),
@@ -314,6 +319,8 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("users[].id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("users[].email").type(JsonFieldType.STRING).description("abc@email.com"),
                                 fieldWithPath("users[].nickname").type(JsonFieldType.STRING).description("foo"),
+                                fieldWithPath("users[].attendanceStatus").type(JsonFieldType.STRING)
+                                        .description("tardy"),
                                 fieldWithPath("users[].tardyCount").type(JsonFieldType.NUMBER).description(5)
                         )
                 ));
@@ -363,9 +370,9 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("meetings[].endDate").type(JsonFieldType.STRING)
                                         .description("2022-08-10"),
                                 fieldWithPath("meetings[].entranceTime").type(JsonFieldType.STRING)
-                                        .description("09:00:00"),
+                                        .description("09:00"),
                                 fieldWithPath("meetings[].closingTime").type(JsonFieldType.STRING)
-                                        .description("09:05:00")
+                                        .description("09:05")
                         )
                 ));
     }
@@ -400,11 +407,11 @@ class MeetingControllerTest extends ControllerTest {
         final Long userId = 1L;
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
-        final Long loginId = validateToken("1");
+        validateToken("1");
 
         doThrow(MeetingNotFoundException.class)
                 .when(meetingService)
-                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class), eq(loginId));
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
 
         // when
         final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
@@ -421,11 +428,11 @@ class MeetingControllerTest extends ControllerTest {
         final Long userId = 8L;
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
-        final Long loginId = validateToken("1");
+        validateToken("1");
 
         doThrow(ParticipantNotFoundException.class)
                 .when(meetingService)
-                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class), eq(loginId));
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
 
         // when
         final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);

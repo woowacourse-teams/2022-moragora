@@ -10,6 +10,7 @@ import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
+import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.ClosingTimeExcessException;
@@ -193,6 +194,77 @@ class MeetingServiceTest {
                 .isEqualTo(expectedMeetingResponse);
     }
 
+    @DisplayName("id로 모임 상세 정보를 조회한다(출석 마감 시간 전에는 당일 지각 스택은 반영되지 않는다.)")
+    @Test
+    void findById_ifNotOverClosingTime() {
+        // given
+        final Long id = 1L;
+        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
+                1L,
+                "모임1",
+                3,
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(
+                        new UserResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 0),
+                        new UserResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
+                        new UserResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
+                        new UserResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
+                        new UserResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
+                        new UserResponse(6L, "fff666@foo.com", "쿤", Status.PRESENT, 0),
+                        new UserResponse(7L, "ggg777@foo.com", "반듯", Status.PRESENT, 0)
+                )
+        );
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.of(2022, 7, 14, 0, 0));
+
+        // when
+        final MeetingResponse response = meetingService.findById(id);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .isEqualTo(expectedMeetingResponse);
+    }
+
+    @DisplayName("id로 모임 상세 정보를 조회한다(출석 마감 시간이 지나면 당일 지각 스택도 반영된다.)")
+    @Test
+    void findById_ifOverClosingTime() {
+        // given
+        final Long id = 1L;
+        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
+                1L,
+                "모임1",
+                3,
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(
+                        new UserResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 0),
+                        new UserResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 3),
+                        new UserResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
+                        new UserResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
+                        new UserResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
+                        new UserResponse(6L, "fff666@foo.com", "쿤", Status.PRESENT, 0),
+                        new UserResponse(7L, "ggg777@foo.com", "반듯", Status.PRESENT, 0)
+                )
+        );
+
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.of(2022, 7, 14, 10, 5));
+        given(timeChecker.isExcessClosingTime(any(LocalTime.class), any(LocalTime.class)))
+                .willReturn(true);
+
+        // when
+        final MeetingResponse response = meetingService.findById(id);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .isEqualTo(expectedMeetingResponse);
+    }
+
     @DisplayName("유저 id로 유저가 속한 모든 모임을 조회한다.")
     @Test
     void findAllByUserId() {
@@ -213,6 +285,8 @@ class MeetingServiceTest {
                 LocalTime.of(18, 0),
                 List.of(2L, 3L)
         );
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.of(2022, 7, 14, 10, 5));
         given(timeChecker.calculateClosingTime(entranceTime))
                 .willReturn(entranceTime.plusMinutes(5));
 
@@ -242,7 +316,7 @@ class MeetingServiceTest {
                 .willReturn(LocalDateTime.of(2022, 07, 14, 0, 0));
 
         // when, then
-        assertThatCode(() -> meetingService.updateAttendance(meetingId, userId, request, 1L))
+        assertThatCode(() -> meetingService.updateAttendance(meetingId, userId, request))
                 .doesNotThrowAnyException();
     }
 
@@ -255,7 +329,7 @@ class MeetingServiceTest {
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
         // when, then
-        assertThatThrownBy(() -> meetingService.updateAttendance(meetingId, userId, request, 1L))
+        assertThatThrownBy(() -> meetingService.updateAttendance(meetingId, userId, request))
                 .isInstanceOf(MeetingNotFoundException.class);
     }
 
@@ -272,7 +346,7 @@ class MeetingServiceTest {
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
         // when, then
-        assertThatThrownBy(() -> meetingService.updateAttendance(meetingId, userId, request, 1L))
+        assertThatThrownBy(() -> meetingService.updateAttendance(meetingId, userId, request))
                 .isInstanceOf(ParticipantNotFoundException.class);
     }
 
@@ -286,7 +360,7 @@ class MeetingServiceTest {
                 .willReturn(true);
 
         // when, then
-        assertThatThrownBy(() -> meetingService.updateAttendance(1L, 1L, request, 1L))
+        assertThatThrownBy(() -> meetingService.updateAttendance(1L, 1L, request))
                 .isInstanceOf(ClosingTimeExcessException.class);
     }
 }

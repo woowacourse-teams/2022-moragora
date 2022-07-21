@@ -101,6 +101,10 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
         final String token = signUpAndGetToken();
+
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.now());
+
         post("/meetings", meetingRequest1, token);
         post("/meetings", meetingRequest2, token);
 

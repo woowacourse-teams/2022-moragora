@@ -29,7 +29,7 @@ public class AttendanceRepository {
 
     public List<Attendance> findByParticipantId(final Long participantId) {
         return entityManager.createQuery("select a from Attendance a where a.participant.id = :participantId",
-                Attendance.class)
+                        Attendance.class)
                 .setParameter("participantId", participantId)
                 .getResultList();
     }
@@ -74,6 +74,14 @@ public class AttendanceRepository {
                 Attendance.class)
                 .setParameter("participantIds", participantIds)
                 .setParameter("attendanceDate", attendanceDate)
+                .getResultList();
+    }
+
+    public List<Attendance> findByParticipantIdAndAttendanceDateNot(final Long participantId, final LocalDate today) {
+        return entityManager.createQuery("select a from Attendance a where a.participant.id = :participantId "
+                + "and a.attendanceDate <> :today", Attendance.class)
+                .setParameter("participantId", participantId)
+                .setParameter("today", today)
                 .getResultList();
     }
 }

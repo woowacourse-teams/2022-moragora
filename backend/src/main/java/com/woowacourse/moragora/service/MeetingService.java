@@ -25,6 +25,7 @@ import com.woowacourse.moragora.util.CurrentDateTime;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -90,18 +91,26 @@ public class MeetingService {
     public MeetingResponse findById(final Long meetingId) {
         final Meeting meeting = findMeeting(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
+        final LocalDateTime now = currentDateTime.getValue();
 
-        putAttendanceIfAbsent(participants);
+        putAttendanceIfAbsent(participants, now);
 
-        final List<UserResponse> userResponses = participants.stream()
-                .map(participant -> UserResponse.of(participant.getUser(), getTardyCount(participant)))
-                .collect(Collectors.toUnmodifiableList());
+        final List<UserResponse> userResponses = new ArrayList<>();
+
+        for (Participant participant : participants) {
+            final Attendance attendance = attendanceRepository
+                    .findByParticipantIdAndAttendanceDate(participant.getId(), now.toLocalDate())
+                    .orElseThrow(AttendanceNotFoundException::new);
+
+            userResponses.add(UserResponse.of(participant.getUser(), attendance.getStatus(),
+                    getTardyCount(meeting.getEntranceTime(), now, participant)));
+        }
 
         return MeetingResponse.of(meeting, userResponses, getMeetingAttendanceCount(participants.get(0)));
     }
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
-        final LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = currentDateTime.getValue();
         final List<Participant> participants = participantRepository.findByUserId(userId);
         final List<Meeting> meetings = participants.stream()
                 .map(Participant::getMeeting)
@@ -110,14 +119,12 @@ public class MeetingService {
         return MyMeetingsResponse.of(now, timeChecker, meetings);
     }
 
-
     // TODO update (1 + N) -> 최적하기
     // TODO 출석 제출할 때 구현 예정
     @Transactional
     public void updateAttendance(final Long meetingId,
                                  final Long userId,
-                                 final UserAttendanceRequest request,
-                                 final Long loginId) {
+                                 final UserAttendanceRequest request) {
         LocalDateTime nowDateTime = currentDateTime.getValue();
 
         final Meeting meeting = findMeeting(meetingId);
@@ -168,11 +175,22 @@ public class MeetingService {
         }
     }
 
-    private int getTardyCount(final Participant participant) {
-        final List<Attendance> attendances = attendanceRepository.findByParticipantId(participant.getId());
+    private int getTardyCount(final LocalTime entranceTime, final LocalDateTime now, final Participant participant) {
+        final List<Attendance> attendances = getAttendancesByParticipant(entranceTime, now, participant);
+
         return (int) attendances.stream()
                 .filter(attendance -> attendance.isSameStatus(Status.TARDY))
                 .count();
+    }
+
+    private List<Attendance> getAttendancesByParticipant(final LocalTime entranceTime, final LocalDateTime now,
+                                                         final Participant participant) {
+        final boolean isOver = timeChecker.isExcessClosingTime(now.toLocalTime(), entranceTime);
+        if (isOver) {
+            return attendanceRepository.findByParticipantId(participant.getId());
+        }
+
+        return attendanceRepository.findByParticipantIdAndAttendanceDateNot(participant.getId(), now.toLocalDate());
     }
 
     private void validateAttendanceTime(final Meeting meeting) {
@@ -183,11 +201,11 @@ public class MeetingService {
         }
     }
 
-    private void putAttendanceIfAbsent(final List<Participant> participants) {
+    private void putAttendanceIfAbsent(final List<Participant> participants, final LocalDateTime now) {
         final List<Long> participantIds = participants.stream()
                 .map(Participant::getId)
                 .collect(Collectors.toList());
-        final LocalDate today = currentDateTime.getValue().toLocalDate();
+        final LocalDate today = now.toLocalDate();
         final List<Attendance> attendances =
                 attendanceRepository.findByParticipantIdsAndAttendanceDate(participantIds, today);
 
