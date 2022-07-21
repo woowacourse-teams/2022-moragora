@@ -2,6 +2,7 @@ package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.UserResponse;
@@ -112,15 +113,17 @@ public class MeetingService {
     public MyMeetingsResponse findAllByUserId(final Long userId) {
         final LocalDateTime now = currentDateTime.getValue();
         final List<Participant> participants = participantRepository.findByUserId(userId);
-        final List<Meeting> meetings = participants.stream()
-                .map(Participant::getMeeting)
+
+        final List<MyMeetingResponse> myMeetingResponses = participants.stream()
+                .map(participant -> generateMyMeetingResponse(now, participant))
                 .collect(Collectors.toList());
 
-        return MyMeetingsResponse.of(now, timeChecker, meetings);
+        return MyMeetingsResponse.of(now, myMeetingResponses);
     }
 
     // TODO update (1 + N) -> 최적하기
     // TODO 출석 제출할 때 구현 예정
+
     @Transactional
     public void updateAttendance(final Long meetingId,
                                  final Long userId,
@@ -191,6 +194,12 @@ public class MeetingService {
         }
 
         return attendanceRepository.findByParticipantIdAndAttendanceDateNot(participant.getId(), now.toLocalDate());
+    }
+
+    private MyMeetingResponse generateMyMeetingResponse(final LocalDateTime now, final Participant participant) {
+        final Meeting meeting = participant.getMeeting();
+        return MyMeetingResponse.of(now.toLocalTime(), timeChecker, meeting,
+                getTardyCount(meeting.getEntranceTime(), now, participant));
     }
 
     private void validateAttendanceTime(final Meeting meeting) {
