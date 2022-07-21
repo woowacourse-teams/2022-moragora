@@ -7,7 +7,6 @@ import CoffeeStackItem from 'components/CoffeeStackItem';
 import CoffeeStackItemSkeleton from 'components/CoffeeStackItemSkeleton';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import ReloadButton from 'components/@shared/ReloadButton';
-import DivideLine from 'components/@shared/DivideLine';
 import useFetch from 'hooks/useFetch';
 import NoSearchResultIconSVG from 'assets/NoSearchResult.svg';
 import { MeetingListResponseBody } from 'types/meetingType';
@@ -125,10 +124,10 @@ const MeetingListPage = () => {
   }
 
   const activeMeetings = meetingListState.meetings.filter(
-    ({ active }) => active
+    ({ isActive }) => isActive
   );
   const inactiveMeetings = meetingListState.meetings.filter(
-    ({ active }) => !active
+    ({ isActive }) => !isActive
   );
   const sortedMeetings = [...activeMeetings, ...inactiveMeetings];
 

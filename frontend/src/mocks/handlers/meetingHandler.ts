@@ -160,7 +160,7 @@ export default [
       ...meeting,
       id,
       closingTime: addMinute(meeting.entranceTime, 5),
-      active: true,
+      isActive: true,
       attendanceCount: 0,
     });
 

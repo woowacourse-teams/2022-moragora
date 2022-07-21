@@ -7,7 +7,7 @@ export type Meeting = {
   endDate: string;
   entranceTime: string;
   closingTime: string;
-  active: boolean;
+  isActive: boolean;
   userIds: number[];
   leaveTime: string;
   attendanceCount: number;
@@ -26,13 +26,13 @@ export type MeetingCreateRequestBody = Pick<
 >;
 
 export type MeetingListResponseBody = {
-  serverTime: string;
+  serverTime: number;
   meetings: MeetingWithTardyCount[];
 };
 
 export type MeetingResponseBody = Omit<
   Meeting,
-  'userIds' | 'closingTime' | 'active'
+  'userIds' | 'closingTime' | 'isActive'
 > & {
   users: Participant[];
   attendanceCount: number;

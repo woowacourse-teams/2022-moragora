@@ -8,7 +8,7 @@ type MeetingItemProps = {
 
 const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
   return (
-    <S.Layout active={meeting.active}>
+    <S.Layout isActive={meeting.isActive}>
       <S.MeetingItemLink to={`/meeting/${meeting.id}`}>
         <S.Box>
           <S.MeetingBox>
@@ -80,7 +80,7 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
             </S.MeetingTimeSpan>
           </S.MeetingBox>
           <S.CheckInSpan>
-            {meeting.active ? '체크인하세요!' : '출결 준비 중입니다.'}
+            {meeting.isActive ? '체크인하세요!' : '출결 준비 중입니다.'}
           </S.CheckInSpan>
         </S.Box>
       </S.MeetingItemLink>
