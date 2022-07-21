@@ -12,6 +12,7 @@ import { MeetingResponseBody } from 'types/meetingType';
 import { dateToFormattedString } from 'utils/timeUtil';
 import { TOKEN_ERROR_STATUS_CODES } from 'consts';
 import { userContext, UserContextValues } from 'contexts/userContext';
+import { css } from '@emotion/react';
 
 type DefaultResponseBody = {};
 
@@ -238,6 +239,9 @@ const MeetingCreatePage = () => {
                 </span>
               </S.AddMemberParagraph>
               <MemberAddInput
+                css={css`
+                  width: 100%;
+                `}
                 placeholder="닉네임 또는 이메일로 검색하세요."
                 disabled={selectedItems.length >= MAX_SELECTED_USER_COUNT}
                 queryResult={queryResult}

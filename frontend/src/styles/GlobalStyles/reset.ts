@@ -14,6 +14,9 @@ const reset = css`
     font: inherit;
     cursor: pointer;
   }
+  input[type='search'] {
+    outline-offset: 0;
+  }
 
   h1,
   h2,
