@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
-import com.woowacourse.moragora.dto.UserResponse2;
+import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.exception.NoKeywordException;
 import com.woowacourse.moragora.exception.NoParameterException;
@@ -107,10 +107,10 @@ class UserServiceTest {
         final UserRequest userRequest = new UserRequest(email, "1234smart!", nickname);
         final Long id = userService.create(userRequest);
 
-        final UserResponse2 expectedResponse = new UserResponse2(id, email, nickname);
+        final UserResponse expectedResponse = new UserResponse(id, email, nickname);
 
         // when
-        final UserResponse2 response = userService.findById(id);
+        final UserResponse response = userService.findById(id);
 
         // then
         assertThat(response).usingRecursiveComparison()

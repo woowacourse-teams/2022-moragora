@@ -3,8 +3,8 @@ package com.woowacourse.moragora.service;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
+import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
-import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
@@ -95,18 +95,18 @@ public class MeetingService {
 
         putAttendanceIfAbsent(participants, now);
 
-        final List<UserResponse> userResponses = new ArrayList<>();
+        final List<ParticipantResponse> participantResponses = new ArrayList<>();
 
         for (Participant participant : participants) {
             final Attendance attendance = attendanceRepository
                     .findByParticipantIdAndAttendanceDate(participant.getId(), now.toLocalDate())
                     .orElseThrow(AttendanceNotFoundException::new);
 
-            userResponses.add(UserResponse.of(participant.getUser(), attendance.getStatus(),
+            participantResponses.add(ParticipantResponse.of(participant.getUser(), attendance.getStatus(),
                     getTardyCount(meeting.getEntranceTime(), now, participant)));
         }
 
-        return MeetingResponse.of(meeting, userResponses, getMeetingAttendanceCount(participants.get(0)));
+        return MeetingResponse.of(meeting, participantResponses, getMeetingAttendanceCount(participants.get(0)));
     }
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {

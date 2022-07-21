@@ -2,7 +2,7 @@ package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
-import com.woowacourse.moragora.dto.UserResponse2;
+import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
@@ -43,8 +43,8 @@ public class UserService {
     public UsersResponse searchByKeyword(final String keyword) {
         validateKeyword(keyword);
         final List<User> searchedUsers = userRepository.findByNicknameOrEmailContaining(keyword);
-        final List<UserResponse2> responses = searchedUsers.stream()
-                .map(UserResponse2::from)
+        final List<UserResponse> responses = searchedUsers.stream()
+                .map(UserResponse::from)
                 .collect(Collectors.toList());
         return new UsersResponse(responses);
     }
@@ -55,9 +55,9 @@ public class UserService {
         }
     }
 
-    public UserResponse2 findById(final Long id) {
+    public UserResponse findById(final Long id) {
         final User user = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
-        return UserResponse2.from(user);
+        return UserResponse.from(user);
     }
 }

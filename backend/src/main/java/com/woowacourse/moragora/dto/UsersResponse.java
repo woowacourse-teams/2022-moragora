@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 public class UsersResponse {
 
-    private final List<UserResponse2> users;
+    private final List<UserResponse> users;
 
-    public UsersResponse(final List<UserResponse2> users) {
+    public UsersResponse(final List<UserResponse> users) {
         this.users = users;
     }
 }

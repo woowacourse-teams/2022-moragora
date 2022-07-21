@@ -4,7 +4,7 @@ import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
 import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
-import com.woowacourse.moragora.dto.UserResponse2;
+import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.service.UserService;
 import java.net.URI;
@@ -47,8 +47,8 @@ public class UserController {
 
     @GetMapping("/me")
     @Authentication
-    public ResponseEntity<UserResponse2> findMyInfo(@AuthenticationPrincipal final Long id) {
-        UserResponse2 response = userService.findById(id);
+    public ResponseEntity<UserResponse> findMyInfo(@AuthenticationPrincipal final Long id) {
+        UserResponse response = userService.findById(id);
         return ResponseEntity.ok(response);
     }
 }

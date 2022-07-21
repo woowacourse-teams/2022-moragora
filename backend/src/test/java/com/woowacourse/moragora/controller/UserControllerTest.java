@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
-import com.woowacourse.moragora.dto.UserResponse2;
+import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.exception.NoKeywordException;
 import com.woowacourse.moragora.exception.NoParameterException;
@@ -133,15 +133,15 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String keyword = "foo";
 
-        final UsersResponse usersResponse = new UsersResponse (
+        final UsersResponse usersResponse = new UsersResponse(
                 List.of(
-                        new UserResponse2(1L, "aaa111@foo.com", "아스피"),
-                        new UserResponse2(2L, "bbb222@foo.com", "필즈"),
-                        new UserResponse2(3L, "ccc333@foo.com", "포키"),
-                        new UserResponse2(4L, "ddd444@foo.com", "썬"),
-                        new UserResponse2(5L, "eee555@foo.com", "우디"),
-                        new UserResponse2(6L, "fff666@foo.com", "쿤"),
-                        new UserResponse2(7L, "ggg777@foo.com", "반듯"))
+                        new UserResponse(1L, "aaa111@foo.com", "아스피"),
+                        new UserResponse(2L, "bbb222@foo.com", "필즈"),
+                        new UserResponse(3L, "ccc333@foo.com", "포키"),
+                        new UserResponse(4L, "ddd444@foo.com", "썬"),
+                        new UserResponse(5L, "eee555@foo.com", "우디"),
+                        new UserResponse(6L, "fff666@foo.com", "쿤"),
+                        new UserResponse(7L, "ggg777@foo.com", "반듯"))
         );
 
         given(userService.searchByKeyword(keyword))
@@ -195,11 +195,11 @@ public class UserControllerTest extends ControllerTest {
         final long id = 1L;
         final String email = "foo@email.com";
         final String nickname = "foo";
-        final UserResponse2 userResponse2 = new UserResponse2(id, email, nickname);
+        final UserResponse userResponse = new UserResponse(id, email, nickname);
 
         validateToken("1");
         given(userService.findById(id))
-                .willReturn(userResponse2);
+                .willReturn(userResponse);
 
         // when
         final ResultActions resultActions = performGet("/users/me");
