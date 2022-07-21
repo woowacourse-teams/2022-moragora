@@ -10,6 +10,7 @@ import ReloadButton from 'components/@shared/ReloadButton';
 import useFetch from 'hooks/useFetch';
 import NoSearchResultIconSVG from 'assets/NoSearchResult.svg';
 import { MeetingListResponseBody } from 'types/meetingType';
+import useTimer from 'hooks/useTimer';
 
 const MeetingListPage = () => {
   const {
@@ -18,6 +19,9 @@ const MeetingListPage = () => {
     error,
     refetch,
   } = useFetch<MeetingListResponseBody>('/meetings/me');
+  const { currentTimestamp } = useTimer(
+    meetingListState?.serverTime || Date.now()
+  );
 
   if (loading) {
     return (
@@ -123,6 +127,7 @@ const MeetingListPage = () => {
     );
   }
 
+  const currentDate = new Date(currentTimestamp);
   const activeMeetings = meetingListState.meetings.filter(
     ({ isActive }) => isActive
   );
@@ -138,7 +143,7 @@ const MeetingListPage = () => {
           <S.DateBox>
             <S.Title>Today</S.Title>
             <S.DateParagraph>
-              {new Date().toLocaleDateString(undefined, {
+              {currentDate.toLocaleDateString(undefined, {
                 weekday: 'long',
                 month: 'long',
                 day: 'numeric',
@@ -147,7 +152,14 @@ const MeetingListPage = () => {
           </S.DateBox>
           <S.DateBox>
             <S.Title>Time</S.Title>
-            <S.DateParagraph>{meetingListState.serverTime}</S.DateParagraph>
+            <S.DateParagraph>
+              {currentDate.toLocaleTimeString(undefined, {
+                hourCycle: 'h24',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+              })}
+            </S.DateParagraph>
           </S.DateBox>
         </S.TimeSection>
         <S.MeetingListSection>
