@@ -13,10 +13,12 @@ export type Meeting = {
   attendanceCount: number;
 };
 
-export type MeetingItem = Omit<
+export type MeetingWithTardyCount = Omit<
   Meeting,
   'leaveTime' | 'attendanceCount' | 'userIds'
->;
+> & {
+  tardyCount: number;
+};
 
 export type MeetingCreateRequestBody = Pick<
   Meeting,
@@ -25,7 +27,7 @@ export type MeetingCreateRequestBody = Pick<
 
 export type MeetingListResponseBody = {
   serverTime: string;
-  meetings: MeetingItem[];
+  meetings: MeetingWithTardyCount[];
 };
 
 export type MeetingResponseBody = Omit<

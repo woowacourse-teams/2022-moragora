@@ -5,13 +5,19 @@ export const Layout = styled.div`
   flex-direction: column;
   flex: 1;
   overflow: hidden;
-  gap: 5rem;
+  gap: 1rem;
 `;
 
-export const AvatarBox = styled.div`
+export const ProfileBox = styled.div`
+  padding: 2rem 0;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
   align-items: center;
+`;
+
+export const NicknameParagraph = styled.p`
+  font-weight: 700;
 `;
 
 export const Image = styled.img`
@@ -19,7 +25,7 @@ export const Image = styled.img`
   height: 10rem;
 `;
 
-export const AvatarBorder = styled.div`
+export const AvatarBox = styled.div`
   border: 4px solid ${({ theme: { colors } }) => colors['subtle-light']};
   border-radius: 50%;
 `;

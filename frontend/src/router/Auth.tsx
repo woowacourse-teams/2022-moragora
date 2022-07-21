@@ -1,19 +1,22 @@
-import { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
+import { userContext } from 'contexts/userContext';
 
-const Auth = ({ isLoggedIn }: { isLoggedIn: boolean }) => {
+type AuthProps = { shouldLogin: boolean };
+
+const Auth: React.FC<AuthProps> = ({ shouldLogin }) => {
   const navigate = useNavigate();
-  const accessToken = localStorage.getItem('accessToken');
+  const userState = useContext(userContext);
 
   useEffect(() => {
-    if (isLoggedIn && !accessToken) {
+    if (shouldLogin && !userState?.user?.accessToken) {
       navigate('/login');
     }
 
-    if (!isLoggedIn && accessToken) {
-      navigate('/meeting');
+    if (!shouldLogin && userState?.user?.accessToken) {
+      navigate('/');
     }
-  }, [navigate, accessToken]);
+  }, [navigate, userState]);
 
   return <Outlet />;
 };

@@ -12,14 +12,14 @@ const Router = () => {
   return useRoutes([
     { path: '/', element: <Navigate to="/meeting" replace /> },
     {
-      element: <Auth isLoggedIn={false} />,
+      element: <Auth shouldLogin={false} />,
       children: [
         { path: '/login', element: <LoginPage /> },
         { path: '/register', element: <RegisterPage /> },
       ],
     },
     {
-      element: <Auth isLoggedIn={true} />,
+      element: <Auth shouldLogin={true} />,
       children: [
         {
           path: '/meeting',

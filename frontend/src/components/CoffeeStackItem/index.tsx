@@ -1,13 +1,13 @@
 import React from 'react';
 import * as S from './CoffeeStackItem.styled';
 import CoffeeIconSVG from '../../assets/coffee.svg';
-import { MeetingItem } from 'types/meetingType';
+import { MeetingWithTardyCount } from 'types/meetingType';
 
-type CoffeeStackItemProps = { name: MeetingItem['name']; tardyCount?: number };
+type CoffeeStackItemProps = Pick<MeetingWithTardyCount, 'name' | 'tardyCount'>;
 
 const CoffeeStackItem: React.FC<CoffeeStackItemProps> = ({
   name,
-  tardyCount = 3,
+  tardyCount,
 }) => {
   return (
     <S.Layout>

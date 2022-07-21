@@ -1,0 +1,1 @@
+export const TOKEN_ERROR_STATUS_CODES = [401, 404];
