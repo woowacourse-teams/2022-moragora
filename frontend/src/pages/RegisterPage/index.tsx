@@ -218,7 +218,7 @@ const RegisterPage = () => {
         </S.RegisterButton>
         <S.LoginHintParagraph>
           이미 가입된 계정이 있으신가요?
-          <S.LoginLink href="">로그인</S.LoginLink>
+          <S.LoginLink to="/login">로그인</S.LoginLink>
         </S.LoginHintParagraph>
       </S.ButtonBox>
     </S.Layout>
