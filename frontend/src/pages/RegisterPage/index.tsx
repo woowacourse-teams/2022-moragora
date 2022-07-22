@@ -209,7 +209,7 @@ const RegisterPage = () => {
               type="text"
               {...register('nickname', {
                 maxLength: 15,
-                pattern: '[a-zA-Z0-9가-힣]){1,15}',
+                pattern: '([a-zA-Z0-9가-힣]){1,15}',
                 required: true,
               })}
               placeholder="15자 이하의 영어, 한글, 숫자 조합으로 입력해주세요."
