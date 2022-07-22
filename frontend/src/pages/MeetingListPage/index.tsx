@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { css } from '@emotion/react';
 import * as S from './MeetingListPage.styled';
 import Footer from 'components/layouts/Footer';
@@ -8,9 +9,9 @@ import CoffeeStackItemSkeleton from 'components/CoffeeStackItemSkeleton';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import ReloadButton from 'components/@shared/ReloadButton';
 import useFetch from 'hooks/useFetch';
+import useTimer from 'hooks/useTimer';
 import NoSearchResultIconSVG from 'assets/NoSearchResult.svg';
 import { MeetingListResponseBody } from 'types/meetingType';
-import useTimer from 'hooks/useTimer';
 
 const MeetingListPage = () => {
   const {
@@ -19,9 +20,36 @@ const MeetingListPage = () => {
     error,
     refetch,
   } = useFetch<MeetingListResponseBody>('/meetings/me');
-  const { currentTimestamp } = useTimer(
+  const { currentTimestamp, elapsed } = useTimer(
     meetingListState?.serverTime || Date.now()
   );
+  const currentDate = new Date(currentTimestamp);
+  const activeMeetings = meetingListState?.meetings.filter(
+    ({ isActive }) => isActive
+  );
+  const inactiveMeetings = meetingListState?.meetings.filter(
+    ({ isActive }) => !isActive
+  );
+  const sortedMeetings = [
+    ...(activeMeetings || []),
+    ...(inactiveMeetings || []),
+  ];
+  const currentLocaleTimeString = currentDate.toLocaleTimeString(undefined, {
+    hourCycle: 'h24',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  useEffect(() => {
+    const closingMeeting = sortedMeetings.find(
+      (meeting) =>
+        meeting.isActive && meeting.closingTime === currentLocaleTimeString
+    );
+
+    if (closingMeeting) {
+      refetch();
+    }
+  }, [currentLocaleTimeString]);
 
   if (loading) {
     return (
@@ -109,17 +137,9 @@ const MeetingListPage = () => {
     );
   }
 
-  const currentDate = new Date(currentTimestamp);
-  const activeMeetings = meetingListState.meetings.filter(
-    ({ isActive }) => isActive
-  );
-  const inactiveMeetings = meetingListState.meetings.filter(
-    ({ isActive }) => !isActive
-  );
-  const sortedMeetings = [...activeMeetings, ...inactiveMeetings];
-
   return (
     <>
+      {currentLocaleTimeString} ({elapsed})
       <S.Layout>
         <S.TimeSection>
           <S.DateBox>
