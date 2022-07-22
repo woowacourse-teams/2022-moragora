@@ -139,7 +139,6 @@ const MeetingListPage = () => {
 
   return (
     <>
-      {currentLocaleTimeString} ({elapsed})
       <S.Layout>
         <S.TimeSection>
           <S.DateBox>
