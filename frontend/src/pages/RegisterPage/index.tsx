@@ -67,7 +67,7 @@ const RegisterPage = () => {
   };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    if (!isValidPasswordConfirm && isEmailExist) {
+    if (!isValidPasswordConfirm || isEmailExist) {
       return;
     }
 

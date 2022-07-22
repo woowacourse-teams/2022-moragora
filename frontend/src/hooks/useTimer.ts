@@ -16,6 +16,11 @@ const useTimer = (initialTimestamp: number) => {
   }, [lastElapsed, startTimestamp]);
 
   useEffect(() => {
+    setStartTimestamp(initialTimestamp);
+    setElapsed(0);
+  }, [initialTimestamp]);
+
+  useEffect(() => {
     requestAnimationRef.current = requestAnimationFrame(getElapsed);
 
     return () => {
