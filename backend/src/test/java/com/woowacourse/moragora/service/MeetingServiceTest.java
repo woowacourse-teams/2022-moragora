@@ -290,6 +290,8 @@ class MeetingServiceTest {
                 .willReturn(LocalDateTime.of(2022, 7, 14, 10, 5));
         given(timeChecker.calculateClosingTime(entranceTime))
                 .willReturn(entranceTime.plusMinutes(5));
+        given(timeChecker.calculateOpeningTime(entranceTime))
+                .willReturn(entranceTime.minusMinutes(30));
 
         meetingService.save(meetingRequest, userId);
 

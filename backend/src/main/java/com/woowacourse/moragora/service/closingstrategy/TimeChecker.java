@@ -17,5 +17,7 @@ public abstract class TimeChecker {
 
     public abstract boolean isExcessClosingTime(final LocalTime now, final LocalTime entranceTime);
 
+    public abstract LocalTime calculateOpeningTime(final LocalTime entranceTime);
+
     public abstract LocalTime calculateClosingTime(final LocalTime entranceTime);
 }

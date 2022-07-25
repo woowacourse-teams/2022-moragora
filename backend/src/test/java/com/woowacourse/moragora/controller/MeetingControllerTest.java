@@ -336,6 +336,8 @@ class MeetingControllerTest extends ControllerTest {
                         LocalDate.of(2022, 7, 10),
                         LocalDate.of(2022, 8, 10),
                         LocalTime.of(10, 0),
+                        LocalTime.of(11, 0),
+                        LocalTime.of(9, 30),
                         LocalTime.of(10, 5), 1);
 
         final MyMeetingResponse myMeetingResponse2 =
@@ -343,6 +345,8 @@ class MeetingControllerTest extends ControllerTest {
                         LocalDate.of(2022, 7, 15),
                         LocalDate.of(2022, 8, 15),
                         LocalTime.of(9, 0),
+                        LocalTime.of(10, 0),
+                        LocalTime.of(8, 30),
                         LocalTime.of(9, 5), 2);
 
         final MyMeetingsResponse meetingsResponse =
@@ -365,6 +369,8 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.meetings[*].startDate", containsInAnyOrder("2022-07-10", "2022-07-15")))
                 .andExpect(jsonPath("$.meetings[*].endDate", containsInAnyOrder("2022-08-10", "2022-08-15")))
                 .andExpect(jsonPath("$.meetings[*].entranceTime", containsInAnyOrder("09:00", "10:00")))
+                .andExpect(jsonPath("$.meetings[*].leaveTime", containsInAnyOrder("10:00", "11:00")))
+                .andExpect(jsonPath("$.meetings[*].openingTime", containsInAnyOrder("08:30", "09:30")))
                 .andExpect(jsonPath("$.meetings[*].closingTime", containsInAnyOrder("09:05", "10:05")))
                 .andExpect(jsonPath("$.meetings[*].tardyCount", containsInAnyOrder(1, 2)))
                 .andDo(document("meeting/find-my-meetings",
@@ -380,6 +386,10 @@ class MeetingControllerTest extends ControllerTest {
                                         .description("2022-08-10"),
                                 fieldWithPath("meetings[].entranceTime").type(JsonFieldType.STRING)
                                         .description("09:00"),
+                                fieldWithPath("meetings[].leaveTime").type(JsonFieldType.STRING)
+                                        .description("10:00"),
+                                fieldWithPath("meetings[].openingTime").type(JsonFieldType.STRING)
+                                        .description("08:30"),
                                 fieldWithPath("meetings[].closingTime").type(JsonFieldType.STRING)
                                         .description("09:05"),
                                 fieldWithPath("meetings[].tardyCount").type(JsonFieldType.NUMBER)
