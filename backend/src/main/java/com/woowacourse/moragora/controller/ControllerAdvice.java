@@ -34,6 +34,6 @@ public class ControllerAdvice {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleInternalServerError() {
-        return ResponseEntity.badRequest().body(new ErrorResponse("입력 형식이 올바르지 않습니다."));
+        return ResponseEntity.internalServerError().body(new ErrorResponse("서버에 오류가 발생했습니다."));
     }
 }
