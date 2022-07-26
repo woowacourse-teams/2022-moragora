@@ -8,7 +8,7 @@ import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.exception.NoParameterException;
-import com.woowacourse.moragora.exception.UserNotFoundException;
+import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

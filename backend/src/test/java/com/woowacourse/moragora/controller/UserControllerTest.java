@@ -184,7 +184,7 @@ public class UserControllerTest extends ControllerTest {
 
         // then
         resultActions.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", equalTo("검색어가 입력되지 않았습니다.")));
+                .andExpect(jsonPath("$.message", equalTo("값이 입력되지 않았습니다.")));
     }
 
     @DisplayName("로그인한 회원의 정보를 조회한다.")

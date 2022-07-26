@@ -1,5 +1,6 @@
-package com.woowacourse.moragora.exception;
+package com.woowacourse.moragora.exception.meeting;
 
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import org.springframework.http.HttpStatus;
 
 public class ClosingTimeExcessException extends ClientRuntimeException {

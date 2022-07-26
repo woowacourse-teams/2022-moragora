@@ -1,4 +1,6 @@
-package com.woowacourse.moragora.exception;
+package com.woowacourse.moragora.exception.meeting;
+
+import com.woowacourse.moragora.exception.NotFoundException;
 
 public class AttendanceNotFoundException extends NotFoundException {
 
