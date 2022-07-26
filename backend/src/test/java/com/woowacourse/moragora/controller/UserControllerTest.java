@@ -16,7 +16,6 @@ import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
-import com.woowacourse.moragora.exception.NoKeywordException;
 import com.woowacourse.moragora.exception.NoParameterException;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -178,7 +177,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String keyword = "";
         given(userService.searchByKeyword(keyword))
-                .willThrow(new NoKeywordException());
+                .willThrow(new NoParameterException());
 
         // when
         final ResultActions resultActions = performGet("/users?keyword=" + keyword);

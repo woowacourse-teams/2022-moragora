@@ -6,7 +6,6 @@ import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
-import com.woowacourse.moragora.exception.NoKeywordException;
 import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.repository.UserRepository;
@@ -51,7 +50,7 @@ public class UserService {
 
     private void validateKeyword(final String keyword) {
         if (keyword.isEmpty()) {
-            throw new NoKeywordException();
+            throw new NoParameterException();
         }
     }
 
