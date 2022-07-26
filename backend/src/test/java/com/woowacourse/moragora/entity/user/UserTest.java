@@ -55,7 +55,7 @@ class UserTest {
         final User user = new User("asdf@naver.com", EncodedPassword.fromRawValue(plainPassword), "kun");
 
         // when, then
-        assertThatCode(() -> user.checkPassword(plainPassword))
+        assertThatCode(() -> user.checkPassword(new RawPassword(plainPassword)))
                 .doesNotThrowAnyException();
     }
 
@@ -68,7 +68,7 @@ class UserTest {
         final String wrongPassword = "wrongPassword123!";
 
         // when, then
-        assertThatThrownBy(() -> user.checkPassword(wrongPassword))
+        assertThatThrownBy(() -> user.checkPassword(new RawPassword(wrongPassword)))
                 .isInstanceOf(LoginFailException.class);
     }
 }

@@ -23,8 +23,7 @@ public class EncodedPassword {
         return new EncodedPassword(rawPassword.encode());
     }
 
-    public boolean isSamePassword(final String plainPassword) {
-        final String encryptedPassword = CryptoEncoder.encrypt(plainPassword);
-        return encryptedPassword.equals(value);
+    public boolean isSamePassword(final RawPassword rawPassword) {
+        return value.equals(rawPassword.encode());
     }
 }

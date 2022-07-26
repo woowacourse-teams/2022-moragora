@@ -61,8 +61,8 @@ public class User {
         }
     }
 
-    public void checkPassword(final String plainPassword) {
-        if (!password.isSamePassword(plainPassword)) {
+    public void checkPassword(final RawPassword rawPassword) {
+        if (!password.isSamePassword(rawPassword)) {
             throw new LoginFailException();
         }
     }
