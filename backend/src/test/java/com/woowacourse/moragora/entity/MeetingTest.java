@@ -3,7 +3,7 @@ package com.woowacourse.moragora.entity;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
+import com.woowacourse.moragora.exception.IllegalStartEndDateException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import org.junit.jupiter.api.DisplayName;

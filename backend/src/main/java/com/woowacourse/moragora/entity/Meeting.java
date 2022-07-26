@@ -1,6 +1,6 @@
 package com.woowacourse.moragora.entity;
 
-import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
+import com.woowacourse.moragora.exception.IllegalStartEndDateException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import javax.persistence.Column;
