@@ -3,7 +3,7 @@ package com.woowacourse.moragora.entity.user;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.woowacourse.auth.exception.LoginFailException;
+import com.woowacourse.auth.exception.AuthorizationFailureException;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -69,6 +69,6 @@ class UserTest {
 
         // when, then
         assertThatThrownBy(() -> user.checkPassword(new RawPassword(wrongPassword)))
-                .isInstanceOf(LoginFailException.class);
+                .isInstanceOf(AuthorizationFailureException.class);
     }
 }

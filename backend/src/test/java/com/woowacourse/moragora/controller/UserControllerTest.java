@@ -16,7 +16,6 @@ import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
-import com.woowacourse.moragora.exception.NoKeywordException;
 import com.woowacourse.moragora.exception.NoParameterException;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -178,14 +177,14 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String keyword = "";
         given(userService.searchByKeyword(keyword))
-                .willThrow(new NoKeywordException());
+                .willThrow(new NoParameterException());
 
         // when
         final ResultActions resultActions = performGet("/users?keyword=" + keyword);
 
         // then
         resultActions.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", equalTo("검색어가 입력되지 않았습니다.")));
+                .andExpect(jsonPath("$.message", equalTo("값이 입력되지 않았습니다.")));
     }
 
     @DisplayName("로그인한 회원의 정보를 조회한다.")

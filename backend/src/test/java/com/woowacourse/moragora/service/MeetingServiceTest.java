@@ -14,11 +14,11 @@ import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Status;
-import com.woowacourse.moragora.exception.ClosingTimeExcessException;
-import com.woowacourse.moragora.exception.IllegalParticipantException;
-import com.woowacourse.moragora.exception.MeetingNotFoundException;
-import com.woowacourse.moragora.exception.ParticipantNotFoundException;
-import com.woowacourse.moragora.exception.UserNotFoundException;
+import com.woowacourse.moragora.exception.meeting.ClosingTimeExcessException;
+import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
+import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
+import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
 import com.woowacourse.moragora.util.CurrentDateTime;
 import java.time.LocalDate;
@@ -81,7 +81,7 @@ class MeetingServiceTest {
 
         // when, then
         assertThatThrownBy(() -> meetingService.save(meetingRequest, loginId))
-                .isInstanceOf(IllegalParticipantException.class);
+                .isInstanceOf(InvalidParticipantException.class);
     }
 
     @DisplayName("미팅이 생성될 때, 참가자 명단에 중복이 있는 경우 예외를 반환한다.")
@@ -100,7 +100,7 @@ class MeetingServiceTest {
 
         // when, then
         assertThatThrownBy(() -> meetingService.save(meetingRequest, 1L))
-                .isInstanceOf(IllegalParticipantException.class);
+                .isInstanceOf(InvalidParticipantException.class);
     }
 
     @DisplayName("미팅이 생성될 때, 참가자 명단이 비어있는 경우 예외를 반환한다.")
@@ -118,7 +118,7 @@ class MeetingServiceTest {
 
         // when, then
         assertThatThrownBy(() -> meetingService.save(meetingRequest, 1L))
-                .isInstanceOf(IllegalParticipantException.class);
+                .isInstanceOf(InvalidParticipantException.class);
     }
 
     @DisplayName("미팅이 생성될 때, 참가자 명단에 존재하지 않는 user가 들어가있는 경우 예외를 반환한다.")

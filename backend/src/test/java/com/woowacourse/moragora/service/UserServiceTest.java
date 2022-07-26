@@ -7,9 +7,8 @@ import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
-import com.woowacourse.moragora.exception.NoKeywordException;
 import com.woowacourse.moragora.exception.NoParameterException;
-import com.woowacourse.moragora.exception.UserNotFoundException;
+import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -95,7 +94,7 @@ class UserServiceTest {
     void searchByKeyword_throwsException_ifNoKeyword() {
         // given, when, then
         assertThatThrownBy(() -> userService.searchByKeyword(""))
-                .isInstanceOf(NoKeywordException.class);
+                .isInstanceOf(NoParameterException.class);
     }
 
     @DisplayName("아이디로 회원을 조회한다.")

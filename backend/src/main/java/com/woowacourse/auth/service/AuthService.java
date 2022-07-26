@@ -2,7 +2,7 @@ package com.woowacourse.auth.service;
 
 import com.woowacourse.auth.dto.LoginRequest;
 import com.woowacourse.auth.dto.LoginResponse;
-import com.woowacourse.auth.exception.LoginFailException;
+import com.woowacourse.auth.exception.AuthorizationFailureException;
 import com.woowacourse.auth.support.JwtTokenProvider;
 import com.woowacourse.moragora.entity.user.RawPassword;
 import com.woowacourse.moragora.entity.user.User;
@@ -24,7 +24,7 @@ public class AuthService {
 
     public LoginResponse createToken(final LoginRequest loginRequest) {
         final User user = userRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new LoginFailException());
+                .orElseThrow(AuthorizationFailureException::new);
 
         final RawPassword rawPassword = new RawPassword(loginRequest.getPassword());
         user.checkPassword(rawPassword);

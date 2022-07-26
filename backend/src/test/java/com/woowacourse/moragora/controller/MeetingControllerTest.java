@@ -23,11 +23,11 @@ import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Status;
-import com.woowacourse.moragora.exception.IllegalParticipantException;
-import com.woowacourse.moragora.exception.MeetingNotFoundException;
-import com.woowacourse.moragora.exception.ParticipantNotFoundException;
-import com.woowacourse.moragora.exception.UserNotFoundException;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
+import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
+import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
+import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -179,7 +179,7 @@ class MeetingControllerTest extends ControllerTest {
         );
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
-                .willThrow(new IllegalParticipantException("참가자 명단에 중복이 있습니다."));
+                .willThrow(new InvalidParticipantException("참가자 명단에 중복이 있습니다."));
 
         // when
         final ResultActions resultActions = performPost("/meetings", meetingRequest);
@@ -204,7 +204,7 @@ class MeetingControllerTest extends ControllerTest {
         );
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
-                .willThrow(new IllegalParticipantException("생성자를 제외한 참가자가 없습니다."));
+                .willThrow(new InvalidParticipantException("생성자를 제외한 참가자가 없습니다."));
 
         // when
         final ResultActions resultActions = performPost("/meetings", meetingRequest);
@@ -229,7 +229,7 @@ class MeetingControllerTest extends ControllerTest {
         );
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
-                .willThrow(new IllegalParticipantException("생성자가 참가자 명단에 포함되어 있습니다."));
+                .willThrow(new InvalidParticipantException("생성자가 참가자 명단에 포함되어 있습니다."));
 
         // when
         final ResultActions resultActions = performPost("/meetings", meetingRequest);
@@ -421,7 +421,7 @@ class MeetingControllerTest extends ControllerTest {
 
         validateToken("1");
 
-        doThrow(MeetingNotFoundException.class)
+        doThrow(new MeetingNotFoundException())
                 .when(meetingService)
                 .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
 
@@ -442,7 +442,7 @@ class MeetingControllerTest extends ControllerTest {
 
         validateToken("1");
 
-        doThrow(ParticipantNotFoundException.class)
+        doThrow(new ParticipantNotFoundException())
                 .when(meetingService)
                 .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
 

@@ -11,12 +11,12 @@ import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
-import com.woowacourse.moragora.exception.AttendanceNotFoundException;
-import com.woowacourse.moragora.exception.ClosingTimeExcessException;
-import com.woowacourse.moragora.exception.IllegalParticipantException;
-import com.woowacourse.moragora.exception.MeetingNotFoundException;
-import com.woowacourse.moragora.exception.ParticipantNotFoundException;
-import com.woowacourse.moragora.exception.UserNotFoundException;
+import com.woowacourse.moragora.exception.meeting.AttendanceNotFoundException;
+import com.woowacourse.moragora.exception.meeting.ClosingTimeExcessException;
+import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
+import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
+import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
@@ -151,15 +151,15 @@ public class MeetingService {
      */
     private void validateUserIds(final List<Long> userIds, final Long loginId) {
         if (Set.copyOf(userIds).size() != userIds.size()) {
-            throw new IllegalParticipantException(USER_IDS_DUPLICATION_ERROR_MESSAGE);
+            throw new InvalidParticipantException(USER_IDS_DUPLICATION_ERROR_MESSAGE);
         }
 
         if (userIds.contains(loginId)) {
-            throw new IllegalParticipantException(USER_IDS_CONTAIN_LOGIN_ID_ERROR_MESSAGE);
+            throw new InvalidParticipantException(USER_IDS_CONTAIN_LOGIN_ID_ERROR_MESSAGE);
         }
 
         if (userIds.size() == 0) {
-            throw new IllegalParticipantException(EMPTY_USER_IDS_ERROR_MESSAGE);
+            throw new InvalidParticipantException(EMPTY_USER_IDS_ERROR_MESSAGE);
         }
     }
 

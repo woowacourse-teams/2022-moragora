@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.woowacourse.auth.dto.LoginRequest;
 import com.woowacourse.auth.dto.LoginResponse;
-import com.woowacourse.auth.exception.LoginFailException;
+import com.woowacourse.auth.exception.AuthorizationFailureException;
 import com.woowacourse.moragora.controller.ControllerTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,14 +58,14 @@ public class AuthControllerTest extends ControllerTest {
         final LoginRequest loginRequest = new LoginRequest(email, password);
 
         given(authService.createToken(any(LoginRequest.class)))
-                .willThrow(new LoginFailException());
+                .willThrow(new AuthorizationFailureException());
         final String message = "이메일이나 비밀번호가 틀렸습니다.";
 
         // when
         final ResultActions resultActions = performPost("/login", loginRequest);
 
         // then
-        resultActions.andExpect(status().isBadRequest())
+        resultActions.andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("message").value(message))
                 .andDo(document("auth/login-fail",
                         requestFields(
