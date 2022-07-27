@@ -6,7 +6,8 @@ import com.woowacourse.auth.exception.AuthorizationFailureException;
 import com.woowacourse.auth.support.JwtTokenProvider;
 import com.woowacourse.moragora.entity.user.RawPassword;
 import com.woowacourse.moragora.entity.user.User;
-import com.woowacourse.moragora.repository.UserRepository;
+import com.woowacourse.moragora.repository.user.UserRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +18,8 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
 
-    public AuthService(final JwtTokenProvider jwtTokenProvider, final UserRepository userRepository) {
+    public AuthService(final JwtTokenProvider jwtTokenProvider,
+                       @Qualifier("userSpringJpaRepository") final UserRepository userRepository) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
     }

@@ -18,9 +18,9 @@ import com.woowacourse.moragora.exception.participant.InvalidParticipantExceptio
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.repository.ParticipantRepository;
-import com.woowacourse.moragora.repository.UserRepository;
 import com.woowacourse.moragora.repository.attendance.AttendanceRepository;
 import com.woowacourse.moragora.repository.meeting.MeetingRepository;
+import com.woowacourse.moragora.repository.user.UserRepository;
 import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
 import com.woowacourse.moragora.util.CurrentDateTime;
 import java.time.LocalDate;
@@ -51,7 +51,7 @@ public class MeetingService {
     public MeetingService(@Qualifier("meetingSpringJpaRepository") final MeetingRepository meetingRepository,
                           final ParticipantRepository participantRepository,
                           @Qualifier("attendanceSpringJpaRepository") final AttendanceRepository attendanceRepository,
-                          final UserRepository userRepository,
+                          @Qualifier("userSpringJpaRepository") final UserRepository userRepository,
                           final TimeChecker timeChecker, final CurrentDateTime currentDateTime) {
         this.meetingRepository = meetingRepository;
         this.participantRepository = participantRepository;
@@ -71,7 +71,7 @@ public class MeetingService {
         validateUserIds(userIds, loginId);
 
         final User loginUser = findUser(loginId);
-        final List<User> users = userRepository.findByIds(userIds);
+        final List<User> users = userRepository.findByIdIn(userIds);
         validateUserExists(userIds, users);
 
         final Participant loginParticipant = new Participant(loginUser, meeting);
