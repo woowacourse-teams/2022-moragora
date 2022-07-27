@@ -1,4 +1,4 @@
-package com.woowacourse.moragora.repository;
+package com.woowacourse.moragora.repository.participant;
 
 import com.woowacourse.moragora.entity.Participant;
 import java.util.List;
@@ -11,12 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional(readOnly = true)
-public class ParticipantRepository {
+public class ParticipantHibernateRepository implements ParticipantRepository {
 
     @PersistenceContext
     private final EntityManager entityManager;
 
-    public ParticipantRepository(final EntityManager entityManager) {
+    public ParticipantHibernateRepository(final EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
@@ -28,7 +28,7 @@ public class ParticipantRepository {
 
     public List<Participant> findByMeetingId(final Long meetingId) {
         return entityManager.createQuery("select p from Participant p where p.meeting.id = :meetingId",
-                        Participant.class)
+                Participant.class)
                 .setParameter("meetingId", meetingId)
                 .getResultList();
     }
@@ -49,7 +49,7 @@ public class ParticipantRepository {
 
     public List<Participant> findByUserId(final Long userId) {
         return entityManager.createQuery("select p from Participant p where p.user.id = :userId",
-                        Participant.class)
+                Participant.class)
                 .setParameter("userId", userId)
                 .getResultList();
     }

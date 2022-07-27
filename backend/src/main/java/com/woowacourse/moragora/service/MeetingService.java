@@ -17,9 +17,9 @@ import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
-import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.attendance.AttendanceRepository;
 import com.woowacourse.moragora.repository.meeting.MeetingRepository;
+import com.woowacourse.moragora.repository.participant.ParticipantRepository;
 import com.woowacourse.moragora.repository.user.UserRepository;
 import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
 import com.woowacourse.moragora.util.CurrentDateTime;
@@ -49,7 +49,7 @@ public class MeetingService {
     private final CurrentDateTime currentDateTime;
 
     public MeetingService(@Qualifier("meetingSpringJpaRepository") final MeetingRepository meetingRepository,
-                          final ParticipantRepository participantRepository,
+                          @Qualifier("participantSpringJpaRepository") final ParticipantRepository participantRepository,
                           @Qualifier("attendanceSpringJpaRepository") final AttendanceRepository attendanceRepository,
                           @Qualifier("userSpringJpaRepository") final UserRepository userRepository,
                           final TimeChecker timeChecker, final CurrentDateTime currentDateTime) {
