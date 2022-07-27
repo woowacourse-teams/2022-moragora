@@ -3,6 +3,7 @@ package com.woowacourse.moragora.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.entity.Attendance;
+import com.woowacourse.moragora.repository.attendance.AttendanceHibernateRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -14,10 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
-class AttendanceRepositoryTest {
+class AttendanceHibernateRepositoryTest {
 
     @Autowired
-    private AttendanceRepository attendanceRepository;
+    private AttendanceHibernateRepository attendanceHibernateRepository;
 
     @DisplayName("미팅 참가자의 누적 출석정보를 조회한다")
     @Test
@@ -26,7 +27,7 @@ class AttendanceRepositoryTest {
         final Long participantId = 1L;
 
         // when
-        final List<Attendance> attendances = attendanceRepository.findByParticipantId(participantId);
+        final List<Attendance> attendances = attendanceHibernateRepository.findByParticipantId(participantId);
 
         // then
         assertThat(attendances.size()).isEqualTo(3);
@@ -40,7 +41,7 @@ class AttendanceRepositoryTest {
         final LocalDate attendanceDate = LocalDate.of(2022, 7, 14);
 
         // when
-        final Optional<Attendance> attendance = attendanceRepository
+        final Optional<Attendance> attendance = attendanceHibernateRepository
                 .findByParticipantIdAndAttendanceDate(participantId, attendanceDate);
 
         // then

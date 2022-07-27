@@ -6,12 +6,13 @@ import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
-import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
+import com.woowacourse.moragora.repository.attendance.AttendanceRepository;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
@@ -26,7 +27,7 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
 
     public ApplicationStartupRunner(final MeetingRepository meetingRepository,
                                     final UserRepository userRepository,
-                                    final AttendanceRepository attendanceRepository,
+                                    @Qualifier("attendanceSpringJpaRepository") final AttendanceRepository attendanceRepository,
                                     final ParticipantRepository participantRepository) {
         this.meetingRepository = meetingRepository;
         this.userRepository = userRepository;
