@@ -21,7 +21,6 @@ public interface UserSpringJpaRepository extends JpaRepository<User, Long>, User
 
     Optional<User> findByEmail(final String email);
 
-    @Query("select u from User u where u.nickname like " + "%" + ":keyword" + "%" + " or u.email like " + "%"
-            + ":keyword" + "%")
+    @Query("select u from User u where u.nickname like %:keyword% or u.email like %:keyword%")
     List<User> findByNicknameContainingOrEmailContaining(final String keyword);
 }
