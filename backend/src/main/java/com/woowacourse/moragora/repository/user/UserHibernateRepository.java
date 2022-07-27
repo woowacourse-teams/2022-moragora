@@ -43,8 +43,8 @@ public class UserHibernateRepository implements UserRepository {
         }
     }
 
-    public Optional<User> findById(final Long userId) {
-        final User user = entityManager.find(User.class, userId);
+    public Optional<User> findById(final Long id) {
+        final User user = entityManager.find(User.class, id);
         return Optional.ofNullable(user);
     }
 

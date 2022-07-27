@@ -8,7 +8,7 @@ public interface UserRepository {
 
     User save(final User user);
 
-    Optional<User> findById(final Long userId);
+    Optional<User> findById(final Long id);
 
     List<User> findByIdIn(final List<Long> ids);
 
