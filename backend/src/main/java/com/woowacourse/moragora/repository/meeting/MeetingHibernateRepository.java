@@ -1,4 +1,4 @@
-package com.woowacourse.moragora.repository;
+package com.woowacourse.moragora.repository.meeting;
 
 import com.woowacourse.moragora.entity.Meeting;
 import java.util.Optional;
@@ -9,12 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional(readOnly = true)
-public class MeetingRepository {
+public class MeetingHibernateRepository implements MeetingRepository {
 
     @PersistenceContext
     private final EntityManager entityManager;
 
-    public MeetingRepository(final EntityManager entityManager) {
+    public MeetingHibernateRepository(final EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 

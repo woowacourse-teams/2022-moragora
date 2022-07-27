@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 class AttendanceHibernateRepositoryTest {
 
     @Autowired
-    private AttendanceHibernateRepository attendanceHibernateRepository;
+    private AttendanceHibernateRepository attendanceRepository;
 
     @DisplayName("미팅 참가자의 누적 출석정보를 조회한다")
     @Test
@@ -27,7 +27,7 @@ class AttendanceHibernateRepositoryTest {
         final Long participantId = 1L;
 
         // when
-        final List<Attendance> attendances = attendanceHibernateRepository.findByParticipantId(participantId);
+        final List<Attendance> attendances = attendanceRepository.findByParticipantId(participantId);
 
         // then
         assertThat(attendances.size()).isEqualTo(3);
@@ -41,7 +41,7 @@ class AttendanceHibernateRepositoryTest {
         final LocalDate attendanceDate = LocalDate.of(2022, 7, 14);
 
         // when
-        final Optional<Attendance> attendance = attendanceHibernateRepository
+        final Optional<Attendance> attendance = attendanceRepository
                 .findByParticipantIdAndAttendanceDate(participantId, attendanceDate);
 
         // then
