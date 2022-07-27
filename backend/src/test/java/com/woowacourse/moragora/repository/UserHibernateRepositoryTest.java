@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.repository.user.UserHibernateRepository;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -16,10 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
-class UserRepositoryTest {
+class UserHibernateRepositoryTest {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserHibernateRepository userRepository;
 
     @DisplayName("회원 정보를 저장한다.")
     @Test
@@ -54,7 +55,7 @@ class UserRepositoryTest {
     @Test
     void findByIds() {
         // given
-        final List<User> users = userRepository.findByIds(List.of(1L, 2L, 3L));
+        final List<User> users = userRepository.findByIdIn(List.of(1L, 2L, 3L));
 
         // when, then
         assertThat(users).hasSize(3);
@@ -79,7 +80,7 @@ class UserRepositoryTest {
     @CsvSource(value = {"foo,7", "ggg777@foo.com,1"})
     void findByNicknameOrEmailContaining(final String keyword, final int expectedSize) {
         // given, when
-        final List<User> users = userRepository.findByNicknameOrEmailContaining(keyword);
+        final List<User> users = userRepository.findByNicknameContainingOrEmailContaining(keyword);
 
         // then
         assertThat(users).hasSize(expectedSize);

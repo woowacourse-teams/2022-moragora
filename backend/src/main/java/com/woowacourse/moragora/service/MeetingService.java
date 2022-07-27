@@ -17,10 +17,10 @@ import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
-import com.woowacourse.moragora.repository.AttendanceRepository;
-import com.woowacourse.moragora.repository.MeetingRepository;
-import com.woowacourse.moragora.repository.ParticipantRepository;
-import com.woowacourse.moragora.repository.UserRepository;
+import com.woowacourse.moragora.repository.attendance.AttendanceRepository;
+import com.woowacourse.moragora.repository.meeting.MeetingRepository;
+import com.woowacourse.moragora.repository.participant.ParticipantRepository;
+import com.woowacourse.moragora.repository.user.UserRepository;
 import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
 import com.woowacourse.moragora.util.CurrentDateTime;
 import java.time.LocalDate;
@@ -29,6 +29,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,10 +48,10 @@ public class MeetingService {
     private final TimeChecker timeChecker;
     private final CurrentDateTime currentDateTime;
 
-    public MeetingService(final MeetingRepository meetingRepository,
-                          final ParticipantRepository participantRepository,
-                          final AttendanceRepository attendanceRepository,
-                          final UserRepository userRepository,
+    public MeetingService(@Qualifier("meetingSpringJpaRepository") final MeetingRepository meetingRepository,
+                          @Qualifier("participantSpringJpaRepository") final ParticipantRepository participantRepository,
+                          @Qualifier("attendanceSpringJpaRepository") final AttendanceRepository attendanceRepository,
+                          @Qualifier("userSpringJpaRepository") final UserRepository userRepository,
                           final TimeChecker timeChecker, final CurrentDateTime currentDateTime) {
         this.meetingRepository = meetingRepository;
         this.participantRepository = participantRepository;
@@ -70,7 +71,7 @@ public class MeetingService {
         validateUserIds(userIds, loginId);
 
         final User loginUser = findUser(loginId);
-        final List<User> users = userRepository.findByIds(userIds);
+        final List<User> users = userRepository.findByIdIn(userIds);
         validateUserExists(userIds, users);
 
         final Participant loginParticipant = new Participant(loginUser, meeting);
@@ -216,7 +217,7 @@ public class MeetingService {
                 .collect(Collectors.toList());
         final LocalDate today = now.toLocalDate();
         final List<Attendance> attendances =
-                attendanceRepository.findByParticipantIdsAndAttendanceDate(participantIds, today);
+                attendanceRepository.findByParticipantIdInAndAttendanceDate(participantIds, today);
 
         if (attendances.size() == 0) {
             saveAttendances(participants, today);
@@ -230,6 +231,6 @@ public class MeetingService {
     }
 
     private long getMeetingAttendanceCount(final Participant anyParticipant) {
-        return attendanceRepository.findAttendanceCountById(anyParticipant.getId());
+        return attendanceRepository.countByParticipantId(anyParticipant.getId());
     }
 }

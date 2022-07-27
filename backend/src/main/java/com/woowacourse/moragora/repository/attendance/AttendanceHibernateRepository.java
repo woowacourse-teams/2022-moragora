@@ -1,4 +1,4 @@
-package com.woowacourse.moragora.repository;
+package com.woowacourse.moragora.repository.attendance;
 
 import com.woowacourse.moragora.entity.Attendance;
 import java.time.LocalDate;
@@ -12,12 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional(readOnly = true)
-public class AttendanceRepository {
+public class AttendanceHibernateRepository implements AttendanceRepository {
 
     @PersistenceContext
     private final EntityManager entityManager;
 
-    public AttendanceRepository(final EntityManager entityManager) {
+    public AttendanceHibernateRepository(final EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
@@ -29,12 +29,12 @@ public class AttendanceRepository {
 
     public List<Attendance> findByParticipantId(final Long participantId) {
         return entityManager.createQuery("select a from Attendance a where a.participant.id = :participantId",
-                        Attendance.class)
+                Attendance.class)
                 .setParameter("participantId", participantId)
                 .getResultList();
     }
 
-    public long findAttendanceCountById(final Long participantId) {
+    public Long countByParticipantId(final Long participantId) {
         return entityManager.createQuery(
                 "select count(distinct a.attendanceDate) from Attendance a "
                         + "where a.participant.id = :id", Long.class)
@@ -60,15 +60,8 @@ public class AttendanceRepository {
         }
     }
 
-    public List<Attendance> findByParticipantIds(final List<Long> participantIds) {
-        return entityManager.createQuery("select a from Attendance a where a.participant.id in :participantIds",
-                Attendance.class)
-                .setParameter("participantIds", participantIds)
-                .getResultList();
-    }
-
-    public List<Attendance> findByParticipantIdsAndAttendanceDate(final List<Long> participantIds,
-                                                                  final LocalDate attendanceDate) {
+    public List<Attendance> findByParticipantIdInAndAttendanceDate(final List<Long> participantIds,
+                                                                   final LocalDate attendanceDate) {
         return entityManager.createQuery("select a from Attendance a "
                         + "where a.participant.id in :participantIds and a.attendanceDate = :attendanceDate",
                 Attendance.class)

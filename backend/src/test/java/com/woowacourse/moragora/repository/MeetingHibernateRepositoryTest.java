@@ -3,6 +3,7 @@ package com.woowacourse.moragora.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.repository.meeting.MeetingHibernateRepository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import org.junit.jupiter.api.DisplayName;
@@ -13,10 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
-class MeetingRepositoryTest {
+class MeetingHibernateRepositoryTest {
 
     @Autowired
-    private MeetingRepository meetingRepository;
+    private MeetingHibernateRepository meetingRepository;
 
     @DisplayName("미팅 방을 저장한다.")
     @Test

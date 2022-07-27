@@ -1,4 +1,4 @@
-package com.woowacourse.moragora.repository;
+package com.woowacourse.moragora.repository.user;
 
 import com.woowacourse.moragora.entity.user.User;
 import java.util.List;
@@ -11,12 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional(readOnly = true)
-public class UserRepository {
+public class UserHibernateRepository implements UserRepository {
 
     @PersistenceContext
     private final EntityManager entityManager;
 
-    public UserRepository(final EntityManager entityManager) {
+    public UserHibernateRepository(final EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
@@ -26,9 +26,9 @@ public class UserRepository {
     }
 
     // TODO 메서드명 수정
-    public List<User> findByIds(final List<Long> userIds) {
-        return entityManager.createQuery("select u from User u where u.id in :userIds", User.class)
-                .setParameter("userIds", userIds)
+    public List<User> findByIdIn(final List<Long> ids) {
+        return entityManager.createQuery("select u from User u where u.id in :ids", User.class)
+                .setParameter("ids", ids)
                 .getResultList();
     }
 
@@ -43,14 +43,14 @@ public class UserRepository {
         }
     }
 
-    public Optional<User> findById(final Long userId) {
-        final User user = entityManager.find(User.class, userId);
+    public Optional<User> findById(final Long id) {
+        final User user = entityManager.find(User.class, id);
         return Optional.ofNullable(user);
     }
 
-    public List<User> findByNicknameOrEmailContaining(final String keyword) {
+    public List<User> findByNicknameContainingOrEmailContaining(final String keyword) {
         return entityManager.createQuery(
-                        "select u from User u where u.email like :keyword or u.nickname like :keyword", User.class)
+                "select u from User u where u.email like :keyword or u.nickname like :keyword", User.class)
                 .setParameter("keyword", "%" + keyword + "%")
                 .getResultList();
     }
