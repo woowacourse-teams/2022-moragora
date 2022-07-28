@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
-import com.woowacourse.moragora.repository.user.UserHibernateRepository;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -17,10 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
-class UserHibernateRepositoryTest {
+class UserRepositoryTest {
 
     @Autowired
-    private UserHibernateRepository userRepository;
+    private UserRepository userRepository;
 
     @DisplayName("회원 정보를 저장한다.")
     @Test

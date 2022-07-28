@@ -1,4 +1,4 @@
-package com.woowacourse.moragora.repository.user;
+package com.woowacourse.moragora.repository;
 
 import com.woowacourse.moragora.entity.user.User;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface UserSpringJpaRepository extends JpaRepository<User, Long>, UserRepository {
-    
+public interface UserRepository extends JpaRepository<User, Long> {
+
     List<User> findByIdIn(final List<Long> ids);
 
     Optional<User> findByEmail(final String email);
