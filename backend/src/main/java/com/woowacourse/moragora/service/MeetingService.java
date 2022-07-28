@@ -7,6 +7,7 @@ import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Attendance;
+import com.woowacourse.moragora.entity.Master;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
@@ -17,6 +18,7 @@ import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
+import com.woowacourse.moragora.repository.MasterRepository;
 import com.woowacourse.moragora.repository.attendance.AttendanceRepository;
 import com.woowacourse.moragora.repository.meeting.MeetingRepository;
 import com.woowacourse.moragora.repository.participant.ParticipantRepository;
@@ -45,6 +47,7 @@ public class MeetingService {
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
+    private final MasterRepository masterRepository;
     private final TimeChecker timeChecker;
     private final CurrentDateTime currentDateTime;
 
@@ -52,11 +55,13 @@ public class MeetingService {
                           @Qualifier("participantSpringJpaRepository") final ParticipantRepository participantRepository,
                           @Qualifier("attendanceSpringJpaRepository") final AttendanceRepository attendanceRepository,
                           @Qualifier("userSpringJpaRepository") final UserRepository userRepository,
+                          final MasterRepository masterRepository,
                           final TimeChecker timeChecker, final CurrentDateTime currentDateTime) {
         this.meetingRepository = meetingRepository;
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
+        this.masterRepository = masterRepository;
         this.timeChecker = timeChecker;
         this.currentDateTime = currentDateTime;
     }
@@ -84,10 +89,13 @@ public class MeetingService {
             participantRepository.save(participant);
         }
 
+        appointMaster(loginParticipant);
+
         return meeting.getId();
     }
 
     // TODO 1 + N 최적화 대상
+
     @Transactional
     public MeetingResponse findById(final Long meetingId) {
         final Meeting meeting = findMeeting(meetingId);
@@ -135,6 +143,11 @@ public class MeetingService {
                 .orElseThrow(AttendanceNotFoundException::new);
 
         attendance.changeAttendanceStatus(request.getAttendanceStatus());
+    }
+
+    private void appointMaster(final Participant loginParticipant) {
+        final Master master = new Master(loginParticipant, currentDateTime.getValue().toLocalDate());
+        masterRepository.save(master);
     }
 
     private Meeting findMeeting(final Long id) {

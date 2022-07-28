@@ -39,6 +39,8 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 LocalTime.of(18, 0),
                 List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.of(2022, 7, 10, 0, 0));
 
         // when
         final ValidatableResponse response = post("/meetings", meetingRequest, signUpAndGetToken());

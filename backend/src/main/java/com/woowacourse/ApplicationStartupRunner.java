@@ -1,11 +1,13 @@
 package com.woowacourse;
 
 import com.woowacourse.moragora.entity.Attendance;
+import com.woowacourse.moragora.entity.Master;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.repository.MasterRepository;
 import com.woowacourse.moragora.repository.attendance.AttendanceRepository;
 import com.woowacourse.moragora.repository.meeting.MeetingRepository;
 import com.woowacourse.moragora.repository.participant.ParticipantRepository;
@@ -24,15 +26,18 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
     private final UserRepository userRepository;
     private final AttendanceRepository attendanceRepository;
     private final ParticipantRepository participantRepository;
+    private final MasterRepository masterRepository;
 
     public ApplicationStartupRunner(@Qualifier("meetingSpringJpaRepository") final MeetingRepository meetingRepository,
                                     @Qualifier("userSpringJpaRepository") final UserRepository userRepository,
                                     @Qualifier("attendanceSpringJpaRepository") final AttendanceRepository attendanceRepository,
-                                    @Qualifier("participantSpringJpaRepository") final ParticipantRepository participantRepository) {
+                                    @Qualifier("participantSpringJpaRepository") final ParticipantRepository participantRepository,
+                                    final MasterRepository masterRepository) {
         this.meetingRepository = meetingRepository;
         this.userRepository = userRepository;
         this.attendanceRepository = attendanceRepository;
         this.participantRepository = participantRepository;
+        this.masterRepository = masterRepository;
     }
 
     @Override
@@ -77,6 +82,9 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
         participantRepository.save(participant5);
         participantRepository.save(participant6);
         participantRepository.save(participant7);
+
+        final Master master = new Master(participant1, LocalDate.of(2022, 7, 10));
+        masterRepository.save(master);
 
         final Attendance attendance1 = new Attendance(participant1, LocalDate.of(2022, 7, 12), Status.TARDY);
         final Attendance attendance2 = new Attendance(participant2, LocalDate.of(2022, 7, 12), Status.TARDY);

@@ -57,6 +57,8 @@ class MeetingServiceTest {
                 LocalTime.of(18, 0),
                 List.of(2L, 3L, 4L, 5L, 6L, 7L)
         );
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.of(2022, 7, 10, 0, 0));
 
         // when
         final Long expected = meetingService.save(meetingRequest, 1L);
@@ -342,9 +344,13 @@ class MeetingServiceTest {
     @Test
     void updateAttendance_throwsException_ifParticipantNotFound() {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest("meeting", LocalDate.now(), LocalDate.now(),
-                LocalTime.now(),
-                LocalTime.now(), List.of(2L, 3L, 4L, 5L));
+        final LocalDateTime now = LocalDateTime.now();
+        final MeetingRequest meetingRequest = new MeetingRequest("meeting", now.toLocalDate(), now.toLocalDate(),
+                now.toLocalTime(),
+                now.toLocalTime(), List.of(2L, 3L, 4L, 5L));
+        given(currentDateTime.getValue())
+                .willReturn(now);
+
         final Long meetingId = meetingService.save(meetingRequest, 1L);
         final Long userId = 6L;
 
