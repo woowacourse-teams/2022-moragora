@@ -51,7 +51,7 @@ const MeetingListPage = () => {
     }
   }, [currentLocaleTimeString]);
 
-  if (loading) {
+  if (loading && !meetingListState) {
     return (
       <>
         <S.Layout>
