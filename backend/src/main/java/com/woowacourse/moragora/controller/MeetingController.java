@@ -37,8 +37,8 @@ public class MeetingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MeetingResponse> findOne(@PathVariable final Long id) {
-        final MeetingResponse meetingResponse = meetingService.findById(id);
+    public ResponseEntity<MeetingResponse> findOne(@PathVariable final Long id, @AuthenticationPrincipal Long loginId) {
+        final MeetingResponse meetingResponse = meetingService.findById(id, loginId);
         return ResponseEntity.ok(meetingResponse);
     }
 

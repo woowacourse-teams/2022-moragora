@@ -145,7 +145,8 @@ class MeetingServiceTest {
     @Test
     void findById() {
         // given
-        final Long id = 1L;
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
         final MeetingResponse expectedMeetingResponse = new MeetingResponse(
                 1L,
                 "모임1",
@@ -154,6 +155,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
+                true,
                 null
         );
 
@@ -161,7 +163,7 @@ class MeetingServiceTest {
                 .willReturn(LocalDateTime.of(2022, 7, 14, 0, 0));
 
         // when
-        final MeetingResponse response = meetingService.findById(id);
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
 
         // then
         assertThat(response).usingRecursiveComparison()
@@ -173,7 +175,8 @@ class MeetingServiceTest {
     @Test
     void findById_putAttendanceIfAbsent() {
         // given
-        final Long id = 1L;
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
         final MeetingResponse expectedMeetingResponse = new MeetingResponse(
                 1L,
                 "모임1",
@@ -182,6 +185,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
+                true,
                 null
         );
 
@@ -189,7 +193,7 @@ class MeetingServiceTest {
                 .willReturn(LocalDateTime.now());
 
         // when
-        final MeetingResponse response = meetingService.findById(id);
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
 
         // then
         assertThat(response).usingRecursiveComparison()
@@ -201,7 +205,8 @@ class MeetingServiceTest {
     @Test
     void findById_ifNotOverClosingTime() {
         // given
-        final Long id = 1L;
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
         final MeetingResponse expectedMeetingResponse = new MeetingResponse(
                 1L,
                 "모임1",
@@ -210,6 +215,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
+                true,
                 List.of(
                         new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
                         new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
@@ -224,7 +230,7 @@ class MeetingServiceTest {
                 .willReturn(LocalDateTime.of(2022, 7, 14, 0, 0));
 
         // when
-        final MeetingResponse response = meetingService.findById(id);
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
 
         // then
         assertThat(response).usingRecursiveComparison()
@@ -235,7 +241,8 @@ class MeetingServiceTest {
     @Test
     void findById_ifOverClosingTime() {
         // given
-        final Long id = 1L;
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
         final MeetingResponse expectedMeetingResponse = new MeetingResponse(
                 1L,
                 "모임1",
@@ -244,6 +251,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
+                true,
                 List.of(
                         new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
                         new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 3),
@@ -261,11 +269,49 @@ class MeetingServiceTest {
                 .willReturn(true);
 
         // when
-        final MeetingResponse response = meetingService.findById(id);
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
 
         // then
         assertThat(response).usingRecursiveComparison()
                 .isEqualTo(expectedMeetingResponse);
+    }
+
+    @DisplayName("Master인 id로 모임 상세 정보를 조회한다")
+    @Test
+    void findById_isMaster() {
+        // given
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
+
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.of(2022, 7, 14, 10, 5));
+        given(timeChecker.isExcessClosingTime(any(LocalTime.class), any(LocalTime.class)))
+                .willReturn(true);
+
+        // when
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
+
+        // then
+        assertThat(response.getIsMaster()).isTrue();
+    }
+
+    @DisplayName("Master가 아닌 id로 모임 상세 정보를 조회한다")
+    @Test
+    void findById_NotMaster() {
+        // given
+        final Long meetingId = 1L;
+        final Long loginId = 2L;
+
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.of(2022, 7, 14, 10, 5));
+        given(timeChecker.isExcessClosingTime(any(LocalTime.class), any(LocalTime.class)))
+                .willReturn(true);
+
+        // when
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
+
+        // then
+        assertThat(response.getIsMaster()).isFalse();
     }
 
     @DisplayName("유저 id로 유저가 속한 모든 모임을 조회한다.")

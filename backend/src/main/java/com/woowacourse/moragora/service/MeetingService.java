@@ -29,6 +29,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -85,7 +86,7 @@ public class MeetingService {
 
     // TODO 1 + N 최적화 대상
     @Transactional
-    public MeetingResponse findById(final Long meetingId) {
+    public MeetingResponse findById(final Long meetingId, final Long loginId) {
         final Meeting meeting = findMeeting(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
         final LocalDateTime now = currentDateTime.getValue();
@@ -96,7 +97,8 @@ public class MeetingService {
                 .map(participant -> generateUserResponse(meeting, now, participant))
                 .collect(Collectors.toList());
 
-        return MeetingResponse.of(meeting, participantResponses, getMeetingAttendanceCount(participants.get(0)));
+        return MeetingResponse.of(meeting, isMaster(meetingId, loginId), participantResponses,
+                getMeetingAttendanceCount(participants.get(0)));
     }
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
@@ -133,6 +135,34 @@ public class MeetingService {
         attendance.changeAttendanceStatus(request.getAttendanceStatus());
     }
 
+    /**
+     * 참가자 userIds 내부에 loginId가 있는지 검증해야 userIds.size()가 0인지 검증이 정상적으로 이루어집니다.
+     */
+    private void validateUserIds(final List<Long> userIds, final Long loginId) {
+        if (Set.copyOf(userIds).size() != userIds.size()) {
+            throw new InvalidParticipantException(USER_IDS_DUPLICATION_ERROR_MESSAGE);
+        }
+
+        if (userIds.contains(loginId)) {
+            throw new InvalidParticipantException(USER_IDS_CONTAIN_LOGIN_ID_ERROR_MESSAGE);
+        }
+
+        if (userIds.size() == 0) {
+            throw new InvalidParticipantException(EMPTY_USER_IDS_ERROR_MESSAGE);
+        }
+    }
+
+    private User findUser(final Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+    }
+
+    private void validateUserExists(final List<Long> userIds, final List<User> users) {
+        if (users.size() != userIds.size()) {
+            throw new UserNotFoundException();
+        }
+    }
+
     private void generateParticipantsAndMaster(final Meeting meeting, final User loginUser, final List<User> users) {
         final Participant loginParticipant = new Participant(loginUser, meeting);
         final List<Participant> participants = users.stream()
@@ -157,32 +187,13 @@ public class MeetingService {
                 .orElseThrow(MeetingNotFoundException::new);
     }
 
-    private User findUser(final Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(UserNotFoundException::new);
-    }
+    private boolean isMaster(final Long meetingId, final Long loginId) {
+        final Participant participant = participantRepository
+                .findByMeetingIdAndUserId(meetingId, loginId)
+                .orElseThrow(ParticipantNotFoundException::new);
+        final Optional<Master> master = masterRepository.findByParticipantId(participant.getId());
 
-    /**
-     * 참가자 userIds 내부에 loginId가 있는지 검증해야 userIds.size()가 0인지 검증이 정상적으로 이루어집니다.
-     */
-    private void validateUserIds(final List<Long> userIds, final Long loginId) {
-        if (Set.copyOf(userIds).size() != userIds.size()) {
-            throw new InvalidParticipantException(USER_IDS_DUPLICATION_ERROR_MESSAGE);
-        }
-
-        if (userIds.contains(loginId)) {
-            throw new InvalidParticipantException(USER_IDS_CONTAIN_LOGIN_ID_ERROR_MESSAGE);
-        }
-
-        if (userIds.size() == 0) {
-            throw new InvalidParticipantException(EMPTY_USER_IDS_ERROR_MESSAGE);
-        }
-    }
-
-    private void validateUserExists(final List<Long> userIds, final List<User> users) {
-        if (users.size() != userIds.size()) {
-            throw new UserNotFoundException();
-        }
+        return master.isPresent();
     }
 
     private ParticipantResponse generateUserResponse(final Meeting meeting, final LocalDateTime now,

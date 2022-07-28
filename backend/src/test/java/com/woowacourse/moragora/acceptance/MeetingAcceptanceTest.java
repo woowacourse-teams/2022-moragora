@@ -5,11 +5,14 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.BDDMockito.given;
 
+import com.woowacourse.auth.dto.LoginRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.util.CurrentDateTime;
 import io.restassured.RestAssured;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -57,9 +60,11 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         final int id = 1;
         given(currentDateTime.getValue())
                 .willReturn(LocalDateTime.now());
+        final LoginRequest loginRequest = new LoginRequest("aaa111@foo.com", "1234smart!");
+        final ExtractableResponse<Response> loginResponse = post("/login", loginRequest).extract();
 
         // when
-        final ValidatableResponse response = get("/meetings/" + id, signUpAndGetToken());
+        final ValidatableResponse response = get("/meetings/" + id, loginResponse.jsonPath().get("accessToken"));
 
         // then
         response.statusCode(HttpStatus.OK.value())
@@ -70,6 +75,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("endDate", equalTo("2022-08-10"))
                 .body("entranceTime", equalTo("10:00"))
                 .body("leaveTime", equalTo("18:00"))
+                .body("isMaster", equalTo(true))
                 .body("users.id", containsInAnyOrder(1, 2, 3, 4, 5, 6, 7))
                 .body("users.nickname", containsInAnyOrder("아스피", "필즈", "포키",
                         "썬", "우디", "쿤", "반듯"))

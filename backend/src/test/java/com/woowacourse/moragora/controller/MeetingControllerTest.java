@@ -281,12 +281,13 @@ class MeetingControllerTest extends ControllerTest {
         final LocalDate endDate = LocalDate.of(2022, 8, 10);
         final LocalTime entranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
+        final boolean isMaster = true;
         final MeetingResponse meetingResponse = new MeetingResponse(id, name, attendanceCount, startDate, endDate,
-                entranceTime, leaveTime, participantResponses
+                entranceTime, leaveTime, isMaster, participantResponses
         );
 
-        validateToken("1");
-        given(meetingService.findById(eq(1L)))
+        final Long loginId = validateToken("1");
+        given(meetingService.findById(eq(1L), eq(loginId)))
                 .willReturn(meetingResponse);
 
         // when
@@ -301,6 +302,7 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.endDate", equalTo("2022-08-10")))
                 .andExpect(jsonPath("$.entranceTime", equalTo("10:00")))
                 .andExpect(jsonPath("$.leaveTime", equalTo("18:00")))
+                .andExpect(jsonPath("$.isMaster", equalTo(true)))
                 .andExpect(jsonPath("$.users[*].id", containsInAnyOrder(1, 2)))
                 .andExpect(jsonPath("$.users[*].email", containsInAnyOrder("abc@naver.com", "def@naver.com")))
                 .andExpect(jsonPath("$.users[*].nickname", containsInAnyOrder("foo", "boo")))
@@ -316,6 +318,7 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("endDate").type(JsonFieldType.STRING).description(endDate),
                                 fieldWithPath("entranceTime").type(JsonFieldType.STRING).description(entranceTime),
                                 fieldWithPath("leaveTime").type(JsonFieldType.STRING).description(leaveTime),
+                                fieldWithPath("isMaster").type(JsonFieldType.BOOLEAN).description(isMaster),
                                 fieldWithPath("users[].id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("users[].email").type(JsonFieldType.STRING).description("abc@email.com"),
                                 fieldWithPath("users[].nickname").type(JsonFieldType.STRING).description("foo"),
