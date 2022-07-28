@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 
-const useTimer = (initialTimestamp: number) => {
+const useTimer = (initialTimestamp: number, intervalMs: number = 1000) => {
   const requestAnimationRef = useRef<number>();
   const [startTimestamp, setStartTimestamp] = useState(initialTimestamp);
   const [elapsed, setElapsed] = useState(0);
@@ -12,7 +12,11 @@ const useTimer = (initialTimestamp: number) => {
     const elapsedMilliSeconds =
       lastElapsed + currentDateMilliSeconds - startTimestamp;
 
-    setElapsed(elapsedMilliSeconds);
+    setElapsed((prev) => {
+      const shouldUpdate = elapsedMilliSeconds - prev >= intervalMs;
+
+      return shouldUpdate ? elapsedMilliSeconds : prev;
+    });
   }, [lastElapsed, startTimestamp]);
 
   useEffect(() => {
@@ -20,15 +24,20 @@ const useTimer = (initialTimestamp: number) => {
     setElapsed(0);
   }, [initialTimestamp]);
 
+  const startAnimationFrame = () => {
+    getElapsed();
+    requestAnimationRef.current = requestAnimationFrame(startAnimationFrame);
+  };
+
   useEffect(() => {
-    requestAnimationRef.current = requestAnimationFrame(getElapsed);
+    startAnimationFrame();
 
     return () => {
       if (requestAnimationRef.current) {
         cancelAnimationFrame(requestAnimationRef.current);
       }
     };
-  }, [requestAnimationRef.current, getElapsed]);
+  }, []);
 
   return { currentTimestamp, elapsed };
 };
