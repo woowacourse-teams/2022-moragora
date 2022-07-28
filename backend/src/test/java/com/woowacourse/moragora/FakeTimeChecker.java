@@ -29,11 +29,6 @@ public class FakeTimeChecker extends TimeChecker {
     }
 
     @Override
-    public boolean isExcessClosingTime(final LocalTime entranceTime) {
-        return false;
-    }
-
-    @Override
     public LocalTime calculateClosingTime(final LocalTime entranceTime) {
         return entranceTime.plusMinutes(5);
     }

@@ -6,7 +6,9 @@ import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
+import com.woowacourse.moragora.entity.AllAttendances;
 import com.woowacourse.moragora.entity.Attendance;
+import com.woowacourse.moragora.entity.Attendances;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
@@ -60,8 +62,6 @@ public class MeetingService {
         this.currentDateTime = currentDateTime;
     }
 
-    // TODO: for 문 안에 insert 한번에 날리는 것 고려
-    // TODO: master 지정해야함
     @Transactional
     public Long save(final MeetingRequest request, final Long loginId) {
         final Meeting meeting = meetingRepository.save(request.toEntity());
@@ -79,28 +79,31 @@ public class MeetingService {
                 .collect(Collectors.toList());
         participants.add(loginParticipant);
 
-        for (Participant participant : participants) {
+        for (final Participant participant : participants) {
+            participant.mapMeeting(meeting);
             participantRepository.save(participant);
         }
 
         return meeting.getId();
     }
 
-    // TODO 1 + N 최적화 대상
     @Transactional
     public MeetingResponse findById(final Long meetingId) {
         final Meeting meeting = findMeeting(meetingId);
-        final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
+        final List<Participant> participants = meeting.getParticipants();
         final LocalDateTime now = currentDateTime.getValue();
 
         putAttendanceIfAbsent(participants, now);
 
+        final AllAttendances allAttendances = extractAllAttendances(participants);
+        final boolean isOver = timeChecker.isExcessClosingTime(now.toLocalTime(), meeting.getEntranceTime());
         final List<ParticipantResponse> participantResponses = participants.stream()
-                .map(participant -> generateUserResponse(meeting, now, participant))
+                .map(participant -> generateParticipantResponse(now, allAttendances, isOver, participant))
                 .collect(Collectors.toList());
 
-        return MeetingResponse.of(meeting, participantResponses, getMeetingAttendanceCount(participants.get(0)));
+        return MeetingResponse.of(meeting, participantResponses, allAttendances.extractProceedDate());
     }
+
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
         final LocalDateTime now = currentDateTime.getValue();
@@ -113,8 +116,6 @@ public class MeetingService {
         return MyMeetingsResponse.of(now, myMeetingResponses);
     }
 
-    // TODO update (1 + N) -> 최적하기
-    // TODO 출석 제출할 때 구현 예정
     @Transactional
     public void updateAttendance(final Long meetingId,
                                  final Long userId,
@@ -124,7 +125,7 @@ public class MeetingService {
         final Meeting meeting = findMeeting(meetingId);
         final User user = findUser(userId);
 
-        validateAttendanceTime(meeting);
+        validateAttendanceTime(meeting, nowDateTime.toLocalTime());
 
         final Participant participant = participantRepository.findByMeetingIdAndUserId(meeting.getId(), user.getId())
                 .orElseThrow(ParticipantNotFoundException::new);
@@ -134,16 +135,6 @@ public class MeetingService {
                 .orElseThrow(AttendanceNotFoundException::new);
 
         attendance.changeAttendanceStatus(request.getAttendanceStatus());
-    }
-
-    private Meeting findMeeting(final Long id) {
-        return meetingRepository.findById(id)
-                .orElseThrow(MeetingNotFoundException::new);
-    }
-
-    private User findUser(final Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(UserNotFoundException::new);
     }
 
     /**
@@ -169,43 +160,49 @@ public class MeetingService {
         }
     }
 
-    private ParticipantResponse generateUserResponse(final Meeting meeting, final LocalDateTime now,
-                                                     final Participant participant) {
-        final Attendance attendance = attendanceRepository
-                .findByParticipantIdAndAttendanceDate(participant.getId(), now.toLocalDate())
-                .orElseThrow(AttendanceNotFoundException::new);
-        return ParticipantResponse.of(participant.getUser(), attendance.getStatus(),
-                countTardy(meeting.getEntranceTime(), now, participant));
-    }
-
-    private int countTardy(final LocalTime entranceTime, final LocalDateTime now, final Participant participant) {
-        final List<Attendance> attendances = getAttendancesByParticipant(entranceTime, now, participant);
-
-        return (int) attendances.stream()
-                .filter(attendance -> attendance.isSameStatus(Status.TARDY))
-                .count();
-    }
-
-    private List<Attendance> getAttendancesByParticipant(final LocalTime entranceTime, final LocalDateTime now,
-                                                         final Participant participant) {
-        final boolean isOver = timeChecker.isExcessClosingTime(now.toLocalTime(), entranceTime);
-        if (isOver) {
-            return attendanceRepository.findByParticipantId(participant.getId());
+    private void saveAttendances(final List<Participant> participants, final LocalDate today) {
+        for (final Participant participant : participants) {
+            attendanceRepository.save(new Attendance(participant, today, Status.TARDY));
         }
+    }
 
-        return attendanceRepository.findByParticipantIdAndAttendanceDateNot(participant.getId(), now.toLocalDate());
+    private AllAttendances extractAllAttendances(final List<Participant> participants) {
+        final List<Long> participantIds = participants.stream()
+                .map(Participant::getId)
+                .collect(Collectors.toList());
+        final List<Attendance> foundAttendances = attendanceRepository.findByParticipantIds(participantIds);
+        return new AllAttendances(foundAttendances);
+    }
+
+    private ParticipantResponse generateParticipantResponse(final LocalDateTime now,
+                                                            final AllAttendances allAttendances,
+                                                            final boolean isOver,
+                                                            final Participant participant) {
+        final Attendances attendances = allAttendances.extractAttendancesByParticipant(participant);
+        final Status status = attendances.extractAttendanceByDate(now.toLocalDate()).getStatus();
+        final int tardyCount = attendances.countTardy(isOver, now.toLocalDate());
+
+        return ParticipantResponse.of(participant.getUser(), status, tardyCount);
     }
 
     private MyMeetingResponse generateMyMeetingResponse(final LocalDateTime now, final Participant participant) {
         final Meeting meeting = participant.getMeeting();
-        return MyMeetingResponse.of(now.toLocalTime(), timeChecker, meeting,
-                countTardy(meeting.getEntranceTime(), now, participant));
+        final List<Participant> participants = meeting.getParticipants();
+        final AllAttendances allAttendances = extractAllAttendances(participants);
+        final Attendances attendances = allAttendances.extractAttendancesByParticipant(participant);
+
+        final boolean isActive = timeChecker.isAttendanceTime(now.toLocalTime(), meeting.getEntranceTime());
+        final boolean isOver = timeChecker.isExcessClosingTime(now.toLocalTime(), meeting.getEntranceTime());
+        final LocalTime closingTime = timeChecker.calculateClosingTime(meeting.getEntranceTime());
+        final int tardyCount = attendances.countTardy(isOver, now.toLocalDate());
+
+        return MyMeetingResponse.of(meeting, isActive, closingTime, tardyCount);
     }
 
-    private void validateAttendanceTime(final Meeting meeting) {
+    private void validateAttendanceTime(final Meeting meeting, final LocalTime now) {
         final LocalTime entranceTime = meeting.getEntranceTime();
-        final boolean isOver = timeChecker.isExcessClosingTime(entranceTime);
-        if (isOver) {
+
+        if (timeChecker.isExcessClosingTime(now, entranceTime)) {
             throw new ClosingTimeExcessException();
         }
     }
@@ -223,13 +220,13 @@ public class MeetingService {
         }
     }
 
-    private void saveAttendances(final List<Participant> participants, final LocalDate today) {
-        for (final Participant participant : participants) {
-            attendanceRepository.save(new Attendance(participant, today, Status.TARDY));
-        }
+    private Meeting findMeeting(final Long id) {
+        return meetingRepository.findById(id)
+                .orElseThrow(MeetingNotFoundException::new);
     }
 
-    private long getMeetingAttendanceCount(final Participant anyParticipant) {
-        return attendanceRepository.findAttendanceCountById(anyParticipant.getId());
+    private User findUser(final Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
     }
 }

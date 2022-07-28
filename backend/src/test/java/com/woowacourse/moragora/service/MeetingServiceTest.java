@@ -302,10 +302,9 @@ class MeetingServiceTest {
                 .isEqualTo(MyMeetingsResponse.of(
                         currentDateTime.getValue(),
                         List.of(
-                                MyMeetingResponse.of(currentDateTime.getValue().toLocalTime(), timeChecker,
-                                        meeting, 1),
-                                MyMeetingResponse.of(currentDateTime.getValue().toLocalTime(), timeChecker,
-                                        meetingRequest.toEntity(), 0)
+                                MyMeetingResponse.of(meeting, false, timeChecker.calculateClosingTime(entranceTime), 1),
+                                MyMeetingResponse.of(meetingRequest.toEntity(), false,
+                                        timeChecker.calculateClosingTime(entranceTime), 0)
                         ))
                 );
     }
@@ -349,6 +348,8 @@ class MeetingServiceTest {
         final Long userId = 6L;
 
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.now());
 
         // when, then
         assertThatThrownBy(() -> meetingService.updateAttendance(meetingId, userId, request))
@@ -361,7 +362,9 @@ class MeetingServiceTest {
         // given
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
-        given(timeChecker.isExcessClosingTime(any(LocalTime.class)))
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.now());
+        given(timeChecker.isExcessClosingTime(any(LocalTime.class), any(LocalTime.class)))
                 .willReturn(true);
 
         // when, then

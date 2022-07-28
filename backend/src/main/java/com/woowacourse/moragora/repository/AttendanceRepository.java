@@ -27,21 +27,6 @@ public class AttendanceRepository {
         return attendance;
     }
 
-    public List<Attendance> findByParticipantId(final Long participantId) {
-        return entityManager.createQuery("select a from Attendance a where a.participant.id = :participantId",
-                        Attendance.class)
-                .setParameter("participantId", participantId)
-                .getResultList();
-    }
-
-    public long findAttendanceCountById(final Long participantId) {
-        return entityManager.createQuery(
-                "select count(distinct a.attendanceDate) from Attendance a "
-                        + "where a.participant.id = :id", Long.class)
-                .setParameter("id", participantId)
-                .getSingleResult();
-    }
-
     public Optional<Attendance> findByParticipantIdAndAttendanceDate(final Long participantId,
                                                                      final LocalDate attendanceDate) {
         try {
@@ -62,7 +47,7 @@ public class AttendanceRepository {
 
     public List<Attendance> findByParticipantIds(final List<Long> participantIds) {
         return entityManager.createQuery("select a from Attendance a where a.participant.id in :participantIds",
-                Attendance.class)
+                        Attendance.class)
                 .setParameter("participantIds", participantIds)
                 .getResultList();
     }
@@ -70,18 +55,10 @@ public class AttendanceRepository {
     public List<Attendance> findByParticipantIdsAndAttendanceDate(final List<Long> participantIds,
                                                                   final LocalDate attendanceDate) {
         return entityManager.createQuery("select a from Attendance a "
-                        + "where a.participant.id in :participantIds and a.attendanceDate = :attendanceDate",
-                Attendance.class)
+                                + "where a.participant.id in :participantIds and a.attendanceDate = :attendanceDate",
+                        Attendance.class)
                 .setParameter("participantIds", participantIds)
                 .setParameter("attendanceDate", attendanceDate)
-                .getResultList();
-    }
-
-    public List<Attendance> findByParticipantIdAndAttendanceDateNot(final Long participantId, final LocalDate today) {
-        return entityManager.createQuery("select a from Attendance a where a.participant.id = :participantId "
-                + "and a.attendanceDate <> :today", Attendance.class)
-                .setParameter("participantId", participantId)
-                .setParameter("today", today)
                 .getResultList();
     }
 }

@@ -40,11 +40,15 @@ public class Attendance {
         this.status = status;
     }
 
-    public void changeAttendanceStatus(Status status) {
+    public void changeAttendanceStatus(final Status status) {
         this.status = status;
     }
 
-    public boolean isSameStatus(Status status) {
+    public boolean isSameStatus(final Status status) {
         return this.status == status;
+    }
+
+    public boolean isSameDate(final LocalDate date) {
+        return attendanceDate.isEqual(date);
     }
 }

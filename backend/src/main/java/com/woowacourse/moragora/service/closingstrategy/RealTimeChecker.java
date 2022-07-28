@@ -22,13 +22,6 @@ public class RealTimeChecker extends TimeChecker {
     }
 
     @Override
-    public boolean isExcessClosingTime(final LocalTime entranceTime) {
-        final LocalTime now = currentDateTime.getValue().toLocalTime();
-        final LocalTime closingTime = entranceTime.plusMinutes(ATTENDANCE_END_INTERVAL);
-        return now.isAfter(closingTime);
-    }
-
-    @Override
     public boolean isExcessClosingTime(final LocalTime now, final LocalTime entranceTime) {
         final LocalTime closingTime = entranceTime.plusMinutes(ATTENDANCE_END_INTERVAL);
         return now.isAfter(closingTime);

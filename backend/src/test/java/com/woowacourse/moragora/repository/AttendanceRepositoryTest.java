@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.entity.Attendance;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,19 +17,6 @@ class AttendanceRepositoryTest {
 
     @Autowired
     private AttendanceRepository attendanceRepository;
-
-    @DisplayName("미팅 참가자의 누적 출석정보를 조회한다")
-    @Test
-    void findByParticipantId() {
-        // given
-        final Long participantId = 1L;
-
-        // when
-        final List<Attendance> attendances = attendanceRepository.findByParticipantId(participantId);
-
-        // then
-        assertThat(attendances.size()).isEqualTo(3);
-    }
 
     @DisplayName("미팅 참가자의 해당 날짜 출석정보를 조회한다.")
     @Test
