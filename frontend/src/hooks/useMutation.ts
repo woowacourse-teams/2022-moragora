@@ -1,19 +1,6 @@
 import { useState, useRef } from 'react';
 import { MUTATION_STATUS } from 'consts';
-
-type DefaultData = any;
-type Variables = Record<string, any> | null;
-type MutationOptions<TData> = {
-  onSuccess: (data: TData, variables: Variables) => Promise<void> | void;
-  onError: (error: Error, variables: Variables) => Promise<void> | void;
-  onSettled: (
-    data: TData | undefined,
-    error: Error | undefined,
-    variables: Variables
-  ) => Promise<void> | void;
-  onMutate: (variables: Variables) => Promise<void> | void;
-  retry: number;
-};
+import { DefaultData, Variables, MutationOptions } from 'types/useQueryType';
 
 const useMutation = <
   TData extends DefaultData = DefaultData,
@@ -26,7 +13,7 @@ const useMutation = <
     onError,
     onMutate,
     retry = 0,
-  }: Partial<MutationOptions<TData>> = {}
+  }: Partial<MutationOptions<TData, TVariables>> = {}
 ) => {
   const [data, setData] = useState<TData>();
   const [error, setError] = useState<Error>();

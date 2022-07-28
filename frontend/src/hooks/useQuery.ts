@@ -1,22 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useQueryClient } from 'contexts/queryClient';
 import { QUERY_STATUS } from 'consts';
-
-type DefaultData = any;
-type QueryOptions<TData> = {
-  onSuccess: (data: TData) => Promise<void> | void;
-  onError: (error: Error) => Promise<void> | void;
-  onSettled: (
-    data: TData | undefined,
-    error: Error | undefined
-  ) => Promise<void> | void;
-  enabled: boolean;
-  refetchOnMount: boolean;
-  refetchOnWindowFocus: boolean;
-  refetchInterval: number;
-  retry: number;
-  cacheTime: number;
-};
+import { DefaultData, QueryOptions } from 'types/useQueryType';
 
 const useQuery = <TData extends DefaultData = DefaultData>(
   key: string[],
