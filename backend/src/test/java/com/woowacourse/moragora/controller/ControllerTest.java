@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.auth.controller.AuthController;
 import com.woowacourse.auth.service.AuthService;
 import com.woowacourse.auth.support.JwtTokenProvider;
+import com.woowacourse.moragora.service.AttendanceService;
 import com.woowacourse.moragora.service.MeetingService;
 import com.woowacourse.moragora.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-@WebMvcTest(controllers = {MeetingController.class, UserController.class, AuthController.class})
+@WebMvcTest(controllers = {
+        MeetingController.class,
+        AttendanceController.class,
+        UserController.class,
+        AuthController.class})
 @AutoConfigureRestDocs
 public class ControllerTest {
 
@@ -29,6 +34,9 @@ public class ControllerTest {
 
     @MockBean
     protected MeetingService meetingService;
+
+    @MockBean
+    protected AttendanceService attendanceService;
 
     @MockBean
     protected UserService userService;
@@ -62,7 +70,7 @@ public class ControllerTest {
                 .andDo(print());
     }
 
-    protected Long validateToken(String id) {
+    protected Long validateToken(final String id) {
         given(jwtTokenProvider.validateToken(any()))
                 .willReturn(true);
         given(jwtTokenProvider.getPayload(any()))

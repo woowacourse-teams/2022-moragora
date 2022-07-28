@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 @DisplayName("인증 관련 기능")
-public class AuthAcceptanceTest extends AcceptanceTest {
+class AuthAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("로그인에 성공할 때 토큰과 상태코드 200을 반환한다.")
     @Test

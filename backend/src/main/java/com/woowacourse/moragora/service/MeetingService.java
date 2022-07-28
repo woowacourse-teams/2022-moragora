@@ -5,7 +5,6 @@ import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
-import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.AllAttendances;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Attendances;
@@ -13,18 +12,14 @@ import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
-import com.woowacourse.moragora.exception.meeting.AttendanceNotFoundException;
-import com.woowacourse.moragora.exception.meeting.ClosingTimeExcessException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
-import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
-import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
-import com.woowacourse.moragora.util.CurrentDateTime;
+import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -38,34 +33,27 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MeetingService {
 
-    private static final String USER_IDS_DUPLICATION_ERROR_MESSAGE = "참가자 명단에 중복이 있습니다.";
-    private static final String USER_IDS_CONTAIN_LOGIN_ID_ERROR_MESSAGE = "생성자가 참가자 명단에 포함되어 있습니다.";
-    private static final String EMPTY_USER_IDS_ERROR_MESSAGE = "생성자를 제외한 참가자가 없습니다.";
-
     private final MeetingRepository meetingRepository;
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
-    private final TimeChecker timeChecker;
-    private final CurrentDateTime currentDateTime;
+    private final ServerTimeManager serverTimeManager;
 
     public MeetingService(final MeetingRepository meetingRepository,
                           final ParticipantRepository participantRepository,
                           final AttendanceRepository attendanceRepository,
                           final UserRepository userRepository,
-                          final TimeChecker timeChecker, final CurrentDateTime currentDateTime) {
+                          final ServerTimeManager serverTimeManager) {
         this.meetingRepository = meetingRepository;
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
-        this.timeChecker = timeChecker;
-        this.currentDateTime = currentDateTime;
+        this.serverTimeManager = serverTimeManager;
     }
 
     @Transactional
     public Long save(final MeetingRequest request, final Long loginId) {
         final Meeting meeting = meetingRepository.save(request.toEntity());
-
         final List<Long> userIds = request.getUserIds();
         validateUserIds(userIds, loginId);
 
@@ -91,14 +79,14 @@ public class MeetingService {
     public MeetingResponse findById(final Long meetingId) {
         final Meeting meeting = findMeeting(meetingId);
         final List<Participant> participants = meeting.getParticipants();
-        final LocalDateTime now = currentDateTime.getValue();
 
-        putAttendanceIfAbsent(participants, now);
+        putAttendanceIfAbsent(participants);
 
         final AllAttendances allAttendances = extractAllAttendances(participants);
-        final boolean isOver = timeChecker.isExcessClosingTime(now.toLocalTime(), meeting.getEntranceTime());
+        final boolean isOver = serverTimeManager.isOverClosingTime(meeting.getEntranceTime());
         final List<ParticipantResponse> participantResponses = participants.stream()
-                .map(participant -> generateParticipantResponse(now, allAttendances, isOver, participant))
+                .map(participant -> generateParticipantResponse(serverTimeManager.getDateAndTime(),
+                        allAttendances, isOver, participant))
                 .collect(Collectors.toList());
 
         return MeetingResponse.of(meeting, participantResponses, allAttendances.extractProceedDate());
@@ -106,35 +94,13 @@ public class MeetingService {
 
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
-        final LocalDateTime now = currentDateTime.getValue();
         final List<Participant> participants = participantRepository.findByUserId(userId);
 
         final List<MyMeetingResponse> myMeetingResponses = participants.stream()
-                .map(participant -> generateMyMeetingResponse(now, participant))
+                .map(this::generateMyMeetingResponse)
                 .collect(Collectors.toList());
 
-        return MyMeetingsResponse.of(now, myMeetingResponses);
-    }
-
-    @Transactional
-    public void updateAttendance(final Long meetingId,
-                                 final Long userId,
-                                 final UserAttendanceRequest request) {
-        LocalDateTime nowDateTime = currentDateTime.getValue();
-
-        final Meeting meeting = findMeeting(meetingId);
-        final User user = findUser(userId);
-
-        validateAttendanceTime(meeting, nowDateTime.toLocalTime());
-
-        final Participant participant = participantRepository.findByMeetingIdAndUserId(meeting.getId(), user.getId())
-                .orElseThrow(ParticipantNotFoundException::new);
-
-        final Attendance attendance = attendanceRepository
-                .findByParticipantIdAndAttendanceDate(participant.getId(), nowDateTime.toLocalDate())
-                .orElseThrow(AttendanceNotFoundException::new);
-
-        attendance.changeAttendanceStatus(request.getAttendanceStatus());
+        return MyMeetingsResponse.of(serverTimeManager.getDateAndTime(), myMeetingResponses);
     }
 
     /**
@@ -142,15 +108,15 @@ public class MeetingService {
      */
     private void validateUserIds(final List<Long> userIds, final Long loginId) {
         if (Set.copyOf(userIds).size() != userIds.size()) {
-            throw new InvalidParticipantException(USER_IDS_DUPLICATION_ERROR_MESSAGE);
+            throw new InvalidParticipantException("참가자 명단에 중복이 있습니다.");
         }
 
         if (userIds.contains(loginId)) {
-            throw new InvalidParticipantException(USER_IDS_CONTAIN_LOGIN_ID_ERROR_MESSAGE);
+            throw new InvalidParticipantException("생성자가 참가자 명단에 포함되어 있습니다.");
         }
 
         if (userIds.size() == 0) {
-            throw new InvalidParticipantException(EMPTY_USER_IDS_ERROR_MESSAGE);
+            throw new InvalidParticipantException("생성자를 제외한 참가자가 없습니다.");
         }
     }
 
@@ -185,38 +151,29 @@ public class MeetingService {
         return ParticipantResponse.of(participant.getUser(), status, tardyCount);
     }
 
-    private MyMeetingResponse generateMyMeetingResponse(final LocalDateTime now, final Participant participant) {
+    private MyMeetingResponse generateMyMeetingResponse(final Participant participant) {
         final Meeting meeting = participant.getMeeting();
         final List<Participant> participants = meeting.getParticipants();
         final AllAttendances allAttendances = extractAllAttendances(participants);
         final Attendances attendances = allAttendances.extractAttendancesByParticipant(participant);
 
-        final boolean isActive = timeChecker.isAttendanceTime(now.toLocalTime(), meeting.getEntranceTime());
-        final boolean isOver = timeChecker.isExcessClosingTime(now.toLocalTime(), meeting.getEntranceTime());
-        final LocalTime closingTime = timeChecker.calculateClosingTime(meeting.getEntranceTime());
-        final int tardyCount = attendances.countTardy(isOver, now.toLocalDate());
+        final boolean isActive = serverTimeManager.isAttendanceTime(meeting.getEntranceTime());
+        final boolean isOver = serverTimeManager.isOverClosingTime(meeting.getEntranceTime());
+        final LocalTime closingTime = serverTimeManager.calculateClosingTime(meeting.getEntranceTime());
+        final int tardyCount = attendances.countTardy(isOver, serverTimeManager.getDate());
 
         return MyMeetingResponse.of(meeting, isActive, closingTime, tardyCount);
     }
 
-    private void validateAttendanceTime(final Meeting meeting, final LocalTime now) {
-        final LocalTime entranceTime = meeting.getEntranceTime();
-
-        if (timeChecker.isExcessClosingTime(now, entranceTime)) {
-            throw new ClosingTimeExcessException();
-        }
-    }
-
-    private void putAttendanceIfAbsent(final List<Participant> participants, final LocalDateTime now) {
+    private void putAttendanceIfAbsent(final List<Participant> participants) {
         final List<Long> participantIds = participants.stream()
                 .map(Participant::getId)
                 .collect(Collectors.toList());
-        final LocalDate today = now.toLocalDate();
         final List<Attendance> attendances =
-                attendanceRepository.findByParticipantIdsAndAttendanceDate(participantIds, today);
+                attendanceRepository.findByParticipantIdsAndAttendanceDate(participantIds, serverTimeManager.getDate());
 
         if (attendances.size() == 0) {
-            saveAttendances(participants, today);
+            saveAttendances(participants, serverTimeManager.getDate());
         }
     }
 

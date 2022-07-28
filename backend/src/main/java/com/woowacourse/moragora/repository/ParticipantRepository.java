@@ -36,8 +36,8 @@ public class ParticipantRepository {
     public Optional<Participant> findByMeetingIdAndUserId(final Long meetingId, final Long userId) {
         try {
             final Participant participant = entityManager.createQuery(
-                    "select p from Participant p where p.meeting.id = :meetingId and p.user.id = :userId",
-                    Participant.class)
+                            "select p from Participant p where p.meeting.id = :meetingId and p.user.id = :userId",
+                            Participant.class)
                     .setParameter("meetingId", meetingId)
                     .setParameter("userId", userId)
                     .getSingleResult();
