@@ -20,7 +20,7 @@ const MeetingListPage = () => {
     error,
     refetch,
   } = useFetch<MeetingListResponseBody>('/meetings/me');
-  const { currentTimestamp, elapsed } = useTimer(
+  const { currentTimestamp } = useTimer(
     meetingListState?.serverTime || Date.now()
   );
   const currentDate = new Date(currentTimestamp);
