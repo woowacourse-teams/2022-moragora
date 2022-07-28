@@ -67,7 +67,6 @@ public class MeetingService {
     }
 
     // TODO: for 문 안에 insert 한번에 날리는 것 고려
-    // TODO: master 지정해야함
     @Transactional
     public Long save(final MeetingRequest request, final Long loginId) {
         final Meeting meeting = meetingRepository.save(request.toEntity());
@@ -79,23 +78,12 @@ public class MeetingService {
         final List<User> users = userRepository.findByIdIn(userIds);
         validateUserExists(userIds, users);
 
-        final Participant loginParticipant = new Participant(loginUser, meeting);
-        final List<Participant> participants = users.stream()
-                .map(user -> new Participant(user, meeting))
-                .collect(Collectors.toList());
-        participants.add(loginParticipant);
-
-        for (Participant participant : participants) {
-            participantRepository.save(participant);
-        }
-
-        appointMaster(loginParticipant);
+        generateParticipantsAndMaster(meeting, loginUser, users);
 
         return meeting.getId();
     }
 
     // TODO 1 + N 최적화 대상
-
     @Transactional
     public MeetingResponse findById(final Long meetingId) {
         final Meeting meeting = findMeeting(meetingId);
@@ -143,6 +131,20 @@ public class MeetingService {
                 .orElseThrow(AttendanceNotFoundException::new);
 
         attendance.changeAttendanceStatus(request.getAttendanceStatus());
+    }
+
+    private void generateParticipantsAndMaster(final Meeting meeting, final User loginUser, final List<User> users) {
+        final Participant loginParticipant = new Participant(loginUser, meeting);
+        final List<Participant> participants = users.stream()
+                .map(user -> new Participant(user, meeting))
+                .collect(Collectors.toList());
+        participants.add(loginParticipant);
+
+        for (Participant participant : participants) {
+            participantRepository.save(participant);
+        }
+
+        appointMaster(loginParticipant);
     }
 
     private void appointMaster(final Participant loginParticipant) {
