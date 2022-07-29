@@ -2,6 +2,7 @@ package com.woowacourse.moragora.controller;
 
 import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
+import com.woowacourse.auth.support.MasterAuthorization;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
@@ -48,6 +49,7 @@ public class MeetingController {
         return ResponseEntity.ok(meetingsResponse);
     }
 
+    @MasterAuthorization
     @PutMapping("/{meetingId}/users/{userId}")
     public ResponseEntity<UserAttendanceRequest> checkAttendance(@PathVariable final Long meetingId,
                                                                  @PathVariable final Long userId,

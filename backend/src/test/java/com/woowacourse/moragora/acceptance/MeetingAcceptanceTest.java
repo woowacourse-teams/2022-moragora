@@ -11,8 +11,6 @@ import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.util.CurrentDateTime;
 import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -61,10 +59,9 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         given(currentDateTime.getValue())
                 .willReturn(LocalDateTime.now());
         final LoginRequest loginRequest = new LoginRequest("aaa111@foo.com", "1234smart!");
-        final ExtractableResponse<Response> loginResponse = post("/login", loginRequest).extract();
 
         // when
-        final ValidatableResponse response = get("/meetings/" + id, loginResponse.jsonPath().get("accessToken"));
+        final ValidatableResponse response = get("/meetings/" + id, signInAndGetToken(loginRequest));
 
         // then
         response.statusCode(HttpStatus.OK.value())
@@ -130,20 +127,21 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.tardyCount", containsInAnyOrder(0, 0));
     }
 
-    @DisplayName("모임의 출석을 마감하면 총 모임 횟수와 결석한 참가자들의 결일을 증가시키고 상태코드 204을 반환한다.")
+    @DisplayName("미팅 참가자의 출석을 업데이트하면 상태코드 204을 반환한다.")
     @Test
-    void endAttendance() {
+    void updateAttendance() {
         // given
         final int meetingId = 1;
         final int userId = 1;
         final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
+        final LoginRequest masterLoginRequest = new LoginRequest("aaa111@foo.com", "1234smart!");
 
         given(currentDateTime.getValue())
                 .willReturn(LocalDateTime.of(2022, 7, 14, 0, 0));
 
         // when
         final ValidatableResponse response = RestAssured.given().log().all()
-                .auth().oauth2(signUpAndGetToken())
+                .auth().oauth2(signInAndGetToken(masterLoginRequest))
                 .body(userAttendanceRequest)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -152,5 +150,31 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
 
         // then
         response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("마스터가 아닌 참가자가 미팅 참가자의 출석을 업데이트하면 상태코드 403을 반환한다.")
+    @Test
+    void updateAttendance_NotMaster() {
+        // given
+        final int meetingId = 1;
+        final int userId = 1;
+        final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
+        final LoginRequest noMasterLoginRequest = new LoginRequest("bbb222@foo.com", "1234smart!");
+
+        given(currentDateTime.getValue())
+                .willReturn(LocalDateTime.of(2022, 7, 14, 0, 0));
+
+        // when
+        final ValidatableResponse response = RestAssured.given().log().all()
+                .auth().oauth2(signInAndGetToken(noMasterLoginRequest))
+                .body(userAttendanceRequest)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when().put("/meetings/" + meetingId + "/users/" + userId)
+                .then().log().all();
+
+        // then
+        response.statusCode(HttpStatus.FORBIDDEN.value())
+                .body("message", equalTo("마스터 권한이 없습니다."));
     }
 }

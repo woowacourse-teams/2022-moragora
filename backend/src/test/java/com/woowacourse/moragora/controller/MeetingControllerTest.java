@@ -394,7 +394,7 @@ class MeetingControllerTest extends ControllerTest {
 
     @DisplayName("사용자 출석여부를 반영한다.")
     @Test
-    void endAttendance() throws Exception {
+    void checkAttendance() throws Exception {
         // given
         final Long meetingId = 1L;
         final Long userId = 1L;
@@ -416,7 +416,7 @@ class MeetingControllerTest extends ControllerTest {
 
     @DisplayName("출석을 제출하려는 방이 존재하지 않는 경우 예외가 발생한다.")
     @Test
-    void endAttendance_throwsException_ifMeetingNotFound() throws Exception {
+    void checkAttendance_throwsException_ifMeetingNotFound() throws Exception {
         // given
         final Long meetingId = 99L;
         final Long userId = 1L;
@@ -437,7 +437,7 @@ class MeetingControllerTest extends ControllerTest {
 
     @DisplayName("출석을 제출하려는 사용자가 미팅에 존재하지 않으면 예외가 발생한다.")
     @Test
-    void endAttendance_throwsException_ifParticipantNotFound() throws Exception {
+    void checkAttendance_throwsException_ifParticipantNotFound() throws Exception {
         // given
         final Long meetingId = 1L;
         final Long userId = 8L;
