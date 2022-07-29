@@ -6,37 +6,50 @@ import InputHint from 'components/@shared/InputHint';
 import useForm from 'hooks/useForm';
 import useContextValues from 'hooks/useContextValues';
 import { userContext, UserContextValues } from 'contexts/userContext';
-import { GetMeDataResponseBody } from 'types/userType';
-import { TOKEN_ERROR_STATUS_CODES } from 'consts';
+import {
+  GetLoginUserDataResponseBody,
+  UserLoginRequestBody,
+  UserLoginResponseBody,
+  UserRegisterRequestBody,
+} from 'types/userType';
+import request from 'utils/request';
+import useQuery from 'hooks/useQuery';
+import useMutation from 'hooks/useMutation';
 
-const checkEmail = async (url: string) => {
-  return fetch(`${process.env.API_SERVER_HOST}${url}`, {
+const checkEmail = (email: string) => () =>
+  request<{ isExist: boolean }>(`/users/check-email?email=${email}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
   });
-};
 
-const submitData = async (url: string, payload: any) => {
-  return fetch(`${process.env.API_SERVER_HOST}${url}`, {
+const submitRegister = (payload: UserRegisterRequestBody) =>
+  request('/users', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(payload),
   });
-};
 
-const getMeData = (url: string, accessToken: string) => {
-  return fetch(`${process.env.API_SERVER_HOST}${url}`, {
+const submitLogin = (payload: UserLoginRequestBody) =>
+  request<UserLoginResponseBody>('/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+const getLoginUserData = (accessToken: string) => () =>
+  request<GetLoginUserDataResponseBody>('/users/me', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
   });
-};
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -44,26 +57,76 @@ const RegisterPage = () => {
     userContext
   ) as UserContextValues;
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
+  const [accessToken, setAccessToken] = useState('');
   const [isEmailExist, setIsEmailExist] = useState(true);
   const [isValidPasswordConfirm, setIsValidPasswordConfirm] = useState(true);
 
+  const { refetch: checkEmailRefetch } = useQuery<{ isExist: boolean }>(
+    ['checkEmail'],
+    checkEmail(values['email']),
+    {
+      enabled: false,
+      onSuccess: (data) => {
+        setIsEmailExist(data.isExist);
+        const message = data.isExist
+          ? '중복된 이메일입니다.'
+          : '사용 가능한 이메일입니다.';
+
+        alert(message);
+      },
+      onError: () => {
+        alert('이메일 중복확인 실패');
+      },
+    }
+  );
+
+  const { mutate: RegisterMutate } = useMutation<
+    unknown,
+    UserRegisterRequestBody
+  >(submitRegister, {
+    onSuccess: (data, variables) => {
+      alert('회원가입 완료');
+      LoginMutate(variables);
+    },
+    onError: () => {
+      alert('회원가입 실패');
+    },
+  });
+
+  const { isSuccess: isLoginSuccess, mutate: LoginMutate } = useMutation<
+    UserLoginResponseBody,
+    UserLoginRequestBody
+  >(submitLogin, {
+    onSuccess: (data) => {
+      if (data.accessToken) {
+        setAccessToken(data.accessToken);
+      }
+    },
+    onError: () => {
+      alert('로그인 실패');
+    },
+  });
+
+  useQuery<GetLoginUserDataResponseBody>(
+    ['getLoginUserData'],
+    getLoginUserData(accessToken),
+    {
+      enabled: isLoginSuccess,
+      onSuccess: (data) => {
+        login(data, accessToken);
+        navigate('/');
+      },
+      onError: () => {
+        logout();
+        alert('내 정보 가져오기 실패');
+      },
+    }
+  );
+
   const handleCheckEmailButtonClick: React.MouseEventHandler<
     HTMLButtonElement
-  > = async () => {
-    const res = await checkEmail(`/users/check-email?email=${values['email']}`);
-    const body = await res.json().then((res) => res as { isExist: boolean });
-
-    if (!res.ok) {
-      throw Error('이메일 중복 확인 실패');
-    }
-
-    setIsEmailExist(body.isExist);
-
-    const message = body.isExist
-      ? '중복된 이메일입니다.'
-      : '사용 가능한 이메일입니다.';
-
-    alert(message);
+  > = () => {
+    checkEmailRefetch();
   };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -74,43 +137,11 @@ const RegisterPage = () => {
     const target = e.target as HTMLFormElement;
     const formData = new FormData(target);
     formData.delete('passwordConfirm');
-    const formDataObject = Object.fromEntries(formData.entries());
+    const formDataObject = Object.fromEntries(
+      formData.entries()
+    ) as UserRegisterRequestBody;
 
-    const registerRes = await submitData('/users', formDataObject);
-
-    if (!registerRes.ok) {
-      throw Error('이메일 중복 확인 실패');
-    }
-
-    alert('회원가입 완료');
-
-    const loginRes = await submitData('/login', {
-      email: formDataObject.email,
-      password: formDataObject.password,
-    });
-    if (!loginRes.ok) {
-      alert('로그인 실패');
-      return;
-    }
-
-    const accessToken = await loginRes.json().then((data) => data.accessToken);
-
-    const getMeResponse = await getMeData('/users/me', accessToken);
-    if (!getMeResponse.ok) {
-      if (TOKEN_ERROR_STATUS_CODES.includes(getMeResponse.status)) {
-        logout();
-      }
-
-      throw new Error('요청에 실패했습니다.');
-
-      alert('내 정보 가져오기 실패');
-      return;
-    }
-
-    const MeData = (await getMeResponse.json()) as GetMeDataResponseBody;
-
-    login(MeData, accessToken);
-    navigate('/');
+    RegisterMutate(formDataObject);
   };
 
   return (
