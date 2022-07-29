@@ -17,10 +17,10 @@ import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
-import com.woowacourse.moragora.repository.attendance.AttendanceRepository;
-import com.woowacourse.moragora.repository.meeting.MeetingRepository;
-import com.woowacourse.moragora.repository.participant.ParticipantRepository;
-import com.woowacourse.moragora.repository.user.UserRepository;
+import com.woowacourse.moragora.repository.AttendanceRepository;
+import com.woowacourse.moragora.repository.MeetingRepository;
+import com.woowacourse.moragora.repository.ParticipantRepository;
+import com.woowacourse.moragora.repository.UserRepository;
 import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
 import com.woowacourse.moragora.util.CurrentDateTime;
 import java.time.LocalDate;
@@ -29,7 +29,6 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,10 +47,10 @@ public class MeetingService {
     private final TimeChecker timeChecker;
     private final CurrentDateTime currentDateTime;
 
-    public MeetingService(@Qualifier("meetingSpringJpaRepository") final MeetingRepository meetingRepository,
-                          @Qualifier("participantSpringJpaRepository") final ParticipantRepository participantRepository,
-                          @Qualifier("attendanceSpringJpaRepository") final AttendanceRepository attendanceRepository,
-                          @Qualifier("userSpringJpaRepository") final UserRepository userRepository,
+    public MeetingService(final MeetingRepository meetingRepository,
+                          final ParticipantRepository participantRepository,
+                          final AttendanceRepository attendanceRepository,
+                          final UserRepository userRepository,
                           final TimeChecker timeChecker, final CurrentDateTime currentDateTime) {
         this.meetingRepository = meetingRepository;
         this.participantRepository = participantRepository;
@@ -97,7 +96,7 @@ public class MeetingService {
         putAttendanceIfAbsent(participants, now);
 
         final List<ParticipantResponse> participantResponses = participants.stream()
-                .map(participant -> generateUserResponse(meeting, now, participant))
+                .map(participant -> generateParticipantResponse(meeting, now, participant))
                 .collect(Collectors.toList());
 
         return MeetingResponse.of(meeting, participantResponses, getMeetingAttendanceCount(participants.get(0)));
@@ -170,8 +169,8 @@ public class MeetingService {
         }
     }
 
-    private ParticipantResponse generateUserResponse(final Meeting meeting, final LocalDateTime now,
-                                                     final Participant participant) {
+    private ParticipantResponse generateParticipantResponse(final Meeting meeting, final LocalDateTime now,
+                                                            final Participant participant) {
         final Attendance attendance = attendanceRepository
                 .findByParticipantIdAndAttendanceDate(participant.getId(), now.toLocalDate())
                 .orElseThrow(AttendanceNotFoundException::new);

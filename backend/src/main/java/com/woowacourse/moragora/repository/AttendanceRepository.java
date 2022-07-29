@@ -1,11 +1,12 @@
-package com.woowacourse.moragora.repository.attendance;
+package com.woowacourse.moragora.repository;
 
 import com.woowacourse.moragora.entity.Attendance;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.repository.Repository;
 
-public interface AttendanceRepository {
+public interface AttendanceRepository extends Repository<Attendance, Long> {
 
     Attendance save(final Attendance attendance);
 
