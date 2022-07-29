@@ -6,7 +6,7 @@ import { userContext, UserContextValues } from 'contexts/userContext';
 import useContextValues from 'hooks/useContextValues';
 import { useEffect } from 'react';
 import useFetch from 'hooks/useFetch';
-import { GetMeDataResponseBody } from 'types/userType';
+import { GetLoginUserDataResponseBody } from 'types/userType';
 import Spinner from 'components/@shared/Spinner';
 import * as S from './App.styled';
 
@@ -15,7 +15,7 @@ const App = () => {
     userContext
   ) as UserContextValues;
 
-  const { data, loading } = useFetch<GetMeDataResponseBody>('/users/me');
+  const { data, loading } = useFetch<GetLoginUserDataResponseBody>('/users/me');
 
   useEffect(() => {
     const accessToken = localStorage.getItem('accessToken');
