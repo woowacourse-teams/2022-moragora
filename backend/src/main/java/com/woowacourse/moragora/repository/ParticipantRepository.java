@@ -3,54 +3,15 @@ package com.woowacourse.moragora.repository;
 import com.woowacourse.moragora.entity.Participant;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.repository.Repository;
 
-@Repository
-@Transactional(readOnly = true)
-public class ParticipantRepository {
+public interface ParticipantRepository extends Repository<Participant, Long> {
 
-    @PersistenceContext
-    private final EntityManager entityManager;
+    Participant save(final Participant participant);
 
-    public ParticipantRepository(final EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+    List<Participant> findByMeetingId(final Long meetingId);
 
-    @Transactional
-    public Participant save(final Participant participant) {
-        entityManager.persist(participant);
-        return participant;
-    }
+    Optional<Participant> findByMeetingIdAndUserId(final Long meetingId, final Long userId);
 
-    public List<Participant> findByMeetingId(final Long meetingId) {
-        return entityManager.createQuery("select p from Participant p where p.meeting.id = :meetingId",
-                        Participant.class)
-                .setParameter("meetingId", meetingId)
-                .getResultList();
-    }
-
-    public Optional<Participant> findByMeetingIdAndUserId(final Long meetingId, final Long userId) {
-        try {
-            final Participant participant = entityManager.createQuery(
-                            "select p from Participant p where p.meeting.id = :meetingId and p.user.id = :userId",
-                            Participant.class)
-                    .setParameter("meetingId", meetingId)
-                    .setParameter("userId", userId)
-                    .getSingleResult();
-            return Optional.ofNullable(participant);
-        } catch (NoResultException exception) {
-            return Optional.empty();
-        }
-    }
-
-    public List<Participant> findByUserId(final Long userId) {
-        return entityManager.createQuery("select p from Participant p where p.user.id = :userId",
-                        Participant.class)
-                .setParameter("userId", userId)
-                .getResultList();
-    }
+    List<Participant> findByUserId(final Long userId);
 }

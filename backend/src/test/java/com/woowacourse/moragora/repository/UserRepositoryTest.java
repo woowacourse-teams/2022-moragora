@@ -52,11 +52,11 @@ class UserRepositoryTest {
 
     @DisplayName("여러 id로 여러명의 유저를 검색할 수 있다.")
     @Test
-    void findByIds() {
-        // given
-        final List<User> users = userRepository.findByIds(List.of(1L, 2L, 3L));
+    void findByIdIn() {
+        // given, when
+        final List<User> users = userRepository.findByIdIn(List.of(1L, 2L, 3L));
 
-        // when, then
+        // then
         assertThat(users).hasSize(3);
     }
 
@@ -79,7 +79,7 @@ class UserRepositoryTest {
     @CsvSource(value = {"foo,7", "ggg777@foo.com,1"})
     void findByNicknameOrEmailContaining(final String keyword, final int expectedSize) {
         // given, when
-        final List<User> users = userRepository.findByNicknameOrEmailContaining(keyword);
+        final List<User> users = userRepository.findByNicknameOrEmailLike(keyword);
 
         // then
         assertThat(users).hasSize(expectedSize);

@@ -58,7 +58,7 @@ public class MeetingService {
         validateUserIds(userIds, loginId);
 
         final User loginUser = findUser(loginId);
-        final List<User> users = userRepository.findByIds(userIds);
+        final List<User> users = userRepository.findByIdIn(userIds);
         validateUserExists(userIds, users);
 
         final Participant loginParticipant = new Participant(loginUser, meeting);
@@ -136,7 +136,7 @@ public class MeetingService {
         final List<Long> participantIds = participants.stream()
                 .map(Participant::getId)
                 .collect(Collectors.toList());
-        final List<Attendance> foundAttendances = attendanceRepository.findByParticipantIds(participantIds);
+        final List<Attendance> foundAttendances = attendanceRepository.findByParticipantIdIn(participantIds);
         return new AllAttendances(foundAttendances);
     }
 
@@ -170,7 +170,7 @@ public class MeetingService {
                 .map(Participant::getId)
                 .collect(Collectors.toList());
         final List<Attendance> attendances =
-                attendanceRepository.findByParticipantIdsAndAttendanceDate(participantIds, serverTimeManager.getDate());
+                attendanceRepository.findByParticipantIdInAndAttendanceDate(participantIds, serverTimeManager.getDate());
 
         if (attendances.size() == 0) {
             saveAttendances(participants, serverTimeManager.getDate());

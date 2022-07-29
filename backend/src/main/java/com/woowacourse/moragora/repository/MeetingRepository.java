@@ -2,30 +2,11 @@ package com.woowacourse.moragora.repository;
 
 import com.woowacourse.moragora.entity.Meeting;
 import java.util.Optional;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.repository.Repository;
 
-@Repository
-@Transactional(readOnly = true)
-public class MeetingRepository {
+public interface MeetingRepository extends Repository<Meeting, Long> {
 
-    @PersistenceContext
-    private final EntityManager entityManager;
+    Meeting save(final Meeting meeting);
 
-    public MeetingRepository(final EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
-    @Transactional
-    public Meeting save(final Meeting meeting) {
-        entityManager.persist(meeting);
-        return meeting;
-    }
-
-    public Optional<Meeting> findById(final Long id) {
-        final Meeting meeting = entityManager.find(Meeting.class, id);
-        return Optional.ofNullable(meeting);
-    }
+    Optional<Meeting> findById(final Long id);
 }

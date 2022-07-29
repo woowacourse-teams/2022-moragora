@@ -20,7 +20,7 @@ class AttendanceRepositoryTest {
 
     @DisplayName("미팅 참가자의 해당 날짜 출석정보를 조회한다.")
     @Test
-    void findByParticipantIdAndDate() {
+    void findByParticipantIdAndAttendanceDate() {
         // given
         final Long participantId = 1L;
         final LocalDate attendanceDate = LocalDate.of(2022, 7, 14);
