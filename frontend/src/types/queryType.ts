@@ -1,5 +1,3 @@
-export type DefaultData = any;
-
 export type Variables = Record<string, any> | null;
 
 export type QueryOptions<TData> = {

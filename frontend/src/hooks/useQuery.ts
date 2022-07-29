@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useQueryClient } from 'contexts/queryClient';
 import { QUERY_STATUS } from 'consts';
-import { DefaultData, QueryOptions } from 'types/useQueryType';
+import { QueryOptions } from 'types/queryType';
 
-const useQuery = <TData extends DefaultData = DefaultData>(
+const useQuery = <TData = any>(
   key: string[],
   queryFn: () => Promise<TData>,
   {

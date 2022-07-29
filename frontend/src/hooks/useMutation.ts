@@ -1,11 +1,8 @@
 import { useState, useRef } from 'react';
 import { MUTATION_STATUS } from 'consts';
-import { DefaultData, Variables, MutationOptions } from 'types/useQueryType';
+import { Variables, MutationOptions } from 'types/queryType';
 
-const useMutation = <
-  TData extends DefaultData = DefaultData,
-  TVariables extends Variables = Variables
->(
+const useMutation = <TData = any, TVariables extends Variables = Variables>(
   mutationFn: (variables: TVariables) => Promise<TData>,
   {
     onSuccess,
