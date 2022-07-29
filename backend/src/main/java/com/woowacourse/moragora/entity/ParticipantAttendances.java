@@ -7,14 +7,13 @@ import java.util.stream.Stream;
 import lombok.Getter;
 
 @Getter
-public class Attendances {
+public class ParticipantAttendances {
 
     private final List<Attendance> value;
-    private final Participant participant;
 
-    public Attendances(final List<Attendance> value, final Participant participant) {
+    public ParticipantAttendances(final List<Attendance> value) {
+        validateSingleParticipant(value);
         this.value = value;
-        this.participant = participant;
     }
 
     public Attendance extractAttendanceByDate(final LocalDate date) {
@@ -34,5 +33,16 @@ public class Attendances {
 
         return (int) attendances.filter(attendance -> attendance.getAttendanceDate().isBefore(today))
                 .count();
+    }
+
+    private void validateSingleParticipant(final List<Attendance> value) {
+        final long participantCount = value.stream()
+                .map(Attendance::getParticipant)
+                .distinct()
+                .count();
+
+        if (participantCount > 1) {
+            throw new IllegalArgumentException();
+        }
     }
 }

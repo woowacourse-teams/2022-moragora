@@ -8,11 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/meetings")
 @Authentication
 public class AttendanceController {
 
@@ -22,7 +20,7 @@ public class AttendanceController {
         this.attendanceService = attendanceService;
     }
 
-    @PutMapping("/{meetingId}/users/{userId}")
+    @PutMapping("/meetings/{meetingId}/users/{userId}")
     public ResponseEntity<Void> markAttendance(@PathVariable final Long meetingId,
                                                @PathVariable final Long userId,
                                                @RequestBody final UserAttendanceRequest request,
