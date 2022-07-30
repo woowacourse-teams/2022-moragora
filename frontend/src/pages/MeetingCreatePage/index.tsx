@@ -1,47 +1,20 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as S from './MeetingCreatePage.styled';
+import { css } from '@emotion/react';
 import Footer from 'components/layouts/Footer';
 import Input from 'components/@shared/Input';
 import MemberAddInput from 'components/MemberAddInput';
 import InputHint from 'components/@shared/InputHint';
 import useForm from 'hooks/useForm';
+import useMutation from 'hooks/useMutation';
 import useQuerySelectItems from 'hooks/useQuerySelectItems';
 import { UserQueryWithKeywordResponse } from 'types/userType';
-import { MeetingResponseBody } from 'types/meetingType';
 import { dateToFormattedString } from 'utils/timeUtil';
-import { TOKEN_ERROR_STATUS_CODES } from 'consts';
-import { userContext, UserContextValues } from 'contexts/userContext';
-import { css } from '@emotion/react';
-
-type DefaultResponseBody = {};
+import { userContext } from 'contexts/userContext';
+import { createMeetingApi } from 'utils/Apis/meetingApis';
 
 const MAX_SELECTED_USER_COUNT = 129;
-
-const asyncFetch = async <
-  ResponseBody extends DefaultResponseBody = DefaultResponseBody
->(
-  url: string,
-  userState: UserContextValues | null,
-  option?: RequestInit
-) => {
-  const res = await fetch(`${process.env.API_SERVER_HOST}${url}`, option);
-
-  if (!res.ok) {
-    if (TOKEN_ERROR_STATUS_CODES.includes(res.status)) {
-      userState?.logout();
-    }
-
-    throw new Error('모임 생성에 실패했습니다.');
-  }
-
-  const body = (await res.json().catch((e) => ({}))) as ResponseBody;
-
-  return {
-    res,
-    body,
-  };
-};
 
 const MeetingCreatePage = () => {
   const navigate = useNavigate();
@@ -57,6 +30,18 @@ const MeetingCreatePage = () => {
     wait: 150,
     maxSelectCount: MAX_SELECTED_USER_COUNT,
   });
+
+  const meetingCreateMutation = useMutation(createMeetingApi, {
+    onSuccess: ({ body: { id } }) => {
+      alert('모임 생성을 완료했습니다.');
+      navigate(`/meeting/${id}`);
+    },
+    onError: (error) => {
+      console.log(error);
+      alert('모임 생성을 실패했습니다.');
+    },
+  });
+
   const currentDate = new Date();
   const isParticipantSelected = selectedItems.length > 0;
   const userState = useContext(userContext);
@@ -78,28 +63,14 @@ const MeetingCreatePage = () => {
     };
 
     try {
-      const meatingCreateResult = await asyncFetch('/meetings', userState, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userState?.user?.accessToken}`,
-        },
-        body: JSON.stringify(formDataObject),
+      if (!userState?.user?.accessToken) {
+        return;
+      }
+
+      meetingCreateMutation.mutate({
+        accessToken: userState.user.accessToken,
+        formDataObject,
       });
-
-      alert('모임 생성을 완료했습니다.');
-
-      const meetingGetResult = await asyncFetch<MeetingResponseBody>(
-        meatingCreateResult.res.headers.get('location') as string,
-        userState,
-        {
-          headers: {
-            Authorization: `Bearer ${userState?.user?.accessToken}`,
-          },
-        }
-      );
-
-      navigate(`/meeting/${meetingGetResult.body.id}`);
     } catch (e) {
       console.error(e);
     }

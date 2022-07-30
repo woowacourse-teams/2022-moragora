@@ -6,69 +6,28 @@ import InputHint from 'components/@shared/InputHint';
 import useForm from 'hooks/useForm';
 import useContextValues from 'hooks/useContextValues';
 import { userContext, UserContextValues } from 'contexts/userContext';
-import {
-  GetLoginUserDataResponseBody,
-  UserLoginRequestBody,
-  UserLoginResponseBody,
-  UserRegisterRequestBody,
-} from 'types/userType';
-import request from 'utils/request';
+import { UserRegisterRequestBody } from 'types/userType';
 import useQuery from 'hooks/useQuery';
 import useMutation from 'hooks/useMutation';
-
-const checkEmail = (email: string) => () =>
-  request<{ isExist: boolean }>(`/users/check-email?email=${email}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-const submitRegister = (payload: UserRegisterRequestBody) =>
-  request('/users', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-const submitLogin = (payload: UserLoginRequestBody) =>
-  request<UserLoginResponseBody>('/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-const getLoginUserData = (accessToken: string) => () =>
-  request<GetLoginUserDataResponseBody>('/users/me', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+import { checkEmailApi, submitRegisterApi } from 'utils/Apis/userApis';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const { login, logout } = useContextValues<UserContextValues>(
+  const { login } = useContextValues<UserContextValues>(
     userContext
   ) as UserContextValues;
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
-  const [accessToken, setAccessToken] = useState('');
   const [isEmailExist, setIsEmailExist] = useState(true);
   const [isValidPasswordConfirm, setIsValidPasswordConfirm] = useState(true);
 
-  const { refetch: checkEmailRefetch } = useQuery<{ isExist: boolean }>(
+  const { refetch: checkEmailRefetch } = useQuery(
     ['checkEmail'],
-    checkEmail(values['email']),
+    checkEmailApi(values['email']),
     {
       enabled: false,
-      onSuccess: (data) => {
-        setIsEmailExist(data.isExist);
-        const message = data.isExist
+      onSuccess: ({ body: { isExist } }) => {
+        setIsEmailExist(isExist);
+        const message = isExist
           ? '중복된 이메일입니다.'
           : '사용 가능한 이메일입니다.';
 
@@ -80,48 +39,15 @@ const RegisterPage = () => {
     }
   );
 
-  const { mutate: RegisterMutate } = useMutation<
-    unknown,
-    UserRegisterRequestBody
-  >(submitRegister, {
-    onSuccess: (data, variables) => {
-      alert('회원가입 완료');
-      LoginMutate(variables);
+  const { mutate: registerMutate } = useMutation(submitRegisterApi, {
+    onSuccess: ({ body: userData, accessToken }) => {
+      login(userData, accessToken);
+      navigate('/');
     },
     onError: () => {
       alert('회원가입 실패');
     },
   });
-
-  const { isSuccess: isLoginSuccess, mutate: LoginMutate } = useMutation<
-    UserLoginResponseBody,
-    UserLoginRequestBody
-  >(submitLogin, {
-    onSuccess: (data) => {
-      if (data.accessToken) {
-        setAccessToken(data.accessToken);
-      }
-    },
-    onError: () => {
-      alert('로그인 실패');
-    },
-  });
-
-  useQuery<GetLoginUserDataResponseBody>(
-    ['getLoginUserData'],
-    getLoginUserData(accessToken),
-    {
-      enabled: isLoginSuccess,
-      onSuccess: (data) => {
-        login(data, accessToken);
-        navigate('/');
-      },
-      onError: () => {
-        logout();
-        alert('내 정보 가져오기 실패');
-      },
-    }
-  );
 
   const handleCheckEmailButtonClick: React.MouseEventHandler<
     HTMLButtonElement
@@ -141,7 +67,7 @@ const RegisterPage = () => {
       formData.entries()
     ) as UserRegisterRequestBody;
 
-    RegisterMutate(formDataObject);
+    registerMutate(formDataObject);
   };
 
   return (

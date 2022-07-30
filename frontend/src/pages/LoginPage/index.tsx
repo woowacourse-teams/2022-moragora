@@ -1,73 +1,31 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as S from './LoginPage.styled';
 import useForm from 'hooks/useForm';
+import useMutation from 'hooks/useMutation';
+import useContextValues from 'hooks/useContextValues';
+import { userContext, UserContextValues } from 'contexts/userContext';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
-import {
-  GetLoginUserDataResponseBody,
-  UserLoginRequestBody,
-  UserLoginResponseBody,
-} from 'types/userType';
-import { userContext, UserContextValues } from 'contexts/userContext';
-import useContextValues from 'hooks/useContextValues';
-import request from 'utils/request';
-import useMutation from 'hooks/useMutation';
-import useQuery from 'hooks/useQuery';
-
-const submitLogin = (payload: UserLoginRequestBody) =>
-  request<UserLoginResponseBody>('/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-const getLoginUserData = (accessToken: string) => () =>
-  request<GetLoginUserDataResponseBody>('/users/me', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+import { UserLoginRequestBody } from 'types/userType';
+import { submitLoginApi } from 'utils/Apis/userApis';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { errors, isSubmitting, onSubmit, register } = useForm();
-  const [accessToken, setAccessToken] = useState('');
-  const { login, logout } = useContextValues<UserContextValues>(
+  const { login } = useContextValues<UserContextValues>(
     userContext
   ) as UserContextValues;
-  const { isSuccess: isLoginSuccess, mutate } = useMutation<
-    UserLoginResponseBody,
-    UserLoginRequestBody
-  >(submitLogin, {
-    onSuccess: (data) => {
-      if (data.accessToken) {
-        setAccessToken(data.accessToken);
-      }
+
+  const { mutate: loginMutate } = useMutation(submitLoginApi, {
+    onSuccess: ({ body, accessToken }) => {
+      login(body, accessToken);
+      navigate('/');
     },
     onError: () => {
       alert('로그인 실패');
     },
   });
-  useQuery<GetLoginUserDataResponseBody>(
-    ['getLoginUserData'],
-    getLoginUserData(accessToken),
-    {
-      enabled: isLoginSuccess,
-      onSuccess: (data) => {
-        login(data, accessToken);
-        navigate('/');
-      },
-      onError: () => {
-        logout();
-        alert('내 정보 가져오기 실패');
-      },
-    }
-  );
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     const target = e.target as HTMLFormElement;
@@ -76,7 +34,7 @@ const LoginPage = () => {
       formData.entries()
     ) as UserLoginRequestBody;
 
-    mutate(formDataObject);
+    loginMutate(formDataObject);
   };
 
   return (

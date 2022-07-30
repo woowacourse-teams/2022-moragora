@@ -2,64 +2,42 @@ import React, { useContext, useState } from 'react';
 import * as S from './UserItem.styled';
 import Checkbox from 'components/@shared/Checkbox';
 import CoffeeIconSVG from 'assets/coffee.svg';
-import { Participant, AttendanceStatus, User } from 'types/userType';
-import { TOKEN_ERROR_STATUS_CODES } from 'consts';
-import { userContext } from 'contexts/userContext';
+import { Participant } from 'types/userType';
+import { userContext, UserContextValues } from 'contexts/userContext';
+import useMutation from 'hooks/useMutation';
+import { putUserAttendanceApi } from 'utils/Apis/userApis';
+import { ATTENDANCE_STATUS } from 'consts';
 
 type UserItemProps = {
   user: Participant;
   meetingId: string;
 };
 
-const ATTENDANCE_STATUS: Record<AttendanceStatus, boolean> = {
-  tardy: false,
-  present: true,
-} as const;
-
-const userAttendanceFetch = (
-  url: string,
-  payload: any,
-  accessToken?: User['accessToken']
-) => {
-  return fetch(`${process.env.API_SERVER_HOST}${url}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify(payload),
-  });
-};
-
 const UserItem: React.FC<UserItemProps> = ({ user, meetingId }) => {
-  const userState = useContext(userContext);
+  const userState = useContext(userContext) as UserContextValues;
   const [checked, setChecked] = useState<boolean>(
     ATTENDANCE_STATUS[user.attendanceStatus]
   );
 
+  const { mutate: attendanceMutate } = useMutation(putUserAttendanceApi, {
+    onMutate: () => {
+      setChecked(checked);
+    },
+    onError: () => {
+      setChecked(!checked);
+      alert('출석체크 중 오류가 발생했습니다.');
+    },
+  });
+
   const handleChange = async ({
     target: { checked },
   }: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked(checked);
-
-    try {
-      const response = await userAttendanceFetch(
-        `/meetings/${meetingId}/users/${user.id}`,
-        {
-          attendanceStatus: checked ? 'present' : 'tardy',
-        },
-        userState?.user?.accessToken
-      );
-
-      if (!response.ok) {
-        if (TOKEN_ERROR_STATUS_CODES.includes(response.status)) {
-        }
-
-        setChecked(!checked);
-      }
-    } catch (error) {
-      alert('출석체크 중 오류가 발생했습니다.');
-    }
+    attendanceMutate({
+      meetingId,
+      userId: user.id,
+      user: userState.user,
+      AttendanceStatus: checked ? 'present' : 'tardy',
+    });
   };
 
   return (

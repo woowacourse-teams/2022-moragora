@@ -3,22 +3,25 @@ import * as S from './MeetingPage.styled';
 import Footer from 'components/layouts/Footer';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
+import { useContext } from 'react';
 import DivideLine from 'components/@shared/DivideLine';
 import ReloadButton from 'components/@shared/ReloadButton';
 import UserItem from 'components/UserItem';
-import useFetch from 'hooks/useFetch';
-import { MeetingResponseBody } from 'types/meetingType';
+import useQuery from 'hooks/useQuery';
+import { userContext, UserContextValues } from 'contexts/userContext';
+import { getMeetingData } from 'utils/Apis/meetingApis';
 
 const MeetingPage = () => {
   const { id } = useParams();
+  const { user } = useContext(userContext) as UserContextValues;
   const {
-    data: meetingState,
-    loading,
-    error,
+    data: meetingResponse,
+    isLoading,
+    isError,
     refetch,
-  } = useFetch<MeetingResponseBody>(`/meetings/${id}`);
+  } = useQuery(['meeting'], getMeetingData(id ?? '', user));
 
-  if (loading) {
+  if (isLoading) {
     return (
       <>
         <S.Layout>
@@ -31,7 +34,7 @@ const MeetingPage = () => {
     );
   }
 
-  if (error || !id || !meetingState) {
+  if (isError || !id || !meetingResponse?.body) {
     return (
       <>
         <S.Layout>
@@ -53,19 +56,18 @@ const MeetingPage = () => {
     <>
       <S.Layout>
         <S.MeetingDetailSection>
-          <h2>{meetingState.name}</h2>
+          <h2>{meetingResponse.body.name}</h2>
           <p>
-            총 출석일: <span>{meetingState.attendanceCount}</span>
+            총 출석일: <span>{meetingResponse.body.attendanceCount}</span>
           </p>
         </S.MeetingDetailSection>
         <DivideLine />
         <S.UserListSection>
           <S.UserListBox>
             <S.UserList>
-              {meetingState &&
-                meetingState.users.map((user) => (
-                  <UserItem key={user.id} meetingId={id} user={user} />
-                ))}
+              {meetingResponse.body.users.map((user) => (
+                <UserItem key={user.id} meetingId={id} user={user} />
+              ))}
             </S.UserList>
           </S.UserListBox>
         </S.UserListSection>

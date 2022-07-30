@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useContext } from 'react';
 import { css } from '@emotion/react';
 import * as S from './MeetingListPage.styled';
 import Footer from 'components/layouts/Footer';
@@ -8,26 +8,28 @@ import CoffeeStackItem from 'components/CoffeeStackItem';
 import CoffeeStackItemSkeleton from 'components/CoffeeStackItemSkeleton';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import ReloadButton from 'components/@shared/ReloadButton';
-import useFetch from 'hooks/useFetch';
+import useQuery from 'hooks/useQuery';
 import useTimer from 'hooks/useTimer';
 import NoSearchResultIconSVG from 'assets/NoSearchResult.svg';
-import { MeetingListResponseBody } from 'types/meetingType';
+import { userContext, UserContextValues } from 'contexts/userContext';
+import { getMeetingListApi } from 'utils/Apis/meetingApis';
 
 const MeetingListPage = () => {
+  const { user } = useContext(userContext) as UserContextValues;
   const {
-    data: meetingListState,
-    loading,
-    error,
+    data: meetingListResponse,
     refetch,
-  } = useFetch<MeetingListResponseBody>('/meetings/me');
+    isLoading,
+    isError,
+  } = useQuery(['meetingList'], getMeetingListApi(user));
   const { currentTimestamp } = useTimer(
-    meetingListState?.serverTime || Date.now()
+    meetingListResponse?.body.serverTime || Date.now()
   );
   const currentDate = new Date(currentTimestamp);
-  const activeMeetings = meetingListState?.meetings.filter(
+  const activeMeetings = meetingListResponse?.body.meetings.filter(
     ({ isActive }) => isActive
   );
-  const inactiveMeetings = meetingListState?.meetings.filter(
+  const inactiveMeetings = meetingListResponse?.body.meetings.filter(
     ({ isActive }) => !isActive
   );
   const sortedMeetings = [
@@ -51,7 +53,7 @@ const MeetingListPage = () => {
     }
   }, [currentLocaleTimeString]);
 
-  if (loading && !meetingListState) {
+  if (isLoading && !meetingListResponse?.body) {
     return (
       <>
         <S.Layout>
@@ -99,7 +101,7 @@ const MeetingListPage = () => {
     );
   }
 
-  if (error || !meetingListState) {
+  if (isError || !meetingListResponse?.body) {
     return (
       <>
         <S.Layout>
@@ -117,7 +119,7 @@ const MeetingListPage = () => {
     );
   }
 
-  if (meetingListState.meetings.length === 0) {
+  if (meetingListResponse.body.meetings.length === 0) {
     return (
       <>
         <S.Layout>
@@ -181,7 +183,7 @@ const MeetingListPage = () => {
             <S.Title>커피 스택</S.Title>
           </S.TitleBox>
           <S.CoffeeStackList>
-            {meetingListState.meetings.map((meeting) => (
+            {meetingListResponse.body.meetings.map((meeting) => (
               <li key={meeting.id}>
                 <CoffeeStackItem
                   name={meeting.name}
