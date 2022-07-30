@@ -32,7 +32,7 @@ const MeetingCreatePage = () => {
   });
   const currentDate = new Date();
   const isParticipantSelected = selectedItems.length > 0;
-  const userState = useContext(userContext) as UserContextValues;
+  const { user } = useContext(userContext) as UserContextValues;
 
   const meetingCreateMutation = useMutation(createMeetingApi, {
     onSuccess: ({ body: { id } }) => {
@@ -61,8 +61,11 @@ const MeetingCreatePage = () => {
       userIds,
     };
 
+    const accessToken =
+      user?.accessToken || localStorage.getItem('accessToken');
+
     meetingCreateMutation.mutate({
-      user: userState.user,
+      accessToken,
       formDataObject,
     });
   };

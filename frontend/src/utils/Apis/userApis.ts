@@ -1,4 +1,3 @@
-import { UserContextValues } from 'contexts/userContext';
 import {
   GetLoginUserDataResponseBody,
   Participant,
@@ -13,7 +12,7 @@ import request from '../request';
 type PutUserAttendanceApiParameter = {
   meetingId: string;
   userId: Participant['id'];
-  user: UserContextValues['user'];
+  accessToken: User['accessToken'];
   AttendanceStatus: UserAttendanceCheckRequestBody['attendanceStatus'];
 };
 
@@ -70,14 +69,10 @@ export const submitLoginApi = async (payload: UserLoginRequestBody) => {
 export const putUserAttendanceApi = async ({
   meetingId,
   userId,
-  user,
+  accessToken,
   AttendanceStatus,
 }: PutUserAttendanceApiParameter) => {
-  if (!user) {
-    throw new Error('유저가 존재하지 않습니다.');
-  }
-
-  if (!user.accessToken) {
+  if (!accessToken) {
     throw new Error('미팅 정보를 불러오는 중 에러가 발생했습니다.');
   }
 
@@ -85,7 +80,7 @@ export const putUserAttendanceApi = async ({
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${user.accessToken}`,
+      Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify({ AttendanceStatus }),
   });

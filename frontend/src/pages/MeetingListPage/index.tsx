@@ -16,12 +16,13 @@ import { getMeetingListApi } from 'utils/Apis/meetingApis';
 
 const MeetingListPage = () => {
   const { user } = useContext(userContext) as UserContextValues;
+  const accessToken = user?.accessToken || localStorage.getItem('accessToken');
   const {
     data: meetingListResponse,
     refetch,
     isLoading,
     isError,
-  } = useQuery(['meetingList'], getMeetingListApi(user));
+  } = useQuery(['meetingList'], getMeetingListApi(accessToken));
 
   const { currentTimestamp } = useTimer(
     meetingListResponse?.body.serverTime || Date.now()

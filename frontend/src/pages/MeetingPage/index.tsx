@@ -14,12 +14,13 @@ import { getMeetingData } from 'utils/Apis/meetingApis';
 const MeetingPage = () => {
   const { id } = useParams();
   const { user } = useContext(userContext) as UserContextValues;
+  const accessToken = user?.accessToken || localStorage.getItem('accessToken');
   const {
     data: meetingResponse,
     isLoading,
     isError,
     refetch,
-  } = useQuery(['meeting'], getMeetingData(id, user));
+  } = useQuery(['meeting'], getMeetingData(id, accessToken));
 
   if (isLoading) {
     return (
