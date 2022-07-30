@@ -18,6 +18,8 @@ const MAX_SELECTED_USER_COUNT = 129;
 
 const MeetingCreatePage = () => {
   const navigate = useNavigate();
+  const { user } = useContext(userContext) as UserContextValues;
+  const accessToken = user?.accessToken || localStorage.getItem('accessToken');
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
   const {
     queryResult,
@@ -32,7 +34,6 @@ const MeetingCreatePage = () => {
   });
   const currentDate = new Date();
   const isParticipantSelected = selectedItems.length > 0;
-  const { user } = useContext(userContext) as UserContextValues;
 
   const meetingCreateMutation = useMutation(createMeetingApi, {
     onSuccess: ({ body: { id } }) => {
@@ -60,9 +61,6 @@ const MeetingCreatePage = () => {
       ...Object.fromEntries(formData.entries()),
       userIds,
     };
-
-    const accessToken =
-      user?.accessToken || localStorage.getItem('accessToken');
 
     meetingCreateMutation.mutate({
       accessToken,
