@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as S from './RegisterPage.styled';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
 import useForm from 'hooks/useForm';
-import useContextValues from 'hooks/useContextValues';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { UserRegisterRequestBody } from 'types/userType';
 import useQuery from 'hooks/useQuery';
@@ -13,9 +12,7 @@ import { checkEmailApi, submitRegisterApi } from 'utils/Apis/userApis';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const { login } = useContextValues<UserContextValues>(
-    userContext
-  ) as UserContextValues;
+  const { login } = useContext(userContext) as UserContextValues;
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
   const [isEmailExist, setIsEmailExist] = useState(true);
   const [isValidPasswordConfirm, setIsValidPasswordConfirm] = useState(true);

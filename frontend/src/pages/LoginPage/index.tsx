@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as S from './LoginPage.styled';
 import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
-import useContextValues from 'hooks/useContextValues';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
@@ -12,10 +11,8 @@ import { submitLoginApi } from 'utils/Apis/userApis';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login } = useContext(userContext) as UserContextValues;
   const { errors, isSubmitting, onSubmit, register } = useForm();
-  const { login } = useContextValues<UserContextValues>(
-    userContext
-  ) as UserContextValues;
 
   const { mutate: loginMutate } = useMutation(submitLoginApi, {
     onSuccess: ({ body, accessToken }) => {

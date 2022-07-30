@@ -19,7 +19,7 @@ const MeetingPage = () => {
     isLoading,
     isError,
     refetch,
-  } = useQuery(['meeting'], getMeetingData(id ?? '', user));
+  } = useQuery(['meeting'], getMeetingData(id, user));
 
   if (isLoading) {
     return (

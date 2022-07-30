@@ -6,17 +6,21 @@ import {
 import request from 'utils/request';
 
 export const createMeetingApi = async ({
-  accessToken,
+  user,
   formDataObject,
 }: {
-  accessToken: string;
+  user: UserContextValues['user'];
   formDataObject: Record<string, any>;
 }) => {
+  if (!user || !user.accessToken) {
+    throw new Error('미팅을 생성하는 중 에러가 발생했습니다.');
+  }
+
   const meetingCreateResponse = await request('/meetings', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${user.accessToken}`,
     },
     body: JSON.stringify(formDataObject),
   });
@@ -25,19 +29,15 @@ export const createMeetingApi = async ({
 
   return request<{ id: number }>(location, {
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${user.accessToken}`,
     },
   });
 };
 
 export const getMeetingData =
-  (id: string, user: UserContextValues['user']) => async () => {
-    if (!user) {
-      throw new Error('유저가 존재하지 않습니다.');
-    }
-
-    if (!user.accessToken) {
-      throw new Error('미팅 정보를 불러오는 중 에러가 발생했습니다.');
+  (id: string | undefined, user: UserContextValues['user']) => async () => {
+    if (!id || !user || !user.accessToken) {
+      throw new Error('미팅 정보 요청 중 에러가 발생했습니다.');
     }
 
     return request<MeetingResponseBody>(`/meetings/${id}`, {

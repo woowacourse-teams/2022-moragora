@@ -11,7 +11,7 @@ import useMutation from 'hooks/useMutation';
 import useQuerySelectItems from 'hooks/useQuerySelectItems';
 import { UserQueryWithKeywordResponse } from 'types/userType';
 import { dateToFormattedString } from 'utils/timeUtil';
-import { userContext } from 'contexts/userContext';
+import { userContext, UserContextValues } from 'contexts/userContext';
 import { createMeetingApi } from 'utils/Apis/meetingApis';
 
 const MAX_SELECTED_USER_COUNT = 129;
@@ -30,6 +30,9 @@ const MeetingCreatePage = () => {
     wait: 150,
     maxSelectCount: MAX_SELECTED_USER_COUNT,
   });
+  const currentDate = new Date();
+  const isParticipantSelected = selectedItems.length > 0;
+  const userState = useContext(userContext) as UserContextValues;
 
   const meetingCreateMutation = useMutation(createMeetingApi, {
     onSuccess: ({ body: { id } }) => {
@@ -37,14 +40,10 @@ const MeetingCreatePage = () => {
       navigate(`/meeting/${id}`);
     },
     onError: (error) => {
-      console.log(error);
+      alert(error);
       alert('모임 생성을 실패했습니다.');
     },
   });
-
-  const currentDate = new Date();
-  const isParticipantSelected = selectedItems.length > 0;
-  const userState = useContext(userContext);
 
   const handleCreateMeetingSubmit: React.FormEventHandler<
     HTMLFormElement
@@ -62,18 +61,10 @@ const MeetingCreatePage = () => {
       userIds,
     };
 
-    try {
-      if (!userState?.user?.accessToken) {
-        return;
-      }
-
-      meetingCreateMutation.mutate({
-        accessToken: userState.user.accessToken,
-        formDataObject,
-      });
-    } catch (e) {
-      console.error(e);
-    }
+    meetingCreateMutation.mutate({
+      user: userState.user,
+      formDataObject,
+    });
   };
 
   return (

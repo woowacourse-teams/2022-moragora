@@ -22,10 +22,18 @@ const MeetingListPage = () => {
     isLoading,
     isError,
   } = useQuery(['meetingList'], getMeetingListApi(user));
+
   const { currentTimestamp } = useTimer(
     meetingListResponse?.body.serverTime || Date.now()
   );
+
   const currentDate = new Date(currentTimestamp);
+  const currentLocaleTimeString = currentDate.toLocaleTimeString(undefined, {
+    hourCycle: 'h24',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
   const activeMeetings = meetingListResponse?.body.meetings.filter(
     ({ isActive }) => isActive
   );
@@ -36,11 +44,6 @@ const MeetingListPage = () => {
     ...(activeMeetings || []),
     ...(inactiveMeetings || []),
   ];
-  const currentLocaleTimeString = currentDate.toLocaleTimeString(undefined, {
-    hourCycle: 'h24',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 
   useEffect(() => {
     const closingMeeting = sortedMeetings.find(
