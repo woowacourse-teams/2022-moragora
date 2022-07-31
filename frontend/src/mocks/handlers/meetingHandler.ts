@@ -176,4 +176,20 @@ export default [
       );
     }
   ),
+
+  rest.post<DefaultBodyType, Pick<MeetingPathParams, 'meetingId'>>(
+    `${process.env.API_SERVER_HOST}/meetings/:meetingId/coffees/use`,
+    (req, res, ctx) => {
+      const token = extractIdFromHeader(req);
+
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      return res(ctx.status(204), ctx.delay(DELAY));
+    }
+  ),
 ];
