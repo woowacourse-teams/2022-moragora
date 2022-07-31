@@ -41,8 +41,8 @@ public class MeetingController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<MyMeetingsResponse> findMy(@AuthenticationPrincipal final Long id) {
-        final MyMeetingsResponse meetingsResponse = meetingService.findAllByUserId(id);
+    public ResponseEntity<MyMeetingsResponse> findMy(@AuthenticationPrincipal final Long loginId) {
+        final MyMeetingsResponse meetingsResponse = meetingService.findAllByUserId(loginId);
         return ResponseEntity.ok(meetingsResponse);
     }
 }

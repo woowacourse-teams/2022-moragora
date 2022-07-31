@@ -327,9 +327,9 @@ class MeetingServiceTest {
                         serverTimeManager.getDateAndTime(),
                         List.of(
                                 MyMeetingResponse.of(meeting, false,
-                                        serverTimeManager.calculateClosingTime(entranceTime), 1),
+                                        serverTimeManager.calculateClosingTime(entranceTime), 1, true),
                                 MyMeetingResponse.of(meetingRequest.toEntity(), false,
-                                        serverTimeManager.calculateClosingTime(entranceTime), 0)
+                                        serverTimeManager.calculateClosingTime(entranceTime), 0, true)
                         ))
                 );
     }

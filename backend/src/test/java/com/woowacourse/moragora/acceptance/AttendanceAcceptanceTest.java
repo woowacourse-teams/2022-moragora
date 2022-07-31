@@ -8,7 +8,6 @@ import com.woowacourse.auth.dto.LoginRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.support.ServerTimeManager;
-import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 
 class AttendanceAcceptanceTest extends AcceptanceTest {
 
@@ -39,13 +37,8 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .willReturn(dateTime.toLocalDate());
 
         // when
-        final ValidatableResponse response = RestAssured.given().log().all()
-                .auth().oauth2(signInAndGetToken(masterLoginRequest))
-                .body(userAttendanceRequest)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .when().put("/meetings/" + meetingId + "/users/" + userId)
-                .then().log().all();
+        final ValidatableResponse response = put("/meetings/" + meetingId + "/users/" + userId,
+                userAttendanceRequest, signInAndGetToken(masterLoginRequest));
 
         // then
         response.statusCode(HttpStatus.NO_CONTENT.value());
@@ -67,13 +60,8 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .willReturn(dateTime.toLocalDate());
 
         // when
-        final ValidatableResponse response = RestAssured.given().log().all()
-                .auth().oauth2(signInAndGetToken(noMasterLoginRequest))
-                .body(userAttendanceRequest)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .when().put("/meetings/" + meetingId + "/users/" + userId)
-                .then().log().all();
+        final ValidatableResponse response = put("/meetings/" + meetingId + "/users/" + userId,
+                userAttendanceRequest, signInAndGetToken(noMasterLoginRequest));
 
         // then
         response.statusCode(HttpStatus.FORBIDDEN.value())

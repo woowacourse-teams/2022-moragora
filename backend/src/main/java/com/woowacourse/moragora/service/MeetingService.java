@@ -186,9 +186,9 @@ public class MeetingService {
         return ParticipantResponse.of(participant.getUser(), status, tardyCount);
     }
 
-    private boolean isMaster(final Long meetingId, final Long loginId) {
+    private boolean isMaster(final Long meetingId, final Long userId) {
         final Participant participant = participantRepository
-                .findByMeetingIdAndUserId(meetingId, loginId)
+                .findByMeetingIdAndUserId(meetingId, userId)
                 .orElseThrow(ParticipantNotFoundException::new);
         final Optional<Master> master = masterRepository.findByParticipantId(participant.getId());
 
@@ -198,6 +198,7 @@ public class MeetingService {
     private MyMeetingResponse generateMyMeetingResponse(final Participant participant,
                                                         final MeetingAttendances meetingAttendances) {
         final Meeting meeting = participant.getMeeting();
+        final User user = participant.getUser();
         final ParticipantAttendances participantAttendances = meetingAttendances.extractAttendancesByParticipant(
                 participant);
 
@@ -206,6 +207,7 @@ public class MeetingService {
         final LocalTime closingTime = serverTimeManager.calculateClosingTime(meeting.getEntranceTime());
         final int tardyCount = participantAttendances.countTardy(isOver, serverTimeManager.getDate());
 
-        return MyMeetingResponse.of(meeting, isActive, closingTime, tardyCount);
+        return MyMeetingResponse
+                .of(meeting, isActive, closingTime, tardyCount, isMaster(meeting.getId(), user.getId()));
     }
 }

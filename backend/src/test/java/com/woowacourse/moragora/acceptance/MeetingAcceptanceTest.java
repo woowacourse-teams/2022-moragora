@@ -70,6 +70,8 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                         "ggg777@foo.com"));
     }
 
+
+    // TODO: isActive 검사를 못하고 있음
     @DisplayName("사용자가 자신이 속한 모든 모임을 조회하면 모임 정보와 상태코드 200을 반환한다.")
     @Test
     void findMy() {
@@ -106,6 +108,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.endDate", containsInAnyOrder("2022-08-10", "2022-08-13"))
                 .body("meetings.entranceTime", containsInAnyOrder("10:00", "09:00"))
                 .body("meetings.closingTime", containsInAnyOrder("10:05", "09:05"))
-                .body("meetings.tardyCount", containsInAnyOrder(0, 0));
+                .body("meetings.tardyCount", containsInAnyOrder(0, 0))
+                .body("meetings.isMaster", containsInAnyOrder(true, true));
     }
 }

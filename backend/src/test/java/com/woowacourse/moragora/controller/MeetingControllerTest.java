@@ -334,14 +334,18 @@ class MeetingControllerTest extends ControllerTest {
                         LocalDate.of(2022, 7, 10),
                         LocalDate.of(2022, 8, 10),
                         LocalTime.of(10, 0),
-                        LocalTime.of(10, 5), 1);
+                        LocalTime.of(10, 5),
+                        1,
+                        true);
 
         final MyMeetingResponse myMeetingResponse2 =
                 new MyMeetingResponse(2L, "모임2", true,
                         LocalDate.of(2022, 7, 15),
                         LocalDate.of(2022, 8, 15),
                         LocalTime.of(9, 0),
-                        LocalTime.of(9, 5), 2);
+                        LocalTime.of(9, 5),
+                        2,
+                        true);
 
         final MyMeetingsResponse meetingsResponse =
                 MyMeetingsResponse.of(now, List.of(myMeetingResponse, myMeetingResponse2));
@@ -365,6 +369,7 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.meetings[*].entranceTime", containsInAnyOrder("09:00", "10:00")))
                 .andExpect(jsonPath("$.meetings[*].closingTime", containsInAnyOrder("09:05", "10:05")))
                 .andExpect(jsonPath("$.meetings[*].tardyCount", containsInAnyOrder(1, 2)))
+                .andExpect(jsonPath("$.meetings[*].isMaster", containsInAnyOrder(true, true)))
                 .andDo(document("meeting/find-my-meetings",
                         responseFields(
                                 fieldWithPath("serverTime").type(JsonFieldType.NUMBER)
@@ -381,8 +386,8 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("meetings[].closingTime").type(JsonFieldType.STRING)
                                         .description("09:05"),
                                 fieldWithPath("meetings[].tardyCount").type(JsonFieldType.NUMBER)
-                                        .description(1)
-
+                                        .description(1),
+                                fieldWithPath("meetings[].isMaster").type(JsonFieldType.BOOLEAN).description(true)
                         )
                 ));
     }
