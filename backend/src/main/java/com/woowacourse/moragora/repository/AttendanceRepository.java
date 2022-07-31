@@ -10,14 +10,12 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
 
     Attendance save(final Attendance attendance);
 
-    List<Attendance> findByParticipantId(final Long participantId);
-
-    Long countByParticipantId(final Long participantId);
-
     Optional<Attendance> findByParticipantIdAndAttendanceDate(final Long participantId, final LocalDate attendanceDate);
+
+
+    List<Attendance> findByParticipantIdIn(final List<Long> participantIds);
+
 
     List<Attendance> findByParticipantIdInAndAttendanceDate(final List<Long> participantIds,
                                                             final LocalDate attendanceDate);
-
-    List<Attendance> findByParticipantIdAndAttendanceDateNot(final Long participantId, final LocalDate today);
 }

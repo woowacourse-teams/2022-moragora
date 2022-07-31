@@ -79,7 +79,7 @@ class UserRepositoryTest {
     @CsvSource(value = {"foo,7", "ggg777@foo.com,1"})
     void findByNicknameOrEmailContaining(final String keyword, final int expectedSize) {
         // given, when
-        final List<User> users = userRepository.findByNicknameContainingOrEmailContaining(keyword);
+        final List<User> users = userRepository.findByNicknameOrEmailLike(keyword);
 
         // then
         assertThat(users).hasSize(expectedSize);

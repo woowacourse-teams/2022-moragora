@@ -35,6 +35,14 @@ public class Participant {
         this.meeting = meeting;
     }
 
+    public void mapMeeting(final Meeting meeting) {
+        this.meeting = meeting;
+
+        if (!meeting.getParticipants().contains(this)) {
+            meeting.getParticipants().add(this);
+        }
+    }
+
     public boolean isSameUser(final User user) {
         return this.user.equals(user);
     }

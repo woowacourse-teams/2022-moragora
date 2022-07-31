@@ -4,9 +4,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.doThrow;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -21,12 +19,9 @@ import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
-import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
-import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
-import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
@@ -387,69 +382,5 @@ class MeetingControllerTest extends ControllerTest {
 
                         )
                 ));
-    }
-
-    @DisplayName("사용자 출석여부를 반영한다.")
-    @Test
-    void endAttendance() throws Exception {
-        // given
-        final Long meetingId = 1L;
-        final Long userId = 1L;
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
-
-        validateToken("1");
-
-        // when
-        final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
-
-        // then
-        resultActions.andExpect(status().isNoContent())
-                .andDo(document("meeting/enter-Attendance",
-                        requestFields(
-                                fieldWithPath("attendanceStatus").type(JsonFieldType.STRING).description("present")
-                        )
-                ));
-    }
-
-    @DisplayName("출석을 제출하려는 방이 존재하지 않는 경우 예외가 발생한다.")
-    @Test
-    void endAttendance_throwsException_ifMeetingNotFound() throws Exception {
-        // given
-        final Long meetingId = 99L;
-        final Long userId = 1L;
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
-
-        validateToken("1");
-
-        doThrow(new MeetingNotFoundException())
-                .when(meetingService)
-                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
-
-        // when
-        final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
-
-        //then
-        resultActions.andExpect(status().isNotFound());
-    }
-
-    @DisplayName("출석을 제출하려는 사용자가 미팅에 존재하지 않으면 예외가 발생한다.")
-    @Test
-    void endAttendance_throwsException_ifParticipantNotFound() throws Exception {
-        // given
-        final Long meetingId = 1L;
-        final Long userId = 8L;
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
-
-        validateToken("1");
-
-        doThrow(new ParticipantNotFoundException())
-                .when(meetingService)
-                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
-
-        // when
-        final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
-
-        // then
-        resultActions.andExpect(status().isNotFound());
     }
 }

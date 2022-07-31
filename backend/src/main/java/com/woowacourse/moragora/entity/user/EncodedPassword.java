@@ -1,6 +1,5 @@
 package com.woowacourse.moragora.entity.user;
 
-import com.woowacourse.moragora.util.CryptoEncoder;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import lombok.Getter;
