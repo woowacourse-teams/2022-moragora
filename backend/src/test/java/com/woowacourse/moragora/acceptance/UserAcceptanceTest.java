@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 @DisplayName("회원 관련 기능")
-public class UserAcceptanceTest extends AcceptanceTest {
+class UserAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("이메일, 비밀번호, 닉네임 모든 양식에 맞게 작성하면 회원가입에 성공하고 상태코드 201을 반환받는다.")
     @Test

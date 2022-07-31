@@ -7,14 +7,13 @@ import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MasterRepository;
-import com.woowacourse.moragora.repository.attendance.AttendanceRepository;
-import com.woowacourse.moragora.repository.meeting.MeetingRepository;
-import com.woowacourse.moragora.repository.participant.ParticipantRepository;
-import com.woowacourse.moragora.repository.user.UserRepository;
+import com.woowacourse.moragora.repository.MeetingRepository;
+import com.woowacourse.moragora.repository.ParticipantRepository;
+import com.woowacourse.moragora.repository.UserRepository;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
@@ -28,10 +27,10 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
     private final ParticipantRepository participantRepository;
     private final MasterRepository masterRepository;
 
-    public ApplicationStartupRunner(@Qualifier("meetingSpringJpaRepository") final MeetingRepository meetingRepository,
-                                    @Qualifier("userSpringJpaRepository") final UserRepository userRepository,
-                                    @Qualifier("attendanceSpringJpaRepository") final AttendanceRepository attendanceRepository,
-                                    @Qualifier("participantSpringJpaRepository") final ParticipantRepository participantRepository,
+    public ApplicationStartupRunner(final MeetingRepository meetingRepository,
+                                    final UserRepository userRepository,
+                                    final AttendanceRepository attendanceRepository,
+                                    final ParticipantRepository participantRepository,
                                     final MasterRepository masterRepository) {
         this.meetingRepository = meetingRepository;
         this.userRepository = userRepository;

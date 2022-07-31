@@ -3,7 +3,6 @@ package com.woowacourse.moragora.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.entity.Participant;
-import com.woowacourse.moragora.repository.participant.ParticipantHibernateRepository;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -14,10 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
-class ParticipantHibernateRepositoryTest {
+class ParticipantRepositoryTest {
 
     @Autowired
-    private ParticipantHibernateRepository participantRepository;
+    private ParticipantRepository participantRepository;
 
     @DisplayName("미팅 Id로 참자가 정보를 조회한다.")
     @Test

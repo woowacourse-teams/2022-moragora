@@ -9,9 +9,8 @@ import com.woowacourse.moragora.entity.user.RawPassword;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.repository.MasterRepository;
-import com.woowacourse.moragora.repository.participant.ParticipantRepository;
-import com.woowacourse.moragora.repository.user.UserRepository;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.woowacourse.moragora.repository.ParticipantRepository;
+import com.woowacourse.moragora.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +24,8 @@ public class AuthService {
     private final MasterRepository masterRepository;
 
     public AuthService(final JwtTokenProvider jwtTokenProvider,
-                       @Qualifier("userSpringJpaRepository") final UserRepository userRepository,
-                       @Qualifier("participantSpringJpaRepository") final ParticipantRepository participantRepository,
+                       final UserRepository userRepository,
+                       final ParticipantRepository participantRepository,
                        final MasterRepository masterRepository) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;

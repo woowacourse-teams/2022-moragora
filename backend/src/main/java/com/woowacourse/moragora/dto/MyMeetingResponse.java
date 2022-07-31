@@ -1,7 +1,6 @@
 package com.woowacourse.moragora.dto;
 
 import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.service.closingstrategy.TimeChecker;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -39,19 +38,19 @@ public class MyMeetingResponse {
         this.tardyCount = tardyCount;
     }
 
-    public static MyMeetingResponse of(final LocalTime now,
-                                       final TimeChecker timeChecker,
-                                       final Meeting meeting,
+    public static MyMeetingResponse of(final Meeting meeting,
+                                       final boolean isActive,
+                                       final LocalTime closingTime,
                                        final int tardyCount) {
 
         return new MyMeetingResponse(
                 meeting.getId(),
                 meeting.getName(),
-                timeChecker.isAttendanceTime(now, meeting.getEntranceTime()),
+                isActive,
                 meeting.getStartDate(),
                 meeting.getEndDate(),
                 meeting.getEntranceTime(),
-                timeChecker.calculateClosingTime(meeting.getEntranceTime()),
+                closingTime,
                 tardyCount
         );
     }

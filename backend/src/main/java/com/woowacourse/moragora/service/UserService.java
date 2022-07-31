@@ -8,10 +8,9 @@ import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
-import com.woowacourse.moragora.repository.user.UserRepository;
+import com.woowacourse.moragora.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +20,7 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserService(@Qualifier("userSpringJpaRepository") final UserRepository userRepository) {
+    public UserService(final UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -42,7 +41,7 @@ public class UserService {
 
     public UsersResponse searchByKeyword(final String keyword) {
         validateKeyword(keyword);
-        final List<User> searchedUsers = userRepository.findByNicknameContainingOrEmailContaining(keyword);
+        final List<User> searchedUsers = userRepository.findByNicknameOrEmailLike(keyword);
         final List<UserResponse> responses = searchedUsers.stream()
                 .map(UserResponse::from)
                 .collect(Collectors.toList());
