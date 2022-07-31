@@ -1,4 +1,4 @@
-import { DefaultBodyType, rest, RestRequest } from 'msw';
+import { DefaultBodyType, rest } from 'msw';
 import meetings from 'mocks/fixtures/meeting';
 import users from 'mocks/fixtures/users';
 import { UserAttendanceCheckRequestBody } from 'types/userType';
@@ -39,10 +39,11 @@ export default [
       userIds.includes(user.id)
     );
     const responseBody: MeetingListResponseBody = {
-      serverTime: 1658378126763,
       meetings: myMeetings.map(
         ({ leaveTime, attendanceCount, userIds, ...meeting }) => ({
           ...meeting,
+          isMaster: false,
+          isCoffeeTime: false,
           tardyCount: 3,
         })
       ),
@@ -81,12 +82,14 @@ export default [
 
       const { userIds, ...joinedMeeting } = {
         ...meeting,
+        isMaster: false,
+        isCoffeeTime: false,
         users: meeting.userIds.map((id) => {
           const { password, accessToken, ...user } = users[id];
 
           return {
             ...user,
-            attendanceStatus: true,
+            attendanceStatus: 'tardy',
             tardyCount: 3,
           };
         }),
