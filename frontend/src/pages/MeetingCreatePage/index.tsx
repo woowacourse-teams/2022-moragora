@@ -18,8 +18,7 @@ const MAX_SELECTED_USER_COUNT = 129;
 
 const MeetingCreatePage = () => {
   const navigate = useNavigate();
-  const { user } = useContext(userContext) as UserContextValues;
-  const accessToken = user?.accessToken || localStorage.getItem('accessToken');
+  const { accessToken } = useContext(userContext) as UserContextValues;
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
   const {
     queryResult,

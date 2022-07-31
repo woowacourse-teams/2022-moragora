@@ -15,8 +15,7 @@ import { userContext, UserContextValues } from 'contexts/userContext';
 import { getMeetingListApi } from 'utils/Apis/meetingApis';
 
 const MeetingListPage = () => {
-  const { user } = useContext(userContext) as UserContextValues;
-  const accessToken = user?.accessToken || localStorage.getItem('accessToken');
+  const { accessToken } = useContext(userContext) as UserContextValues;
   const {
     data: meetingListResponse,
     refetch,

@@ -13,8 +13,7 @@ import { getMeetingData } from 'utils/Apis/meetingApis';
 
 const MeetingPage = () => {
   const { id } = useParams();
-  const { user } = useContext(userContext) as UserContextValues;
-  const accessToken = user?.accessToken || localStorage.getItem('accessToken');
+  const { accessToken } = useContext(userContext) as UserContextValues;
   const {
     data: meetingResponse,
     isLoading,

@@ -14,9 +14,7 @@ type UserItemProps = {
 };
 
 const UserItem: React.FC<UserItemProps> = ({ user, meetingId }) => {
-  const userState = useContext(userContext) as UserContextValues;
-  const accessToken =
-    userState.user?.accessToken || localStorage.getItem('accessToken');
+  const { accessToken } = useContext(userContext) as UserContextValues;
   const [checked, setChecked] = useState<boolean>(
     ATTENDANCE_STATUS[user.attendanceStatus]
   );
