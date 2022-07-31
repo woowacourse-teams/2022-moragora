@@ -5,22 +5,22 @@ import java.util.stream.Collectors;
 
 public class MeetingAttendances {
 
-    private final List<Attendance> value;
+    private final List<Attendance> values;
 
-    public MeetingAttendances(final List<Attendance> value) {
-        validateSingleMeeting(value);
-        this.value = value;
+    public MeetingAttendances(final List<Attendance> values) {
+        validateSingleMeeting(values);
+        this.values = values;
     }
 
     public ParticipantAttendances extractAttendancesByParticipant(final Participant participant) {
-        final List<Attendance> attendances = this.value.stream()
+        final List<Attendance> attendances = this.values.stream()
                 .filter(attendance -> attendance.getParticipant().equals(participant))
                 .collect(Collectors.toList());
         return new ParticipantAttendances(attendances);
     }
 
     public long extractProceedDate() {
-        return value.stream()
+        return values.stream()
                 .map(Attendance::getAttendanceDate)
                 .distinct()
                 .count();

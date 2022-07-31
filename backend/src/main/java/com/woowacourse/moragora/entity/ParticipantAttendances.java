@@ -9,25 +9,25 @@ import lombok.Getter;
 @Getter
 public class ParticipantAttendances {
 
-    private final List<Attendance> value;
+    private final List<Attendance> values;
 
-    public ParticipantAttendances(final List<Attendance> value) {
-        validateSingleParticipant(value);
-        this.value = value;
+    public ParticipantAttendances(final List<Attendance> values) {
+        validateSingleParticipant(values);
+        this.values = values;
     }
 
     public Attendance extractAttendanceByDate(final LocalDate date) {
-        return value.stream()
+        return values.stream()
                 .filter(it -> it.isSameDate(date))
                 .findAny()
                 .orElseThrow(AttendanceNotFoundException::new);
     }
 
-    public int countTardy(final boolean isOver, final LocalDate today) {
-        final Stream<Attendance> attendances = value.stream()
+    public int countTardy(final boolean isAttendanceClosed, final LocalDate today) {
+        final Stream<Attendance> attendances = values.stream()
                 .filter(it -> it.isSameStatus(Status.TARDY));
 
-        if (isOver) {
+        if (isAttendanceClosed) {
             return (int) attendances.count();
         }
 

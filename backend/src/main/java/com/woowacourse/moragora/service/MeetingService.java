@@ -84,7 +84,7 @@ public class MeetingService {
 
         putAttendanceIfAbsent(participants);
 
-        final MeetingAttendances meetingAttendances = extractAllAttendances(participants);
+        final MeetingAttendances meetingAttendances = findAttendancesByMeeting(participants);
         final boolean isOver = serverTimeManager.isOverClosingTime(meeting.getEntranceTime());
         final List<ParticipantResponse> participantResponses = participants.stream()
                 .map(participant -> generateParticipantResponse(serverTimeManager.getDateAndTime(),
@@ -97,7 +97,7 @@ public class MeetingService {
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
         final List<Participant> participants = participantRepository.findByUserId(userId);
-        final MeetingAttendances meetingAttendances = extractAllAttendances(participants);
+        final MeetingAttendances meetingAttendances = findAttendancesByMeeting(participants);
 
         final List<MyMeetingResponse> myMeetingResponses = participants.stream()
                 .map(participant -> generateMyMeetingResponse(participant, meetingAttendances))
@@ -135,7 +135,19 @@ public class MeetingService {
         }
     }
 
-    private MeetingAttendances extractAllAttendances(final List<Participant> participants) {
+    private void putAttendanceIfAbsent(final List<Participant> participants) {
+        final List<Long> participantIds = participants.stream()
+                .map(Participant::getId)
+                .collect(Collectors.toList());
+        final List<Attendance> attendances = attendanceRepository
+                .findByParticipantIdInAndAttendanceDate(participantIds, serverTimeManager.getDate());
+
+        if (attendances.size() == 0) {
+            saveAttendances(participants, serverTimeManager.getDate());
+        }
+    }
+
+    private MeetingAttendances findAttendancesByMeeting(final List<Participant> participants) {
         final List<Long> participantIds = participants.stream()
                 .map(Participant::getId)
                 .collect(Collectors.toList());
@@ -167,17 +179,5 @@ public class MeetingService {
         final int tardyCount = participantAttendances.countTardy(isOver, serverTimeManager.getDate());
 
         return MyMeetingResponse.of(meeting, isActive, closingTime, tardyCount);
-    }
-
-    private void putAttendanceIfAbsent(final List<Participant> participants) {
-        final List<Long> participantIds = participants.stream()
-                .map(Participant::getId)
-                .collect(Collectors.toList());
-        final List<Attendance> attendances = attendanceRepository
-                .findByParticipantIdInAndAttendanceDate(participantIds, serverTimeManager.getDate());
-
-        if (attendances.size() == 0) {
-            saveAttendances(participants, serverTimeManager.getDate());
-        }
     }
 }
