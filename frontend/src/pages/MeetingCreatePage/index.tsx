@@ -39,7 +39,7 @@ const MeetingCreatePage = () => {
       alert('모임 생성을 완료했습니다.');
       navigate(`/meeting/${id}`);
     },
-    onError: (error) => {
+    onError: () => {
       alert('모임 생성을 실패했습니다.');
     },
   });
