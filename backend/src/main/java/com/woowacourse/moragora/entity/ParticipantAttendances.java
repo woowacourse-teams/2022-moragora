@@ -25,7 +25,8 @@ public class ParticipantAttendances {
 
     public int countTardy(final boolean isAttendanceClosed, final LocalDate today) {
         final Stream<Attendance> attendances = values.stream()
-                .filter(it -> it.isSameStatus(Status.TARDY));
+                .filter(Attendance::isEnabled)
+                .filter(Attendance::isTardy);
 
         if (isAttendanceClosed) {
             return (int) attendances.count();

@@ -37,12 +37,35 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .willReturn(dateTime.toLocalDate());
 
         // when
+        final ValidatableResponse response = put("/meetings/" + meetingId + "/users/" + userId,
+                userAttendanceRequest, signUpAndGetToken());
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("모임에 쌓인 커피스택을 사용하면 참가자들의 커피 스택을 차감하고 상태코드 204을 반환한다.")
+    @Test
+    void useCoffeeStack() {
+        // given
+        final int meetingId = 1;
+        final String token = signUpAndGetToken();
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 15, 0, 0);
+        given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
+                .willReturn(false);
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime);
+        given(serverTimeManager.getDate())
+                .willReturn(dateTime.toLocalDate());
+        get("/meetings/" + meetingId, token);
+
+        // when
         final ValidatableResponse response = RestAssured.given().log().all()
-                .auth().oauth2(signUpAndGetToken())
-                .body(userAttendanceRequest)
+                .auth().oauth2(token)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .when().put("/meetings/" + meetingId + "/users/" + userId)
+                .when().post("/meetings/" + meetingId + "/coffees/use")
                 .then().log().all();
 
         // then

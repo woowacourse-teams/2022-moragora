@@ -91,7 +91,7 @@ public class MeetingService {
                         meetingAttendances, isOver, participant))
                 .collect(Collectors.toList());
 
-        return MeetingResponse.of(meeting, participantResponses, meetingAttendances.extractProceedDate());
+        return MeetingResponse.of(meeting, participantResponses, meetingAttendances);
     }
 
 
@@ -131,7 +131,7 @@ public class MeetingService {
 
     private void saveAttendances(final List<Participant> participants, final LocalDate today) {
         for (final Participant participant : participants) {
-            attendanceRepository.save(new Attendance(participant, today, Status.TARDY));
+            attendanceRepository.save(new Attendance(participant, today, false, Status.TARDY));
         }
     }
 

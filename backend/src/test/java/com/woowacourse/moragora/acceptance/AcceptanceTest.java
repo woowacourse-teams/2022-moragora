@@ -59,6 +59,16 @@ public class AcceptanceTest {
                 .then().log().all();
     }
 
+    protected ValidatableResponse put(final String uri, final Object requestBody, final String token) {
+        return RestAssured.given().log().all()
+                .auth().oauth2(token)
+                .body(requestBody)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when().put(uri)
+                .then().log().all();
+    }
+
     protected String signUpAndGetToken() {
         final String email = "test@naver.com";
         final String password = "1234asdfg!";
