@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import * as S from './MeetingCreatePage.styled';
 import { css } from '@emotion/react';
+import * as S from './MeetingCreatePage.styled';
 import Footer from 'components/layouts/Footer';
 import Input from 'components/@shared/Input';
 import MemberAddInput from 'components/MemberAddInput';
@@ -40,7 +40,6 @@ const MeetingCreatePage = () => {
       navigate(`/meeting/${id}`);
     },
     onError: (error) => {
-      alert(error);
       alert('모임 생성을 실패했습니다.');
     },
   });

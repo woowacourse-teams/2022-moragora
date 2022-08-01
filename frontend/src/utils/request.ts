@@ -15,7 +15,7 @@ const request =
       throw new Error(`${res.status}: ${body.message}`);
     }
 
-    const body = (await res.json().catch((_) => {})) as SuccessBody;
+    const body = (await res.json().catch(() => ({}))) as SuccessBody;
 
     return { headers: res.headers, body };
   };

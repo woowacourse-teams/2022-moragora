@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import * as S from './RegisterPage.styled';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
-import useForm from 'hooks/useForm';
 import { userContext, UserContextValues } from 'contexts/userContext';
-import { UserRegisterRequestBody } from 'types/userType';
+import useForm from 'hooks/useForm';
 import useQuery from 'hooks/useQuery';
 import useMutation from 'hooks/useMutation';
+import { UserRegisterRequestBody } from 'types/userType';
 import { checkEmailApi, submitRegisterApi } from 'utils/Apis/userApis';
 
 const RegisterPage = () => {
