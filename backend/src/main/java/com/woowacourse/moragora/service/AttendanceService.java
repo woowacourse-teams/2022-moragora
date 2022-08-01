@@ -75,7 +75,7 @@ public class AttendanceService {
                 .map(Participant::getId)
                 .collect(Collectors.toList());
         final List<Attendance> attendances = attendanceRepository.findByParticipantIdIn(participantIds);
-        final MeetingAttendances meetingAttendances = new MeetingAttendances(attendances);
+        final MeetingAttendances meetingAttendances = new MeetingAttendances(attendances, participants.size());
         validateCanUse(participants.size(), meetingAttendances);
         meetingAttendances.disableAttendances(participants.size());
     }

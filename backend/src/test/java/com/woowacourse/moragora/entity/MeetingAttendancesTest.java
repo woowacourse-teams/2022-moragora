@@ -42,7 +42,7 @@ class MeetingAttendancesTest {
         final Attendance attendance3 = new Attendance(participant3, date, false, Status.fromEnum(status3));
 
         final MeetingAttendances meetingAttendances = new MeetingAttendances(
-                List.of(attendance1, attendance2, attendance3));
+                List.of(attendance1, attendance2, attendance3), 3);
 
         // when
         final int actual = meetingAttendances.countTardy();
@@ -73,7 +73,7 @@ class MeetingAttendancesTest {
         final Attendance attendance3 = new Attendance(3L, participant3, date, false, Status.TARDY);
 
         final List<Attendance> attendances = List.of(attendance1, attendance2, attendance3);
-        final MeetingAttendances meetingAttendances = new MeetingAttendances(attendances);
+        final MeetingAttendances meetingAttendances = new MeetingAttendances(attendances, 3);
 
         // when
         meetingAttendances.disableAttendances(sizeToDisable);

@@ -7,10 +7,12 @@ import java.util.stream.Collectors;
 public class MeetingAttendances {
 
     private final List<Attendance> values;
+    private final int numberOfParticipants;
 
-    public MeetingAttendances(final List<Attendance> values) {
+    public MeetingAttendances(final List<Attendance> values, final int numberOfParticipants) {
         validateSingleMeeting(values);
         this.values = values;
+        this.numberOfParticipants = numberOfParticipants;
     }
 
     public ParticipantAttendances extractAttendancesByParticipant(final Participant participant) {
@@ -20,7 +22,7 @@ public class MeetingAttendances {
         return new ParticipantAttendances(attendances);
     }
 
-    public long extractProceedDate() {
+    public long countProceedDate() {
         return values.stream()
                 .map(Attendance::getAttendanceDate)
                 .distinct()
@@ -32,6 +34,10 @@ public class MeetingAttendances {
                 .filter(Attendance::isEnabled)
                 .filter(Attendance::isTardy)
                 .count();
+    }
+
+    public boolean isTardyStackFull() {
+        return countTardy() >= numberOfParticipants;
     }
 
     public void disableAttendances(final int disableSize) {

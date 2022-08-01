@@ -140,7 +140,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                null
+                false, null
         );
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
@@ -168,7 +168,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                null
+                true, null
         );
 
         // when
@@ -193,15 +193,15 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                List.of(
-                        new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
-                        new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
-                        new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
-                        new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
-                        new ParticipantResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
-                        new ParticipantResponse(6L, "fff666@foo.com", "쿤", Status.PRESENT, 0),
-                        new ParticipantResponse(7L, "ggg777@foo.com", "반듯", Status.PRESENT, 0)
-                )
+                false, List.of(
+                new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
+                new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
+                new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
+                new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
+                new ParticipantResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
+                new ParticipantResponse(6L, "fff666@foo.com", "쿤", Status.PRESENT, 0),
+                new ParticipantResponse(7L, "ggg777@foo.com", "반듯", Status.PRESENT, 0)
+        )
         );
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
@@ -228,15 +228,15 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                List.of(
-                        new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
-                        new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 3),
-                        new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
-                        new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
-                        new ParticipantResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
-                        new ParticipantResponse(6L, "fff666@foo.com", "쿤", Status.PRESENT, 0),
-                        new ParticipantResponse(7L, "ggg777@foo.com", "반듯", Status.PRESENT, 0)
-                )
+                false, List.of(
+                new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
+                new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 3),
+                new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
+                new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
+                new ParticipantResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
+                new ParticipantResponse(6L, "fff666@foo.com", "쿤", Status.PRESENT, 0),
+                new ParticipantResponse(7L, "ggg777@foo.com", "반듯", Status.PRESENT, 0)
+        )
         );
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 10, 5, 1);
@@ -285,9 +285,9 @@ class MeetingServiceTest {
                         serverTimeManager.getDateAndTime(),
                         List.of(
                                 MyMeetingResponse.of(meeting, false,
-                                        serverTimeManager.calculateClosingTime(entranceTime), 1),
+                                        serverTimeManager.calculateClosingTime(entranceTime), 1, false),
                                 MyMeetingResponse.of(meetingRequest.toEntity(), false,
-                                        serverTimeManager.calculateClosingTime(entranceTime), 0)
+                                        serverTimeManager.calculateClosingTime(entranceTime), 0, false)
                         ))
                 );
     }
