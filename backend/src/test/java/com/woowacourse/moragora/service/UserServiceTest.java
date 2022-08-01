@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.service;
 
+import static com.woowacourse.moragora.support.UserFixtures.values;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -9,6 +10,7 @@ import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
+import com.woowacourse.moragora.support.UserFixtures;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -80,8 +82,11 @@ class UserServiceTest {
     @Test
     void searchByKeyword() {
         // given
-        final String keyword = "foo";
-
+        final String keyword = "email";
+        for (UserFixtures value : values()) {
+            userService.create(new UserRequest(value.getEmail(), "1234asdf!", value.getNickname()));
+        }
+        
         // when
         final UsersResponse response = userService.searchByKeyword(keyword);
 
