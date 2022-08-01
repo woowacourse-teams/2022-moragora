@@ -3,16 +3,13 @@ package com.woowacourse.moragora.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.entity.Meeting;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import com.woowacourse.moragora.support.MeetingFixtures;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-@SpringBootTest
-@Transactional
+@DataJpaTest
 class MeetingRepositoryTest {
 
     @Autowired
@@ -22,11 +19,7 @@ class MeetingRepositoryTest {
     @Test
     void save() {
         // given
-        final Meeting meeting = new Meeting("모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0));
+        final Meeting meeting = MeetingFixtures.MORAGORA.create();
 
         // when
         final Meeting savedMeeting = meetingRepository.save(meeting);
@@ -39,10 +32,11 @@ class MeetingRepositoryTest {
     @Test
     void findById() {
         // given, when
-        final Meeting meeting = meetingRepository.findById(1L)
+        final Meeting meeting = meetingRepository.save(MeetingFixtures.MORAGORA.create());
+        final Meeting foundMeeting = meetingRepository.findById(meeting.getId())
                 .get();
 
         // then
-        assertThat(meeting).isNotNull();
+        assertThat(foundMeeting).isNotNull();
     }
 }
