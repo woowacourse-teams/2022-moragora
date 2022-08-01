@@ -8,7 +8,7 @@ import useForm from 'hooks/useForm';
 import useQuery from 'hooks/useQuery';
 import useMutation from 'hooks/useMutation';
 import { UserRegisterRequestBody } from 'types/userType';
-import { checkEmailApi, submitRegisterApi } from 'utils/Apis/userApis';
+import { checkEmailApi, submitRegisterApi } from 'apis/userApis';
 
 const RegisterPage = () => {
   const navigate = useNavigate();

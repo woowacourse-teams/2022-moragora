@@ -9,7 +9,7 @@ import ReloadButton from 'components/@shared/ReloadButton';
 import UserItem from 'components/UserItem';
 import useQuery from 'hooks/useQuery';
 import { userContext, UserContextValues } from 'contexts/userContext';
-import { getMeetingData } from 'utils/Apis/meetingApis';
+import { getMeetingData } from 'apis/meetingApis';
 
 const MeetingPage = () => {
   const { id } = useParams();

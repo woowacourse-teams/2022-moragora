@@ -12,7 +12,7 @@ import useQuery from 'hooks/useQuery';
 import useTimer from 'hooks/useTimer';
 import NoSearchResultIconSVG from 'assets/NoSearchResult.svg';
 import { userContext, UserContextValues } from 'contexts/userContext';
-import { getMeetingListApi } from 'utils/Apis/meetingApis';
+import { getMeetingListApi } from 'apis/meetingApis';
 
 const MeetingListPage = () => {
   const { accessToken } = useContext(userContext) as UserContextValues;

@@ -7,7 +7,7 @@ import {
   UserLoginResponseBody,
   UserRegisterRequestBody,
 } from 'types/userType';
-import request from '../request';
+import request from '../utils/request';
 
 type PutUserAttendanceApiParameter = {
   meetingId: string;

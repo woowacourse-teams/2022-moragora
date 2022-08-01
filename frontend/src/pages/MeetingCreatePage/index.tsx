@@ -12,7 +12,7 @@ import useQuerySelectItems from 'hooks/useQuerySelectItems';
 import { UserQueryWithKeywordResponse } from 'types/userType';
 import { dateToFormattedString } from 'utils/timeUtil';
 import { userContext, UserContextValues } from 'contexts/userContext';
-import { createMeetingApi } from 'utils/Apis/meetingApis';
+import { createMeetingApi } from 'apis/meetingApis';
 
 const MAX_SELECTED_USER_COUNT = 129;
 

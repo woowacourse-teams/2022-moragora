@@ -5,7 +5,7 @@ import CoffeeIconSVG from 'assets/coffee.svg';
 import { Participant } from 'types/userType';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import useMutation from 'hooks/useMutation';
-import { putUserAttendanceApi } from 'utils/Apis/userApis';
+import { putUserAttendanceApi } from 'apis/userApis';
 import { ATTENDANCE_STATUS } from 'consts';
 
 type UserItemProps = {

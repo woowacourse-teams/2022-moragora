@@ -7,7 +7,7 @@ import { userContext, UserContextValues } from 'contexts/userContext';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
 import { UserLoginRequestBody } from 'types/userType';
-import { submitLoginApi } from 'utils/Apis/userApis';
+import { submitLoginApi } from 'apis/userApis';
 
 const LoginPage = () => {
   const navigate = useNavigate();

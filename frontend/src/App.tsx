@@ -7,7 +7,7 @@ import Header from 'components/layouts/Header';
 import Spinner from 'components/@shared/Spinner';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import useQuery from 'hooks/useQuery';
-import { getLoginUserDataApi } from 'utils/Apis/userApis';
+import { getLoginUserDataApi } from 'apis/userApis';
 
 const App = () => {
   const { login, accessToken } = useContext(userContext) as UserContextValues;
