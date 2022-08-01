@@ -85,3 +85,18 @@ export const putUserAttendanceApi = async ({
     body: JSON.stringify({ AttendanceStatus }),
   });
 };
+
+export const getLoginUserDataApi =
+  (accessToken: User['accessToken']) => async () => {
+    if (!accessToken) {
+      throw new Error('내 정보를 가져오는 중 발생했습니다.');
+    }
+
+    return request<GetLoginUserDataResponseBody>('/users/me', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  };

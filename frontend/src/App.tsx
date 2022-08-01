@@ -1,29 +1,30 @@
+import { useContext } from 'react';
 import Router from 'router';
 import { css } from '@emotion/react';
+import * as S from './App.styled';
 import MobileLayout from 'components/layouts/MobileLayout';
 import Header from 'components/layouts/Header';
-import { userContext, UserContextValues } from 'contexts/userContext';
-import useContextValues from 'hooks/useContextValues';
-import { useEffect } from 'react';
-import useFetch from 'hooks/useFetch';
-import { GetLoginUserDataResponseBody } from 'types/userType';
 import Spinner from 'components/@shared/Spinner';
-import * as S from './App.styled';
+import { userContext, UserContextValues } from 'contexts/userContext';
+import useQuery from 'hooks/useQuery';
+import { getLoginUserDataApi } from 'utils/Apis/userApis';
 
 const App = () => {
-  const { login } = useContextValues<UserContextValues>(
-    userContext
-  ) as UserContextValues;
-
-  const { data, loading } = useFetch<GetLoginUserDataResponseBody>('/users/me');
-
-  useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
-
-    if (data && accessToken) {
-      login(data, accessToken);
+  const { login, accessToken } = useContext(userContext) as UserContextValues;
+  const { isLoading } = useQuery(
+    ['loginUserData'],
+    getLoginUserDataApi(accessToken),
+    {
+      onSuccess: ({ body }) => {
+        if (accessToken) {
+          login(body, accessToken);
+        }
+      },
+      onError: () => {
+        alert('자동 로그인 실패');
+      },
     }
-  }, [data]);
+  );
 
   return (
     <>
@@ -37,7 +38,7 @@ const App = () => {
         `}
       >
         <MobileLayout>
-          {loading ? (
+          {isLoading ? (
             <S.Layout>
               <S.SpinnerBox>
                 <Spinner />
