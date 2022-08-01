@@ -20,9 +20,6 @@ const App = () => {
           login(body, accessToken);
         }
       },
-      onError: () => {
-        alert('자동 로그인 실패');
-      },
     }
   );
 
