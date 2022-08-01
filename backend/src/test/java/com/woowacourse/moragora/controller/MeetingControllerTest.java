@@ -2,7 +2,6 @@ package com.woowacourse.moragora.controller;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -23,9 +22,7 @@ import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -325,7 +322,6 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void findAllByUserId() throws Exception {
         // given
-        final LocalDateTime now = LocalTime.of(10, 1).atDate(LocalDate.now());
         final MyMeetingResponse myMeetingResponse =
                 new MyMeetingResponse(1L, "모임1", true,
                         LocalDate.of(2022, 7, 10),
@@ -341,7 +337,7 @@ class MeetingControllerTest extends ControllerTest {
                         LocalTime.of(9, 5), 2);
 
         final MyMeetingsResponse meetingsResponse =
-                MyMeetingsResponse.of(now, List.of(myMeetingResponse, myMeetingResponse2));
+                new MyMeetingsResponse(List.of(myMeetingResponse, myMeetingResponse2));
 
         validateToken("1");
 
@@ -352,9 +348,7 @@ class MeetingControllerTest extends ControllerTest {
         // then
         performGet("/meetings/me")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.serverTime", is(Timestamp.valueOf(now).getTime())))
                 .andExpect(jsonPath("$.meetings[*].id", containsInAnyOrder(1, 2)))
-                .andExpect(jsonPath("$.serverTime", is(Timestamp.valueOf(now).getTime())))
                 .andExpect(jsonPath("$.meetings[*].name", containsInAnyOrder("모임1", "모임2")))
                 .andExpect(jsonPath("$.meetings[*].isActive", containsInAnyOrder(true, true)))
                 .andExpect(jsonPath("$.meetings[*].startDate", containsInAnyOrder("2022-07-10", "2022-07-15")))
@@ -364,8 +358,6 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.meetings[*].tardyCount", containsInAnyOrder(1, 2)))
                 .andDo(document("meeting/find-my-meetings",
                         responseFields(
-                                fieldWithPath("serverTime").type(JsonFieldType.NUMBER)
-                                        .description(Timestamp.valueOf(now).getTime()),
                                 fieldWithPath("meetings[].id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("meetings[].name").type(JsonFieldType.STRING).description("모임1"),
                                 fieldWithPath("meetings[].isActive").type(JsonFieldType.BOOLEAN).description(true),

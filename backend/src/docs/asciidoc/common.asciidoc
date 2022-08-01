@@ -1,0 +1,25 @@
+= Auth
+:toc: left
+:toclevels: 2
+:sectlinks:
+:source-highlighter: highlightjs
+
+[[home]]
+== home
+
+* link:index.html[홈으로 가기]
+
+[[server-time]]
+== 현재 서버 시간
+
+=== HTTP request
+
+include::{snippets}/common/server-time/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/common/server-time/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/common/server-time/response-fields.adoc[]
