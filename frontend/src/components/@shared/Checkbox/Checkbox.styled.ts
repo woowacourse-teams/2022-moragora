@@ -24,6 +24,7 @@ export const Input = styled.input`
 
   display: grid;
   place-content: center;
+  cursor: pointer;
 
   :checked {
     color: ${({ theme: { colors } }) => colors['primary']};
@@ -46,9 +47,11 @@ export const Input = styled.input`
   :disabled {
     color: ${({ theme: { colors } }) => colors['subtle-light']};
     background-color: ${({ theme: { colors } }) => colors['background']};
+    cursor: default;
   }
 
   :disabled:checked {
     background-color: ${({ theme: { colors } }) => colors['subtle-light']};
+    cursor: default;
   }
 `;
