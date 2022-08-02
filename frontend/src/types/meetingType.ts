@@ -35,4 +35,6 @@ export type MeetingResponseBody = Omit<
 > & {
   users: Participant[];
   attendanceCount: number;
+  isMaster: boolean;
+  isCoffeeTime: boolean;
 };
