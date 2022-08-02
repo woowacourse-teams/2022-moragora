@@ -1,0 +1,12 @@
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+<defs>
+<style>.cls-1{fill:none;stroke:#e3942d;stroke-linecap:round;stroke-linejoin:round;stroke-width:3px;}</style>
+</defs>
+<title>coffee</title>
+<path class="cls-1" d="M10,14H36a0,0,0,0,1,0,0V28.52A7.48,7.48,0,0,1,28.52,36h-11A7.48,7.48,0,0,1,10,28.52V14A0,0,0,0,1,10,14Z"/>
+<path class="cls-1" d="M4,36H42a0,0,0,0,1,0,0v0a4,4,0,0,1-4,4H8a4,4,0,0,1-4-4v0a0,0,0,0,1,0,0Z"/>
+<path class="cls-1" d="M36,16h3.71A4.29,4.29,0,0,1,44,20.29v3.43A4.29,4.29,0,0,1,39.71,28H36a0,0,0,0,1,0,0V16A0,0,0,0,1,36,16Z"/>
+<path class="cls-1" d="M27,4a3.7,3.7,0,0,1,2,3c0,2-2,1.76-2,4"/>
+<path class="cls-1" d="M19,4a3.7,3.7,0,0,1,2,3c0,2-2,1.76-2,4"/>
+<rect class="cls-1" x="-418" y="-350" width="680" height="680"/>
+</svg>
