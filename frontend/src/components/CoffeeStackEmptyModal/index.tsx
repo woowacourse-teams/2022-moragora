@@ -1,5 +1,5 @@
 import * as S from './CoffeeStackEmptyModal.styled';
-import coffeeIcon from 'assets/beverage_icon.svg';
+import coffeeIcon from 'assets/coffee-cup.svg';
 import DialogButton from 'components/@shared/DialogButton';
 
 type CoffeeStackEmptyModalProps = {
