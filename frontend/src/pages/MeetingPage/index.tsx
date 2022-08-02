@@ -133,7 +133,12 @@ const MeetingPage = () => {
           <S.UserListBox>
             <S.UserList>
               {meetingResponse.body.users.map((user) => (
-                <UserItem key={user.id} meetingId={id} user={user} />
+                <UserItem
+                  key={user.id}
+                  meetingId={id}
+                  user={user}
+                  available={meetingResponse?.body.isMaster}
+                />
               ))}
             </S.UserList>
           </S.UserListBox>

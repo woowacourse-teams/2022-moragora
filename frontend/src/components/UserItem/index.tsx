@@ -11,9 +11,10 @@ import { ATTENDANCE_STATUS } from 'consts';
 type UserItemProps = {
   user: Participant;
   meetingId: string;
+  available: boolean;
 };
 
-const UserItem: React.FC<UserItemProps> = ({ user, meetingId }) => {
+const UserItem: React.FC<UserItemProps> = ({ user, meetingId, available }) => {
   const { accessToken } = useContext(userContext) as UserContextValues;
   const [checked, setChecked] = useState<boolean>(
     ATTENDANCE_STATUS[user.attendanceStatus]
@@ -33,7 +34,7 @@ const UserItem: React.FC<UserItemProps> = ({ user, meetingId }) => {
   const handleChange = async ({
     target: { checked },
   }: React.ChangeEvent<HTMLInputElement>) => {
-    if (!attendanceMutateLoading) {
+    if (!attendanceMutateLoading && available) {
       attendanceMutate({
         meetingId,
         userId: user.id,
