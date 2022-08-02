@@ -10,34 +10,10 @@ import UserItem from 'components/UserItem';
 import CircleProgressBar from 'components/@shared/CircleProgressBar';
 import ModalPortal from 'components/ModalPortal';
 import CoffeeStackEmptyModal from 'components/CoffeeStackEmptyModal';
-import request from 'utils/request';
-import { User } from 'types/userType';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import useMutation from 'hooks/useMutation';
 import useQuery from 'hooks/useQuery';
-import { getMeetingData } from 'apis/meetingApis';
-
-type EmptyCoffeeStackRequestBody = {
-  id: string;
-  accessToken: User['accessToken'];
-};
-
-const emptyCoffeeStackApi = ({
-  id,
-  accessToken,
-}: EmptyCoffeeStackRequestBody) => {
-  if (!accessToken) {
-    throw new Error('커피 비우기 요청 중 에러가 발생했습니다.');
-  }
-
-  return request<{}>(`/meetings/${id}/coffees/use`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-};
+import { emptyCoffeeStackApi, getMeetingData } from 'apis/meetingApis';
 
 const MeetingPage = () => {
   const { id } = useParams();
@@ -49,6 +25,7 @@ const MeetingPage = () => {
     isError,
     refetch: getMeetingRefetch,
   } = useQuery(['meeting'], getMeetingData(id, accessToken));
+
   const { mutate } = useMutation(emptyCoffeeStackApi, {
     onSuccess: () => {
       alert('커피 비우기에 성공했습니다.');

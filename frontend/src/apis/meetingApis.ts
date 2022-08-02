@@ -5,6 +5,11 @@ import {
 import { User } from 'types/userType';
 import request from 'utils/request';
 
+type EmptyCoffeeStackRequestBody = {
+  id: string;
+  accessToken: User['accessToken'];
+};
+
 export const createMeetingApi = async ({
   accessToken,
   formDataObject,
@@ -63,3 +68,20 @@ export const getMeetingListApi =
       },
     });
   };
+
+export const emptyCoffeeStackApi = ({
+  id,
+  accessToken,
+}: EmptyCoffeeStackRequestBody) => {
+  if (!accessToken) {
+    throw new Error('커피 비우기 요청 중 에러가 발생했습니다.');
+  }
+
+  return request<{}>(`/meetings/${id}/coffees/use`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+};
