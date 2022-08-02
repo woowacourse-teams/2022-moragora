@@ -186,7 +186,7 @@ const MeetingListPage = () => {
         </S.MeetingListSection>
         <S.CoffeeStackSection>
           <S.TitleBox>
-            <S.Title>커피 스택</S.Title>
+            <S.Title>나의 커피 스택</S.Title>
           </S.TitleBox>
           <S.CoffeeStackList>
             {meetingListResponse.body.meetings.map((meeting) => (
