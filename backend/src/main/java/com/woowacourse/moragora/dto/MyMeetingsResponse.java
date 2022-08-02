@@ -4,8 +4,10 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class MyMeetingsResponse {
 
     private final long serverTime;
