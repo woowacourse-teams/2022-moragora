@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.dto;
 
+import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -45,6 +46,7 @@ public class MyMeetingResponse {
                                        final boolean isActive,
                                        final LocalTime closingTime,
                                        final int tardyCount,
+                                       final Event event,
                                        final boolean isCoffeeTime) {
 
         return new MyMeetingResponse(
@@ -53,7 +55,7 @@ public class MyMeetingResponse {
                 isActive,
                 meeting.getStartDate(),
                 meeting.getEndDate(),
-                meeting.getEntranceTime(),
+                event.getEntranceTime(),
                 closingTime,
                 tardyCount,
                 isCoffeeTime

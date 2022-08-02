@@ -60,10 +60,9 @@ public class AttendanceService {
         final User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
-        validateAttendanceTime(meeting);
-
         final Participant participant = participantRepository.findByMeetingIdAndUserId(meeting.getId(), user.getId())
                 .orElseThrow(ParticipantNotFoundException::new);
+        validateAttendanceTime(meeting);
 
         final Event event = eventRepository.findByMeetingIdAndDate(meetingId, serverTimeManager.getDate())
                 .orElseThrow(EventNotFoundException::new);
@@ -89,7 +88,9 @@ public class AttendanceService {
     }
 
     private void validateAttendanceTime(final Meeting meeting) {
-        final LocalTime entranceTime = meeting.getEntranceTime();
+        final Event event = eventRepository.findByMeetingIdAndDate(meeting.getId(), serverTimeManager.getDate())
+                .orElseThrow(EventNotFoundException::new);
+        final LocalTime entranceTime = event.getEntranceTime();
 
         if (serverTimeManager.isOverClosingTime(entranceTime)) {
             throw new ClosingTimeExcessException();

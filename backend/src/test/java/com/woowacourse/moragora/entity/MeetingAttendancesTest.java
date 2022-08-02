@@ -32,8 +32,8 @@ class MeetingAttendancesTest {
         final User user1 = new User("sun@gmail.com", encodedPassword, "sun");
         final User user2 = new User("kun@gmail.com", encodedPassword, "kun");
         final User user3 = new User("forki@gmail.com", encodedPassword, "forki");
-        final Meeting meeting = new Meeting("미팅1", date, date, time, time);
-        final Event event = new Event(date, meeting);
+        final Meeting meeting = new Meeting("미팅1", date, date);
+        final Event event = new Event(date, time, time, meeting);
         final Participant participant1 = new Participant(user1, meeting);
         final Participant participant2 = new Participant(user2, meeting);
         final Participant participant3 = new Participant(user3, meeting);
@@ -64,8 +64,9 @@ class MeetingAttendancesTest {
         final User user1 = new User("sun@gmail.com", encodedPassword, "sun");
         final User user2 = new User("kun@gmail.com", encodedPassword, "kun");
         final User user3 = new User("forki@gmail.com", encodedPassword, "forki");
-        final Meeting meeting = new Meeting("미팅1", date, date, time, time);
-        final Event event = new Event(date, meeting);
+        final Meeting meeting = new Meeting("미팅1", date, date);
+
+        final Event event = new Event(date, time, time, meeting);
         final Participant participant1 = new Participant(user1, meeting);
         final Participant participant2 = new Participant(user2, meeting);
         final Participant participant3 = new Participant(user3, meeting);

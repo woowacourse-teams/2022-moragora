@@ -61,9 +61,8 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
         final Meeting meeting = new Meeting(
                 "모임1",
                 LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0));
+                LocalDate.of(2022, 8, 10)
+        );
         meetingRepository.save(meeting);
 
         final Participant participant1 = new Participant(user1, meeting);
@@ -82,11 +81,13 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
         participantRepository.save(participant6);
         participantRepository.save(participant7);
 
-        final Event event1 = new Event(LocalDate.of(2022, 7, 12), meeting);
-        final Event event2 = new Event(LocalDate.of(2022, 7, 13), meeting);
-        final Event event3 = new Event(LocalDate.of(2022, 7, 14), meeting);
-        final Event event4 = new Event(LocalDate.of(2022, 7, 15), meeting);
-        final Event event5 = new Event(LocalDate.of(2022, 7, 16), meeting);
+        final LocalTime entranceTime = LocalTime.of(10, 0);
+        final LocalTime leaveTime = LocalTime.of(18, 0);
+        final Event event1 = new Event(LocalDate.of(2022, 7, 12), entranceTime, leaveTime, meeting);
+        final Event event2 = new Event(LocalDate.of(2022, 7, 13), entranceTime, leaveTime, meeting);
+        final Event event3 = new Event(LocalDate.of(2022, 7, 14), entranceTime, leaveTime, meeting);
+        final Event event4 = new Event(LocalDate.of(2022, 7, 15), entranceTime, leaveTime, meeting);
+        final Event event5 = new Event(LocalDate.of(2022, 7, 16), entranceTime, leaveTime, meeting);
 
         eventRepository.save(event1);
         eventRepository.save(event2);

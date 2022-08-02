@@ -30,13 +30,15 @@ public class EventRepositoryTest {
         // given
         final Meeting meeting = new Meeting("모임1",
                 LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0));
+                LocalDate.of(2022, 8, 10));
 
         final Meeting savedMeeting = meetingRepository.save(meeting);
 
-        final Event event = new Event(LocalDate.of(2022, 8, 8), savedMeeting);
+        final Event event = new Event(
+                LocalDate.of(2022, 8, 8),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                savedMeeting);
 
         // when
         final Event savedEvent = eventRepository.save(event);
@@ -51,15 +53,15 @@ public class EventRepositoryTest {
         // given
         final Meeting meeting = new Meeting("모임1",
                 LocalDate.of(2022, 8, 1),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0));
+                LocalDate.of(2022, 8, 10)
+        );
+        final LocalTime entranceTime = LocalTime.of(10, 0);
+        final LocalTime leaveTime = LocalTime.of(18, 0);
 
         final Meeting savedMeeting = meetingRepository.save(meeting);
-
-        final Event event1 = new Event(LocalDate.of(2022, 8, 3), savedMeeting);
-        final Event event2 = new Event(LocalDate.of(2022, 8, 4), savedMeeting);
-        final Event event3 = new Event(LocalDate.of(2022, 8, 5), savedMeeting);
+        final Event event1 = new Event(LocalDate.of(2022, 8, 3), entranceTime, leaveTime, savedMeeting);
+        final Event event2 = new Event(LocalDate.of(2022, 8, 4), entranceTime, leaveTime, savedMeeting);
+        final Event event3 = new Event(LocalDate.of(2022, 8, 5), entranceTime, leaveTime, savedMeeting);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);
@@ -76,17 +78,21 @@ public class EventRepositoryTest {
     @Test
     void findByMeetingIdAndDate() {
         // given
+        final LocalTime enteranceTime = LocalTime.of(10, 0);
+        final LocalTime leaveTime = LocalTime.of(18, 0);
         final Meeting meeting = new Meeting("모임1",
                 LocalDate.of(2022, 8, 1),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0));
+                LocalDate.of(2022, 8, 10)
+        );
 
         final Meeting savedMeeting = meetingRepository.save(meeting);
 
-        final Event event1 = new Event(LocalDate.of(2022, 8, 3), savedMeeting);
-        final Event event2 = new Event(LocalDate.of(2022, 8, 4), savedMeeting);
-        final Event event3 = new Event(LocalDate.of(2022, 8, 5), savedMeeting);
+        final Event event1 = new Event(
+                LocalDate.of(2022, 8, 3), enteranceTime, leaveTime, savedMeeting);
+        final Event event2 = new Event(
+                LocalDate.of(2022, 8, 4), enteranceTime, leaveTime, savedMeeting);
+        final Event event3 = new Event(
+                LocalDate.of(2022, 8, 5), enteranceTime, leaveTime, savedMeeting);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);
