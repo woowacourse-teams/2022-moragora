@@ -14,7 +14,6 @@ import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
-import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
@@ -64,7 +63,7 @@ public class MeetingService {
         final List<User> users = userRepository.findByIdIn(userIds);
         validateUserExists(userIds, users);
 
-        generateParticipantsAndMaster(meeting, loginUser, users);
+        saveParticipants(meeting, loginUser, users);
 
         return meeting.getId();
     }
@@ -84,8 +83,11 @@ public class MeetingService {
                         meetingAttendances, isOver, participant))
                 .collect(Collectors.toList());
 
-        return MeetingResponse.of(meeting, isMaster(meetingId, loginId), participantResponses,
-                meetingAttendances.extractProceedDate());
+        final boolean isMaster = participants.stream()
+                .filter(Participant::getIsMaster)
+                .anyMatch(participant -> participant.getUser().getId() == loginId);
+
+        return MeetingResponse.of(meeting, isMaster, participantResponses, meetingAttendances.extractProceedDate());
     }
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
@@ -122,7 +124,7 @@ public class MeetingService {
         }
     }
 
-    private void generateParticipantsAndMaster(final Meeting meeting, final User loginUser, final List<User> users) {
+    private void saveParticipants(final Meeting meeting, final User loginUser, final List<User> users) {
         final Participant loginParticipant = new Participant(loginUser, meeting, true);
         final List<Participant> participants = users.stream()
                 .map(user -> new Participant(user, meeting, false))
@@ -173,13 +175,6 @@ public class MeetingService {
         return ParticipantResponse.of(participant.getUser(), status, tardyCount);
     }
 
-    private boolean isMaster(final Long meetingId, final Long userId) {
-        final Participant participant = participantRepository
-                .findByMeetingIdAndUserId(meetingId, userId)
-                .orElseThrow(ParticipantNotFoundException::new);
-        return participant.getIsMaster();
-    }
-
     private MyMeetingResponse generateMyMeetingResponse(final Participant participant,
                                                         final MeetingAttendances meetingAttendances) {
         final Meeting meeting = participant.getMeeting();
@@ -193,6 +188,6 @@ public class MeetingService {
         final int tardyCount = participantAttendances.countTardy(isOver, serverTimeManager.getDate());
 
         return MyMeetingResponse
-                .of(meeting, isActive, closingTime, tardyCount, isMaster(meeting.getId(), user.getId()));
+                .of(meeting, isActive, closingTime, tardyCount, participant.getIsMaster());
     }
 }
