@@ -20,13 +20,18 @@ export type MeetingWithTardyCount = Omit<
   tardyCount: number;
 };
 
+export type MeetingWithMasterAndCoffeeTime = MeetingWithTardyCount & {
+  isMaster: boolean;
+  isCoffeeTime: boolean;
+};
+
 export type MeetingCreateRequestBody = Pick<
   Meeting,
   'name' | 'startDate' | 'endDate' | 'entranceTime' | 'leaveTime' | 'userIds'
 >;
 
 export type MeetingListResponseBody = {
-  meetings: MeetingWithTardyCount[];
+  meetings: MeetingWithMasterAndCoffeeTime[];
 };
 
 export type MeetingResponseBody = Omit<
