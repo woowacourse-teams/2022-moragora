@@ -3,18 +3,26 @@ package com.woowacourse.moragora.acceptance;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
+import com.woowacourse.moragora.support.ServerTimeManager;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 @DisplayName("모임 관련 기능")
 public class MeetingAcceptanceTest extends AcceptanceTest {
+
+    @MockBean
+    private ServerTimeManager serverTimeManager;
 
     @DisplayName("사용자가 모임을 등록하고 상태코드 200 OK 를 반환받는다.")
     @Test
@@ -42,6 +50,14 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
     void findOne() {
         // given
         final int id = 1;
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
+
+        given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
+                .willReturn(false);
+        given(serverTimeManager.getDate())
+                .willReturn(dateTime.toLocalDate());
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime);
 
         // when
         final ValidatableResponse response = get("/meetings/" + id, signUpAndGetToken());
@@ -50,7 +66,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.OK.value())
                 .body("id", equalTo(id))
                 .body("name", equalTo("모임1"))
-                .body("attendanceCount", equalTo(4))
+                .body("attendanceCount", equalTo(3))
                 .body("startDate", equalTo("2022-07-10"))
                 .body("endDate", equalTo("2022-08-10"))
                 .body("entranceTime", equalTo("10:00"))
@@ -88,9 +104,21 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
         final String token = signUpAndGetToken();
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
 
         post("/meetings", meetingRequest1, token);
         post("/meetings", meetingRequest2, token);
+
+        given(serverTimeManager.isAttendanceTime(any(LocalTime.class)))
+                .willReturn(false);
+        given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
+                .willReturn(true);
+        given(serverTimeManager.calculateClosingTime(LocalTime.of(10, 0)))
+                .willReturn(LocalTime.of(10, 5));
+        given(serverTimeManager.calculateClosingTime(LocalTime.of(9, 0)))
+                .willReturn(LocalTime.of(9, 5));
+        given(serverTimeManager.getDate())
+                .willReturn(dateTime.toLocalDate());
 
         // when
         final ValidatableResponse response = get("/meetings/me", token);

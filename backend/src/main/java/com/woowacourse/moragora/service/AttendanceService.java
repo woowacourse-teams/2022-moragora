@@ -2,17 +2,20 @@ package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Attendance;
+import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.MeetingAttendances;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.InvalidCoffeeTimeException;
+import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.AttendanceNotFoundException;
 import com.woowacourse.moragora.exception.meeting.ClosingTimeExcessException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
+import com.woowacourse.moragora.repository.EventRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
@@ -28,17 +31,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class AttendanceService {
 
     private final MeetingRepository meetingRepository;
+    private final EventRepository eventRepository;
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
     private final ServerTimeManager serverTimeManager;
 
     public AttendanceService(final MeetingRepository meetingRepository,
+                             final EventRepository eventRepository,
                              final ParticipantRepository participantRepository,
                              final AttendanceRepository attendanceRepository,
                              final UserRepository userRepository,
                              final ServerTimeManager serverTimeManager) {
         this.meetingRepository = meetingRepository;
+        this.eventRepository = eventRepository;
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
@@ -59,8 +65,10 @@ public class AttendanceService {
         final Participant participant = participantRepository.findByMeetingIdAndUserId(meeting.getId(), user.getId())
                 .orElseThrow(ParticipantNotFoundException::new);
 
+        final Event event = eventRepository.findByMeetingIdAndDate(meetingId, serverTimeManager.getDate())
+                .orElseThrow(EventNotFoundException::new);
         final Attendance attendance = attendanceRepository
-                .findByParticipantIdAndAttendanceDate(participant.getId(), serverTimeManager.getDate())
+                .findByParticipantIdAndEventId(participant.getId(), event.getId())
                 .orElseThrow(AttendanceNotFoundException::new);
 
         attendance.changeAttendanceStatus(request.getAttendanceStatus());

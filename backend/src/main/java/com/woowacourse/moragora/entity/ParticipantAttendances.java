@@ -32,7 +32,7 @@ public class ParticipantAttendances {
             return (int) attendances.count();
         }
 
-        return (int) attendances.filter(attendance -> attendance.getAttendanceDate().isBefore(today))
+        return (int) attendances.filter(attendance -> attendance.getEvent().getDate().isBefore(today))
                 .count();
     }
 

@@ -44,11 +44,12 @@ public class MeetingResponse {
 
     public static MeetingResponse of(final Meeting meeting,
                                      final List<ParticipantResponse> participantResponses,
-                                     final MeetingAttendances meetingAttendances) {
+                                     final MeetingAttendances meetingAttendances,
+                                     final int attendanceCount) {
         return new MeetingResponse(
                 meeting.getId(),
                 meeting.getName(),
-                meetingAttendances.countProceedDate(),
+                attendanceCount,
                 meeting.getStartDate(),
                 meeting.getEndDate(),
                 meeting.getEntranceTime(),

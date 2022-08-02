@@ -13,6 +13,7 @@ import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.ParticipantAttendances;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
@@ -93,7 +94,7 @@ public class MeetingService {
                 .orElseThrow(MeetingNotFoundException::new);
         final List<Participant> participants = meeting.getParticipants();
 
-        putAttendanceIfAbsent(participants);
+        putAttendanceIfAbsent(meeting, participants);
 
         final MeetingAttendances meetingAttendances = findAttendancesByMeeting(participants);
         final boolean isOver = serverTimeManager.isOverClosingTime(meeting.getEntranceTime());
@@ -102,7 +103,10 @@ public class MeetingService {
                         meetingAttendances, isOver, participant))
                 .collect(Collectors.toList());
 
-        return MeetingResponse.of(meeting, participantResponses, meetingAttendances);
+        final List<Event> events = eventRepository.findByMeetingIdAndDateLessThanEqual(
+                meetingId, serverTimeManager.getDate());
+
+        return MeetingResponse.of(meeting, participantResponses, meetingAttendances, events.size());
     }
 
 
@@ -140,21 +144,23 @@ public class MeetingService {
         }
     }
 
-    private void saveAttendances(final List<Participant> participants, final LocalDate today) {
-        for (final Participant participant : participants) {
-            attendanceRepository.save(new Attendance(participant, today, false, Status.TARDY));
-        }
-    }
-
-    private void putAttendanceIfAbsent(final List<Participant> participants) {
+    private void putAttendanceIfAbsent(final Meeting meeting, final List<Participant> participants) {
         final List<Long> participantIds = participants.stream()
                 .map(Participant::getId)
                 .collect(Collectors.toList());
+        final Event event = eventRepository.findByMeetingIdAndDate(meeting.getId(), serverTimeManager.getDate())
+                .orElseThrow(EventNotFoundException::new);
         final List<Attendance> attendances = attendanceRepository
-                .findByParticipantIdInAndAttendanceDate(participantIds, serverTimeManager.getDate());
+                .findByParticipantIdInAndEventId(participantIds, event.getId());
 
         if (attendances.size() == 0) {
-            saveAttendances(participants, serverTimeManager.getDate());
+            saveAttendances(participants, event);
+        }
+    }
+
+    private void saveAttendances(final List<Participant> participants, final Event event) {
+        for (final Participant participant : participants) {
+            attendanceRepository.save(new Attendance(Status.TARDY, false, participant, event));
         }
     }
 

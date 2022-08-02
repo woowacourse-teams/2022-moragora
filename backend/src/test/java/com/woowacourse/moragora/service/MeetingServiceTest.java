@@ -163,13 +163,16 @@ class MeetingServiceTest {
         final MeetingResponse expectedMeetingResponse = new MeetingResponse(
                 1L,
                 "모임1",
-                4,
+                3,
                 LocalDate.of(2022, 7, 10),
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                true, null
+                false, null
         );
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
+        serverTimeManager.refresh(dateTime);
 
         // when
         final MeetingResponse response = meetingService.findById(id);
@@ -195,7 +198,7 @@ class MeetingServiceTest {
                 LocalTime.of(18, 0),
                 false, List.of(
                 new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
-                new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
+                new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 1),
                 new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
                 new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
                 new ParticipantResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
@@ -230,7 +233,7 @@ class MeetingServiceTest {
                 LocalTime.of(18, 0),
                 false, List.of(
                 new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
-                new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 3),
+                new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
                 new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
                 new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
                 new ParticipantResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),

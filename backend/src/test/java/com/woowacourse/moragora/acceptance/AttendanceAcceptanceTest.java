@@ -52,6 +52,8 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         final String token = signUpAndGetToken();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 15, 0, 0);
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime);
         given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
                 .willReturn(false);
         given(serverTimeManager.getDateAndTime())

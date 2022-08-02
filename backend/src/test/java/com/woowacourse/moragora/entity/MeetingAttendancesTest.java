@@ -33,13 +33,14 @@ class MeetingAttendancesTest {
         final User user2 = new User("kun@gmail.com", encodedPassword, "kun");
         final User user3 = new User("forki@gmail.com", encodedPassword, "forki");
         final Meeting meeting = new Meeting("미팅1", date, date, time, time);
+        final Event event = new Event(date, meeting);
         final Participant participant1 = new Participant(user1, meeting);
         final Participant participant2 = new Participant(user2, meeting);
         final Participant participant3 = new Participant(user3, meeting);
 
-        final Attendance attendance1 = new Attendance(participant1, date, false, Status.fromEnum(status1));
-        final Attendance attendance2 = new Attendance(participant2, date, false, Status.fromEnum(status2));
-        final Attendance attendance3 = new Attendance(participant3, date, false, Status.fromEnum(status3));
+        final Attendance attendance1 = new Attendance(Status.fromEnum(status1), false, participant1, event);
+        final Attendance attendance2 = new Attendance(Status.fromEnum(status2), false, participant2, event);
+        final Attendance attendance3 = new Attendance(Status.fromEnum(status3), false, participant3, event);
 
         final MeetingAttendances meetingAttendances = new MeetingAttendances(
                 List.of(attendance1, attendance2, attendance3), 3);
@@ -64,13 +65,14 @@ class MeetingAttendancesTest {
         final User user2 = new User("kun@gmail.com", encodedPassword, "kun");
         final User user3 = new User("forki@gmail.com", encodedPassword, "forki");
         final Meeting meeting = new Meeting("미팅1", date, date, time, time);
+        final Event event = new Event(date, meeting);
         final Participant participant1 = new Participant(user1, meeting);
         final Participant participant2 = new Participant(user2, meeting);
         final Participant participant3 = new Participant(user3, meeting);
 
-        final Attendance attendance1 = new Attendance(1L, participant1, date, false, Status.TARDY);
-        final Attendance attendance2 = new Attendance(2L, participant2, date, false, Status.TARDY);
-        final Attendance attendance3 = new Attendance(3L, participant3, date, false, Status.TARDY);
+        final Attendance attendance1 = new Attendance(1L, Status.TARDY, false, participant1, event);
+        final Attendance attendance2 = new Attendance(2L, Status.TARDY, false, participant2, event);
+        final Attendance attendance3 = new Attendance(3L, Status.TARDY, false, participant3, event);
 
         final List<Attendance> attendances = List.of(attendance1, attendance2, attendance3);
         final MeetingAttendances meetingAttendances = new MeetingAttendances(attendances, 3);

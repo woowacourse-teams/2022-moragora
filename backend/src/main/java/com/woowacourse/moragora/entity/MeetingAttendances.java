@@ -22,13 +22,6 @@ public class MeetingAttendances {
         return new ParticipantAttendances(attendances);
     }
 
-    public long countProceedDate() {
-        return values.stream()
-                .map(Attendance::getAttendanceDate)
-                .distinct()
-                .count();
-    }
-
     public int countTardy() {
         return (int) values.stream()
                 .filter(Attendance::isEnabled)

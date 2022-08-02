@@ -33,4 +33,8 @@ public class Event {
         this.date = date;
         this.meeting = meeting;
     }
+
+    public boolean isSameDate(final LocalDate date) {
+        return this.date.isEqual(date);
+    }
 }
