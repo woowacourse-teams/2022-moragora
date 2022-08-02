@@ -8,7 +8,6 @@ import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.user.RawPassword;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
-import com.woowacourse.moragora.repository.MasterRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -21,16 +20,13 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
-    private final MasterRepository masterRepository;
 
     public AuthService(final JwtTokenProvider jwtTokenProvider,
                        final UserRepository userRepository,
-                       final ParticipantRepository participantRepository,
-                       final MasterRepository masterRepository) {
+                       final ParticipantRepository participantRepository) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
         this.participantRepository = participantRepository;
-        this.masterRepository = masterRepository;
     }
 
     public LoginResponse createToken(final LoginRequest loginRequest) {
@@ -47,7 +43,6 @@ public class AuthService {
         final Participant participant = participantRepository
                 .findByMeetingIdAndUserId(meetingId, loginId)
                 .orElseThrow(ParticipantNotFoundException::new);
-        return masterRepository.findByParticipantId(participant.getId())
-                .isPresent();
+        return participant.getIsMaster();
     }
 }

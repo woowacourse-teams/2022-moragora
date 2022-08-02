@@ -1,14 +1,12 @@
 package com.woowacourse;
 
 import com.woowacourse.moragora.entity.Attendance;
-import com.woowacourse.moragora.entity.Master;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.repository.AttendanceRepository;
-import com.woowacourse.moragora.repository.MasterRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
@@ -25,18 +23,15 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
     private final UserRepository userRepository;
     private final AttendanceRepository attendanceRepository;
     private final ParticipantRepository participantRepository;
-    private final MasterRepository masterRepository;
 
     public ApplicationStartupRunner(final MeetingRepository meetingRepository,
                                     final UserRepository userRepository,
                                     final AttendanceRepository attendanceRepository,
-                                    final ParticipantRepository participantRepository,
-                                    final MasterRepository masterRepository) {
+                                    final ParticipantRepository participantRepository) {
         this.meetingRepository = meetingRepository;
         this.userRepository = userRepository;
         this.attendanceRepository = attendanceRepository;
         this.participantRepository = participantRepository;
-        this.masterRepository = masterRepository;
     }
 
     @Override
@@ -66,13 +61,13 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
                 LocalTime.of(18, 0));
         meetingRepository.save(meeting);
 
-        final Participant participant1 = new Participant(user1, meeting);
-        final Participant participant2 = new Participant(user2, meeting);
-        final Participant participant3 = new Participant(user3, meeting);
-        final Participant participant4 = new Participant(user4, meeting);
-        final Participant participant5 = new Participant(user5, meeting);
-        final Participant participant6 = new Participant(user6, meeting);
-        final Participant participant7 = new Participant(user7, meeting);
+        final Participant participant1 = new Participant(user1, meeting, true);
+        final Participant participant2 = new Participant(user2, meeting, false);
+        final Participant participant3 = new Participant(user3, meeting, false);
+        final Participant participant4 = new Participant(user4, meeting, false);
+        final Participant participant5 = new Participant(user5, meeting, false);
+        final Participant participant6 = new Participant(user6, meeting, false);
+        final Participant participant7 = new Participant(user7, meeting, false);
 
         participantRepository.save(participant1);
         participantRepository.save(participant2);
@@ -81,9 +76,6 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
         participantRepository.save(participant5);
         participantRepository.save(participant6);
         participantRepository.save(participant7);
-
-        final Master master = new Master(participant1, LocalDate.of(2022, 7, 10));
-        masterRepository.save(master);
 
         final Attendance attendance1 = new Attendance(participant1, LocalDate.of(2022, 7, 12), Status.TARDY);
         final Attendance attendance2 = new Attendance(participant2, LocalDate.of(2022, 7, 12), Status.TARDY);

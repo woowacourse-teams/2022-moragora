@@ -6,7 +6,6 @@ import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.entity.Attendance;
-import com.woowacourse.moragora.entity.Master;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.MeetingAttendances;
 import com.woowacourse.moragora.entity.Participant;
@@ -18,7 +17,6 @@ import com.woowacourse.moragora.exception.participant.InvalidParticipantExceptio
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
-import com.woowacourse.moragora.repository.MasterRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
@@ -27,7 +25,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -41,20 +38,17 @@ public class MeetingService {
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
-    private final MasterRepository masterRepository;
     private final ServerTimeManager serverTimeManager;
 
     public MeetingService(final MeetingRepository meetingRepository,
                           final ParticipantRepository participantRepository,
                           final AttendanceRepository attendanceRepository,
                           final UserRepository userRepository,
-                          final MasterRepository masterRepository,
                           final ServerTimeManager serverTimeManager) {
         this.meetingRepository = meetingRepository;
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
-        this.masterRepository = masterRepository;
         this.serverTimeManager = serverTimeManager;
     }
 
@@ -129,9 +123,9 @@ public class MeetingService {
     }
 
     private void generateParticipantsAndMaster(final Meeting meeting, final User loginUser, final List<User> users) {
-        final Participant loginParticipant = new Participant(loginUser, meeting);
+        final Participant loginParticipant = new Participant(loginUser, meeting, true);
         final List<Participant> participants = users.stream()
-                .map(user -> new Participant(user, meeting))
+                .map(user -> new Participant(user, meeting, false))
                 .collect(Collectors.toList());
         participants.add(loginParticipant);
 
@@ -139,13 +133,6 @@ public class MeetingService {
             participant.mapMeeting(meeting);
             participantRepository.save(participant);
         }
-
-        appointMaster(loginParticipant);
-    }
-
-    private void appointMaster(final Participant loginParticipant) {
-        final Master master = new Master(loginParticipant, serverTimeManager.getDate());
-        masterRepository.save(master);
     }
 
     private void putAttendanceIfAbsent(final List<Participant> participants) {
@@ -190,9 +177,7 @@ public class MeetingService {
         final Participant participant = participantRepository
                 .findByMeetingIdAndUserId(meetingId, userId)
                 .orElseThrow(ParticipantNotFoundException::new);
-        final Optional<Master> master = masterRepository.findByParticipantId(participant.getId());
-
-        return master.isPresent();
+        return participant.getIsMaster();
     }
 
     private MyMeetingResponse generateMyMeetingResponse(final Participant participant,
