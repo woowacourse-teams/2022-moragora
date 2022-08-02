@@ -25,9 +25,14 @@ export type UserRegisterRequestBody = Pick<
 
 export type UserLoginRequestBody = Pick<User, 'email' | 'password'>;
 
+export type UserLoginResponseBody = Pick<User, 'accessToken'>;
+
 export type UserAttendanceCheckRequestBody = Pick<
   Participant,
   'attendanceStatus'
 >;
 
-export type GetMeDataResponseBody = Pick<User, 'id' | 'nickname' | 'email'>;
+export type GetLoginUserDataResponseBody = Pick<
+  User,
+  'id' | 'nickname' | 'email'
+>;

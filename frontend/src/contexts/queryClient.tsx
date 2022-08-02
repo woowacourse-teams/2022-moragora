@@ -1,10 +1,5 @@
 import { useContext, createContext } from 'react';
-
-type QueryClient = {
-  cache: Record<string, any>;
-  invalidateQueries: (key: string) => void;
-  isCached: (key: string) => boolean;
-};
+import { QueryClient } from 'types/queryType';
 
 export const queryClient: QueryClient = {
   cache: {},

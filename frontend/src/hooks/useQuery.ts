@@ -111,7 +111,7 @@ const useQuery = <TData = any>(
     }
   }, [enabled]);
 
-  return { data, error, status, isLoading, isError, isSuccess };
+  return { data, error, status, isLoading, isError, isSuccess, refetch };
 };
 
 export default useQuery;

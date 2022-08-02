@@ -1,5 +1,11 @@
 export type Variables = Record<string, any> | null;
 
+export type QueryClient = {
+  cache: Record<string, any>;
+  invalidateQueries: (key: string) => void;
+  isCached: (key: string) => boolean;
+};
+
 export type QueryOptions<TData> = {
   onSuccess: (data: TData) => Promise<void> | void;
   onError: (error: Error) => Promise<void> | void;
