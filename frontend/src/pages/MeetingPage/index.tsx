@@ -55,7 +55,7 @@ const MeetingPage = () => {
       getMeetingRefetch();
     },
     onError: () => {
-      throw new Error('커피 비우기 실패');
+      alert('커피 비우기 실패');
     },
     onSettled: () => {
       setModalOpened(false);
