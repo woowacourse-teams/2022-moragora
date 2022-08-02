@@ -19,25 +19,28 @@ const UserItem: React.FC<UserItemProps> = ({ user, meetingId }) => {
     ATTENDANCE_STATUS[user.attendanceStatus]
   );
 
-  const { mutate: attendanceMutate } = useMutation(putUserAttendanceApi, {
-    onMutate: () => {
-      setChecked(checked);
-    },
-    onError: () => {
-      setChecked(!checked);
-      alert('출석체크 중 오류가 발생했습니다.');
-    },
-  });
+  const { isLoading: attendanceMutateLoading, mutate: attendanceMutate } =
+    useMutation(putUserAttendanceApi, {
+      onMutate: () => {
+        setChecked(!checked);
+      },
+      onError: () => {
+        setChecked(!checked);
+        alert('출석체크 중 오류가 발생했습니다.');
+      },
+    });
 
   const handleChange = async ({
     target: { checked },
   }: React.ChangeEvent<HTMLInputElement>) => {
-    attendanceMutate({
-      meetingId,
-      userId: user.id,
-      accessToken,
-      AttendanceStatus: checked ? 'present' : 'tardy',
-    });
+    if (!attendanceMutateLoading) {
+      attendanceMutate({
+        meetingId,
+        userId: user.id,
+        accessToken,
+        AttendanceStatus: checked ? 'present' : 'tardy',
+      });
+    }
   };
 
   return (
