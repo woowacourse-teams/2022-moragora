@@ -76,7 +76,7 @@ public class AttendanceService {
                 .collect(Collectors.toList());
         final List<Attendance> attendances = attendanceRepository.findByParticipantIdIn(participantIds);
         final MeetingAttendances meetingAttendances = new MeetingAttendances(attendances, participants.size());
-        validateCanUse(participants.size(), meetingAttendances);
+        validateEnoughTardyCountToDisable(meetingAttendances);
         meetingAttendances.disableAttendances(participants.size());
     }
 
@@ -88,9 +88,8 @@ public class AttendanceService {
         }
     }
 
-    private void validateCanUse(final int numberOfParticipants, final MeetingAttendances attendances) {
-        final int tardyCount = attendances.countTardy();
-        if (tardyCount < numberOfParticipants) {
+    private void validateEnoughTardyCountToDisable(final MeetingAttendances attendances) {
+        if (!attendances.isTardyStackFull()) {
             throw new InvalidCoffeeTimeException();
         }
     }
