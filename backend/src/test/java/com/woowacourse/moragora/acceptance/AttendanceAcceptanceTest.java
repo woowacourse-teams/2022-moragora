@@ -1,5 +1,8 @@
 package com.woowacourse.moragora.acceptance;
 
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.UserFixtures.MASTER;
+import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -10,6 +13,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -25,24 +29,30 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
     @Test
     void endAttendance() {
         // given
-        final int meetingId = 1;
-        final int userId = 1;
         final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
 
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 1);
 
         given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
                 .willReturn(false);
         given(serverTimeManager.getDate())
                 .willReturn(dateTime.toLocalDate());
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime);
+
+        final String token = signUpAndGetToken(MASTER.create());
+
+        final List<Long> userIds = saveUsers(createUsers());
+        final int meetingId = saveMeeting(token, userIds, MORAGORA.create());
+        findOne(token, meetingId);
 
         // when
         final ValidatableResponse response = RestAssured.given().log().all()
-                .auth().oauth2(signUpAndGetToken())
+                .auth().oauth2(token)
                 .body(userAttendanceRequest)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
-                .when().put("/meetings/" + meetingId + "/users/" + userId)
+                .when().put("/meetings/" + meetingId + "/users/" + userIds.get(0))
                 .then().log().all();
 
         // then

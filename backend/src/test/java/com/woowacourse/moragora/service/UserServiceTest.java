@@ -86,12 +86,12 @@ class UserServiceTest {
         for (UserFixtures value : values()) {
             userService.create(new UserRequest(value.getEmail(), "1234asdf!", value.getNickname()));
         }
-        
+
         // when
         final UsersResponse response = userService.searchByKeyword(keyword);
 
         // then
-        assertThat(response.getUsers()).hasSize(7);
+        assertThat(response.getUsers()).hasSize(8);
     }
 
     @DisplayName("keyword를 입력하지 않고 검색하면 예외가 발생한다.")

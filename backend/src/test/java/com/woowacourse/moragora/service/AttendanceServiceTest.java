@@ -1,18 +1,27 @@
 package com.woowacourse.moragora.service;
 
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.UserFixtures.BATD;
+import static com.woowacourse.moragora.support.UserFixtures.FORKY;
+import static com.woowacourse.moragora.support.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.UserFixtures.MASTER;
+import static com.woowacourse.moragora.support.UserFixtures.WOODY;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
+import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.meeting.ClosingTimeExcessException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
+import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,19 +42,25 @@ class AttendanceServiceTest {
     @Autowired
     private ServerTimeManager serverTimeManager;
 
+    @Autowired
+    private DataSupport dataSupport;
+
     @DisplayName("사용자들의 출석 여부를 변경한다.")
     @Test
     void updateAttendance() {
         // given
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
-        final Long meetingId = 1L;
-        final Long userId = 1L;
 
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
+        final User user = KUN.create();
+        final Meeting meeting = MORAGORA.create();
+        final Participant participant = dataSupport.saveParticipant(user, meeting);
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 1);
         serverTimeManager.refresh(dateTime);
+        dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 1), Status.TARDY);
 
         // when, then
-        assertThatCode(() -> attendanceService.updateAttendance(meetingId, userId, request))
+        assertThatCode(() -> attendanceService.updateAttendance(meeting.getId(), user.getId(), request))
                 .doesNotThrowAnyException();
     }
 
@@ -53,12 +68,12 @@ class AttendanceServiceTest {
     @Test
     void updateAttendance_throwsException_ifMeetingNotFound() {
         // given
-        final Long meetingId = 999L;
-        final Long userId = 1L;
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final User user = KUN.create();
+        final Long meetingId = 99L;
 
         // when, then
-        assertThatThrownBy(() -> attendanceService.updateAttendance(meetingId, userId, request))
+        assertThatThrownBy(() -> attendanceService.updateAttendance(meetingId, user.getId(), request))
                 .isInstanceOf(MeetingNotFoundException.class);
     }
 
@@ -66,16 +81,26 @@ class AttendanceServiceTest {
     @Test
     void updateAttendance_throwsException_ifParticipantNotFound() {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest("meeting", LocalDate.now(), LocalDate.now(),
-                LocalTime.now(),
-                LocalTime.now(), List.of(2L, 3L, 4L, 5L));
-        final Long meetingId = meetingService.save(meetingRequest, 1L);
-        final Long userId = 6L;
+        final Meeting meeting = MORAGORA.create();
+
+        final User loginUser = dataSupport.saveUser(MASTER.create());
+        final User notUserInMeeting = dataSupport.saveUser(FORKY.create());
+        final List<User> users = List.of(KUN.create(), WOODY.create(), BATD.create());
+        final List<Long> userIds = dataSupport.saveUsers(users);
+
+        final MeetingRequest meetingRequest = new MeetingRequest(meeting.getName(), meeting.getStartDate(),
+                meeting.getEndDate(),
+                meeting.getEntranceTime(), meeting.getLeaveTime(), userIds);
+
+        final Long meetingId = meetingService.save(meetingRequest, loginUser.getId());
 
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
 
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 2);
+        serverTimeManager.refresh(dateTime);
+
         // when, then
-        assertThatThrownBy(() -> attendanceService.updateAttendance(meetingId, userId, request))
+        assertThatThrownBy(() -> attendanceService.updateAttendance(meetingId, notUserInMeeting.getId(), request))
                 .isInstanceOf(ParticipantNotFoundException.class);
     }
 
@@ -84,11 +109,17 @@ class AttendanceServiceTest {
     void updateAttendance_throwsException_ifDeadlineTimeExcess() {
         // given
         final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 10, 6);
+
+        final User user = KUN.create();
+        final Meeting meeting = MORAGORA.create();
+        final Participant participant = dataSupport.saveParticipant(user, meeting);
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 6);
         serverTimeManager.refresh(dateTime);
 
         // when, then
-        assertThatThrownBy(() -> attendanceService.updateAttendance(1L, 1L, request))
+        assertThatThrownBy(() -> attendanceService.updateAttendance(participant.getUser().getId(),
+                participant.getMeeting().getId(), request))
                 .isInstanceOf(ClosingTimeExcessException.class);
     }
 }

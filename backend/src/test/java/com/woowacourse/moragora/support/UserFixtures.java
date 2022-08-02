@@ -12,7 +12,8 @@ public enum UserFixtures {
     FORKY("forky@email.com", EncodedPassword.fromRawValue("1234asdf!"), "forky"),
     PHILLZ("phillz@email.com", EncodedPassword.fromRawValue("1234asdf!"), "phillz"),
     WOODY("woodi@email.com", EncodedPassword.fromRawValue("1234asdf!"), "woody"),
-    BATD("batd@email.com", EncodedPassword.fromRawValue("1234asdf!"), "batd");
+    BATD("batd@email.com", EncodedPassword.fromRawValue("1234asdf!"), "batd"),
+    MASTER("master@email.com", EncodedPassword.fromRawValue("1234asdf!"), "master");
 
     private final String email;
 
