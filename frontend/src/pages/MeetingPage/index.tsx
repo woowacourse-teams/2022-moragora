@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import * as S from './MeetingPage.styled';
 import Footer from 'components/layouts/Footer';
@@ -7,19 +7,70 @@ import ErrorIcon from 'components/@shared/ErrorIcon';
 import DivideLine from 'components/@shared/DivideLine';
 import ReloadButton from 'components/@shared/ReloadButton';
 import UserItem from 'components/UserItem';
-import useQuery from 'hooks/useQuery';
+import CircleProgressBar from 'components/@shared/CircleProgressBar';
+import ModalPortal from 'components/ModalPortal';
+import CoffeeStackEmptyModal from 'components/CoffeeStackEmptyModal';
+import request from 'utils/request';
+import { User } from 'types/userType';
 import { userContext, UserContextValues } from 'contexts/userContext';
+import useMutation from 'hooks/useMutation';
+import useQuery from 'hooks/useQuery';
 import { getMeetingData } from 'apis/meetingApis';
+
+type EmptyCoffeeStackRequestBody = {
+  id: string;
+  accessToken: User['accessToken'];
+};
+
+const emptyCoffeeStackApi = ({
+  id,
+  accessToken,
+}: EmptyCoffeeStackRequestBody) => {
+  if (!accessToken) {
+    throw new Error('커피 비우기 요청 중 에러가 발생했습니다.');
+  }
+
+  return request<{}>(`/meetings/${id}/coffees/use`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+};
 
 const MeetingPage = () => {
   const { id } = useParams();
+  const [modalOpened, setModalOpened] = useState(false);
   const { accessToken } = useContext(userContext) as UserContextValues;
   const {
     data: meetingResponse,
     isLoading,
     isError,
-    refetch,
+    refetch: getMeetingRefetch,
   } = useQuery(['meeting'], getMeetingData(id, accessToken));
+  const { mutate } = useMutation(emptyCoffeeStackApi, {
+    onSuccess: () => {
+      alert('커피 비우기에 성공했습니다.');
+      getMeetingRefetch();
+    },
+    onError: () => {
+      throw new Error('커피 비우기 실패');
+    },
+    onSettled: () => {
+      setModalOpened(false);
+    },
+  });
+
+  const handleEmptyButtonClick = () => {
+    setModalOpened(true);
+  };
+
+  const handleConfirm = () => {
+    if (id && accessToken) {
+      mutate({ id, accessToken });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -42,7 +93,7 @@ const MeetingPage = () => {
             <ErrorIcon />
             <ReloadButton
               onClick={() => {
-                refetch();
+                getMeetingRefetch();
               }}
             />
           </S.ErrorBox>
@@ -54,15 +105,54 @@ const MeetingPage = () => {
 
   return (
     <>
+      {modalOpened && (
+        <ModalPortal closePortal={() => setModalOpened(false)}>
+          <CoffeeStackEmptyModal
+            onConfirm={handleConfirm}
+            onDismiss={() => setModalOpened(false)}
+          />
+        </ModalPortal>
+      )}
       <S.Layout>
-        <S.MeetingDetailSection>
-          <h2>{meetingResponse.body.name}</h2>
-          <p>
-            총 출석일: <span>{meetingResponse.body.attendanceCount}</span>
-          </p>
-        </S.MeetingDetailSection>
+        <S.TitleSection>
+          <h1>{meetingResponse?.body.name}</h1>
+        </S.TitleSection>
         <DivideLine />
+        <S.MeetingDetailSection>
+          <S.SectionTitle>출결상황</S.SectionTitle>
+          <S.ProgressBox>
+            <CircleProgressBar size={200} percent={100} />
+            <S.StackDetailBox>
+              {meetingResponse?.body.isMaster &&
+              meetingResponse?.body.isCoffeeTime ? (
+                <S.EmptyButton
+                  variant="confirm"
+                  type="button"
+                  onClick={handleEmptyButtonClick}
+                >
+                  비우기
+                </S.EmptyButton>
+              ) : (
+                <p>
+                  <span>
+                    {meetingResponse?.body.users.reduce(
+                      (total, user) => total + user.tardyCount,
+                      0
+                    )}
+                  </span>{' '}
+                  / <span>{meetingResponse?.body.users.length}</span>
+                </p>
+              )}
+            </S.StackDetailBox>
+          </S.ProgressBox>
+        </S.MeetingDetailSection>
         <S.UserListSection>
+          <S.UserListSectionHeader>
+            <S.SectionTitle>출결</S.SectionTitle>
+            <p>
+              총 출석일: <span>{meetingResponse?.body.attendanceCount}</span>
+            </p>
+          </S.UserListSectionHeader>
           <S.UserListBox>
             <S.UserList>
               {meetingResponse.body.users.map((user) => (
