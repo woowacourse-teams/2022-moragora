@@ -66,7 +66,12 @@ export const StackDetailBox = styled.div`
   padding-bottom: 1rem;
 `;
 
-export const UserListSectionHeader = styled.div``;
+export const UserListSectionHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  align-items: flex-end;
+`;
 
 export const UserListSection = styled.section`
   display: flex;
