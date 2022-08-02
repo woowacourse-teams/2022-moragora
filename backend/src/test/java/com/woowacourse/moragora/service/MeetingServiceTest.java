@@ -280,9 +280,8 @@ class MeetingServiceTest {
 
         // then
         assertThat(myMeetingsResponse).usingRecursiveComparison()
-                .ignoringFields("serverTime", "meetings.id")
-                .isEqualTo(MyMeetingsResponse.of(
-                        serverTimeManager.getDateAndTime(),
+                .ignoringFields("meetings.id")
+                .isEqualTo(new MyMeetingsResponse(
                         List.of(
                                 MyMeetingResponse.of(meeting, false,
                                         serverTimeManager.calculateClosingTime(entranceTime), 1),

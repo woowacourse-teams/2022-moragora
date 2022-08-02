@@ -103,7 +103,7 @@ public class MeetingService {
                 .map(participant -> generateMyMeetingResponse(participant, meetingAttendances))
                 .collect(Collectors.toList());
 
-        return MyMeetingsResponse.of(serverTimeManager.getDateAndTime(), myMeetingResponses);
+        return new MyMeetingsResponse(myMeetingResponses);
     }
 
     /**
