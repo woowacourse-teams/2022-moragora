@@ -9,7 +9,7 @@ export const Layout = styled.div`
 export const SVG = styled.svg<{ size: number }>`
   width: ${(props) => `${props.size}px`};
   height: ${(props) => `${props.size}px`};
-  margin: 1em;
+  margin: 0.3rem;
 `;
 
 export const CoffeeIcon = styled.img<{ size: number }>`
@@ -22,7 +22,7 @@ export const CoffeeIcon = styled.img<{ size: number }>`
 
 export const BackgroundBar = styled.circle<{ size: number }>`
   fill: none;
-  stroke-width: ${({ size }) => `${size / 25}px`};
+  stroke-width: ${({ size }) => `${size / 20}px`};
   stroke: ${({ theme: { colors } }) => colors['primary-subtle']};
 `;
 
@@ -47,7 +47,7 @@ const shadow = (percent: number) => {
       from {
         filter: none;
       }to{
-        filter: drop-shadow(0 0 0.3rem orange);
+        filter: drop-shadow(0 0 0.4rem orange);
       }
     `
   );
@@ -59,7 +59,7 @@ export const MeterBar = styled.circle<{
   r: number;
 }>`
   fill: none;
-  stroke-width: ${({ size }) => `${size / 25}px`};
+  stroke-width: ${({ size }) => `${size / 20}px`};
   stroke-linecap: round;
   transform: rotate(-90deg);
   transform-origin: 50% 50%;
