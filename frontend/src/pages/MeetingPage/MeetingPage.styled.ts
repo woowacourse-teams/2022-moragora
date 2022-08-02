@@ -62,7 +62,7 @@ export const EmptyButton = styled(DialogButton)`
 `;
 
 export const StackDetailBox = styled.div`
-  flex-basis: 25%;
+  flex-basis: 23%;
   padding-bottom: 1rem;
 `;
 

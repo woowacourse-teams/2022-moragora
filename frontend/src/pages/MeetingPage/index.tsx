@@ -7,13 +7,13 @@ import ErrorIcon from 'components/@shared/ErrorIcon';
 import DivideLine from 'components/@shared/DivideLine';
 import ReloadButton from 'components/@shared/ReloadButton';
 import UserItem from 'components/UserItem';
-import CircleProgressBar from 'components/@shared/CircleProgressBar';
 import ModalPortal from 'components/ModalPortal';
 import CoffeeStackEmptyModal from 'components/CoffeeStackEmptyModal';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import useMutation from 'hooks/useMutation';
 import useQuery from 'hooks/useQuery';
 import { emptyCoffeeStackApi, getMeetingData } from 'apis/meetingApis';
+import CoffeeStackProgress from 'components/CoffeeStackProgress';
 
 const MeetingPage = () => {
   const { id } = useParams();
@@ -98,7 +98,7 @@ const MeetingPage = () => {
         <S.MeetingDetailSection>
           <S.SectionTitle>출결상황</S.SectionTitle>
           <S.ProgressBox>
-            <CircleProgressBar size={200} percent={100} />
+            <CoffeeStackProgress size={200} percent={100} />
             <S.StackDetailBox>
               {meetingResponse?.body.isMaster &&
               meetingResponse?.body.isCoffeeTime ? (
@@ -137,7 +137,7 @@ const MeetingPage = () => {
                   key={user.id}
                   meetingId={id}
                   user={user}
-                  available={meetingResponse?.body.isMaster}
+                  disabled={!meetingResponse?.body.isMaster}
                 />
               ))}
             </S.UserList>
