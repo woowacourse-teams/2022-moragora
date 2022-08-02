@@ -75,7 +75,8 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
     void useCoffeeStack() {
         // given
         final int meetingId = 1;
-        final String token = signUpAndGetToken();
+        final LoginRequest masterLoginRequest = new LoginRequest("aaa111@foo.com", "1234smart!");
+        final String token = signInAndGetToken(masterLoginRequest);
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 15, 0, 0);
         given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
@@ -96,5 +97,34 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
 
         // then
         response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("마스터가 아닌 유저가 커피스택 비우기를 요청시 상태코드 403울 반환한다.")
+    @Test
+    void useCoffeeStack_NotMaster() {
+        // given
+        final int meetingId = 1;
+        final LoginRequest noMasterLoginRequest = new LoginRequest("bbb222@foo.com", "1234smart!");
+        final String token = signInAndGetToken(noMasterLoginRequest);
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 15, 0, 0);
+        given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
+                .willReturn(false);
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime);
+        given(serverTimeManager.getDate())
+                .willReturn(dateTime.toLocalDate());
+        get("/meetings/" + meetingId, token);
+
+        // when
+        final ValidatableResponse response = RestAssured.given().log().all()
+                .auth().oauth2(token)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when().post("/meetings/" + meetingId + "/coffees/use")
+                .then().log().all();
+
+        // then
+        response.statusCode(HttpStatus.FORBIDDEN.value());
     }
 }
