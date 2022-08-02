@@ -91,7 +91,7 @@ public class MeetingService {
                         meetingAttendances, isOver, participant))
                 .collect(Collectors.toList());
 
-        return MeetingResponse.of(meeting, participantResponses, meetingAttendances.extractProceedDate());
+        return MeetingResponse.of(meeting, participantResponses, meetingAttendances);
     }
 
 
@@ -131,7 +131,7 @@ public class MeetingService {
 
     private void saveAttendances(final List<Participant> participants, final LocalDate today) {
         for (final Participant participant : participants) {
-            attendanceRepository.save(new Attendance(participant, today, Status.TARDY));
+            attendanceRepository.save(new Attendance(participant, today, false, Status.TARDY));
         }
     }
 
@@ -152,7 +152,7 @@ public class MeetingService {
                 .map(Participant::getId)
                 .collect(Collectors.toList());
         final List<Attendance> foundAttendances = attendanceRepository.findByParticipantIdIn(participantIds);
-        return new MeetingAttendances(foundAttendances);
+        return new MeetingAttendances(foundAttendances, participants.size());
     }
 
     private ParticipantResponse generateParticipantResponse(final LocalDateTime now,
@@ -178,6 +178,6 @@ public class MeetingService {
         final LocalTime closingTime = serverTimeManager.calculateClosingTime(meeting.getEntranceTime());
         final int tardyCount = participantAttendances.countTardy(isOver, serverTimeManager.getDate());
 
-        return MyMeetingResponse.of(meeting, isActive, closingTime, tardyCount);
+        return MyMeetingResponse.of(meeting, isActive, closingTime, tardyCount, meetingAttendances.isTardyStackFull());
     }
 }

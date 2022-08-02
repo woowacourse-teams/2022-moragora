@@ -274,7 +274,7 @@ class MeetingControllerTest extends ControllerTest {
         final LocalTime entranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
         final MeetingResponse meetingResponse = new MeetingResponse(id, name, attendanceCount, startDate, endDate,
-                entranceTime, leaveTime, participantResponses
+                entranceTime, leaveTime, false, participantResponses
         );
 
         validateToken("1");
@@ -308,6 +308,7 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("endDate").type(JsonFieldType.STRING).description(endDate),
                                 fieldWithPath("entranceTime").type(JsonFieldType.STRING).description(entranceTime),
                                 fieldWithPath("leaveTime").type(JsonFieldType.STRING).description(leaveTime),
+                                fieldWithPath("isCoffeeTime").type(JsonFieldType.BOOLEAN).description(false),
                                 fieldWithPath("users[].id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("users[].email").type(JsonFieldType.STRING).description("abc@email.com"),
                                 fieldWithPath("users[].nickname").type(JsonFieldType.STRING).description("foo"),
@@ -327,14 +328,14 @@ class MeetingControllerTest extends ControllerTest {
                         LocalDate.of(2022, 7, 10),
                         LocalDate.of(2022, 8, 10),
                         LocalTime.of(10, 0),
-                        LocalTime.of(10, 5), 1);
+                        LocalTime.of(10, 5), 1, false);
 
         final MyMeetingResponse myMeetingResponse2 =
                 new MyMeetingResponse(2L, "모임2", true,
                         LocalDate.of(2022, 7, 15),
                         LocalDate.of(2022, 8, 15),
                         LocalTime.of(9, 0),
-                        LocalTime.of(9, 5), 2);
+                        LocalTime.of(9, 5), 2, false);
 
         final MyMeetingsResponse meetingsResponse =
                 new MyMeetingsResponse(List.of(myMeetingResponse, myMeetingResponse2));
@@ -356,6 +357,7 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.meetings[*].entranceTime", containsInAnyOrder("09:00", "10:00")))
                 .andExpect(jsonPath("$.meetings[*].closingTime", containsInAnyOrder("09:05", "10:05")))
                 .andExpect(jsonPath("$.meetings[*].tardyCount", containsInAnyOrder(1, 2)))
+                .andExpect(jsonPath("$.meetings[*].isCoffeeTime", containsInAnyOrder(false, false)))
                 .andDo(document("meeting/find-my-meetings",
                         responseFields(
                                 fieldWithPath("meetings[].id").type(JsonFieldType.NUMBER).description(1L),
@@ -370,8 +372,9 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("meetings[].closingTime").type(JsonFieldType.STRING)
                                         .description("09:05"),
                                 fieldWithPath("meetings[].tardyCount").type(JsonFieldType.NUMBER)
-                                        .description(1)
-
+                                        .description(1),
+                                fieldWithPath("meetings[].isCoffeeTime").type(JsonFieldType.BOOLEAN)
+                                        .description(false)
                         )
                 ));
     }

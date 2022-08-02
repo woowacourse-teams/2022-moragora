@@ -62,6 +62,12 @@ public class ControllerTest {
                 .andDo(print());
     }
 
+    protected ResultActions performPost(final String uri) throws Exception {
+        return mockMvc.perform(post(uri)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+    }
+
     protected ResultActions performGet(final String uri) throws Exception {
         return mockMvc.perform(MockMvcRequestBuilders.get(uri)
                         .accept(MediaType.APPLICATION_JSON))

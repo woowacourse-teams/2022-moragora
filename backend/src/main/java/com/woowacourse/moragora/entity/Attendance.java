@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.entity;
 
 import java.time.LocalDate;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -32,11 +33,28 @@ public class Attendance {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column(columnDefinition = "boolean default false")
+    private Boolean disabled;
+
+    public Attendance(final Long id,
+                      final Participant participant,
+                      final LocalDate attendanceDate,
+                      final Boolean disabled,
+                      final Status status) {
+        this.id = id;
+        this.participant = participant;
+        this.attendanceDate = attendanceDate;
+        this.disabled = disabled;
+        this.status = status;
+    }
+
     public Attendance(final Participant participant,
                       final LocalDate attendanceDate,
+                      final Boolean disabled,
                       final Status status) {
         this.participant = participant;
         this.attendanceDate = attendanceDate;
+        this.disabled = disabled;
         this.status = status;
     }
 
@@ -44,8 +62,16 @@ public class Attendance {
         this.status = status;
     }
 
-    public boolean isSameStatus(final Status status) {
-        return this.status == status;
+    public void disable() {
+        disabled = true;
+    }
+
+    public boolean isTardy() {
+        return this.status == Status.TARDY;
+    }
+
+    public boolean isEnabled() {
+        return !disabled;
     }
 
     public boolean isSameDate(final LocalDate date) {
