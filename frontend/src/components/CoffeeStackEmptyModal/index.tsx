@@ -13,12 +13,12 @@ const CoffeeStackEmptyModal = ({
 }: CoffeeStackEmptyModalProps) => {
   return (
     <S.Layout>
-      <S.Header>It's 커피 파티 타임~</S.Header>
+      <S.Header>It's 커피 타임~</S.Header>
       <img src={coffeeIcon} width="220rem" />
       <S.ButtonBox>
-        <DialogButton variant="confirm" type="button" onClick={onDismiss}>
+        <S.dismissButton variant="dismiss" type="button" onClick={onDismiss}>
           안 마실래요
-        </DialogButton>
+        </S.dismissButton>
         <DialogButton variant="confirm" type="button" onClick={onConfirm}>
           잘마실게요!
         </DialogButton>

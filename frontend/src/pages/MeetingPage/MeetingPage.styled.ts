@@ -37,8 +37,8 @@ export const MeetingDetailSection = styled.section`
 `;
 
 export const SectionTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 500;
+  font-size: 1.25rem;
+  font-weight: 400;
 `;
 
 export const ProgressBox = styled.div`

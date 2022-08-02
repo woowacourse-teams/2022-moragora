@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import DialogButton from 'components/@shared/DialogButton';
 
 export const Layout = styled.div`
   display: flex;
@@ -20,4 +21,9 @@ export const Header = styled.h1`
 export const ButtonBox = styled.div`
   display: flex;
   gap: 1.5rem;
+`;
+
+export const dismissButton = styled(DialogButton)`
+  background-color: ${({ theme }) => theme.colors['primary-subtle']};
+  color: ${({ theme }) => theme.colors['subtle-dark']};
 `;
