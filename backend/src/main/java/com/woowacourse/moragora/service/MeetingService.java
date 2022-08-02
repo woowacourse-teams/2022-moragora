@@ -51,7 +51,6 @@ public class MeetingService {
         this.serverTimeManager = serverTimeManager;
     }
 
-    // TODO: for 문 안에 insert 한번에 날리는 것 고려
     @Transactional
     public Long save(final MeetingRequest request, final Long loginId) {
         final Meeting meeting = meetingRepository.save(request.toEntity());
@@ -86,9 +85,9 @@ public class MeetingService {
         final boolean isMaster = participants.stream()
                 .filter(Participant::getIsMaster)
                 .anyMatch(participant -> participant.getUser().getId() == loginId);
-
-        return MeetingResponse.of(meeting, isMaster, participantResponses, meetingAttendances.extractProceedDate());
+        return MeetingResponse.of(meeting, isMaster, participantResponses, meetingAttendances);
     }
+
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
         final List<Participant> participants = participantRepository.findByUserId(userId);
@@ -98,7 +97,7 @@ public class MeetingService {
                 .map(participant -> generateMyMeetingResponse(participant, meetingAttendances))
                 .collect(Collectors.toList());
 
-        return MyMeetingsResponse.of(serverTimeManager.getDateAndTime(), myMeetingResponses);
+        return new MyMeetingsResponse(myMeetingResponses);
     }
 
     /**
@@ -151,7 +150,7 @@ public class MeetingService {
 
     private void saveAttendances(final List<Participant> participants, final LocalDate today) {
         for (final Participant participant : participants) {
-            attendanceRepository.save(new Attendance(participant, today, Status.TARDY));
+            attendanceRepository.save(new Attendance(participant, today, false, Status.TARDY));
         }
     }
 
@@ -160,7 +159,7 @@ public class MeetingService {
                 .map(Participant::getId)
                 .collect(Collectors.toList());
         final List<Attendance> foundAttendances = attendanceRepository.findByParticipantIdIn(participantIds);
-        return new MeetingAttendances(foundAttendances);
+        return new MeetingAttendances(foundAttendances, participants.size());
     }
 
     private ParticipantResponse generateParticipantResponse(final LocalDateTime now,
@@ -178,7 +177,6 @@ public class MeetingService {
     private MyMeetingResponse generateMyMeetingResponse(final Participant participant,
                                                         final MeetingAttendances meetingAttendances) {
         final Meeting meeting = participant.getMeeting();
-        final User user = participant.getUser();
         final ParticipantAttendances participantAttendances = meetingAttendances.extractAttendancesByParticipant(
                 participant);
 
@@ -187,7 +185,7 @@ public class MeetingService {
         final LocalTime closingTime = serverTimeManager.calculateClosingTime(meeting.getEntranceTime());
         final int tardyCount = participantAttendances.countTardy(isOver, serverTimeManager.getDate());
 
-        return MyMeetingResponse
-                .of(meeting, isActive, closingTime, tardyCount, participant.getIsMaster());
+        return MyMeetingResponse.of(meeting, isActive, closingTime, tardyCount,
+                participant.getIsMaster(), meetingAttendances.isTardyStackFull());
     }
 }

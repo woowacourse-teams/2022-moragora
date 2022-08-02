@@ -1,4 +1,4 @@
-import { DefaultBodyType, rest, RestRequest } from 'msw';
+import { DefaultBodyType, rest } from 'msw';
 import meetings from 'mocks/fixtures/meeting';
 import users from 'mocks/fixtures/users';
 import { UserAttendanceCheckRequestBody } from 'types/userType';
@@ -39,10 +39,11 @@ export default [
       userIds.includes(user.id)
     );
     const responseBody: MeetingListResponseBody = {
-      serverTime: 1658378126763,
       meetings: myMeetings.map(
         ({ leaveTime, attendanceCount, userIds, ...meeting }) => ({
           ...meeting,
+          isMaster: false,
+          isCoffeeTime: false,
           tardyCount: 3,
         })
       ),
@@ -81,12 +82,14 @@ export default [
 
       const { userIds, ...joinedMeeting } = {
         ...meeting,
+        isMaster: false,
+        isCoffeeTime: false,
         users: meeting.userIds.map((id) => {
           const { password, accessToken, ...user } = users[id];
 
           return {
             ...user,
-            attendanceStatus: true,
+            attendanceStatus: 'tardy',
             tardyCount: 3,
           };
         }),
@@ -171,6 +174,22 @@ export default [
         ctx.set('Location', `/meetings/${id}`),
         ctx.delay(DELAY)
       );
+    }
+  ),
+
+  rest.post<DefaultBodyType, Pick<MeetingPathParams, 'meetingId'>>(
+    `${process.env.API_SERVER_HOST}/meetings/:meetingId/coffees/use`,
+    (req, res, ctx) => {
+      const token = extractIdFromHeader(req);
+
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      return res(ctx.status(204), ctx.delay(DELAY));
     }
   ),
 ];

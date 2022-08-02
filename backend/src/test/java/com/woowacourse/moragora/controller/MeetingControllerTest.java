@@ -2,7 +2,6 @@ package com.woowacourse.moragora.controller;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -23,9 +22,7 @@ import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -278,7 +275,7 @@ class MeetingControllerTest extends ControllerTest {
         final LocalTime leaveTime = LocalTime.of(18, 0);
         final boolean isMaster = true;
         final MeetingResponse meetingResponse = new MeetingResponse(id, name, attendanceCount, startDate, endDate,
-                entranceTime, leaveTime, isMaster, participantResponses
+                entranceTime, leaveTime, isMaster, false, participantResponses
         );
 
         final Long loginId = validateToken("1");
@@ -298,6 +295,7 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.entranceTime", equalTo("10:00")))
                 .andExpect(jsonPath("$.leaveTime", equalTo("18:00")))
                 .andExpect(jsonPath("$.isMaster", equalTo(true)))
+                .andExpect(jsonPath("$.isCoffeeTime", equalTo(false)))
                 .andExpect(jsonPath("$.users[*].id", containsInAnyOrder(1, 2)))
                 .andExpect(jsonPath("$.users[*].email", containsInAnyOrder("abc@naver.com", "def@naver.com")))
                 .andExpect(jsonPath("$.users[*].nickname", containsInAnyOrder("foo", "boo")))
@@ -314,6 +312,7 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("entranceTime").type(JsonFieldType.STRING).description(entranceTime),
                                 fieldWithPath("leaveTime").type(JsonFieldType.STRING).description(leaveTime),
                                 fieldWithPath("isMaster").type(JsonFieldType.BOOLEAN).description(isMaster),
+                                fieldWithPath("isCoffeeTime").type(JsonFieldType.BOOLEAN).description(false),
                                 fieldWithPath("users[].id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("users[].email").type(JsonFieldType.STRING).description("abc@email.com"),
                                 fieldWithPath("users[].nickname").type(JsonFieldType.STRING).description("foo"),
@@ -328,15 +327,13 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void findAllByUserId() throws Exception {
         // given
-        final LocalDateTime now = LocalTime.of(10, 1).atDate(LocalDate.now());
         final MyMeetingResponse myMeetingResponse =
                 new MyMeetingResponse(1L, "모임1", true,
                         LocalDate.of(2022, 7, 10),
                         LocalDate.of(2022, 8, 10),
                         LocalTime.of(10, 0),
                         LocalTime.of(10, 5),
-                        1,
-                        true);
+                        1, true, false);
 
         final MyMeetingResponse myMeetingResponse2 =
                 new MyMeetingResponse(2L, "모임2", true,
@@ -344,11 +341,10 @@ class MeetingControllerTest extends ControllerTest {
                         LocalDate.of(2022, 8, 15),
                         LocalTime.of(9, 0),
                         LocalTime.of(9, 5),
-                        2,
-                        true);
+                        2, true, false);
 
         final MyMeetingsResponse meetingsResponse =
-                MyMeetingsResponse.of(now, List.of(myMeetingResponse, myMeetingResponse2));
+                new MyMeetingsResponse(List.of(myMeetingResponse, myMeetingResponse2));
 
         validateToken("1");
 
@@ -359,9 +355,7 @@ class MeetingControllerTest extends ControllerTest {
         // then
         performGet("/meetings/me")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.serverTime", is(Timestamp.valueOf(now).getTime())))
                 .andExpect(jsonPath("$.meetings[*].id", containsInAnyOrder(1, 2)))
-                .andExpect(jsonPath("$.serverTime", is(Timestamp.valueOf(now).getTime())))
                 .andExpect(jsonPath("$.meetings[*].name", containsInAnyOrder("모임1", "모임2")))
                 .andExpect(jsonPath("$.meetings[*].isActive", containsInAnyOrder(true, true)))
                 .andExpect(jsonPath("$.meetings[*].startDate", containsInAnyOrder("2022-07-10", "2022-07-15")))
@@ -370,10 +364,9 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.meetings[*].closingTime", containsInAnyOrder("09:05", "10:05")))
                 .andExpect(jsonPath("$.meetings[*].tardyCount", containsInAnyOrder(1, 2)))
                 .andExpect(jsonPath("$.meetings[*].isMaster", containsInAnyOrder(true, true)))
+                .andExpect(jsonPath("$.meetings[*].isCoffeeTime", containsInAnyOrder(false, false)))
                 .andDo(document("meeting/find-my-meetings",
                         responseFields(
-                                fieldWithPath("serverTime").type(JsonFieldType.NUMBER)
-                                        .description(Timestamp.valueOf(now).getTime()),
                                 fieldWithPath("meetings[].id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("meetings[].name").type(JsonFieldType.STRING).description("모임1"),
                                 fieldWithPath("meetings[].isActive").type(JsonFieldType.BOOLEAN).description(true),
@@ -388,6 +381,9 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("meetings[].tardyCount").type(JsonFieldType.NUMBER)
                                         .description(1),
                                 fieldWithPath("meetings[].isMaster").type(JsonFieldType.BOOLEAN).description(true)
+                                        .description(1),
+                                fieldWithPath("meetings[].isCoffeeTime").type(JsonFieldType.BOOLEAN)
+                                        .description(false)
                         )
                 ));
     }

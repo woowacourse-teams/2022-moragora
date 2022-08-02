@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.dto;
 
 import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.entity.MeetingAttendances;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -20,6 +21,7 @@ public class MeetingResponse {
     private final String entranceTime;
     private final String leaveTime;
     private final Boolean isMaster;
+    private final Boolean isCoffeeTime;
     private final List<ParticipantResponse> users;
 
     public MeetingResponse(final Long id,
@@ -30,6 +32,7 @@ public class MeetingResponse {
                            final LocalTime entranceTime,
                            final LocalTime leaveTime,
                            final boolean isMaster,
+                           final Boolean isCoffeeTime,
                            final List<ParticipantResponse> usersResponse) {
         this.id = id;
         this.name = name;
@@ -39,22 +42,24 @@ public class MeetingResponse {
         this.entranceTime = entranceTime.format(TIME_FORMATTER);
         this.leaveTime = leaveTime.format(TIME_FORMATTER);
         this.isMaster = isMaster;
+        this.isCoffeeTime = isCoffeeTime;
         this.users = usersResponse;
     }
 
     public static MeetingResponse of(final Meeting meeting,
                                      final boolean isMaster,
                                      final List<ParticipantResponse> participantResponses,
-                                     final long meetingAttendanceCount) {
+                                     final MeetingAttendances meetingAttendances) {
         return new MeetingResponse(
                 meeting.getId(),
                 meeting.getName(),
-                meetingAttendanceCount,
+                meetingAttendances.countProceedDate(),
                 meeting.getStartDate(),
                 meeting.getEndDate(),
                 meeting.getEntranceTime(),
                 meeting.getLeaveTime(),
                 isMaster,
+                meetingAttendances.isTardyStackFull(),
                 participantResponses
         );
     }

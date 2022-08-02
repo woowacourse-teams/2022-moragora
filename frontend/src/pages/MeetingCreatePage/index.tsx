@@ -1,50 +1,24 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { css } from '@emotion/react';
 import * as S from './MeetingCreatePage.styled';
 import Footer from 'components/layouts/Footer';
 import Input from 'components/@shared/Input';
 import MemberAddInput from 'components/MemberAddInput';
 import InputHint from 'components/@shared/InputHint';
 import useForm from 'hooks/useForm';
+import useMutation from 'hooks/useMutation';
 import useQuerySelectItems from 'hooks/useQuerySelectItems';
 import { UserQueryWithKeywordResponse } from 'types/userType';
-import { MeetingResponseBody } from 'types/meetingType';
 import { dateToFormattedString } from 'utils/timeUtil';
-import { TOKEN_ERROR_STATUS_CODES } from 'consts';
 import { userContext, UserContextValues } from 'contexts/userContext';
-import { css } from '@emotion/react';
-
-type DefaultResponseBody = {};
+import { createMeetingApi } from 'apis/meetingApis';
 
 const MAX_SELECTED_USER_COUNT = 129;
 
-const asyncFetch = async <
-  ResponseBody extends DefaultResponseBody = DefaultResponseBody
->(
-  url: string,
-  userState: UserContextValues | null,
-  option?: RequestInit
-) => {
-  const res = await fetch(`${process.env.API_SERVER_HOST}${url}`, option);
-
-  if (!res.ok) {
-    if (TOKEN_ERROR_STATUS_CODES.includes(res.status)) {
-      userState?.logout();
-    }
-
-    throw new Error('모임 생성에 실패했습니다.');
-  }
-
-  const body = (await res.json().catch((e) => ({}))) as ResponseBody;
-
-  return {
-    res,
-    body,
-  };
-};
-
 const MeetingCreatePage = () => {
   const navigate = useNavigate();
+  const { accessToken } = useContext(userContext) as UserContextValues;
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
   const {
     queryResult,
@@ -59,7 +33,16 @@ const MeetingCreatePage = () => {
   });
   const currentDate = new Date();
   const isParticipantSelected = selectedItems.length > 0;
-  const userState = useContext(userContext);
+
+  const meetingCreateMutation = useMutation(createMeetingApi, {
+    onSuccess: ({ body: { id } }) => {
+      alert('모임 생성을 완료했습니다.');
+      navigate(`/meeting/${id}`);
+    },
+    onError: () => {
+      alert('모임 생성을 실패했습니다.');
+    },
+  });
 
   const handleCreateMeetingSubmit: React.FormEventHandler<
     HTMLFormElement
@@ -77,32 +60,10 @@ const MeetingCreatePage = () => {
       userIds,
     };
 
-    try {
-      const meatingCreateResult = await asyncFetch('/meetings', userState, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${userState?.user?.accessToken}`,
-        },
-        body: JSON.stringify(formDataObject),
-      });
-
-      alert('모임 생성을 완료했습니다.');
-
-      const meetingGetResult = await asyncFetch<MeetingResponseBody>(
-        meatingCreateResult.res.headers.get('location') as string,
-        userState,
-        {
-          headers: {
-            Authorization: `Bearer ${userState?.user?.accessToken}`,
-          },
-        }
-      );
-
-      navigate(`/meeting/${meetingGetResult.body.id}`);
-    } catch (e) {
-      console.error(e);
-    }
+    meetingCreateMutation.mutate({
+      accessToken,
+      formDataObject,
+    });
   };
 
   return (

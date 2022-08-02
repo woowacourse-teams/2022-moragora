@@ -77,29 +77,29 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
         participantRepository.save(participant6);
         participantRepository.save(participant7);
 
-        final Attendance attendance1 = new Attendance(participant1, LocalDate.of(2022, 7, 12), Status.TARDY);
-        final Attendance attendance2 = new Attendance(participant2, LocalDate.of(2022, 7, 12), Status.TARDY);
-        final Attendance attendance3 = new Attendance(participant3, LocalDate.of(2022, 7, 12), Status.PRESENT);
-        final Attendance attendance4 = new Attendance(participant4, LocalDate.of(2022, 7, 12), Status.PRESENT);
-        final Attendance attendance5 = new Attendance(participant5, LocalDate.of(2022, 7, 12), Status.PRESENT);
-        final Attendance attendance6 = new Attendance(participant6, LocalDate.of(2022, 7, 12), Status.PRESENT);
-        final Attendance attendance7 = new Attendance(participant7, LocalDate.of(2022, 7, 12), Status.PRESENT);
+        final Attendance attendance1 = new Attendance(participant1, LocalDate.of(2022, 7, 12), false, Status.TARDY);
+        final Attendance attendance2 = new Attendance(participant2, LocalDate.of(2022, 7, 12), false, Status.TARDY);
+        final Attendance attendance3 = new Attendance(participant3, LocalDate.of(2022, 7, 12), false, Status.PRESENT);
+        final Attendance attendance4 = new Attendance(participant4, LocalDate.of(2022, 7, 12), false, Status.PRESENT);
+        final Attendance attendance5 = new Attendance(participant5, LocalDate.of(2022, 7, 12), false, Status.PRESENT);
+        final Attendance attendance6 = new Attendance(participant6, LocalDate.of(2022, 7, 12), false, Status.PRESENT);
+        final Attendance attendance7 = new Attendance(participant7, LocalDate.of(2022, 7, 12), false, Status.PRESENT);
 
-        final Attendance attendance8 = new Attendance(participant1, LocalDate.of(2022, 7, 13), Status.PRESENT);
-        final Attendance attendance9 = new Attendance(participant2, LocalDate.of(2022, 7, 13), Status.TARDY);
-        final Attendance attendance10 = new Attendance(participant3, LocalDate.of(2022, 7, 13), Status.PRESENT);
-        final Attendance attendance11 = new Attendance(participant4, LocalDate.of(2022, 7, 13), Status.PRESENT);
-        final Attendance attendance12 = new Attendance(participant5, LocalDate.of(2022, 7, 13), Status.PRESENT);
-        final Attendance attendance13 = new Attendance(participant6, LocalDate.of(2022, 7, 13), Status.PRESENT);
-        final Attendance attendance14 = new Attendance(participant7, LocalDate.of(2022, 7, 13), Status.PRESENT);
+        final Attendance attendance8 = new Attendance(participant1, LocalDate.of(2022, 7, 13), false, Status.PRESENT);
+        final Attendance attendance9 = new Attendance(participant2, LocalDate.of(2022, 7, 13), false, Status.TARDY);
+        final Attendance attendance10 = new Attendance(participant3, LocalDate.of(2022, 7, 13), false, Status.PRESENT);
+        final Attendance attendance11 = new Attendance(participant4, LocalDate.of(2022, 7, 13), false, Status.PRESENT);
+        final Attendance attendance12 = new Attendance(participant5, LocalDate.of(2022, 7, 13), false, Status.PRESENT);
+        final Attendance attendance13 = new Attendance(participant6, LocalDate.of(2022, 7, 13), false, Status.PRESENT);
+        final Attendance attendance14 = new Attendance(participant7, LocalDate.of(2022, 7, 13), false, Status.PRESENT);
 
-        final Attendance attendance15 = new Attendance(participant1, LocalDate.of(2022, 7, 14), Status.PRESENT);
-        final Attendance attendance16 = new Attendance(participant2, LocalDate.of(2022, 7, 14), Status.TARDY);
-        final Attendance attendance17 = new Attendance(participant3, LocalDate.of(2022, 7, 14), Status.PRESENT);
-        final Attendance attendance18 = new Attendance(participant4, LocalDate.of(2022, 7, 14), Status.PRESENT);
-        final Attendance attendance19 = new Attendance(participant5, LocalDate.of(2022, 7, 14), Status.PRESENT);
-        final Attendance attendance20 = new Attendance(participant6, LocalDate.of(2022, 7, 14), Status.PRESENT);
-        final Attendance attendance21 = new Attendance(participant7, LocalDate.of(2022, 7, 14), Status.PRESENT);
+        final Attendance attendance15 = new Attendance(participant1, LocalDate.of(2022, 7, 14), false, Status.PRESENT);
+        final Attendance attendance16 = new Attendance(participant2, LocalDate.of(2022, 7, 14), false, Status.TARDY);
+        final Attendance attendance17 = new Attendance(participant3, LocalDate.of(2022, 7, 14), false, Status.PRESENT);
+        final Attendance attendance18 = new Attendance(participant4, LocalDate.of(2022, 7, 14), false, Status.PRESENT);
+        final Attendance attendance19 = new Attendance(participant5, LocalDate.of(2022, 7, 14), false, Status.PRESENT);
+        final Attendance attendance20 = new Attendance(participant6, LocalDate.of(2022, 7, 14), false, Status.PRESENT);
+        final Attendance attendance21 = new Attendance(participant7, LocalDate.of(2022, 7, 14), false, Status.PRESENT);
 
         attendanceRepository.save(attendance1);
         attendanceRepository.save(attendance2);

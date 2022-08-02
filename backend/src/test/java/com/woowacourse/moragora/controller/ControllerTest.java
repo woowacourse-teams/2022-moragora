@@ -10,6 +10,7 @@ import com.woowacourse.auth.controller.AuthController;
 import com.woowacourse.auth.service.AuthService;
 import com.woowacourse.auth.support.JwtTokenProvider;
 import com.woowacourse.moragora.service.AttendanceService;
+import com.woowacourse.moragora.service.CommonService;
 import com.woowacourse.moragora.service.MeetingService;
 import com.woowacourse.moragora.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
         MeetingController.class,
         AttendanceController.class,
         UserController.class,
-        AuthController.class})
+        AuthController.class,
+        CommonController.class})
 @AutoConfigureRestDocs
 public class ControllerTest {
 
@@ -42,6 +44,9 @@ public class ControllerTest {
     protected UserService userService;
 
     @MockBean
+    protected CommonService commonService;
+
+    @MockBean
     protected JwtTokenProvider jwtTokenProvider;
 
     @Autowired
@@ -54,6 +59,12 @@ public class ControllerTest {
         return mockMvc.perform(post(uri)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
+                .andDo(print());
+    }
+
+    protected ResultActions performPost(final String uri) throws Exception {
+        return mockMvc.perform(post(uri)
+                .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());
     }
 

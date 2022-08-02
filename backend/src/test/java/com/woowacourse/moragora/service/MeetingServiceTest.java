@@ -141,8 +141,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                true,
-                null
+                true, false, null
         );
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
@@ -171,8 +170,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                true,
-                null
+                true, true, null
         );
 
         // when
@@ -198,7 +196,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                true,
+                true, false,
                 List.of(
                         new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
                         new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
@@ -235,7 +233,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                true,
+                true, false,
                 List.of(
                         new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
                         new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 3),
@@ -322,14 +320,13 @@ class MeetingServiceTest {
 
         // then
         assertThat(myMeetingsResponse).usingRecursiveComparison()
-                .ignoringFields("serverTime", "meetings.id")
-                .isEqualTo(MyMeetingsResponse.of(
-                        serverTimeManager.getDateAndTime(),
+                .ignoringFields("meetings.id")
+                .isEqualTo(new MyMeetingsResponse(
                         List.of(
                                 MyMeetingResponse.of(meeting, false,
-                                        serverTimeManager.calculateClosingTime(entranceTime), 1, true),
+                                        serverTimeManager.calculateClosingTime(entranceTime), 1, true, false),
                                 MyMeetingResponse.of(meetingRequest.toEntity(), false,
-                                        serverTimeManager.calculateClosingTime(entranceTime), 0, true)
+                                        serverTimeManager.calculateClosingTime(entranceTime), 0, true, false)
                         ))
                 );
     }
