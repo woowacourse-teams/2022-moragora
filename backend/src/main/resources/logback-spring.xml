@@ -2,7 +2,7 @@
 
 <configuration>
     <timestamp key="BY_DATE" datePattern="yyyy-MM-dd"/>
-    <property name="LOG_PARENT_PATH" value="../log"/>
+    <property name="LOG_PARENT_PATH" value="../logs"/>
     <property name="LOG_CHILD_INFO" value="info"/>
     <property name="LOG_CHILD_WARN" value="warn"/>
     <property name="LOG_CHILD_ERROR" value="error"/>
@@ -11,15 +11,14 @@
     <property name="LOG_PATTERN"
               value="[%d{yyyy-MM-dd HH:mm:ss}:%-4relative] %green([%thread]) %highlight(%-5level) %boldWhite([%C.%M:%yellow(%L)]) - %msg%n"/>
 
-    <springProfile>
-        <include resource="file-info-appender.xml"/>
-        <include resource="file-warn-appender.xml"/>
-        <include resource="file-error-appender.xml"/>
+    <include resource="file-info-appender.xml"/>
+    <include resource="file-warn-appender.xml"/>
+    <include resource="file-error-appender.xml"/>
 
-        <root level="INFO">
-            <appender-ref ref="FILE-INFO"/>
-            <appender-ref ref="FILE-WARN"/>
-            <appender-ref ref="FILE-ERROR"/>
-        </root>
-    </springProfile>
+    <root level="INFO">
+        <appender-ref ref="FILE-INFO"/>
+        <appender-ref ref="FILE-WARN"/>
+        <appender-ref ref="FILE-ERROR"/>
+    </root>
+
 </configuration>
