@@ -1,12 +1,14 @@
 import * as S from './CircleProgressBar.styled';
-import coffeeIcon from 'assets/beverage_icon.svg';
+import React from 'react';
 
 type CircleProgressBarProps = {
   size: number;
   percent: number;
 };
 
-const CircleProgressBar = ({ size, percent }: CircleProgressBarProps) => {
+const CircleProgressBar: React.FC<
+  React.PropsWithChildren<CircleProgressBarProps>
+> = ({ size, percent, children }) => {
   return (
     <S.Layout>
       <S.SVG size={size}>
@@ -21,10 +23,10 @@ const CircleProgressBar = ({ size, percent }: CircleProgressBarProps) => {
           cy={size / 2}
           r={size / 2.3}
           size={size}
-          percent={percent}
+          percent={percent > 100 ? 100 : percent}
         />
       </S.SVG>
-      <S.CoffeeIcon size={size / 2} src={coffeeIcon} alt="coffee" />
+      <S.ContentBox size={size}>{children}</S.ContentBox>
     </S.Layout>
   );
 };

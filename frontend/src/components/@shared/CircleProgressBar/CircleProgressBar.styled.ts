@@ -12,11 +12,13 @@ export const SVG = styled.svg<{ size: number }>`
   margin: 0.3rem;
 `;
 
-export const CoffeeIcon = styled.img<{ size: number }>`
+export const ContentBox = styled.div<{ size: number }>`
   position: absolute;
+  display: flex;
+  justify-content: center;
   width: ${({ size }) => `${size}px`};
   top: 50%;
-  left: 50%;
+  left: 52%;
   transform: translate(-50%, -50%);
 `;
 
