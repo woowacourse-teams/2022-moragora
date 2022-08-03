@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.ToString;
 
 @Getter
-@ToString
+@ToString(exclude = "accessToken")
 public class LoginResponse {
 
     private final String accessToken;

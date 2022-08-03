@@ -8,7 +8,7 @@ import lombok.ToString;
 
 @NoArgsConstructor
 @Getter
-@ToString
+@ToString(exclude = "password")
 public class UserRequest {
 
     @Email(regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$", message = "입력 형식이 올바르지 않습니다.")

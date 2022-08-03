@@ -6,7 +6,7 @@ import lombok.ToString;
 
 @NoArgsConstructor
 @Getter
-@ToString
+@ToString(exclude = "password")
 public class LoginRequest {
 
     private String email;
