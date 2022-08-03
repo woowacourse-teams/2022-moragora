@@ -33,9 +33,9 @@ class MeetingAttendancesTest {
         final User user2 = new User("kun@gmail.com", encodedPassword, "kun");
         final User user3 = new User("forki@gmail.com", encodedPassword, "forki");
         final Meeting meeting = new Meeting("미팅1", date, date, time, time);
-        final Participant participant1 = new Participant(user1, meeting);
-        final Participant participant2 = new Participant(user2, meeting);
-        final Participant participant3 = new Participant(user3, meeting);
+        final Participant participant1 = new Participant(user1, meeting, true);
+        final Participant participant2 = new Participant(user2, meeting, false);
+        final Participant participant3 = new Participant(user3, meeting, false);
 
         final Attendance attendance1 = new Attendance(participant1, date, false, Status.fromEnum(status1));
         final Attendance attendance2 = new Attendance(participant2, date, false, Status.fromEnum(status2));
@@ -64,9 +64,9 @@ class MeetingAttendancesTest {
         final User user2 = new User("kun@gmail.com", encodedPassword, "kun");
         final User user3 = new User("forki@gmail.com", encodedPassword, "forki");
         final Meeting meeting = new Meeting("미팅1", date, date, time, time);
-        final Participant participant1 = new Participant(user1, meeting);
-        final Participant participant2 = new Participant(user2, meeting);
-        final Participant participant3 = new Participant(user3, meeting);
+        final Participant participant1 = new Participant(user1, meeting, true);
+        final Participant participant2 = new Participant(user2, meeting, false);
+        final Participant participant3 = new Participant(user3, meeting, false);
 
         final Attendance attendance1 = new Attendance(1L, participant1, date, false, Status.TARDY);
         final Attendance attendance2 = new Attendance(2L, participant2, date, false, Status.TARDY);

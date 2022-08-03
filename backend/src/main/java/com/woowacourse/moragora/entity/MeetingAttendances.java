@@ -44,8 +44,8 @@ public class MeetingAttendances {
         final List<Attendance> filteredAttendances = values.stream()
                 .filter(Attendance::isEnabled)
                 .filter(Attendance::isTardy)
-                .limit(disableSize)
                 .sorted(Comparator.comparingLong(Attendance::getId))
+                .limit(disableSize)
                 .collect(Collectors.toList());
 
         filteredAttendances.forEach(Attendance::disable);

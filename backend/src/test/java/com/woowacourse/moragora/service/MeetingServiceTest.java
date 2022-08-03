@@ -131,7 +131,8 @@ class MeetingServiceTest {
     @Test
     void findById() {
         // given
-        final Long id = 1L;
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
         final MeetingResponse expectedMeetingResponse = new MeetingResponse(
                 1L,
                 "모임1",
@@ -140,14 +141,14 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                false, null
+                true, false, null
         );
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
         serverTimeManager.refresh(dateTime);
 
         // when
-        final MeetingResponse response = meetingService.findById(id);
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
 
         // then
         assertThat(response).usingRecursiveComparison()
@@ -159,7 +160,8 @@ class MeetingServiceTest {
     @Test
     void findById_putAttendanceIfAbsent() {
         // given
-        final Long id = 1L;
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
         final MeetingResponse expectedMeetingResponse = new MeetingResponse(
                 1L,
                 "모임1",
@@ -168,11 +170,11 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                true, null
+                true, true, null
         );
 
         // when
-        final MeetingResponse response = meetingService.findById(id);
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
 
         // then
         assertThat(response).usingRecursiveComparison()
@@ -184,7 +186,8 @@ class MeetingServiceTest {
     @Test
     void findById_ifNotOverClosingTime() {
         // given
-        final Long id = 1L;
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
         final MeetingResponse expectedMeetingResponse = new MeetingResponse(
                 1L,
                 "모임1",
@@ -193,22 +196,23 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                false, List.of(
-                new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
-                new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
-                new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
-                new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
-                new ParticipantResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
-                new ParticipantResponse(6L, "fff666@foo.com", "쿤", Status.PRESENT, 0),
-                new ParticipantResponse(7L, "ggg777@foo.com", "반듯", Status.PRESENT, 0)
-        )
+                true, false,
+                List.of(
+                        new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
+                        new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
+                        new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
+                        new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
+                        new ParticipantResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
+                        new ParticipantResponse(6L, "fff666@foo.com", "쿤", Status.PRESENT, 0),
+                        new ParticipantResponse(7L, "ggg777@foo.com", "반듯", Status.PRESENT, 0)
+                )
         );
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
         serverTimeManager.refresh(dateTime);
 
         // when
-        final MeetingResponse response = meetingService.findById(id);
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
 
         // then
         assertThat(response).usingRecursiveComparison()
@@ -219,7 +223,8 @@ class MeetingServiceTest {
     @Test
     void findById_ifOverClosingTime() {
         // given
-        final Long id = 1L;
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
         final MeetingResponse expectedMeetingResponse = new MeetingResponse(
                 1L,
                 "모임1",
@@ -228,26 +233,61 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                false, List.of(
-                new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
-                new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 3),
-                new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
-                new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
-                new ParticipantResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
-                new ParticipantResponse(6L, "fff666@foo.com", "쿤", Status.PRESENT, 0),
-                new ParticipantResponse(7L, "ggg777@foo.com", "반듯", Status.PRESENT, 0)
-        )
+                true, false,
+                List.of(
+                        new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
+                        new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 3),
+                        new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
+                        new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
+                        new ParticipantResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
+                        new ParticipantResponse(6L, "fff666@foo.com", "쿤", Status.PRESENT, 0),
+                        new ParticipantResponse(7L, "ggg777@foo.com", "반듯", Status.PRESENT, 0)
+                )
         );
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 10, 5, 1);
         serverTimeManager.refresh(dateTime);
 
         // when
-        final MeetingResponse response = meetingService.findById(id);
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
 
         // then
         assertThat(response).usingRecursiveComparison()
                 .isEqualTo(expectedMeetingResponse);
+    }
+
+    @DisplayName("Master인 id로 모임 상세 정보를 조회한다")
+    @Test
+    void findById_isMaster() {
+        // given
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 10, 5);
+        serverTimeManager.refresh(dateTime);
+
+        // when
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
+
+        // then
+        assertThat(response.getIsMaster()).isTrue();
+    }
+
+    @DisplayName("Master가 아닌 id로 모임 상세 정보를 조회한다")
+    @Test
+    void findById_NotMaster() {
+        // given
+        final Long meetingId = 1L;
+        final Long loginId = 2L;
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 10, 5);
+        serverTimeManager.refresh(dateTime);
+
+        // when
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
+
+        // then
+        assertThat(response.getIsMaster()).isFalse();
     }
 
     @DisplayName("유저 id로 유저가 속한 모든 모임을 조회한다.")
@@ -284,9 +324,9 @@ class MeetingServiceTest {
                 .isEqualTo(new MyMeetingsResponse(
                         List.of(
                                 MyMeetingResponse.of(meeting, false,
-                                        serverTimeManager.calculateClosingTime(entranceTime), 1, false),
+                                        serverTimeManager.calculateClosingTime(entranceTime), 1, true, false),
                                 MyMeetingResponse.of(meetingRequest.toEntity(), false,
-                                        serverTimeManager.calculateClosingTime(entranceTime), 0, false)
+                                        serverTimeManager.calculateClosingTime(entranceTime), 0, true, false)
                         ))
                 );
     }

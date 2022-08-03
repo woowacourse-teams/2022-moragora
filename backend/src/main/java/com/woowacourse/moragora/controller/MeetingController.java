@@ -35,14 +35,14 @@ public class MeetingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MeetingResponse> findOne(@PathVariable final Long id) {
-        final MeetingResponse meetingResponse = meetingService.findById(id);
+    public ResponseEntity<MeetingResponse> findOne(@PathVariable final Long id, @AuthenticationPrincipal Long loginId) {
+        final MeetingResponse meetingResponse = meetingService.findById(id, loginId);
         return ResponseEntity.ok(meetingResponse);
     }
 
     @GetMapping("/me")
-    public ResponseEntity<MyMeetingsResponse> findMy(@AuthenticationPrincipal final Long id) {
-        final MyMeetingsResponse meetingsResponse = meetingService.findAllByUserId(id);
+    public ResponseEntity<MyMeetingsResponse> findMy(@AuthenticationPrincipal final Long loginId) {
+        final MyMeetingsResponse meetingsResponse = meetingService.findAllByUserId(loginId);
         return ResponseEntity.ok(meetingsResponse);
     }
 }

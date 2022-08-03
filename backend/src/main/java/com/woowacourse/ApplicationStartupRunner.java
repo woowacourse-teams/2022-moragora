@@ -61,13 +61,13 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
                 LocalTime.of(18, 0));
         meetingRepository.save(meeting);
 
-        final Participant participant1 = new Participant(user1, meeting);
-        final Participant participant2 = new Participant(user2, meeting);
-        final Participant participant3 = new Participant(user3, meeting);
-        final Participant participant4 = new Participant(user4, meeting);
-        final Participant participant5 = new Participant(user5, meeting);
-        final Participant participant6 = new Participant(user6, meeting);
-        final Participant participant7 = new Participant(user7, meeting);
+        final Participant participant1 = new Participant(user1, meeting, true);
+        final Participant participant2 = new Participant(user2, meeting, false);
+        final Participant participant3 = new Participant(user3, meeting, false);
+        final Participant participant4 = new Participant(user4, meeting, false);
+        final Participant participant5 = new Participant(user5, meeting, false);
+        final Participant participant6 = new Participant(user6, meeting, false);
+        final Participant participant7 = new Participant(user7, meeting, false);
 
         participantRepository.save(participant1);
         participantRepository.save(participant2);

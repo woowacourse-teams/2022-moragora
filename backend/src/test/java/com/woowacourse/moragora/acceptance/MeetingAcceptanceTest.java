@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
+import com.woowacourse.auth.dto.LoginRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDate;
@@ -42,9 +43,10 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
     void findOne() {
         // given
         final int id = 1;
+        final LoginRequest loginRequest = new LoginRequest("aaa111@foo.com", "1234smart!");
 
         // when
-        final ValidatableResponse response = get("/meetings/" + id, signUpAndGetToken());
+        final ValidatableResponse response = get("/meetings/" + id, signInAndGetToken(loginRequest));
 
         // then
         response.statusCode(HttpStatus.OK.value())
@@ -55,6 +57,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("endDate", equalTo("2022-08-10"))
                 .body("entranceTime", equalTo("10:00"))
                 .body("leaveTime", equalTo("18:00"))
+                .body("isMaster", equalTo(true))
                 .body("users.id", containsInAnyOrder(1, 2, 3, 4, 5, 6, 7))
                 .body("users.nickname", containsInAnyOrder("아스피", "필즈", "포키",
                         "썬", "우디", "쿤", "반듯"))
@@ -67,6 +70,8 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                         "ggg777@foo.com"));
     }
 
+
+    // TODO: isActive 검사를 못하고 있음
     @DisplayName("사용자가 자신이 속한 모든 모임을 조회하면 모임 정보와 상태코드 200을 반환한다.")
     @Test
     void findMy() {
@@ -103,6 +108,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.endDate", containsInAnyOrder("2022-08-10", "2022-08-13"))
                 .body("meetings.entranceTime", containsInAnyOrder("10:00", "09:00"))
                 .body("meetings.closingTime", containsInAnyOrder("10:05", "09:05"))
-                .body("meetings.tardyCount", containsInAnyOrder(0, 0));
+                .body("meetings.tardyCount", containsInAnyOrder(0, 0))
+                .body("meetings.isMaster", containsInAnyOrder(true, true));
     }
 }

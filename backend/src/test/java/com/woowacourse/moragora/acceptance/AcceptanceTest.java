@@ -81,4 +81,10 @@ public class AcceptanceTest {
 
         return response.jsonPath().get("accessToken");
     }
+
+    protected String signInAndGetToken(final LoginRequest loginRequest) {
+        final ExtractableResponse<Response> response = post("/login", loginRequest).extract();
+
+        return response.jsonPath().get("accessToken");
+    }
 }
