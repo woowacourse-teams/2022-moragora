@@ -36,3 +36,9 @@ export type GetLoginUserDataResponseBody = Pick<
   User,
   'id' | 'nickname' | 'email'
 >;
+
+export type UserCoffeeStatsResponseBody = {
+  userCoffeeStats: (Pick<User, 'id' | 'nickname'> & {
+    coffeeCount: number;
+  })[];
+};

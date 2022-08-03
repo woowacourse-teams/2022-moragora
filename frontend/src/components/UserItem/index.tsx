@@ -11,20 +11,21 @@ import { ATTENDANCE_STATUS } from 'consts';
 type UserItemProps = {
   user: Participant;
   meetingId: string;
+  disabled: boolean;
 };
 
-const UserItem: React.FC<UserItemProps> = ({ user, meetingId }) => {
+const UserItem: React.FC<UserItemProps> = ({ user, meetingId, disabled }) => {
   const { accessToken } = useContext(userContext) as UserContextValues;
   const [checked, setChecked] = useState<boolean>(
     ATTENDANCE_STATUS[user.attendanceStatus]
   );
 
-  const { mutate: attendanceMutate } = useMutation(putUserAttendanceApi, {
+  const attendanceMutation = useMutation(putUserAttendanceApi, {
     onMutate: () => {
-      setChecked(checked);
+      setChecked((prev) => !prev);
     },
     onError: () => {
-      setChecked(!checked);
+      setChecked((prev) => !prev);
       alert('출석체크 중 오류가 발생했습니다.');
     },
   });
@@ -32,12 +33,14 @@ const UserItem: React.FC<UserItemProps> = ({ user, meetingId }) => {
   const handleChange = async ({
     target: { checked },
   }: React.ChangeEvent<HTMLInputElement>) => {
-    attendanceMutate({
-      meetingId,
-      userId: user.id,
-      accessToken,
-      AttendanceStatus: checked ? 'present' : 'tardy',
-    });
+    if (!attendanceMutation.isLoading) {
+      attendanceMutation.mutate({
+        meetingId,
+        userId: user.id,
+        accessToken,
+        AttendanceStatus: checked ? 'present' : 'tardy',
+      });
+    }
   };
 
   return (
@@ -50,7 +53,7 @@ const UserItem: React.FC<UserItemProps> = ({ user, meetingId }) => {
           ))}
         </S.CoffeeIconImageBox>
       </S.Box>
-      <Checkbox onChange={handleChange} checked={checked} />
+      <Checkbox onChange={handleChange} checked={checked} disabled={disabled} />
     </S.Layout>
   );
 };

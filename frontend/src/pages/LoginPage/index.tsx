@@ -20,7 +20,7 @@ const LoginPage = () => {
       navigate('/');
     },
     onError: () => {
-      alert('로그인 실패');
+      alert('로그인을 실패했습니다.');
     },
   });
 
