@@ -30,9 +30,9 @@ class AttendanceRepositoryTest {
     @Test
     void findByParticipantIdAndAttendanceDate() {
         // given
-        final Participant participant = dataSupport.saveParticipant(KUN.create(), MORAGORA.create());
+        final Participant participant = dataSupport.saveParticipant(KUN.create(), MORAGORA.create(), false);
         final LocalDate attendanceDate = LocalDate.of(2022, 7, 14);
-        dataSupport.saveAttendance(participant, attendanceDate, Status.TARDY);
+        dataSupport.saveAttendance(participant, attendanceDate, Status.TARDY, false);
 
         // when
         final Optional<Attendance> attendance = attendanceRepository

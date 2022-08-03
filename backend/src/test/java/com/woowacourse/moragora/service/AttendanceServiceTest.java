@@ -62,11 +62,11 @@ class AttendanceServiceTest {
 
         final User user = KUN.create();
         final Meeting meeting = MORAGORA.create();
-        final Participant participant = dataSupport.saveParticipant(user, meeting);
+        final Participant participant = dataSupport.saveParticipant(user, meeting, false);
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 1);
         serverTimeManager.refresh(dateTime);
-        dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 1), Status.TARDY);
+        dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 1), Status.TARDY, false);
 
         // when, then
         assertThatCode(() -> attendanceService.updateAttendance(meeting.getId(), user.getId(), request))
@@ -126,7 +126,7 @@ class AttendanceServiceTest {
 
         final User user = KUN.create();
         final Meeting meeting = MORAGORA.create();
-        final Participant participant = dataSupport.saveParticipant(user, meeting);
+        final Participant participant = dataSupport.saveParticipant(user, meeting, false);
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 6);
         serverTimeManager.refresh(dateTime);
@@ -135,5 +135,24 @@ class AttendanceServiceTest {
         assertThatThrownBy(() -> attendanceService.updateAttendance(participant.getUser().getId(),
                 participant.getMeeting().getId(), request))
                 .isInstanceOf(ClosingTimeExcessException.class);
+    }
+
+    @DisplayName("사용된 커피스택을 비활성화한다.")
+    @Test
+    void disableUsedTardy() {
+        // given
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
+
+        final LocalDateTime dateTime1 = LocalDateTime.of(2022, 7, 14, 10, 10);
+        serverTimeManager.refresh(dateTime1);
+        meetingService.findById(meetingId, loginId);
+        final LocalDateTime dateTime2 = LocalDateTime.of(2022, 7, 15, 10, 10);
+        serverTimeManager.refresh(dateTime2);
+        meetingService.findById(meetingId, loginId);
+
+        // when, then
+        assertThatCode(() -> attendanceService.disableUsedTardy(meetingId))
+                .doesNotThrowAnyException();
     }
 }

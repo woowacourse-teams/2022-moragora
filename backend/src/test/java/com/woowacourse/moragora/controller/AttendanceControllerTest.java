@@ -83,4 +83,21 @@ class AttendanceControllerTest extends ControllerTest {
         // then
         resultActions.andExpect(status().isNotFound());
     }
+
+    @DisplayName("모임의 커피스택을 비운다.")
+    @Test
+    void useCoffeeStack() throws Exception {
+        // given
+        final Long meetingId = 1L;
+        final Long userId = 1L;
+        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        validateToken("1");
+        performPut("/meetings/" + meetingId + "/users/" + userId, request);
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/" + meetingId + "/coffees/use");
+
+        // then
+        resultActions.andExpect(status().isNoContent());
+    }
 }

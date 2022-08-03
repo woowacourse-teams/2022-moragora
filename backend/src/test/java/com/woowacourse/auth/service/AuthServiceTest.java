@@ -71,4 +71,26 @@ public class AuthServiceTest {
         assertThatThrownBy(() -> authService.createToken(loginRequest))
                 .isInstanceOf(AuthorizationFailureException.class);
     }
+
+    @DisplayName("해당 유저가 해당 미팅의 마스터인지 체크한다.")
+    @Test
+    void isMaster() {
+        // given
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
+
+        // when, then
+        assertThat(authService.isMaster(meetingId, loginId)).isTrue();
+    }
+
+    @DisplayName("해당 유저가 해당 미팅의 마스터인지 체크한다(아닌 경우)")
+    @Test
+    void isMaster_Not() {
+        // given
+        final Long meetingId = 1L;
+        final Long loginId = 2L;
+
+        // when, then
+        assertThat(authService.isMaster(meetingId, loginId)).isFalse();
+    }
 }

@@ -35,17 +35,17 @@ public class DataSupport {
         this.attendanceRepository = attendanceRepository;
     }
 
-    public Participant saveParticipant(final User user, final Meeting meeting) {
+    public Participant saveParticipant(final User user, final Meeting meeting, final boolean isMaster) {
         final User savedUser = userRepository.save(user);
         final Meeting savedMeeting = meetingRepository.save(meeting);
-        final Participant participant = participantRepository.save(new Participant(savedUser, savedMeeting));
+        final Participant participant = participantRepository.save(new Participant(savedUser, savedMeeting, isMaster));
         participant.mapMeeting(savedMeeting);
         return participant;
     }
 
     public Attendance saveAttendance(final Participant participant, final LocalDate attendanceDate, final
-    Status status) {
-        return attendanceRepository.save(new Attendance(participant, attendanceDate, status));
+    Status status, final boolean disabled) {
+        return attendanceRepository.save(new Attendance(participant, attendanceDate, disabled, status));
     }
 
     public User saveUser(final User user) {

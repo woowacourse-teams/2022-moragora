@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useContext } from 'react';
 import { css } from '@emotion/react';
 import * as S from './MeetingListPage.styled';
 import Footer from 'components/layouts/Footer';
@@ -8,37 +8,42 @@ import CoffeeStackItem from 'components/CoffeeStackItem';
 import CoffeeStackItemSkeleton from 'components/CoffeeStackItemSkeleton';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import ReloadButton from 'components/@shared/ReloadButton';
-import useFetch from 'hooks/useFetch';
+import useQuery from 'hooks/useQuery';
 import useTimer from 'hooks/useTimer';
 import NoSearchResultIconSVG from 'assets/NoSearchResult.svg';
-import { MeetingListResponseBody } from 'types/meetingType';
+import { userContext, UserContextValues } from 'contexts/userContext';
+import { getMeetingListApi } from 'apis/meetingApis';
 
 const MeetingListPage = () => {
+  const { accessToken } = useContext(userContext) as UserContextValues;
   const {
-    data: meetingListState,
-    loading,
-    error,
+    data: meetingListResponse,
     refetch,
-  } = useFetch<MeetingListResponseBody>('/meetings/me');
+    isLoading,
+    isError,
+  } = useQuery(['meetingList'], getMeetingListApi(accessToken));
+
   const { currentTimestamp } = useTimer(
-    meetingListState?.serverTime || Date.now()
+    meetingListResponse?.body.serverTime || Date.now()
   );
+
   const currentDate = new Date(currentTimestamp);
-  const activeMeetings = meetingListState?.meetings.filter(
+  const currentLocaleTimeString = currentDate.toLocaleTimeString(undefined, {
+    hourCycle: 'h24',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  const activeMeetings = meetingListResponse?.body.meetings.filter(
     ({ isActive }) => isActive
   );
-  const inactiveMeetings = meetingListState?.meetings.filter(
+  const inactiveMeetings = meetingListResponse?.body.meetings.filter(
     ({ isActive }) => !isActive
   );
   const sortedMeetings = [
     ...(activeMeetings || []),
     ...(inactiveMeetings || []),
   ];
-  const currentLocaleTimeString = currentDate.toLocaleTimeString(undefined, {
-    hourCycle: 'h24',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 
   useEffect(() => {
     const closingMeeting = sortedMeetings.find(
@@ -51,7 +56,7 @@ const MeetingListPage = () => {
     }
   }, [currentLocaleTimeString]);
 
-  if (loading && !meetingListState) {
+  if (isLoading && !meetingListResponse?.body) {
     return (
       <>
         <S.Layout>
@@ -99,7 +104,7 @@ const MeetingListPage = () => {
     );
   }
 
-  if (error || !meetingListState) {
+  if (isError || !meetingListResponse?.body) {
     return (
       <>
         <S.Layout>
@@ -117,7 +122,7 @@ const MeetingListPage = () => {
     );
   }
 
-  if (meetingListState.meetings.length === 0) {
+  if (meetingListResponse.body.meetings.length === 0) {
     return (
       <>
         <S.Layout>
@@ -181,7 +186,7 @@ const MeetingListPage = () => {
             <S.Title>커피 스택</S.Title>
           </S.TitleBox>
           <S.CoffeeStackList>
-            {meetingListState.meetings.map((meeting) => (
+            {meetingListResponse.body.meetings.map((meeting) => (
               <li key={meeting.id}>
                 <CoffeeStackItem
                   name={meeting.name}

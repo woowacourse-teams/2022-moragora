@@ -1,77 +1,37 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as S from './LoginPage.styled';
 import useForm from 'hooks/useForm';
+import useMutation from 'hooks/useMutation';
+import { userContext, UserContextValues } from 'contexts/userContext';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
-import { GetMeDataResponseBody, User } from 'types/userType';
-import { userContext, UserContextValues } from 'contexts/userContext';
-import useContextValues from 'hooks/useContextValues';
-import { TOKEN_ERROR_STATUS_CODES } from 'consts';
-
-const submitLogin = (
-  url: string,
-  payload: Pick<User, 'email' | 'password'>
-) => {
-  return fetch(`${process.env.API_SERVER_HOST}${url}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-};
-
-const getMeData = (url: string, accessToken: string) => {
-  return fetch(`${process.env.API_SERVER_HOST}${url}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-};
+import { UserLoginRequestBody } from 'types/userType';
+import { submitLoginApi } from 'apis/userApis';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login, logout } = useContextValues<UserContextValues>(
-    userContext
-  ) as UserContextValues;
+  const { login } = useContext(userContext) as UserContextValues;
   const { errors, isSubmitting, onSubmit, register } = useForm();
+
+  const { mutate: loginMutate } = useMutation(submitLoginApi, {
+    onSuccess: ({ body, accessToken }) => {
+      login(body, accessToken);
+      navigate('/');
+    },
+    onError: () => {
+      alert('로그인 실패');
+    },
+  });
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     const target = e.target as HTMLFormElement;
     const formData = new FormData(target);
-    const formDataObject = Object.fromEntries(formData.entries()) as Pick<
-      User,
-      'email' | 'password'
-    >;
+    const formDataObject = Object.fromEntries(
+      formData.entries()
+    ) as UserLoginRequestBody;
 
-    const loginResponse = await submitLogin('/login', formDataObject);
-    if (!loginResponse.ok) {
-      alert('로그인 실패');
-      return;
-    }
-
-    const accessToken = await loginResponse
-      .json()
-      .then((data) => data.accessToken);
-
-    const getMeResponse = await getMeData('/users/me', accessToken);
-
-    if (!getMeResponse.ok) {
-      if (TOKEN_ERROR_STATUS_CODES.includes(getMeResponse.status)) {
-        logout();
-      }
-
-      alert('내 정보 가져오기 실패');
-      return;
-    }
-
-    const MeData = (await getMeResponse.json()) as GetMeDataResponseBody;
-
-    login(MeData, accessToken);
-    navigate('/');
+    loginMutate(formDataObject);
   };
 
   return (

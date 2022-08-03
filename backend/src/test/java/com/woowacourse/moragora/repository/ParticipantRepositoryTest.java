@@ -33,8 +33,8 @@ class ParticipantRepositoryTest {
         // given
         final User user = KUN.create();
         final Meeting meeting = MORAGORA.create();
-        dataSupport.saveParticipant(user, meeting);
-        dataSupport.saveParticipant(SUN.create(), meeting);
+        dataSupport.saveParticipant(user, meeting, false);
+        dataSupport.saveParticipant(SUN.create(), meeting, false);
 
         // when
         final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
@@ -49,7 +49,7 @@ class ParticipantRepositoryTest {
         // given
         final User user = KUN.create();
         final Meeting meeting = MORAGORA.create();
-        dataSupport.saveParticipant(user, meeting);
+        dataSupport.saveParticipant(user, meeting, false);
 
         // when
         final Optional<Participant> participant = participantRepository.findByMeetingIdAndUserId(meeting.getId(),

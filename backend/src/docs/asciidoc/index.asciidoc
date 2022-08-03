@@ -9,6 +9,7 @@
 * link:auth.html[Auth]
 * link:user.html[User]
 * link:meeting.html[Meeting]
+* link:common.html[Common]
 
 [[overview]]
 == Overview

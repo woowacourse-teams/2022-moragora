@@ -26,7 +26,6 @@ export type MeetingCreateRequestBody = Pick<
 >;
 
 export type MeetingListResponseBody = {
-  serverTime: number;
   meetings: MeetingWithTardyCount[];
 };
 
