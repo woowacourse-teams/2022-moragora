@@ -11,6 +11,5 @@ const Template = (args) => {
 
 export const Default = Template.bind({});
 Default.args = {
-  size: 250,
   percent: 20,
 };
