@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
+import com.woowacourse.auth.dto.LoginRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import io.restassured.response.ValidatableResponse;
@@ -58,9 +59,10 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .willReturn(dateTime.toLocalDate());
         given(serverTimeManager.getDateAndTime())
                 .willReturn(dateTime);
+        final LoginRequest loginRequest = new LoginRequest("aaa111@foo.com", "1234smart!");
 
         // when
-        final ValidatableResponse response = get("/meetings/" + id, signUpAndGetToken());
+        final ValidatableResponse response = get("/meetings/" + id, signInAndGetToken(loginRequest));
 
         // then
         response.statusCode(HttpStatus.OK.value())
@@ -71,6 +73,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("endDate", equalTo("2022-08-10"))
                 .body("entranceTime", equalTo("10:00"))
                 .body("leaveTime", equalTo("18:00"))
+                .body("isMaster", equalTo(true))
                 .body("users.id", containsInAnyOrder(1, 2, 3, 4, 5, 6, 7))
                 .body("users.nickname", containsInAnyOrder("아스피", "필즈", "포키",
                         "썬", "우디", "쿤", "반듯"))
@@ -109,8 +112,10 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         post("/meetings", meetingRequest1, token);
         post("/meetings", meetingRequest2, token);
 
-        given(serverTimeManager.isAttendanceTime(any(LocalTime.class)))
+        given(serverTimeManager.isAttendanceTime(LocalTime.of(10, 0)))
                 .willReturn(false);
+        given(serverTimeManager.isAttendanceTime(LocalTime.of(9, 0)))
+                .willReturn(true);
         given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
                 .willReturn(true);
         given(serverTimeManager.calculateClosingTime(LocalTime.of(10, 0)))
@@ -127,10 +132,12 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.OK.value())
                 .body("meetings.id", containsInAnyOrder(2, 3))
                 .body("meetings.name", containsInAnyOrder("모임1", "모임2"))
+                .body("meetings.isActive", containsInAnyOrder(false, true))
                 .body("meetings.startDate", containsInAnyOrder("2022-07-10", "2022-07-13"))
                 .body("meetings.endDate", containsInAnyOrder("2022-08-10", "2022-08-13"))
                 .body("meetings.entranceTime", containsInAnyOrder("10:00", "09:00"))
                 .body("meetings.closingTime", containsInAnyOrder("10:05", "09:05"))
-                .body("meetings.tardyCount", containsInAnyOrder(0, 0));
+                .body("meetings.tardyCount", containsInAnyOrder(0, 0))
+                .body("meetings.isMaster", containsInAnyOrder(true, true));
     }
 }

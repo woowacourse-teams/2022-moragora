@@ -68,16 +68,7 @@ public class MeetingService {
         final List<User> users = userRepository.findByIdIn(userIds);
         validateUserExists(userIds, users);
 
-        final Participant loginParticipant = new Participant(loginUser, meeting);
-        final List<Participant> participants = users.stream()
-                .map(user -> new Participant(user, meeting))
-                .collect(Collectors.toList());
-        participants.add(loginParticipant);
-
-        for (final Participant participant : participants) {
-            participant.mapMeeting(meeting);
-            participantRepository.save(participant);
-        }
+        saveParticipants(meeting, loginUser, users);
 
         request.getStartDate().datesUntil(request.getEndDate())
                 .map(date -> new Event(date, request.getEntranceTime(), request.getLeaveTime(), meeting))
@@ -87,7 +78,7 @@ public class MeetingService {
     }
 
     @Transactional
-    public MeetingResponse findById(final Long meetingId) {
+    public MeetingResponse findById(final Long meetingId, final Long loginId) {
         final Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(MeetingNotFoundException::new);
         final List<Participant> participants = meeting.getParticipants();
@@ -107,7 +98,11 @@ public class MeetingService {
         final List<Event> events = eventRepository.findByMeetingIdAndDateLessThanEqual(
                 meetingId, today);
 
-        return MeetingResponse.of(meeting, participantResponses, meetingAttendances, event, events.size());
+        final boolean isMaster = participants.stream()
+                .filter(Participant::getIsMaster)
+                .anyMatch(participant -> participant.getUser().getId() == loginId);
+
+        return MeetingResponse.of(meeting, isMaster, participantResponses, meetingAttendances, event, events.size());
     }
 
 
@@ -159,6 +154,19 @@ public class MeetingService {
         }
     }
 
+    private void saveParticipants(final Meeting meeting, final User loginUser, final List<User> users) {
+        final Participant loginParticipant = new Participant(loginUser, meeting, true);
+        final List<Participant> participants = users.stream()
+                .map(user -> new Participant(user, meeting, false))
+                .collect(Collectors.toList());
+        participants.add(loginParticipant);
+
+        for (Participant participant : participants) {
+            participant.mapMeeting(meeting);
+            participantRepository.save(participant);
+        }
+    }
+
     private void saveAttendances(final List<Participant> participants, final Event event) {
         for (final Participant participant : participants) {
             attendanceRepository.save(new Attendance(Status.TARDY, false, participant, event));
@@ -201,6 +209,6 @@ public class MeetingService {
         final int tardyCount = participantAttendances.countTardy(isOver, today);
 
         return MyMeetingResponse.of(meeting, isActive, closingTime, tardyCount, event,
-                meetingAttendances.isTardyStackFull());
+                participant.getIsMaster(), meetingAttendances.isTardyStackFull());
     }
 }
