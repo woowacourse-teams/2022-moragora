@@ -12,4 +12,5 @@ const Template = (args) => {
 export const Default = Template.bind({});
 Default.args = {
   percent: 20,
+  size: 20,
 };

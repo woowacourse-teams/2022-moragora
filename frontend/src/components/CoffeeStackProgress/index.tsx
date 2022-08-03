@@ -11,7 +11,7 @@ type CoffeeStackProgressProps = {
 
 const CoffeeStackProgress: React.FC<
   React.PropsWithChildren<CoffeeStackProgressProps>
-> = ({ size = 200, percent }) => {
+> = ({ size = 12.5, percent }) => {
   return (
     <CircleProgressBar size={size} percent={percent}>
       <S.CoffeeIcon

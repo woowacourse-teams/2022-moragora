@@ -13,15 +13,16 @@ const CircleProgressBar: React.FC<
     <S.Layout>
       <S.SVG size={size}>
         <S.BackgroundBar
-          cx={size / 2}
-          cy={size / 2}
-          r={size / 2.3}
+          cx={`${size / 2}rem`}
+          cy={`${size / 2}rem`}
+          r={`${size / 2.3}rem`}
           size={size}
         />
         <S.MeterBar
-          cx={size / 2}
-          cy={size / 2}
-          r={size / 2.3}
+          cx={`${size / 2}rem`}
+          cy={`${size / 2}rem`}
+          r={`${size / 2.3}rem`}
+          radius={size / 2.3}
           size={size}
           percent={percent > 100 ? 100 : percent}
         />
