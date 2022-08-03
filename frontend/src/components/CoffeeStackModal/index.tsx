@@ -1,23 +1,20 @@
 import { useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import * as S from './CoffeeStackEmptyModal.styled';
+import * as S from './CoffeeStackModal.styled';
 import useQuery from 'hooks/useQuery';
 import DialogButton from 'components/@shared/DialogButton';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import { userContext, UserContextValues } from 'contexts/userContext';
-import coffeeIcon from 'assets/coffee.svg';
 import { getUserCoffeeStatsApi } from 'apis/userApis';
+import coffeeIcon from 'assets/coffee.svg';
 
-type CoffeeStackEmptyModalProps = {
+type CoffeeStackModalProps = {
   onConfirm: React.MouseEventHandler;
   onDismiss: React.MouseEventHandler;
 };
 
-const CoffeeStackEmptyModal = ({
-  onDismiss,
-  onConfirm,
-}: CoffeeStackEmptyModalProps) => {
+const CoffeeStackModal = ({ onDismiss, onConfirm }: CoffeeStackModalProps) => {
   const { id } = useParams();
   const { accessToken } = useContext(userContext) as UserContextValues;
   const {
@@ -75,4 +72,4 @@ const CoffeeStackEmptyModal = ({
   );
 };
 
-export default CoffeeStackEmptyModal;
+export default CoffeeStackModal;

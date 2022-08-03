@@ -8,12 +8,12 @@ import DivideLine from 'components/@shared/DivideLine';
 import ReloadButton from 'components/@shared/ReloadButton';
 import UserItem from 'components/UserItem';
 import ModalPortal from 'components/ModalPortal';
-import CoffeeStackEmptyModal from 'components/CoffeeStackEmptyModal';
+import CoffeeStackModal from 'components/CoffeeStackModal';
+import CoffeeStackProgress from 'components/CoffeeStackProgress';
 import { userContext, UserContextValues } from 'contexts/userContext';
+import { postEmptyCoffeeStackApi, getMeetingData } from 'apis/meetingApis';
 import useMutation from 'hooks/useMutation';
 import useQuery from 'hooks/useQuery';
-import { postEmptyCoffeeStackApi, getMeetingData } from 'apis/meetingApis';
-import CoffeeStackProgress from 'components/CoffeeStackProgress';
 
 const MeetingPage = () => {
   const { id } = useParams();
@@ -93,7 +93,7 @@ const MeetingPage = () => {
     <>
       {modalOpened && (
         <ModalPortal closePortal={() => setModalOpened(false)}>
-          <CoffeeStackEmptyModal
+          <CoffeeStackModal
             onConfirm={handleConfirm}
             onDismiss={() => setModalOpened(false)}
           />
