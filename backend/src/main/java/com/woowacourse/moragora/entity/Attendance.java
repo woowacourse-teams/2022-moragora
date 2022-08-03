@@ -24,38 +24,37 @@ public class Attendance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "participant_id")
-    private Participant participant;
-
-    private LocalDate attendanceDate;
-
     @Enumerated(EnumType.STRING)
     private Status status;
 
     @Column(columnDefinition = "boolean default false")
     private Boolean disabled;
 
+    @ManyToOne
+    @JoinColumn(name = "participant_id")
+    private Participant participant;
+
+    @ManyToOne
+    @JoinColumn(name = "event_id")
+    private Event event;
+
     public Attendance(final Long id,
-                      final Participant participant,
-                      final LocalDate attendanceDate,
+                      final Status status,
                       final Boolean disabled,
-                      final Status status) {
+                      final Participant participant,
+                      final Event event) {
         this.id = id;
-        this.participant = participant;
-        this.attendanceDate = attendanceDate;
         this.disabled = disabled;
         this.status = status;
+        this.participant = participant;
+        this.event = event;
     }
 
-    public Attendance(final Participant participant,
-                      final LocalDate attendanceDate,
+    public Attendance(final Status status,
                       final Boolean disabled,
-                      final Status status) {
-        this.participant = participant;
-        this.attendanceDate = attendanceDate;
-        this.disabled = disabled;
-        this.status = status;
+                      final Participant participant,
+                      final Event event) {
+        this(null, status, disabled, participant, event);
     }
 
     public void changeAttendanceStatus(final Status status) {
@@ -75,6 +74,6 @@ public class Attendance {
     }
 
     public boolean isSameDate(final LocalDate date) {
-        return attendanceDate.isEqual(date);
+        return event.isSameDate(date);
     }
 }

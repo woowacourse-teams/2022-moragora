@@ -8,6 +8,7 @@ import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
+import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
@@ -165,13 +166,16 @@ class MeetingServiceTest {
         final MeetingResponse expectedMeetingResponse = new MeetingResponse(
                 1L,
                 "모임1",
-                4,
+                3,
                 LocalDate.of(2022, 7, 10),
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                true, true, null
+                true, false, null
         );
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
+        serverTimeManager.refresh(dateTime);
 
         // when
         final MeetingResponse response = meetingService.findById(meetingId, loginId);
@@ -199,7 +203,7 @@ class MeetingServiceTest {
                 true, false,
                 List.of(
                         new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
-                        new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
+                        new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 1),
                         new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
                         new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
                         new ParticipantResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
@@ -236,7 +240,7 @@ class MeetingServiceTest {
                 true, false,
                 List.of(
                         new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
-                        new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 3),
+                        new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
                         new ParticipantResponse(3L, "ccc333@foo.com", "포키", Status.PRESENT, 0),
                         new ParticipantResponse(4L, "ddd444@foo.com", "썬", Status.PRESENT, 0),
                         new ParticipantResponse(5L, "eee555@foo.com", "우디", Status.PRESENT, 0),
@@ -295,22 +299,26 @@ class MeetingServiceTest {
     void findAllByUserId() {
         // given
         final long userId = 1L;
+        final LocalDate startDate = LocalDate.of(2022, 7, 10);
+        final LocalDate endDate = LocalDate.of(2022, 8, 10);
         final LocalTime entranceTime = LocalTime.of(10, 0);
+        final LocalTime leaveTime = LocalTime.of(18, 0);
         final Meeting meeting = new Meeting(
                 "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                entranceTime,
-                LocalTime.of(18, 0));
+                startDate,
+                endDate);
         final MeetingRequest meetingRequest = new MeetingRequest(
                 "모임2",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
+                startDate,
+                endDate,
                 entranceTime,
-                LocalTime.of(18, 0),
+                leaveTime,
                 List.of(2L, 3L)
         );
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 10, 5);
+
+        final Event event = new Event(1L, startDate, entranceTime, leaveTime, meeting);
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 12, 10, 5);
         serverTimeManager.refresh(dateTime);
 
         meetingService.save(meetingRequest, userId);
@@ -324,9 +332,9 @@ class MeetingServiceTest {
                 .isEqualTo(new MyMeetingsResponse(
                         List.of(
                                 MyMeetingResponse.of(meeting, false,
-                                        serverTimeManager.calculateClosingTime(entranceTime), 1, true, false),
+                                        serverTimeManager.calculateClosingTime(entranceTime), 0, event, true, false),
                                 MyMeetingResponse.of(meetingRequest.toEntity(), false,
-                                        serverTimeManager.calculateClosingTime(entranceTime), 0, true, false)
+                                        serverTimeManager.calculateClosingTime(entranceTime), 0, event, true, false)
                         ))
                 );
     }

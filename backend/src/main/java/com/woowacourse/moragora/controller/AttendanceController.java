@@ -31,7 +31,7 @@ public class AttendanceController {
         attendanceService.updateAttendance(meetingId, userId, request);
         return ResponseEntity.noContent().build();
     }
-    
+
     @MasterAuthorization
     @PostMapping("/meetings/{meetingId}/coffees/use")
     public ResponseEntity<Void> useCoffeeStack(@PathVariable final Long meetingId,

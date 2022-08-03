@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.dto;
 
+import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.MeetingAttendances;
 import java.time.LocalDate;
@@ -49,15 +50,17 @@ public class MeetingResponse {
     public static MeetingResponse of(final Meeting meeting,
                                      final boolean isMaster,
                                      final List<ParticipantResponse> participantResponses,
-                                     final MeetingAttendances meetingAttendances) {
+                                     final MeetingAttendances meetingAttendances,
+                                     final Event event,
+                                     final int attendanceCount) {
         return new MeetingResponse(
                 meeting.getId(),
                 meeting.getName(),
-                meetingAttendances.countProceedDate(),
+                attendanceCount,
                 meeting.getStartDate(),
                 meeting.getEndDate(),
-                meeting.getEntranceTime(),
-                meeting.getLeaveTime(),
+                event.getEntranceTime(),
+                event.getLeaveTime(),
                 isMaster,
                 meetingAttendances.isTardyStackFull(),
                 participantResponses

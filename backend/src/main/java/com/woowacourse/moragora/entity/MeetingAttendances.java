@@ -22,13 +22,6 @@ public class MeetingAttendances {
         return new ParticipantAttendances(attendances);
     }
 
-    public long countProceedDate() {
-        return values.stream()
-                .map(Attendance::getAttendanceDate)
-                .distinct()
-                .count();
-    }
-
     public int countTardy() {
         return (int) values.stream()
                 .filter(Attendance::isEnabled)
@@ -59,7 +52,7 @@ public class MeetingAttendances {
                 .count();
 
         if (meetingCount > 1) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("한 미팅에 대한 참가자가 아닙니다.");
         }
     }
 }
