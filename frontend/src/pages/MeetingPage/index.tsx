@@ -27,11 +27,11 @@ const MeetingPage = () => {
     refetch: getMeetingRefetch,
   } = useQuery(['meeting'], getMeetingData(id, accessToken), {
     onSuccess: (data) => {
-      const totalTardy = data.body.users.reduce(
+      const totalTardyCount = data.body.users.reduce(
         (total, user) => total + user.tardyCount,
         0
       );
-      setTotalTardyCount(totalTardy);
+      setTotalTardyCount(totalTardyCount);
     },
   });
 

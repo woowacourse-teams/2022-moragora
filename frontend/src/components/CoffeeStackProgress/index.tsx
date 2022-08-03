@@ -5,7 +5,7 @@ import coffeePotIcon from 'assets/coffee-pot.svg';
 import coffeeCupIcon from 'assets/coffee-cup.svg';
 
 type CoffeeStackProgressProps = {
-  size: number;
+  size?: number;
   percent: number;
 };
 
