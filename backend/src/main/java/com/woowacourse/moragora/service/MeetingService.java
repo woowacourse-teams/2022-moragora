@@ -91,13 +91,17 @@ public class MeetingService {
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
         final List<Participant> participants = participantRepository.findByUserId(userId);
-        final MeetingAttendances meetingAttendances = findAttendancesByMeeting(participants);
-
         final List<MyMeetingResponse> myMeetingResponses = participants.stream()
-                .map(participant -> generateMyMeetingResponse(participant, meetingAttendances))
+                .map(participant -> generateMyMeetingResponse(participant, getMeetingAttendances(participant)))
                 .collect(Collectors.toList());
 
         return new MyMeetingsResponse(myMeetingResponses);
+    }
+
+    private MeetingAttendances getMeetingAttendances(final Participant participant) {
+        final Meeting meeting = participant.getMeeting();
+        final List<Participant> participants = meeting.getParticipants();
+        return findAttendancesByMeeting(participants);
     }
 
     /**
