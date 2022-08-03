@@ -8,6 +8,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -115,7 +116,16 @@ class AttendanceControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='3')].coffeeCount", contains(2)))
                 .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='5')].coffeeCount", contains(1)))
                 .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='6')].coffeeCount", contains(1)))
-        ;
+                .andDo(document("meeting/usable-coffee",
+                        responseFields(
+                                fieldWithPath("userCoffeeStats[].id").type(JsonFieldType.NUMBER)
+                                        .description(1L),
+                                fieldWithPath("userCoffeeStats[].nickname").type(JsonFieldType.STRING)
+                                        .description("아스피"),
+                                fieldWithPath("userCoffeeStats[].coffeeCount").type(JsonFieldType.NUMBER)
+                                        .description("3")
+                        )
+                ));
     }
 
     @DisplayName("모임의 커피스택을 비운다.")
@@ -132,6 +142,7 @@ class AttendanceControllerTest extends ControllerTest {
         final ResultActions resultActions = performPost("/meetings/" + meetingId + "/coffees/use");
 
         // then
-        resultActions.andExpect(status().isNoContent());
+        resultActions.andExpect(status().isNoContent())
+                .andDo(document("meeting/use-coffee"));
     }
 }
