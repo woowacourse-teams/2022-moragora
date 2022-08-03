@@ -16,7 +16,7 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
           <S.MeetingBox>
             <S.IconBox>
               {meeting.isMaster ? (
-                <img src={crownIcon} width={24} />
+                <img src={crownIcon} alt="crown-icon" width={24} />
               ) : (
                 <S.IconSVG
                   width="24"
