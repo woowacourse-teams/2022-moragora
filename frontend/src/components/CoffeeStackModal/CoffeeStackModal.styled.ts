@@ -15,9 +15,11 @@ export const Layout = styled.div`
 `;
 
 export const StatsBox = styled.div`
+  max-width: 80%;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  overflow: scroll;
 `;
 
 export const Header = styled.h1`

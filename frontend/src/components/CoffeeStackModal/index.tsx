@@ -55,7 +55,8 @@ const CoffeeStackModal = ({ onDismiss, onConfirm }: CoffeeStackModalProps) => {
             <span>{data.nickname}</span>
             <S.CoffeeIconBox>
               <img src={coffeeIcon} alt="coffee-icon" width={40} />
-              <span>X {data.coffeeCount}</span>
+              <span>X</span>
+              <span>{data.coffeeCount}</span>
             </S.CoffeeIconBox>
           </S.RowBox>
         ))}
