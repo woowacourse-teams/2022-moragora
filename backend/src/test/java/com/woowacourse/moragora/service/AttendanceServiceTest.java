@@ -100,38 +100,37 @@ class AttendanceServiceTest {
     void countUsableCoffeeStack() {
         // given
         // 모임 생성
-        final LocalDate endDate = LocalDate.now();
-        final LocalDate startDate = endDate.minusDays(1);
-        final LocalTime now = LocalTime.now();
-        final MeetingRequest meetingRequest = new MeetingRequest("meeting",
-                startDate,
-                endDate,
-                now,
-                now,
-                List.of(2L, 3L)
-        );
-        final Long meetingId = meetingService.save(meetingRequest, 1L);
+//        final LocalDate endDate = LocalDate.now();
+//        final LocalDate startDate = endDate.minusDays(1);
+//        final LocalTime now = LocalTime.now();
+//        final MeetingRequest meetingRequest = new MeetingRequest("meeting",
+//                startDate,
+//                endDate,
+//                now,
+//                now,
+//                List.of(2L, 3L)
+//        );
+        final Long meetingId = 1L;
 
         // 출석부 데이터 생성
         final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
-        serverTimeManager.refresh(startDate.atTime(now));
-        meetingService.findById(meetingId, 1L);
-        attendanceService.updateAttendance(meetingId, 1L, userAttendanceRequest);
-        attendanceService.updateAttendance(meetingId, 2L, userAttendanceRequest);
-
-        serverTimeManager.refresh(endDate.atTime(now));
+        serverTimeManager.refresh(LocalDateTime.of(2022, 7, 15, 10, 00));
         meetingService.findById(meetingId, 1L);
         attendanceService.updateAttendance(meetingId, 1L, userAttendanceRequest);
 
         // when
+        serverTimeManager.refresh(LocalDateTime.of(2022, 7, 15, 10, 06));
         final CoffeeStatsResponse response = attendanceService.countUsableCoffeeStack(meetingId);
 
         // then
         assertThat(response).usingRecursiveComparison()
                 .isEqualTo(new CoffeeStatsResponse(
                         List.of(
-                                new CoffeeStatResponse(2L, "필즈", 1),
-                                new CoffeeStatResponse(3L, "포키", 2)
+                                new CoffeeStatResponse(1L, "아스피", 1),
+                                new CoffeeStatResponse(2L, "필즈", 3),
+                                new CoffeeStatResponse(3L, "포키", 1),
+                                new CoffeeStatResponse(4L, "썬", 1),
+                                new CoffeeStatResponse(5L, "우디", 1)
                         ))
                 );
     }
