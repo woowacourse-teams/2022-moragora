@@ -12,13 +12,13 @@ import CoffeeStackEmptyModal from 'components/CoffeeStackEmptyModal';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import useMutation from 'hooks/useMutation';
 import useQuery from 'hooks/useQuery';
-import { emptyCoffeeStackApi, getMeetingData } from 'apis/meetingApis';
+import { postEmptyCoffeeStackApi, getMeetingData } from 'apis/meetingApis';
 import CoffeeStackProgress from 'components/CoffeeStackProgress';
 
 const MeetingPage = () => {
   const { id } = useParams();
-  const [modalOpened, setModalOpened] = useState(false);
   const { accessToken } = useContext(userContext) as UserContextValues;
+  const [modalOpened, setModalOpened] = useState(false);
   const [totalTardyCount, setTotalTardyCount] = useState<number>(0);
   const {
     data: meetingResponse,
@@ -35,7 +35,7 @@ const MeetingPage = () => {
     },
   });
 
-  const { mutate } = useMutation(emptyCoffeeStackApi, {
+  const { mutate } = useMutation(postEmptyCoffeeStackApi, {
     onSuccess: () => {
       alert('커피 비우기에 성공했습니다.');
       getMeetingRefetch();

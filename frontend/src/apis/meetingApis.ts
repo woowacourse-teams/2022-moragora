@@ -69,7 +69,7 @@ export const getMeetingListApi =
     });
   };
 
-export const emptyCoffeeStackApi = ({
+export const postEmptyCoffeeStackApi = ({
   id,
   accessToken,
 }: EmptyCoffeeStackRequestBody) => {
