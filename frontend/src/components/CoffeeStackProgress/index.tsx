@@ -5,14 +5,13 @@ import coffeePotIcon from 'assets/coffee-pot.svg';
 import coffeeCupIcon from 'assets/coffee-cup.svg';
 
 type CoffeeStackProgressProps = {
+  size: number;
   percent: number;
 };
 
 const CoffeeStackProgress: React.FC<
   React.PropsWithChildren<CoffeeStackProgressProps>
-> = ({ percent }) => {
-  const size = 200;
-
+> = ({ size = 200, percent }) => {
   return (
     <CircleProgressBar size={size} percent={percent}>
       <S.CoffeeIcon
