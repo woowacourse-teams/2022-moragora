@@ -85,8 +85,8 @@ export default [
 
       const { userIds, ...joinedMeeting } = {
         ...meeting,
-        isMaster: true,
-        isCoffeeTime: true,
+        isMaster: false,
+        isCoffeeTime: false,
         users: meeting.userIds.map((id) => {
           const { password, accessToken, ...user } = users[id];
 

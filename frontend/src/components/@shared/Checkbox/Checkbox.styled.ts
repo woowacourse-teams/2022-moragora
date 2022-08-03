@@ -47,11 +47,10 @@ export const Input = styled.input`
   :disabled {
     color: ${({ theme: { colors } }) => colors['subtle-light']};
     background-color: ${({ theme: { colors } }) => colors['background']};
-    cursor: default;
+    pointer-events: none;
   }
 
   :disabled:checked {
     background-color: ${({ theme: { colors } }) => colors['subtle-light']};
-    cursor: default;
   }
 `;

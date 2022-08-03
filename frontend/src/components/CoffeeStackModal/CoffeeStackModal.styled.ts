@@ -51,6 +51,6 @@ export const CloseButton = styled(DialogButton)`
 `;
 
 export const dismissButton = styled(DialogButton)`
-  background-color: ${({ theme }) => theme.colors['primary-subtle']};
-  color: ${({ theme }) => theme.colors['subtle-dark']};
+  background-color: ${({ theme: { colors } }) => colors['primary-subtle']};
+  color: ${({ theme: { colors } }) => colors['subtle-dark']};
 `;
