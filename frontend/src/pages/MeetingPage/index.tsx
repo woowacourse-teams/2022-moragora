@@ -19,12 +19,21 @@ const MeetingPage = () => {
   const { id } = useParams();
   const [modalOpened, setModalOpened] = useState(false);
   const { accessToken } = useContext(userContext) as UserContextValues;
+  const [totalTardyCount, setTotalTardyCount] = useState<number>(0);
   const {
     data: meetingResponse,
     isLoading,
     isError,
     refetch: getMeetingRefetch,
-  } = useQuery(['meeting'], getMeetingData(id, accessToken));
+  } = useQuery(['meeting'], getMeetingData(id, accessToken), {
+    onSuccess: (data) => {
+      const totalTardy = data.body.users.reduce(
+        (total, user) => total + user.tardyCount,
+        0
+      );
+      setTotalTardyCount(totalTardy);
+    },
+  });
 
   const { mutate } = useMutation(emptyCoffeeStackApi, {
     onSuccess: () => {
@@ -92,16 +101,20 @@ const MeetingPage = () => {
       )}
       <S.Layout>
         <S.TitleSection>
-          <h1>{meetingResponse?.body.name}</h1>
+          <h1>{meetingResponse.body.name}</h1>
         </S.TitleSection>
         <DivideLine />
         <S.MeetingDetailSection>
           <S.SectionTitle>출결상황</S.SectionTitle>
           <S.ProgressBox>
-            <CoffeeStackProgress size={200} percent={100} />
+            <CoffeeStackProgress
+              percent={
+                (totalTardyCount / meetingResponse.body.users.length) * 100
+              }
+            />
             <S.StackDetailBox>
-              {meetingResponse?.body.isMaster &&
-              meetingResponse?.body.isCoffeeTime ? (
+              {meetingResponse.body.isMaster &&
+              meetingResponse.body.isCoffeeTime ? (
                 <S.EmptyButton
                   variant="confirm"
                   type="button"
@@ -111,13 +124,8 @@ const MeetingPage = () => {
                 </S.EmptyButton>
               ) : (
                 <p>
-                  <span>
-                    {meetingResponse?.body.users.reduce(
-                      (total, user) => total + user.tardyCount,
-                      0
-                    )}
-                  </span>{' '}
-                  / <span>{meetingResponse?.body.users.length}</span>
+                  <span>{totalTardyCount}</span> /
+                  <span>{meetingResponse.body.users.length}</span>
                 </p>
               )}
             </S.StackDetailBox>
@@ -127,7 +135,7 @@ const MeetingPage = () => {
           <S.UserListSectionHeader>
             <S.SectionTitle>출결</S.SectionTitle>
             <p>
-              총 출석일: <span>{meetingResponse?.body.attendanceCount}</span>
+              총 출석일: <span>{meetingResponse.body.attendanceCount}</span>
             </p>
           </S.UserListSectionHeader>
           <S.UserListBox>
@@ -137,7 +145,7 @@ const MeetingPage = () => {
                   key={user.id}
                   meetingId={id}
                   user={user}
-                  disabled={!meetingResponse?.body.isMaster}
+                  disabled={!meetingResponse.body.isMaster}
                 />
               ))}
             </S.UserList>

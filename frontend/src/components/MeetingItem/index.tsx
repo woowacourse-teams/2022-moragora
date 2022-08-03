@@ -81,7 +81,9 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
                   />
                 </S.IconSVG>
               )}
-              <img src={coffeeIcon} alt="coffee-icon" width={24} />
+              {meeting.isCoffeeTime && (
+                <img src={coffeeIcon} alt="coffee-icon" width={24} />
+              )}
             </S.IconBox>
             <S.MeetingNameSpan>{meeting.name}</S.MeetingNameSpan>
             <S.MeetingTimeSpan>
