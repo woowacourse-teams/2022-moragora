@@ -18,7 +18,7 @@ import useQuery from 'hooks/useQuery';
 const MeetingPage = () => {
   const { id } = useParams();
   const { accessToken } = useContext(userContext) as UserContextValues;
-  const [modalOpened, setModalOpened] = useState(false);
+  const [isModalOpened, setIsModalOpened] = useState(false);
   const [totalTardyCount, setTotalTardyCount] = useState<number>(0);
   const {
     data: meetingResponse,
@@ -44,12 +44,12 @@ const MeetingPage = () => {
       alert('커피 비우기 실패');
     },
     onSettled: () => {
-      setModalOpened(false);
+      setIsModalOpened(false);
     },
   });
 
   const handleEmptyButtonClick = () => {
-    setModalOpened(true);
+    setIsModalOpened(true);
   };
 
   const handleConfirm = () => {
@@ -91,11 +91,11 @@ const MeetingPage = () => {
 
   return (
     <>
-      {modalOpened && (
-        <ModalPortal closePortal={() => setModalOpened(false)}>
+      {isModalOpened && (
+        <ModalPortal closePortal={() => setIsModalOpened(false)}>
           <CoffeeStackModal
             onConfirm={handleConfirm}
-            onDismiss={() => setModalOpened(false)}
+            onDismiss={() => setIsModalOpened(false)}
           />
         </ModalPortal>
       )}
