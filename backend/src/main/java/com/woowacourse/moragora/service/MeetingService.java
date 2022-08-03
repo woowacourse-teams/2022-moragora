@@ -70,7 +70,7 @@ public class MeetingService {
 
         saveParticipants(meeting, loginUser, users);
 
-        request.getStartDate().datesUntil(request.getEndDate())
+        request.getStartDate().datesUntil(request.getEndDate().plusDays(1))
                 .map(date -> new Event(date, request.getEntranceTime(), request.getLeaveTime(), meeting))
                 .forEach(eventRepository::save);
 

@@ -1,17 +1,23 @@
 package com.woowacourse.moragora.controller;
 
+import static org.hamcrest.Matchers.contains;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.woowacourse.moragora.dto.CoffeeStatResponse;
+import com.woowacourse.moragora.dto.CoffeeStatsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.restdocs.payload.JsonFieldType;
@@ -82,6 +88,34 @@ class AttendanceControllerTest extends ControllerTest {
 
         // then
         resultActions.andExpect(status().isNotFound());
+    }
+
+    @DisplayName("모임의 유저별 사용될 커피 스택 개수를 조회한다.")
+    @Test
+    void showUserCoffeeStats() throws Exception {
+        // given
+        final Long meetingId = 1L;
+        final CoffeeStatsResponse coffeeStatsResponse = new CoffeeStatsResponse(
+                List.of(
+                        new CoffeeStatResponse(1L, "썬", 3),
+                        new CoffeeStatResponse(3L, "필즈", 2),
+                        new CoffeeStatResponse(5L, "포키", 1),
+                        new CoffeeStatResponse(6L, "쿤", 1)
+                )
+        );
+        given(attendanceService.countUsableCoffeeStack(any(Long.class)))
+                .willReturn(coffeeStatsResponse);
+
+        // when
+        final ResultActions resultActions = performGet("/meetings/" + meetingId + "/coffees/use");
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='1')].coffeeCount", contains(3)))
+                .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='3')].coffeeCount", contains(2)))
+                .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='5')].coffeeCount", contains(1)))
+                .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='6')].coffeeCount", contains(1)))
+        ;
     }
 
     @DisplayName("모임의 커피스택을 비운다.")

@@ -1,8 +1,11 @@
 package com.woowacourse.moragora.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.woowacourse.moragora.dto.CoffeeStatResponse;
+import com.woowacourse.moragora.dto.CoffeeStatsResponse;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Status;
@@ -90,6 +93,47 @@ class AttendanceServiceTest {
         // when, then
         assertThatThrownBy(() -> attendanceService.updateAttendance(1L, 1L, request))
                 .isInstanceOf(ClosingTimeExcessException.class);
+    }
+
+    @DisplayName("유저별 다음에 사용될 커피스택을 조회한다.")
+    @Test
+    void countUsableCoffeeStack() {
+        // given
+        // 모임 생성
+        final LocalDate endDate = LocalDate.now();
+        final LocalDate startDate = endDate.minusDays(1);
+        final LocalTime now = LocalTime.now();
+        final MeetingRequest meetingRequest = new MeetingRequest("meeting",
+                startDate,
+                endDate,
+                now,
+                now,
+                List.of(2L, 3L)
+        );
+        final Long meetingId = meetingService.save(meetingRequest, 1L);
+
+        // 출석부 데이터 생성
+        final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
+        serverTimeManager.refresh(startDate.atTime(now));
+        meetingService.findById(meetingId, 1L);
+        attendanceService.updateAttendance(meetingId, 1L, userAttendanceRequest);
+        attendanceService.updateAttendance(meetingId, 2L, userAttendanceRequest);
+
+        serverTimeManager.refresh(endDate.atTime(now));
+        meetingService.findById(meetingId, 1L);
+        attendanceService.updateAttendance(meetingId, 1L, userAttendanceRequest);
+
+        // when
+        final CoffeeStatsResponse response = attendanceService.countUsableCoffeeStack(meetingId);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .isEqualTo(new CoffeeStatsResponse(
+                        List.of(
+                                new CoffeeStatResponse(2L, "필즈", 1),
+                                new CoffeeStatResponse(3L, "포키", 2)
+                        ))
+                );
     }
 
     @DisplayName("사용된 커피스택을 비활성화한다.")

@@ -5,13 +5,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.auth.dto.LoginRequest;
+import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -68,6 +71,70 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         // then
         response.statusCode(HttpStatus.FORBIDDEN.value())
                 .body("message", equalTo("마스터 권한이 없습니다."));
+    }
+
+    @DisplayName("다음에 차감될 커피스택 정보를 요청하면 사용자별 커피 개수와 상태코드 200을 반환한다.")
+    @Test
+    void showUserCoffeeStats() {
+        // given
+        // 마스터 로그인
+        final int userId = 1;
+        final LoginRequest masterLoginRequest = new LoginRequest("aaa111@foo.com", "1234smart!");
+        final String token = signInAndGetToken(masterLoginRequest);
+
+        // 모임 생성
+        final MeetingRequest meetingRequest = new MeetingRequest(
+                "모임1",
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                LocalTime.of(10, 0),
+                LocalTime.of(18, 0),
+                List.of(2L, 3L, 4L, 5L, 6L, 7L)
+        );
+        final ValidatableResponse meetingResponse = post("/meetings", meetingRequest, token);
+        final long meetingId = Long.parseLong(
+                meetingResponse.extract()
+                        .header("Location")
+                        .split("/meetings/")[1]
+        );
+
+        // 출석 데이터 생성
+        final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
+        final LocalDateTime dateTime1 = LocalDateTime.of(2022, 7, 14, 0, 0);
+        given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
+                .willReturn(false);
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime1);
+        given(serverTimeManager.getDate())
+                .willReturn(dateTime1.toLocalDate());
+        get("/meetings/" + meetingId, token);
+        put("/meetings/" + meetingId + "/users/" + userId,
+                userAttendanceRequest, signInAndGetToken(masterLoginRequest));
+        put("/meetings/" + meetingId + "/users/" + 2,
+                userAttendanceRequest, signInAndGetToken(masterLoginRequest));
+        final LocalDateTime dateTime2 = LocalDateTime.of(2022, 7, 15, 0, 0);
+        given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
+                .willReturn(false);
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime2);
+        given(serverTimeManager.getDate())
+                .willReturn(dateTime2.toLocalDate());
+        get("/meetings/" + meetingId, token);
+        put("/meetings/" + meetingId + "/users/" + userId,
+                userAttendanceRequest, signInAndGetToken(masterLoginRequest));
+
+        // when
+        final ValidatableResponse response = get("/meetings/" + meetingId + "/coffees/use");
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("userCoffeeStats.find{it.id == 2}.coffeeCount", equalTo(1))
+                .body("userCoffeeStats.find{it.id == 3}.coffeeCount", equalTo(2))
+                .body("userCoffeeStats.find{it.id == 4}.coffeeCount", equalTo(1))
+                .body("userCoffeeStats.find{it.id == 5}.coffeeCount", equalTo(1))
+                .body("userCoffeeStats.find{it.id == 6}.coffeeCount", equalTo(1))
+                .body("userCoffeeStats.find{it.id == 7}.coffeeCount", equalTo(1))
+        ;
     }
 
     @DisplayName("모임에 쌓인 커피스택을 사용하면 참가자들의 커피 스택을 차감하고 상태코드 204을 반환한다.")
