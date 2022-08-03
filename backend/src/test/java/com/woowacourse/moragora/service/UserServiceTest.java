@@ -10,7 +10,9 @@ import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
+import com.woowacourse.moragora.support.DatabaseCleanUp;
 import com.woowacourse.moragora.support.UserFixtures;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,14 +20,21 @@ import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@Transactional
 class UserServiceTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private DatabaseCleanUp databaseCleanUp;
+
+    @BeforeEach
+    void setUp() {
+        databaseCleanUp.afterPropertiesSet();
+        databaseCleanUp.execute();
+    }
 
     @DisplayName("새로운 회원을 생성한다.")
     @Test

@@ -13,8 +13,6 @@ import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
 import io.restassured.response.ValidatableResponse;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
@@ -29,14 +27,16 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
     void add() {
         // given
         final List<Long> userIds = saveUsers(createUsers());
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                userIds
-        );
+
+        final Meeting meeting = MORAGORA.create();
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(userIds)
+                .build();
 
         // when
         final ValidatableResponse response = post("/meetings", meetingRequest, signUpAndGetToken(MASTER.create()));

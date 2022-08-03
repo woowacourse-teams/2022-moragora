@@ -5,6 +5,7 @@ import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.support.DatabaseCleanUp;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -13,22 +14,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 public class AcceptanceTest {
 
     @LocalServerPort
     int port;
 
+    @Autowired
+    private DatabaseCleanUp databaseCleanUp;
+
     @BeforeEach
     public void setUp() {
         RestAssured.port = port;
+        databaseCleanUp.afterPropertiesSet();
+
+        databaseCleanUp.execute();
     }
 
     protected ValidatableResponse post(final String uri, final Object requestBody) {
@@ -98,8 +103,14 @@ public class AcceptanceTest {
     }
 
     protected int saveMeeting(final String token, final List<Long> userIds, final Meeting meeting) {
-        final MeetingRequest meetingRequest = new MeetingRequest(meeting.getName(), meeting.getStartDate(),
-                meeting.getEndDate(), meeting.getEntranceTime(), meeting.getLeaveTime(), userIds);
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(userIds)
+                .build();
 
         final ValidatableResponse response = post("/meetings", meetingRequest, token);
 

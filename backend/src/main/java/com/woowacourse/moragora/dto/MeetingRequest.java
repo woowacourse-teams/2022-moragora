@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
@@ -40,6 +41,7 @@ public class MeetingRequest {
 
     private List<Long> userIds;
 
+    @Builder
     public MeetingRequest(final String name,
                           final LocalDate startDate,
                           final LocalDate endDate,

@@ -23,12 +23,12 @@ import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
+import com.woowacourse.moragora.support.DatabaseCleanUp;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Collections;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,20 +48,31 @@ class MeetingServiceTest {
     @Autowired
     private DataSupport dataSupport;
 
+    @Autowired
+    private DatabaseCleanUp databaseCleanUp;
+
+    @BeforeEach
+    void setUp() {
+        databaseCleanUp.afterPropertiesSet();
+        databaseCleanUp.execute();
+    }
+
     @DisplayName("미팅 방을 저장한다.")
     @Test
     void save() {
         // given
         final User master = dataSupport.saveUser(MASTER.create());
         final List<Long> userIds = dataSupport.saveUsers(createUsers());
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                userIds
-        );
+        final Meeting meeting = MORAGORA.create();
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(userIds)
+                .build();
 
         // when
         final Long expected = meetingService.save(meetingRequest, master.getId());
@@ -78,14 +89,16 @@ class MeetingServiceTest {
         final List<Long> userIds = dataSupport.saveUsers(createUsers());
         userIds.add(master.getId());
 
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                userIds
-        );
+        final Meeting meeting = MORAGORA.create();
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(userIds)
+                .build();
 
         // when, then
         assertThatThrownBy(() -> meetingService.save(meetingRequest, master.getId()))
@@ -99,14 +112,15 @@ class MeetingServiceTest {
         final User master = dataSupport.saveUser(MASTER.create());
         final User user = dataSupport.saveUser(KUN.create());
 
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                List.of(user.getId(), user.getId())
-        );
+        final Meeting meeting = MORAGORA.create();
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(List.of(user.getId(), user.getId()))
+                .build();
 
         // when, then
         assertThatThrownBy(() -> meetingService.save(meetingRequest, master.getId()))
@@ -119,14 +133,15 @@ class MeetingServiceTest {
         // given
         final User user = dataSupport.saveUser(MASTER.create());
 
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                Collections.emptyList()
-        );
+        final Meeting meeting = MORAGORA.create();
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(List.of(user.getId()))
+                .build();
 
         // when, then
         assertThatThrownBy(() -> meetingService.save(meetingRequest, user.getId()))
@@ -139,14 +154,16 @@ class MeetingServiceTest {
         // given
         final User user = dataSupport.saveUser(MASTER.create());
 
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                List.of(99L)
-        );
+        final Meeting meeting = MORAGORA.create();
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(List.of(99L))
+                .build();
 
         // when, then
         assertThatThrownBy(() -> meetingService.save(meetingRequest, user.getId()))
@@ -164,16 +181,15 @@ class MeetingServiceTest {
         dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 2), Status.TARDY);
         dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 3), Status.TARDY);
 
-        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
-                meeting.getId(),
-                meeting.getName(),
-                3,
-                meeting.getStartDate(),
-                meeting.getEndDate(),
-                meeting.getEntranceTime(),
-                meeting.getLeaveTime(),
-                null
-        );
+        final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
+                .id(meeting.getId())
+                .name(meeting.getName())
+                .attendanceCount(3)
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 3, 10, 6);
         serverTimeManager.refresh(dateTime);
@@ -198,16 +214,15 @@ class MeetingServiceTest {
         dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 2), Status.TARDY);
         dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 3), Status.TARDY);
 
-        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
-                meeting.getId(),
-                meeting.getName(),
-                4,
-                meeting.getStartDate(),
-                meeting.getEndDate(),
-                meeting.getEntranceTime(),
-                meeting.getLeaveTime(),
-                null
-        );
+        final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
+                .id(meeting.getId())
+                .name(meeting.getName())
+                .attendanceCount(4)
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 4, 10, 0);
         serverTimeManager.refresh(dateTime);
@@ -241,23 +256,24 @@ class MeetingServiceTest {
         final Attendance attendance3 = dataSupport.saveAttendance(participant3, LocalDate.of(2022, 8, 1),
                 Status.TARDY);
 
-        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
-                meeting.getId(),
-                meeting.getName(),
-                1,
-                meeting.getStartDate(),
-                meeting.getEndDate(),
-                meeting.getEntranceTime(),
-                meeting.getLeaveTime(),
-                List.of(
-                        new ParticipantResponse(user1.getId(), user1.getEmail(), user1.getNickname(),
-                                attendance1.getStatus(), 0),
-                        new ParticipantResponse(user2.getId(), user2.getEmail(), user2.getNickname(),
-                                attendance2.getStatus(), 0),
-                        new ParticipantResponse(user3.getId(), user3.getEmail(), user3.getNickname(),
-                                attendance3.getStatus(), 0)
-                )
+        final List<ParticipantResponse> usersResponse = List.of(
+                new ParticipantResponse(user1.getId(), user1.getEmail(), user1.getNickname(),
+                        attendance1.getStatus(), 0),
+                new ParticipantResponse(user2.getId(), user2.getEmail(), user2.getNickname(),
+                        attendance2.getStatus(), 0),
+                new ParticipantResponse(user3.getId(), user3.getEmail(), user3.getNickname(),
+                        attendance3.getStatus(), 0)
         );
+        final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
+                .id(meeting.getId())
+                .name(meeting.getName())
+                .attendanceCount(1)
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .usersResponse(usersResponse)
+                .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 4);
         serverTimeManager.refresh(dateTime);
@@ -290,23 +306,24 @@ class MeetingServiceTest {
         final Attendance attendance3 = dataSupport.saveAttendance(participant3, LocalDate.of(2022, 8, 1),
                 Status.TARDY);
 
-        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
-                meeting.getId(),
-                meeting.getName(),
-                1,
-                meeting.getStartDate(),
-                meeting.getEndDate(),
-                meeting.getEntranceTime(),
-                meeting.getLeaveTime(),
-                List.of(
-                        new ParticipantResponse(user1.getId(), user1.getEmail(), user1.getNickname(),
-                                attendance1.getStatus(), 1),
-                        new ParticipantResponse(user2.getId(), user2.getEmail(), user2.getNickname(),
-                                attendance2.getStatus(), 1),
-                        new ParticipantResponse(user3.getId(), user3.getEmail(), user3.getNickname(),
-                                attendance3.getStatus(), 1)
-                )
+        final List<ParticipantResponse> usersResponse = List.of(
+                new ParticipantResponse(user1.getId(), user1.getEmail(), user1.getNickname(),
+                        attendance1.getStatus(), 1),
+                new ParticipantResponse(user2.getId(), user2.getEmail(), user2.getNickname(),
+                        attendance2.getStatus(), 1),
+                new ParticipantResponse(user3.getId(), user3.getEmail(), user3.getNickname(),
+                        attendance3.getStatus(), 1)
         );
+        final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
+                .id(meeting.getId())
+                .name(meeting.getName())
+                .attendanceCount(1)
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .usersResponse(usersResponse)
+                .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 6);
         serverTimeManager.refresh(dateTime);

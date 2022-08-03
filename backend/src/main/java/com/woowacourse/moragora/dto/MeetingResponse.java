@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
@@ -21,6 +22,7 @@ public class MeetingResponse {
     private final String leaveTime;
     private final List<ParticipantResponse> users;
 
+    @Builder
     public MeetingResponse(final Long id,
                            final String name,
                            final long attendanceCount,
@@ -42,15 +44,16 @@ public class MeetingResponse {
     public static MeetingResponse of(final Meeting meeting,
                                      final List<ParticipantResponse> participantResponses,
                                      final long meetingAttendanceCount) {
-        return new MeetingResponse(
-                meeting.getId(),
-                meeting.getName(),
-                meetingAttendanceCount,
-                meeting.getStartDate(),
-                meeting.getEndDate(),
-                meeting.getEntranceTime(),
-                meeting.getLeaveTime(),
-                participantResponses
-        );
+
+        return MeetingResponse.builder()
+                .id(meeting.getId())
+                .name(meeting.getName())
+                .attendanceCount(meetingAttendanceCount)
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .usersResponse(participantResponses)
+                .build();
     }
 }

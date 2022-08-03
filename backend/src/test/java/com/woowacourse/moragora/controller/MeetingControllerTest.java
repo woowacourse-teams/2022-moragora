@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.controller;
 
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -19,6 +20,7 @@ import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
+import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
@@ -45,15 +47,17 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void add() throws Exception {
         // given
-        final String name = "모임1";
-        final LocalDate startDate = LocalDate.of(2022, 7, 10);
-        final LocalDate endDate = LocalDate.of(2022, 8, 10);
-        final LocalTime entranceTime = LocalTime.of(10, 0);
-        final LocalTime leaveTime = LocalTime.of(18, 0);
-        final List<Long> userIds = List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L);
+        final Meeting meeting = MORAGORA.create();
+        final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
 
-        final MeetingRequest meetingRequest = new MeetingRequest(name, startDate, endDate, entranceTime, leaveTime,
-                userIds);
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(userIds)
+                .build();
 
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
@@ -66,11 +70,14 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(header().string("Location", equalTo("/meetings/" + 1)))
                 .andDo(document("meeting/create-meeting",
                         requestFields(
-                                fieldWithPath("name").type(JsonFieldType.STRING).description(name),
-                                fieldWithPath("startDate").type(JsonFieldType.STRING).description(startDate),
-                                fieldWithPath("endDate").type(JsonFieldType.STRING).description(endDate),
-                                fieldWithPath("entranceTime").type(JsonFieldType.STRING).description(entranceTime),
-                                fieldWithPath("leaveTime").type(JsonFieldType.STRING).description(leaveTime),
+                                fieldWithPath("name").type(JsonFieldType.STRING).description(meeting.getName()),
+                                fieldWithPath("startDate").type(JsonFieldType.STRING)
+                                        .description(meeting.getStartDate()),
+                                fieldWithPath("endDate").type(JsonFieldType.STRING).description(meeting.getEndDate()),
+                                fieldWithPath("entranceTime").type(JsonFieldType.STRING)
+                                        .description(meeting.getEntranceTime()),
+                                fieldWithPath("leaveTime").type(JsonFieldType.STRING)
+                                        .description(meeting.getLeaveTime()),
                                 fieldWithPath("userIds").type(JsonFieldType.ARRAY).description(userIds)
                         )
                 ));
@@ -80,14 +87,17 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void add_throwsException_ifStartDateIsLaterThanEndDate() throws Exception {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 6, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
-        );
+        final Meeting meeting = MORAGORA.create();
+        final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(userIds)
+                .build();
 
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
@@ -109,14 +119,17 @@ class MeetingControllerTest extends ControllerTest {
             "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghija"})
     void add_throwsException_ifMeetingNameTooLong(final String name) throws Exception {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                name,
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
-        );
+        final Meeting meeting = MORAGORA.create();
+        final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(name)
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(userIds)
+                .build();
 
         validateToken("1");
 
@@ -164,14 +177,18 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void add_throwsException_ifUserIdsDuplicate() throws Exception {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 6, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                List.of(2L, 2L, 3L, 4L, 5L, 6L, 7L)
-        );
+        final Meeting meeting = MORAGORA.create();
+        final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(userIds)
+                .build();
+
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
                 .willThrow(new InvalidParticipantException("참가자 명단에 중복이 있습니다."));
@@ -189,14 +206,18 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void add_throwsException_ifUserIdsEmpty() throws Exception {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 6, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                List.of()
-        );
+        final Meeting meeting = MORAGORA.create();
+        final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(userIds)
+                .build();
+
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
                 .willThrow(new InvalidParticipantException("생성자를 제외한 참가자가 없습니다."));
@@ -214,14 +235,18 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void add_throwsException_ifUserIdsContainLoginId() throws Exception {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 6, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
-        );
+        final Meeting meeting = MORAGORA.create();
+        final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(userIds)
+                .build();
+
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
                 .willThrow(new InvalidParticipantException("생성자가 참가자 명단에 포함되어 있습니다."));
@@ -239,14 +264,18 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void add_throwsException_ifUserIdNotExist() throws Exception {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 6, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
-                List.of(1L, 2L, 3L, 4L, 5L, 6L, 8L)
-        );
+        final Meeting meeting = MORAGORA.create();
+        final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(userIds)
+                .build();
+
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
                 .willThrow(new UserNotFoundException());

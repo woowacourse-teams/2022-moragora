@@ -19,18 +19,18 @@ import com.woowacourse.moragora.exception.meeting.ClosingTimeExcessException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
+import com.woowacourse.moragora.support.DatabaseCleanUp;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@Transactional
 class AttendanceServiceTest {
 
     @Autowired
@@ -44,6 +44,15 @@ class AttendanceServiceTest {
 
     @Autowired
     private DataSupport dataSupport;
+
+    @Autowired
+    private DatabaseCleanUp databaseCleanUp;
+
+    @BeforeEach
+    void setUp() {
+        databaseCleanUp.afterPropertiesSet();
+        databaseCleanUp.execute();
+    }
 
     @DisplayName("사용자들의 출석 여부를 변경한다.")
     @Test
@@ -88,9 +97,14 @@ class AttendanceServiceTest {
         final List<User> users = List.of(KUN.create(), WOODY.create(), BATD.create());
         final List<Long> userIds = dataSupport.saveUsers(users);
 
-        final MeetingRequest meetingRequest = new MeetingRequest(meeting.getName(), meeting.getStartDate(),
-                meeting.getEndDate(),
-                meeting.getEntranceTime(), meeting.getLeaveTime(), userIds);
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .startDate(meeting.getStartDate())
+                .endDate(meeting.getEndDate())
+                .entranceTime(meeting.getEntranceTime())
+                .leaveTime(meeting.getLeaveTime())
+                .userIds(userIds)
+                .build();
 
         final Long meetingId = meetingService.save(meetingRequest, loginUser.getId());
 
