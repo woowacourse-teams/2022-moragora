@@ -14,6 +14,12 @@ export const Layout = styled.div`
   z-index: 50;
 `;
 
+export const StatsBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
 export const Header = styled.h1`
   font-size: 1.5rem;
 `;
@@ -21,6 +27,25 @@ export const Header = styled.h1`
 export const ButtonBox = styled.div`
   display: flex;
   gap: 1.5rem;
+`;
+
+export const RowBox = styled.div`
+  display: grid;
+  grid: '. .';
+  justify-content: space-between;
+  align-items: center;
+  column-gap: 1rem;
+  font-size: 2rem;
+  font-weight: 600;
+`;
+
+export const CoffeeIconBox = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+export const CloseButton = styled(DialogButton)`
+  width: 6rem;
 `;
 
 export const dismissButton = styled(DialogButton)`
