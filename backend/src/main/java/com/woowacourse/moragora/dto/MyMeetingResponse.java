@@ -6,8 +6,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class MyMeetingResponse {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
