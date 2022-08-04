@@ -27,7 +27,7 @@ describe('유저', () => {
   describe('로그인', () => {
     const validUser = {
       email: 'user1@google.com',
-      password: 'user2pw!',
+      password: 'user2pw1',
     };
     const invalidUser = {
       email: 'user1@google.com',
