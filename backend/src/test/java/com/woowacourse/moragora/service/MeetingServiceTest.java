@@ -252,6 +252,60 @@ class MeetingServiceTest {
                 .isEqualTo(expectedMeetingResponse);
     }
 
+    @DisplayName("id로 모임 상세 정보를 조회한다(당일 일정이 없으면 출석부를 초기화 하지 않고 기존 출석 데이터를 응답한다).")
+    @Test
+    void findById_if_hasNoEvent_and_hasUpcomingEvent() {
+        // given
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
+        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
+                1L,
+                "모임1",
+                0,
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                false, true, false, true, null
+        );
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 9, 0, 0);
+        serverTimeManager.refresh(dateTime);
+
+        // when
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .ignoringFields("users")
+                .isEqualTo(expectedMeetingResponse);
+    }
+
+    @DisplayName("id로 모임 상세 정보를 조회한다(당일부터의 일정이 없을 경우 기존의 출석 데이터를 응답한다).")
+    @Test
+    void findById_if_hasNoEvent_and_hasNoUpcomingEvent() {
+        // given
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
+        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
+                1L,
+                "모임1",
+                5,
+                LocalDate.of(2022, 7, 10),
+                LocalDate.of(2022, 8, 10),
+                false, true, false, false, null
+        );
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 11, 0, 0);
+        serverTimeManager.refresh(dateTime);
+
+        // when
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .ignoringFields("users")
+                .isEqualTo(expectedMeetingResponse);
+    }
+
     @DisplayName("Master인 id로 모임 상세 정보를 조회한다")
     @Test
     void findById_isMaster() {
@@ -291,29 +345,39 @@ class MeetingServiceTest {
     void findAllByUserId() {
         // given
         final long userId = 1L;
-        final LocalDate startDate = LocalDate.of(2022, 7, 10);
-        final LocalDate endDate = LocalDate.of(2022, 8, 10);
+        final LocalDate july10 = LocalDate.of(2022, 7, 10);
+        final LocalDate july20 = LocalDate.of(2022, 7, 20);
+        final LocalDate august10 = LocalDate.of(2022, 8, 10);
         final LocalTime entranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
         final Meeting meeting = new Meeting(
                 "모임1",
-                startDate,
-                endDate);
-        final MeetingRequest meetingRequest = new MeetingRequest(
+                july10,
+                august10);
+        final MeetingRequest meetingRequest1 = new MeetingRequest(
                 "모임2",
-                startDate,
-                endDate,
+                july10,
+                august10,
+                entranceTime,
+                leaveTime,
+                List.of(2L, 3L)
+        );
+        final MeetingRequest meetingRequest2 = new MeetingRequest(
+                "모임3",
+                july20,
+                august10,
                 entranceTime,
                 leaveTime,
                 List.of(2L, 3L)
         );
 
-        final Event event = new Event(1L, startDate, entranceTime, leaveTime, meeting);
+        final Event event = new Event(null, null, entranceTime, leaveTime, null);
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 17, 10, 5);
         serverTimeManager.refresh(dateTime);
 
-        meetingService.save(meetingRequest, userId);
+        meetingService.save(meetingRequest1, userId);
+        meetingService.save(meetingRequest2, userId);
 
         // when
         final MyMeetingsResponse myMeetingsResponse = meetingService.findAllByUserId(userId);
@@ -327,7 +391,11 @@ class MeetingServiceTest {
                                         meeting, false,
                                         1, true, false),
                                 MyMeetingResponse.of(
-                                        meetingRequest.toEntity(), false,
+                                        meetingRequest1.toEntity(), false,
+                                        serverTimeManager.calculateClosingTime(entranceTime),
+                                        0, event, true, false),
+                                MyMeetingResponse.of(
+                                        meetingRequest2.toEntity(), false,
                                         serverTimeManager.calculateClosingTime(entranceTime),
                                         0, event, true, false)
                         ))
