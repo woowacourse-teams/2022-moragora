@@ -29,7 +29,7 @@ const EventCreatePage = () => {
   const navigate = useNavigate();
   const { events, selectedDates, clearSelectedDates, addEvents, removeEvents } =
     useContext(CalendarContext);
-  const { values, errors, isValid, onSubmit, register } = useForm();
+  const { values, errors, onSubmit, register } = useForm();
   const meetingQuery = useQuery(
     ['meeting', meetingId],
     getMeetingData(meetingId, user.accessToken)
@@ -157,7 +157,7 @@ const EventCreatePage = () => {
           <Button
             type="button"
             onClick={handleClickSaveEventsButtonClick}
-            disabled={!isValid}
+            disabled={events.length === 0}
           >
             완료
           </Button>
