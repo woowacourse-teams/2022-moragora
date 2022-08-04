@@ -65,7 +65,7 @@ public class MeetingAttendances {
         return values.stream()
                 .filter(Attendance::isEnabled)
                 .filter(Attendance::isTardy)
-                .sorted(Comparator.comparingLong(Attendance::getId))
+                .sorted(Comparator.comparing(attendance -> attendance.getEvent().getDate()))
                 .limit(numberOfParticipants)
                 .collect(Collectors.toList());
     }

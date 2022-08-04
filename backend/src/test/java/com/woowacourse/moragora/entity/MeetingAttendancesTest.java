@@ -74,12 +74,12 @@ class MeetingAttendancesTest {
         final Participant participant2 = new Participant(user2, meeting, false);
         final Participant participant3 = new Participant(user3, meeting, false);
 
-        final Attendance attendance1 = new Attendance(1L, Status.TARDY, false, participant1, event1);
-        final Attendance attendance2 = new Attendance(2L, Status.TARDY, false, participant2, event1);
-        final Attendance attendance3 = new Attendance(3L, Status.PRESENT, false, participant3, event1);
-        final Attendance attendance4 = new Attendance(4L, Status.TARDY, false, participant1, event2);
-        final Attendance attendance5 = new Attendance(5L, Status.PRESENT, false, participant2, event2);
-        final Attendance attendance6 = new Attendance(6L, Status.PRESENT, false, participant3, event2);
+        final Attendance attendance1 = new Attendance(Status.TARDY, false, participant1, event1);
+        final Attendance attendance2 = new Attendance(Status.TARDY, false, participant2, event1);
+        final Attendance attendance3 = new Attendance(Status.PRESENT, false, participant3, event1);
+        final Attendance attendance4 = new Attendance(Status.TARDY, false, participant1, event2);
+        final Attendance attendance5 = new Attendance(Status.PRESENT, false, participant2, event2);
+        final Attendance attendance6 = new Attendance(Status.PRESENT, false, participant3, event2);
 
         final List<Attendance> attendances = List.of(
                 attendance1, attendance2, attendance3, attendance4, attendance5, attendance6);
@@ -114,12 +114,12 @@ class MeetingAttendancesTest {
         final Participant participant2 = new Participant(user2, meeting, false);
         final Participant participant3 = new Participant(user3, meeting, false);
 
-        final Attendance attendance1 = new Attendance(1L, Status.TARDY, false, participant1, event1);
-        final Attendance attendance2 = new Attendance(2L, Status.TARDY, false, participant2, event1);
-        final Attendance attendance3 = new Attendance(3L, Status.TARDY, false, participant3, event1);
-        final Attendance attendance4 = new Attendance(4L, Status.TARDY, false, participant1, event2);
-        final Attendance attendance5 = new Attendance(5L, Status.TARDY, false, participant2, event2);
-        final Attendance attendance6 = new Attendance(6L, Status.TARDY, false, participant3, event2);
+        final Attendance attendance1 = new Attendance(Status.TARDY, false, participant1, event1);
+        final Attendance attendance2 = new Attendance(Status.TARDY, false, participant2, event1);
+        final Attendance attendance3 = new Attendance(Status.TARDY, false, participant3, event1);
+        final Attendance attendance4 = new Attendance(Status.TARDY, false, participant1, event2);
+        final Attendance attendance5 = new Attendance(Status.TARDY, false, participant2, event2);
+        final Attendance attendance6 = new Attendance(Status.TARDY, false, participant3, event2);
 
         final List<Attendance> attendances = List.of(
                 attendance1, attendance2, attendance3, attendance4, attendance5, attendance6);
