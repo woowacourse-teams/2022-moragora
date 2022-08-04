@@ -1,6 +1,5 @@
 describe('유저', () => {
   beforeEach(() => {
-    console.log(process.env.API_SERVER_HOST);
     cy.clearLocalStorage('accessToken');
     cy.visit('/');
   });
@@ -70,7 +69,6 @@ describe('유저', () => {
 
 describe('모임', () => {
   beforeEach(() => {
-    console.log(process.env.API_SERVER_HOST);
     cy.clearLocalStorage('accessToken');
     cy.visit('/');
   });
