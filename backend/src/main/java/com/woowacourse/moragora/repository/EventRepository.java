@@ -13,4 +13,6 @@ public interface EventRepository extends Repository<Event, Long> {
     List<Event> findByMeetingIdAndDateLessThanEqual(final Long meetingId, final LocalDate date);
 
     Optional<Event> findByMeetingIdAndDate(final Long meetingId, final LocalDate date);
+
+    Long countByDateGreaterThanEqual(final LocalDate date);
 }

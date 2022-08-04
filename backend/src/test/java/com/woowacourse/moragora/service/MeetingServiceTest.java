@@ -142,7 +142,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                true, false, null
+                true, false, true, null
         );
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
@@ -171,7 +171,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                true, false, null
+                true, false, true, null
         );
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
@@ -200,7 +200,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                true, false,
+                true, false, true,
                 List.of(
                         new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
                         new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 1),
@@ -237,7 +237,7 @@ class MeetingServiceTest {
                 LocalDate.of(2022, 8, 10),
                 LocalTime.of(10, 0),
                 LocalTime.of(18, 0),
-                true, false,
+                true, false, true,
                 List.of(
                         new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
                         new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),

@@ -275,7 +275,7 @@ class MeetingControllerTest extends ControllerTest {
         final LocalTime leaveTime = LocalTime.of(18, 0);
         final boolean isMaster = true;
         final MeetingResponse meetingResponse = new MeetingResponse(id, name, attendanceCount, startDate, endDate,
-                entranceTime, leaveTime, isMaster, false, participantResponses
+                entranceTime, leaveTime, isMaster, false, true, participantResponses
         );
 
         final Long loginId = validateToken("1");
@@ -296,6 +296,7 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.leaveTime", equalTo("18:00")))
                 .andExpect(jsonPath("$.isMaster", equalTo(true)))
                 .andExpect(jsonPath("$.isCoffeeTime", equalTo(false)))
+                .andExpect(jsonPath("$.hasUpcomingEvent", equalTo(true)))
                 .andExpect(jsonPath("$.users[*].id", containsInAnyOrder(1, 2)))
                 .andExpect(jsonPath("$.users[*].email", containsInAnyOrder("abc@naver.com", "def@naver.com")))
                 .andExpect(jsonPath("$.users[*].nickname", containsInAnyOrder("foo", "boo")))
@@ -313,6 +314,7 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("leaveTime").type(JsonFieldType.STRING).description(leaveTime),
                                 fieldWithPath("isMaster").type(JsonFieldType.BOOLEAN).description(isMaster),
                                 fieldWithPath("isCoffeeTime").type(JsonFieldType.BOOLEAN).description(false),
+                                fieldWithPath("hasUpcomingEvent").type(JsonFieldType.BOOLEAN).description(true),
                                 fieldWithPath("users[].id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("users[].email").type(JsonFieldType.STRING).description("abc@email.com"),
                                 fieldWithPath("users[].nickname").type(JsonFieldType.STRING).description("foo"),

@@ -25,6 +25,7 @@ public class MeetingResponse {
     private final String leaveTime;
     private final Boolean isMaster;
     private final Boolean isCoffeeTime;
+    private final Boolean hasUpcomingEvent;
     private final List<ParticipantResponse> users;
 
     public MeetingResponse(final Long id,
@@ -34,8 +35,9 @@ public class MeetingResponse {
                            final LocalDate endDate,
                            final LocalTime entranceTime,
                            final LocalTime leaveTime,
-                           final boolean isMaster,
+                           final Boolean isMaster,
                            final Boolean isCoffeeTime,
+                           final Boolean hasUpcomingEvent,
                            final List<ParticipantResponse> usersResponse) {
         this.id = id;
         this.name = name;
@@ -46,6 +48,7 @@ public class MeetingResponse {
         this.leaveTime = leaveTime.format(TIME_FORMATTER);
         this.isMaster = isMaster;
         this.isCoffeeTime = isCoffeeTime;
+        this.hasUpcomingEvent = hasUpcomingEvent;
         this.users = usersResponse;
     }
 
@@ -54,6 +57,7 @@ public class MeetingResponse {
                                      final List<ParticipantResponse> participantResponses,
                                      final MeetingAttendances meetingAttendances,
                                      final Event event,
+                                     final boolean hasUpcomingEvent,
                                      final int attendanceCount) {
         return new MeetingResponse(
                 meeting.getId(),
@@ -65,6 +69,7 @@ public class MeetingResponse {
                 event.getLeaveTime(),
                 isMaster,
                 meetingAttendances.isTardyStackFull(),
+                hasUpcomingEvent,
                 participantResponses
         );
     }

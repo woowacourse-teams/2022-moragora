@@ -74,6 +74,8 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("entranceTime", equalTo("10:00"))
                 .body("leaveTime", equalTo("18:00"))
                 .body("isMaster", equalTo(true))
+                .body("isCoffeeTime", equalTo(false))
+                .body("hasUpcomingEvent", equalTo(true))
                 .body("users.id", containsInAnyOrder(1, 2, 3, 4, 5, 6, 7))
                 .body("users.nickname", containsInAnyOrder("아스피", "필즈", "포키",
                         "썬", "우디", "쿤", "반듯"))

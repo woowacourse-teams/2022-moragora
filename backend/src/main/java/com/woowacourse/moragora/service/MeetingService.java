@@ -102,7 +102,10 @@ public class MeetingService {
                 .filter(Participant::getIsMaster)
                 .anyMatch(participant -> participant.getUser().getId() == loginId);
 
-        return MeetingResponse.of(meeting, isMaster, participantResponses, meetingAttendances, event, events.size());
+        final boolean hasUpcomingEvent = eventRepository.countByDateGreaterThanEqual(today) > 0;
+
+        return MeetingResponse.of(
+                meeting, isMaster, participantResponses, meetingAttendances, event, hasUpcomingEvent, events.size());
     }
 
 
