@@ -1,4 +1,4 @@
-import React, { createContext, useRef, useState } from 'react';
+import React, { createContext, useEffect, useRef, useState } from 'react';
 import { MeetingEvent } from 'types/eventType';
 import { mergeArrays } from 'utils/common';
 import {
@@ -26,6 +26,7 @@ export const CalendarContext = createContext<{
   removeHighlightFromDateCells: () => void;
   addEvents: (events: MeetingEvent[]) => void;
   removeEvents: (dates: Date[]) => void;
+  clearEvents: () => void;
   setShouldApplyBeginEndDates: (flag: boolean) => void;
   setBeginDate: (date: Date) => void;
   setEndDate: (date: Date) => void;
@@ -45,6 +46,7 @@ export const CalendarContext = createContext<{
   removeHighlightFromDateCells: () => {},
   addEvents: () => {},
   removeEvents: () => {},
+  clearEvents: () => {},
   setShouldApplyBeginEndDates: () => {},
   setBeginDate: () => {},
   setEndDate: () => {},
@@ -185,6 +187,10 @@ export const CalendarProvider: React.FC<
     );
   };
 
+  const clearEvents = () => {
+    setEvents([]);
+  };
+
   const initialValue = {
     initialDate,
     currentDate,
@@ -203,6 +209,7 @@ export const CalendarProvider: React.FC<
     removeHighlightFromDateCells,
     addEvents,
     removeEvents,
+    clearEvents,
     setShouldApplyBeginEndDates,
     setBeginDate,
     setEndDate,

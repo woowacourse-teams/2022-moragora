@@ -20,11 +20,13 @@ const Calendar = () => {
     bindDateCellControlRef,
     clearDateCellControlRef,
     setShouldApplyBeginEndDates,
+    clearEvents,
   } = useContext(CalendarContext);
 
   useEffect(() => {
     return () => {
       clearDateCellControlRef();
+      clearEvents();
     };
   }, []);
 
