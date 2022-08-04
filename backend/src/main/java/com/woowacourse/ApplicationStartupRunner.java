@@ -58,11 +58,7 @@ public class ApplicationStartupRunner implements ApplicationListener<ContextRefr
         userRepository.save(user6);
         userRepository.save(user7);
 
-        final Meeting meeting = new Meeting(
-                "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10)
-        );
+        final Meeting meeting = new Meeting("모임1");
         meetingRepository.save(meeting);
 
         final Participant participant1 = new Participant(user1, meeting, true);

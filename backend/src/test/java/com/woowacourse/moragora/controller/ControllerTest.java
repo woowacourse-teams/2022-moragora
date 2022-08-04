@@ -11,6 +11,7 @@ import com.woowacourse.auth.service.AuthService;
 import com.woowacourse.auth.support.JwtTokenProvider;
 import com.woowacourse.moragora.service.AttendanceService;
 import com.woowacourse.moragora.service.CommonService;
+import com.woowacourse.moragora.service.EventService;
 import com.woowacourse.moragora.service.MeetingService;
 import com.woowacourse.moragora.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @WebMvcTest(controllers = {
         MeetingController.class,
         AttendanceController.class,
+        EventController.class,
         UserController.class,
         AuthController.class,
         CommonController.class})
@@ -39,6 +41,9 @@ public class ControllerTest {
 
     @MockBean
     protected AttendanceService attendanceService;
+
+    @MockBean
+    protected EventService eventService;
 
     @MockBean
     protected UserService userService;

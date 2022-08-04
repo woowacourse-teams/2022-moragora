@@ -28,9 +28,7 @@ public class EventRepositoryTest {
     @Test
     void save() {
         // given
-        final Meeting meeting = new Meeting("모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10));
+        final Meeting meeting = new Meeting("모임1");
 
         final Meeting savedMeeting = meetingRepository.save(meeting);
 
@@ -51,10 +49,8 @@ public class EventRepositoryTest {
     @Test
     void findByMeetingIdAndDateLessThanEqual() {
         // given
-        final Meeting meeting = new Meeting("모임1",
-                LocalDate.of(2022, 8, 1),
-                LocalDate.of(2022, 8, 10)
-        );
+        final Meeting meeting = new Meeting("모임1");
+
         final LocalTime entranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
 
@@ -80,10 +76,7 @@ public class EventRepositoryTest {
         // given
         final LocalTime enteranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
-        final Meeting meeting = new Meeting("모임1",
-                LocalDate.of(2022, 8, 1),
-                LocalDate.of(2022, 8, 10)
-        );
+        final Meeting meeting = new Meeting("모임1");
 
         final Meeting savedMeeting = meetingRepository.save(meeting);
 
