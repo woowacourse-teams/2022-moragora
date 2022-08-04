@@ -70,6 +70,42 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .body("message", equalTo("마스터 권한이 없습니다."));
     }
 
+    @DisplayName("다음에 차감될 커피스택 정보를 요청하면 사용자별 커피 개수와 상태코드 200을 반환한다.")
+    @Test
+    void showUserCoffeeStats() {
+        // given
+        final Long meetingId = 1L;
+
+        // 마스터 로그인
+        final LoginRequest masterLoginRequest = new LoginRequest("aaa111@foo.com", "1234smart!");
+        final String token = signInAndGetToken(masterLoginRequest);
+
+        // 출석 데이터 생성
+        final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
+        final LocalDateTime dateTime1 = LocalDateTime.of(2022, 7, 15, 0, 0);
+        given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
+                .willReturn(false);
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime1);
+        given(serverTimeManager.getDate())
+                .willReturn(dateTime1.toLocalDate());
+        get("/meetings/" + meetingId, token);
+        put("/meetings/" + meetingId + "/users/" + 1,
+                userAttendanceRequest, signInAndGetToken(masterLoginRequest));
+
+        // when
+        final ValidatableResponse response = get("/meetings/" + meetingId + "/coffees/use");
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("userCoffeeStats.find{it.id == 1}.coffeeCount", equalTo(1))
+                .body("userCoffeeStats.find{it.id == 2}.coffeeCount", equalTo(3))
+                .body("userCoffeeStats.find{it.id == 3}.coffeeCount", equalTo(1))
+                .body("userCoffeeStats.find{it.id == 4}.coffeeCount", equalTo(1))
+                .body("userCoffeeStats.find{it.id == 5}.coffeeCount", equalTo(1))
+        ;
+    }
+
     @DisplayName("모임에 쌓인 커피스택을 사용하면 참가자들의 커피 스택을 차감하고 상태코드 204을 반환한다.")
     @Test
     void useCoffeeStack() {

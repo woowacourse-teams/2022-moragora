@@ -5,8 +5,10 @@ import com.woowacourse.moragora.entity.MeetingAttendances;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class MeetingResponse {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");

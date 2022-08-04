@@ -5,10 +5,12 @@ import java.util.List;
 import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 
 @NoArgsConstructor
 @Getter
+@ToString
 public class MeetingRequest {
 
     private static final int MAX_NAME_LENGTH = 50;

@@ -1,14 +1,25 @@
 import React from 'react';
 import * as S from './MeetingItem.styled';
-import { MeetingWithMasterAndCoffeeTime } from 'types/meetingType';
+import { MeetingListResponseBody } from 'types/meetingType';
 import crownIcon from 'assets/crown.svg';
 import coffeeIcon from 'assets/simple-coffee.svg';
+import { ArrayElement } from 'types/utilityType';
 
-type MeetingItemProps = {
-  meeting: MeetingWithMasterAndCoffeeTime;
+export type MeetingItemProps = {
+  meeting: ArrayElement<MeetingListResponseBody['meetings']>;
 };
 
 const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
+  let meetingStatusMessage = '';
+
+  if (meeting.hasUpcomingEvent) {
+    meetingStatusMessage = meeting.isActive
+      ? '체크인하세요!'
+      : '출결 준비 중입니다.';
+  } else {
+    meetingStatusMessage = '다음 일정이 없습니다.';
+  }
+
   return (
     <S.Layout isActive={meeting.isActive}>
       <S.MeetingItemLink to={`/meeting/${meeting.id}`}>
@@ -87,12 +98,11 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
             </S.IconBox>
             <S.MeetingNameSpan>{meeting.name}</S.MeetingNameSpan>
             <S.MeetingTimeSpan>
-              {meeting.entranceTime} ~ {meeting.closingTime}
+              {meeting.hasUpcomingEvent &&
+                `${meeting.entranceTime} ~ ${meeting.closingTime}`}
             </S.MeetingTimeSpan>
           </S.MeetingBox>
-          <S.CheckInSpan>
-            {meeting.isActive ? '체크인하세요!' : '출결 준비 중입니다.'}
-          </S.CheckInSpan>
+          <S.MeetingStatusSpan>{meetingStatusMessage}</S.MeetingStatusSpan>
         </S.Box>
       </S.MeetingItemLink>
     </S.Layout>

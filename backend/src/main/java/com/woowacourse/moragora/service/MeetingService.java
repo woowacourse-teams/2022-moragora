@@ -81,7 +81,7 @@ public class MeetingService {
 
         putAttendanceIfAbsent(meeting, participants);
 
-        final MeetingAttendances meetingAttendances = findAttendancesByMeeting(participants);
+        final MeetingAttendances meetingAttendances = findAttendancesByMeeting(meeting.getParticipantIds());
         final LocalDate today = serverTimeManager.getDate();
         final Event event = eventRepository.findByMeetingIdAndDate(meeting.getId(), today)
                 .orElseThrow(EventNotFoundException::new);
@@ -96,7 +96,7 @@ public class MeetingService {
 
         final boolean isMaster = participants.stream()
                 .filter(Participant::getIsMaster)
-                .anyMatch(participant -> participant.getUser().getId() == loginId);
+                .anyMatch(participant -> participant.getUser().getId().equals(loginId));
 
         return MeetingResponse.of(meeting, isMaster, participantResponses, meetingAttendances, events.size());
     }
@@ -113,8 +113,8 @@ public class MeetingService {
 
     private MeetingAttendances getMeetingAttendances(final Participant participant) {
         final Meeting meeting = participant.getMeeting();
-        final List<Participant> participants = meeting.getParticipants();
-        return findAttendancesByMeeting(participants);
+        final List<Long> participantIds = meeting.getParticipantIds();
+        return findAttendancesByMeeting(participantIds);
     }
 
     /**
@@ -173,12 +173,9 @@ public class MeetingService {
         }
     }
 
-    private MeetingAttendances findAttendancesByMeeting(final List<Participant> participants) {
-        final List<Long> participantIds = participants.stream()
-                .map(Participant::getId)
-                .collect(Collectors.toList());
+    private MeetingAttendances findAttendancesByMeeting(final List<Long> participantIds) {
         final List<Attendance> foundAttendances = attendanceRepository.findByParticipantIdIn(participantIds);
-        return new MeetingAttendances(foundAttendances, participants.size());
+        return new MeetingAttendances(foundAttendances, participantIds.size());
     }
 
     private ParticipantResponse generateParticipantResponse(final LocalDateTime now,

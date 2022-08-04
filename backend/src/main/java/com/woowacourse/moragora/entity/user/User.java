@@ -40,12 +40,17 @@ public class User {
     @Column(nullable = false)
     private String nickname;
 
-    public User(final String email, final EncodedPassword password, final String nickname) {
+    public User(final Long id, final String email, final EncodedPassword password, final String nickname) {
         validateEmail(email);
         validateNickname(nickname);
+        this.id = id;
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+    }
+
+    public User(final String email, final EncodedPassword password, final String nickname) {
+        this(null, email, password, nickname);
     }
 
     private void validateEmail(final String email) {

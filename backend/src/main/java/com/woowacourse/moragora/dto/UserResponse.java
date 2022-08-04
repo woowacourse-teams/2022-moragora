@@ -2,8 +2,10 @@ package com.woowacourse.moragora.dto;
 
 import com.woowacourse.moragora.entity.user.User;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class UserResponse {
 
     private final Long id;

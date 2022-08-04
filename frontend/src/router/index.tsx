@@ -7,6 +7,7 @@ import LoginPage from 'pages/LoginPage';
 import Auth from './Auth';
 import SettingsPage from 'pages/SettingsPage';
 import NotFoundPage from 'pages/NotFoundPage';
+import EventCreatePage from 'pages/EventCreatePage';
 
 const Router = () => {
   return useRoutes([
@@ -14,8 +15,8 @@ const Router = () => {
     {
       element: <Auth shouldLogin={false} />,
       children: [
-        { path: '/login', element: <LoginPage /> },
-        { path: '/register', element: <RegisterPage /> },
+        { path: 'login', element: <LoginPage /> },
+        { path: 'register', element: <RegisterPage /> },
       ],
     },
     {
@@ -26,11 +27,12 @@ const Router = () => {
           children: [
             { path: '', element: <MeetingListPage /> },
             { path: ':id', element: <MeetingPage /> },
+            { path: ':id/config', element: <EventCreatePage /> },
             { path: 'create', element: <MeetingCreatePage /> },
           ],
         },
         {
-          path: '/settings',
+          path: 'settings',
           element: <SettingsPage />,
         },
       ],

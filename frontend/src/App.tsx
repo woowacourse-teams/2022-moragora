@@ -6,6 +6,7 @@ import MobileLayout from 'components/layouts/MobileLayout';
 import Header from 'components/layouts/Header';
 import Spinner from 'components/@shared/Spinner';
 import { userContext, UserContextValues } from 'contexts/userContext';
+import { CalendarProvider } from 'contexts/calendarContext';
 import useQuery from 'hooks/useQuery';
 import { getLoginUserDataApi } from 'apis/userApis';
 
@@ -44,7 +45,9 @@ const App = () => {
           ) : (
             <>
               <Header />
-              <Router />
+              <CalendarProvider initialDate={new Date()}>
+                <Router />
+              </CalendarProvider>
             </>
           )}
         </MobileLayout>

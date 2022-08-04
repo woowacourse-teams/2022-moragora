@@ -2,6 +2,7 @@ package com.woowacourse.moragora.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -30,5 +31,11 @@ public class Meeting {
 
     public Meeting(final String name) {
         this.name = name;
+    }
+
+    public List<Long> getParticipantIds() {
+        return participants.stream()
+                .map(Participant::getId)
+                .collect(Collectors.toList());
     }
 }

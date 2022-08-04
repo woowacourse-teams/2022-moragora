@@ -39,23 +39,14 @@ public class Attendance {
     @JoinColumn(name = "event_id")
     private Event event;
 
-    public Attendance(final Long id,
-                      final Status status,
-                      final Boolean disabled,
-                      final Participant participant,
-                      final Event event) {
-        this.id = id;
-        this.disabled = disabled;
-        this.status = status;
-        this.participant = participant;
-        this.event = event;
-    }
-
     public Attendance(final Status status,
                       final Boolean disabled,
                       final Participant participant,
                       final Event event) {
-        this(null, status, disabled, participant, event);
+        this.status = status;
+        this.disabled = disabled;
+        this.participant = participant;
+        this.event = event;
     }
 
     public void changeAttendanceStatus(final Status status) {
