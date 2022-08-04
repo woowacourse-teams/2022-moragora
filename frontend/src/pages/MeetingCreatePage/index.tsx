@@ -203,6 +203,7 @@ const MeetingCreatePage = () => {
                 css={css`
                   width: 100%;
                 `}
+                name="searchMember"
                 placeholder="닉네임 또는 이메일로 검색하세요."
                 disabled={selectedItems.length >= MAX_SELECTED_USER_COUNT}
                 queryResult={queryResult}
