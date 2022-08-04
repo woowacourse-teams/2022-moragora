@@ -38,7 +38,7 @@ const UserItem: React.FC<UserItemProps> = ({ user, meetingId, disabled }) => {
         meetingId,
         userId: user.id,
         accessToken,
-        AttendanceStatus: checked ? 'present' : 'tardy',
+        attendanceStatus: checked ? 'present' : 'tardy',
       });
     }
   };

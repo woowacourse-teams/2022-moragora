@@ -14,7 +14,7 @@ type PutUserAttendanceApiParameter = {
   meetingId: string;
   userId: Participant['id'];
   accessToken: User['accessToken'];
-  AttendanceStatus: UserAttendanceCheckRequestBody['attendanceStatus'];
+  attendanceStatus: UserAttendanceCheckRequestBody['attendanceStatus'];
 };
 
 export const checkEmailApi = (email: User['email']) => () =>
@@ -71,7 +71,7 @@ export const putUserAttendanceApi = async ({
   meetingId,
   userId,
   accessToken,
-  AttendanceStatus,
+  attendanceStatus,
 }: PutUserAttendanceApiParameter) => {
   if (!accessToken) {
     throw new Error('미팅 정보를 불러오는 중 에러가 발생했습니다.');
@@ -83,7 +83,7 @@ export const putUserAttendanceApi = async ({
       'Content-Type': 'application/json',
       Authorization: `Bearer ${accessToken}`,
     },
-    body: JSON.stringify({ AttendanceStatus }),
+    body: JSON.stringify({ attendanceStatus }),
   });
 };
 
