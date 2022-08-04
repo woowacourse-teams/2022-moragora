@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import * as S from './MeetingPage.styled';
 import Footer from 'components/layouts/Footer';
 import Spinner from 'components/@shared/Spinner';
@@ -17,15 +17,16 @@ import useQuery from 'hooks/useQuery';
 
 const MeetingPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+
+  if (!id) {
+    return <Navigate to={'/error'} />;
+  }
+
   const { accessToken } = useContext(userContext) as UserContextValues;
   const [isModalOpened, setIsModalOpened] = useState(false);
   const [totalTardyCount, setTotalTardyCount] = useState<number>(0);
-  const {
-    data: meetingResponse,
-    isLoading,
-    isError,
-    refetch: getMeetingRefetch,
-  } = useQuery(['meeting'], getMeetingData(id, accessToken), {
+  const meetingQuery = useQuery(['meeting'], getMeetingData(id, accessToken), {
     onSuccess: (data) => {
       const totalTardyCount = data.body.users.reduce(
         (total, user) => total + user.tardyCount,
@@ -38,7 +39,7 @@ const MeetingPage = () => {
   const { mutate } = useMutation(postEmptyCoffeeStackApi, {
     onSuccess: () => {
       alert('커피 비우기에 성공했습니다.');
-      getMeetingRefetch();
+      meetingQuery.refetch();
     },
     onError: () => {
       alert('커피 비우기를 실패했습니다.');
@@ -58,7 +59,7 @@ const MeetingPage = () => {
     }
   };
 
-  if (isLoading) {
+  if (meetingQuery.isLoading) {
     return (
       <>
         <S.Layout>
@@ -71,7 +72,7 @@ const MeetingPage = () => {
     );
   }
 
-  if (isError || !id || !meetingResponse?.body) {
+  if (meetingQuery.isError || !id || !meetingQuery.data?.body) {
     return (
       <>
         <S.Layout>
@@ -79,7 +80,7 @@ const MeetingPage = () => {
             <ErrorIcon />
             <ReloadButton
               onClick={() => {
-                getMeetingRefetch();
+                meetingQuery.refetch();
               }}
             />
           </S.ErrorBox>
@@ -89,6 +90,7 @@ const MeetingPage = () => {
     );
   }
 
+  console.log(meetingQuery.data.body);
   return (
     <>
       {isModalOpened && (
@@ -101,56 +103,72 @@ const MeetingPage = () => {
       )}
       <S.Layout>
         <S.TitleSection>
-          <h1>{meetingResponse.body.name}</h1>
+          <h1>{meetingQuery.data.body.name}</h1>
         </S.TitleSection>
         <DivideLine />
-        <S.MeetingDetailSection>
-          <S.SectionTitle>출결상황</S.SectionTitle>
-          <S.ProgressBox>
-            <CoffeeStackProgress
-              percent={
-                (totalTardyCount / meetingResponse.body.users.length) * 100
-              }
-            />
-            <S.StackDetailBox>
-              {meetingResponse.body.isMaster &&
-              meetingResponse.body.isCoffeeTime ? (
-                <S.EmptyButton
-                  variant="confirm"
-                  type="button"
-                  onClick={handleEmptyButtonClick}
-                >
-                  비우기
-                </S.EmptyButton>
-              ) : (
-                <p>
-                  <span>{totalTardyCount}</span> /
-                  <span>{meetingResponse.body.users.length}</span>
-                </p>
-              )}
-            </S.StackDetailBox>
-          </S.ProgressBox>
-        </S.MeetingDetailSection>
-        <S.UserListSection>
-          <S.UserListSectionHeader>
-            <S.SectionTitle>출결</S.SectionTitle>
-            <p>
-              총 출석일: <span>{meetingResponse.body.attendanceCount}</span>
-            </p>
-          </S.UserListSectionHeader>
-          <S.UserListBox>
-            <S.UserList>
-              {meetingResponse.body.users.map((user) => (
-                <UserItem
-                  key={user.id}
-                  meetingId={id}
-                  user={user}
-                  disabled={!meetingResponse.body.isMaster}
-                />
-              ))}
-            </S.UserList>
-          </S.UserListBox>
-        </S.UserListSection>
+        {!meetingQuery.data.body.hasUpcomingEvent && (
+          <>
+            <S.EmptyStateBox>
+              <S.EmptyStateTitle>다가오는 일정이 없습니다.</S.EmptyStateTitle>
+              <S.EmptyStateParagraph>
+                다음 일정을 설정하세요.
+              </S.EmptyStateParagraph>
+              <S.EventCreateLink to={`/meeting/${id}/config`}>
+                일정 설정하기
+              </S.EventCreateLink>
+            </S.EmptyStateBox>
+            <DivideLine />
+          </>
+        )}
+        <S.MeetingDetailBox>
+          <S.MeetingStatusSection>
+            <S.SectionTitle>출결상황</S.SectionTitle>
+            <S.ProgressBox>
+              <CoffeeStackProgress
+                percent={
+                  (totalTardyCount / meetingQuery.data.body.users.length) * 100
+                }
+              />
+              <S.StackDetailBox>
+                {meetingQuery.data.body.isMaster &&
+                meetingQuery.data.body.isCoffeeTime ? (
+                  <S.EmptyButton
+                    variant="confirm"
+                    type="button"
+                    onClick={handleEmptyButtonClick}
+                  >
+                    비우기
+                  </S.EmptyButton>
+                ) : (
+                  <p>
+                    <span>{totalTardyCount}</span> /
+                    <span>{meetingQuery.data.body.users.length}</span>
+                  </p>
+                )}
+              </S.StackDetailBox>
+            </S.ProgressBox>
+          </S.MeetingStatusSection>
+          <S.UserListSection>
+            <S.UserListSectionHeader>
+              <S.SectionTitle>출결</S.SectionTitle>
+              <p>
+                총 출석일: <span>{meetingQuery.data.body.attendanceCount}</span>
+              </p>
+            </S.UserListSectionHeader>
+            <S.UserListBox>
+              <S.UserList>
+                {meetingQuery.data.body.users.map((user) => (
+                  <UserItem
+                    key={user.id}
+                    meetingId={id}
+                    user={user}
+                    disabled={!meetingQuery.data?.body.isMaster}
+                  />
+                ))}
+              </S.UserList>
+            </S.UserListBox>
+          </S.UserListSection>
+        </S.MeetingDetailBox>
       </S.Layout>
       <Footer />
     </>

@@ -14,7 +14,7 @@ import { dateToFormattedString } from 'utils/timeUtil';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { createMeetingApi } from 'apis/meetingApis';
 
-const MAX_SELECTED_USER_COUNT = 129;
+const MAX_SELECTED_USER_COUNT = 30;
 
 const MeetingCreatePage = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const MeetingCreatePage = () => {
     wait: 150,
     maxSelectCount: MAX_SELECTED_USER_COUNT,
   });
-  const currentDate = new Date();
+  // const currentDate = new Date();
   const isParticipantSelected = selectedItems.length > 0;
 
   const meetingCreateMutation = useMutation(createMeetingApi, {
@@ -86,7 +86,7 @@ const MeetingCreatePage = () => {
               message={errors['name']}
             />
           </S.FieldBox>
-          <S.FieldGroupBox>
+          {/* <S.FieldGroupBox>
             <S.FieldBox>
               <S.Label>
                 시작 날짜
@@ -190,7 +190,7 @@ const MeetingCreatePage = () => {
                 message={errors['leaveTime']}
               />
             </S.FieldBox>
-          </S.FieldGroupBox>
+          </S.FieldGroupBox> */}
           <S.FieldBox>
             <S.Label>
               <S.AddMemberParagraph>
