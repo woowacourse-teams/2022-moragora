@@ -8,6 +8,9 @@ const useForm = () => {
   const [errors, setErrors] = useState<Errors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputElementList = useRef<HTMLInputElement[]>([]);
+  const isValid =
+    Object.keys(errors).length > 0 &&
+    Object.values(errors).every((error) => !!error);
 
   const validate = (target: HTMLInputElement) => {
     target.checkValidity();
@@ -113,7 +116,7 @@ const useForm = () => {
     };
   };
 
-  return { values, errors, isSubmitting, onSubmit, register };
+  return { values, errors, isSubmitting, isValid, onSubmit, register };
 };
 
 export default useForm;
