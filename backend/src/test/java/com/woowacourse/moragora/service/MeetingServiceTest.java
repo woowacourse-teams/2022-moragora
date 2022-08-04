@@ -69,8 +69,6 @@ class MeetingServiceTest {
                 .name(meeting.getName())
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
                 .userIds(userIds)
                 .build();
 
@@ -95,8 +93,6 @@ class MeetingServiceTest {
                 .name(meeting.getName())
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
                 .userIds(userIds)
                 .build();
 
@@ -117,8 +113,6 @@ class MeetingServiceTest {
                 .name(meeting.getName())
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
                 .userIds(List.of(user.getId(), user.getId()))
                 .build();
 
@@ -138,8 +132,6 @@ class MeetingServiceTest {
                 .name(meeting.getName())
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
                 .userIds(List.of(user.getId()))
                 .build();
 
@@ -160,8 +152,6 @@ class MeetingServiceTest {
                 .name(meeting.getName())
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
                 .userIds(List.of(99L))
                 .build();
 
@@ -187,8 +177,6 @@ class MeetingServiceTest {
                 .attendanceCount(3)
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
                 .isCoffeeTime(true)
                 .build();
 
@@ -221,8 +209,6 @@ class MeetingServiceTest {
                 .attendanceCount(4)
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
                 .isCoffeeTime(true)
                 .build();
 
@@ -272,8 +258,6 @@ class MeetingServiceTest {
                 .attendanceCount(1)
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
                 .usersResponse(usersResponse)
                 .isCoffeeTime(true)
                 .build();
@@ -323,8 +307,6 @@ class MeetingServiceTest {
                 .attendanceCount(1)
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
                 .usersResponse(usersResponse)
                 .isCoffeeTime(true)
                 .build();
@@ -402,7 +384,7 @@ class MeetingServiceTest {
                 .isEqualTo(new MyMeetingsResponse(
                         List.of(
                                 MyMeetingResponse.of(meeting1, false,
-                                        serverTimeManager.calculateClosingTime(meeting1.getEntranceTime()), 1,
+                                        serverTimeManager.calculateClosingTime(), 1,
                                         participant1.getIsMaster(), true),
                                 MyMeetingResponse.of(meeting2, false,
                                         serverTimeManager.calculateClosingTime(meeting2.getEntranceTime()), 0,

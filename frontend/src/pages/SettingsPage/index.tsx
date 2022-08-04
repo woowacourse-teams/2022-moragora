@@ -11,13 +11,13 @@ import Avatar from 'components/@shared/Avatar';
 const SettingsPage = () => {
   const navigate = useNavigate();
   const userState = useContext(userContext);
-  const [modalOpened, setModalOpened] = useState(false);
+  const [isModalOpened, setIsModalOpened] = useState(false);
 
   const handleOpen = () => {
-    setModalOpened(true);
+    setIsModalOpened(true);
   };
   const handleClose = () => {
-    setModalOpened(false);
+    setIsModalOpened(false);
   };
 
   const handleConfirm = () => {
@@ -27,7 +27,7 @@ const SettingsPage = () => {
 
   return (
     <>
-      {modalOpened && (
+      {isModalOpened && (
         <ModalPortal closePortal={handleClose}>
           <ModalWindow
             message="로그아웃하시겠습니까?"

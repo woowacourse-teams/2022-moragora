@@ -31,7 +31,7 @@ const RegisterPage = () => {
         alert(message);
       },
       onError: () => {
-        alert('이메일 중복확인 실패');
+        alert('이메일 중복확인을 실패했습니다.');
       },
     }
   );
@@ -42,7 +42,7 @@ const RegisterPage = () => {
       navigate('/');
     },
     onError: () => {
-      alert('회원가입 실패');
+      alert('회원가입을 실패했습니다.');
     },
   });
 

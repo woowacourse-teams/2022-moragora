@@ -57,6 +57,6 @@ public class MeetingRequest {
     }
 
     public Meeting toEntity() {
-        return new Meeting(name, startDate, endDate, entranceTime, leaveTime);
+        return new Meeting(name, startDate, endDate);
     }
 }

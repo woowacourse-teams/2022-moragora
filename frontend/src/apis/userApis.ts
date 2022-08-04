@@ -3,6 +3,7 @@ import {
   Participant,
   User,
   UserAttendanceCheckRequestBody,
+  UserCoffeeStatsResponseBody,
   UserLoginRequestBody,
   UserLoginResponseBody,
   UserRegisterRequestBody,
@@ -93,6 +94,21 @@ export const getLoginUserDataApi =
     }
 
     return request<GetLoginUserDataResponseBody>('/users/me', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  };
+
+export const getUserCoffeeStatsApi =
+  (id: string | undefined, accessToken: User['accessToken']) => async () => {
+    if (!accessToken) {
+      throw new Error('유저별 커피정보를 불러오는 중 에러가 발생했습니다.');
+    }
+
+    return request<UserCoffeeStatsResponseBody>(`/meetings/${id}/coffees/use`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

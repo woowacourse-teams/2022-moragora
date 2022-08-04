@@ -35,6 +35,11 @@ export const MeetingBox = styled.div`
   gap: 0.75rem;
 `;
 
+export const IconBox = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
 export const IconSVG = styled.svg``;
 
 export const MeetingNameSpan = styled.span`

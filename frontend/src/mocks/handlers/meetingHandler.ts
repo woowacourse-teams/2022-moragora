@@ -1,7 +1,10 @@
 import { DefaultBodyType, rest } from 'msw';
 import meetings from 'mocks/fixtures/meeting';
 import users from 'mocks/fixtures/users';
-import { UserAttendanceCheckRequestBody } from 'types/userType';
+import {
+  UserAttendanceCheckRequestBody,
+  UserCoffeeStatsResponseBody,
+} from 'types/userType';
 import {
   MeetingListResponseBody,
   MeetingCreateRequestBody,
@@ -43,7 +46,7 @@ export default [
         ({ leaveTime, attendanceCount, userIds, ...meeting }) => ({
           ...meeting,
           isMaster: false,
-          isCoffeeTime: false,
+          isCoffeeTime: true,
           tardyCount: 3,
         })
       ),
@@ -172,6 +175,48 @@ export default [
       return res(
         ctx.status(201),
         ctx.set('Location', `/meetings/${id}`),
+        ctx.delay(DELAY)
+      );
+    }
+  ),
+
+  rest.get<
+    DefaultBodyType,
+    Pick<MeetingPathParams, 'meetingId'>,
+    UserCoffeeStatsResponseBody | { message: string }
+  >(
+    `${process.env.API_SERVER_HOST}/meetings/:meetingId/coffees/use`,
+    (req, res, ctx) => {
+      const token = extractIdFromHeader(req);
+
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      const targetMeeting = meetings.find(
+        (meeting) => meeting.id === Number(token.id)
+      );
+
+      if (!targetMeeting) {
+        return res(ctx.status(404), ctx.delay(DELAY));
+      }
+
+      const userCoffeeStats = targetMeeting.userIds.map((id) => {
+        const targetUser = users.find((user) => user.id === id);
+
+        return {
+          id,
+          nickname: targetUser?.nickname || '',
+          coffeeCount: 2,
+        };
+      });
+
+      return res(
+        ctx.status(200),
+        ctx.json({ userCoffeeStats }),
         ctx.delay(DELAY)
       );
     }

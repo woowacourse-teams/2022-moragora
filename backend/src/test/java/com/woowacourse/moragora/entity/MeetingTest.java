@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -18,9 +17,7 @@ class MeetingTest {
         assertThatCode(() -> new Meeting(
                 "모임",
                 LocalDate.of(2022, 6, 11),
-                LocalDate.of(2022, 6, 14),
-                LocalTime.of(12, 0),
-                LocalTime.of(15, 0))
+                LocalDate.of(2022, 6, 14))
         ).doesNotThrowAnyException();
     }
 
@@ -31,9 +28,7 @@ class MeetingTest {
         assertThatThrownBy(() -> new Meeting(
                 "모임",
                 LocalDate.of(2022, 6, 15),
-                LocalDate.of(2022, 6, 14),
-                LocalTime.of(12, 0),
-                LocalTime.of(15, 0)
+                LocalDate.of(2022, 6, 14)
         )).isInstanceOf(IllegalStartEndDateException.class);
     }
 }
