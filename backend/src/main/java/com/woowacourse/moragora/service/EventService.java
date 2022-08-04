@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class EventService {
 
-    private static final int SCHEDULING_SUBTRACT_TIME = 30;
+    private static final int SCHEDULING_SUBTRACT_TIME = 1;
 
     private final Map<Event, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
     private final TaskScheduler taskScheduler;
