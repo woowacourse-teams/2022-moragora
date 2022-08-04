@@ -115,11 +115,11 @@ class AttendanceServiceTest {
         assertThat(response).usingRecursiveComparison()
                 .isEqualTo(new CoffeeStatsResponse(
                         List.of(
-                                new CoffeeStatResponse(1L, "아스피", 1),
-                                new CoffeeStatResponse(2L, "필즈", 3),
-                                new CoffeeStatResponse(3L, "포키", 1),
-                                new CoffeeStatResponse(4L, "썬", 1),
-                                new CoffeeStatResponse(5L, "우디", 1)
+                                new CoffeeStatResponse(1L, "아스피", 1L),
+                                new CoffeeStatResponse(2L, "필즈", 3L),
+                                new CoffeeStatResponse(3L, "포키", 1L),
+                                new CoffeeStatResponse(4L, "썬", 1L),
+                                new CoffeeStatResponse(5L, "우디", 1L)
                         ))
                 );
     }

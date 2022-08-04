@@ -19,7 +19,7 @@ public class CoffeeStatsResponse {
 
     public static CoffeeStatsResponse from(Map<User, Long> userCoffeeStats) {
         final List<CoffeeStatResponse> coffeeStatResponses = userCoffeeStats.keySet().stream()
-                .map(user -> CoffeeStatResponse.of(user, userCoffeeStats.get(user).intValue()))
+                .map(user -> CoffeeStatResponse.of(user, userCoffeeStats.get(user)))
                 .collect(Collectors.toList());
         return new CoffeeStatsResponse(coffeeStatResponses);
     }

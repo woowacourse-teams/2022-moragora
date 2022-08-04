@@ -98,10 +98,10 @@ class AttendanceControllerTest extends ControllerTest {
         final Long meetingId = 1L;
         final CoffeeStatsResponse coffeeStatsResponse = new CoffeeStatsResponse(
                 List.of(
-                        new CoffeeStatResponse(1L, "썬", 3),
-                        new CoffeeStatResponse(3L, "필즈", 2),
-                        new CoffeeStatResponse(5L, "포키", 1),
-                        new CoffeeStatResponse(6L, "쿤", 1)
+                        new CoffeeStatResponse(1L, "썬", 3L),
+                        new CoffeeStatResponse(3L, "필즈", 2L),
+                        new CoffeeStatResponse(5L, "포키", 1L),
+                        new CoffeeStatResponse(6L, "쿤", 1L)
                 )
         );
         given(attendanceService.countUsableCoffeeStack(any(Long.class)))
