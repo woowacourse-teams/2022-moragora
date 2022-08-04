@@ -30,9 +30,7 @@ public class EventRepositoryTest {
     @Test
     void save() {
         // given
-        final Meeting meeting = new Meeting("모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10));
+        final Meeting meeting = new Meeting("모임1");
 
         final Meeting savedMeeting = meetingRepository.save(meeting);
 
@@ -53,10 +51,8 @@ public class EventRepositoryTest {
     @Test
     void findByMeetingIdAndDateLessThanEqual() {
         // given
-        final Meeting meeting = new Meeting("모임1",
-                LocalDate.of(2022, 8, 1),
-                LocalDate.of(2022, 8, 10)
-        );
+        final Meeting meeting = new Meeting("모임1");
+
         final LocalTime entranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
 
@@ -88,10 +84,7 @@ public class EventRepositoryTest {
         // given
         final LocalTime enteranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
-        final Meeting meeting = new Meeting("모임1",
-                LocalDate.of(2022, 8, 1),
-                LocalDate.of(2022, 8, 10)
-        );
+        final Meeting meeting = new Meeting("모임1");
 
         final Meeting savedMeeting = meetingRepository.save(meeting);
 
@@ -121,10 +114,7 @@ public class EventRepositoryTest {
         // given
         final LocalTime enteranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
-        final Meeting meeting = new Meeting("모임1",
-                LocalDate.of(2022, 8, 1),
-                LocalDate.of(2022, 8, 10)
-        );
+        final Meeting meeting = new Meeting("모임1");
 
         final Meeting savedMeeting = meetingRepository.save(meeting);
 
@@ -156,20 +146,17 @@ public class EventRepositoryTest {
     })
     void countByDateGreaterThanEqual(final int month, final int day, final Long expected) {
         // given
-        final LocalTime enteranceTime = LocalTime.of(10, 0);
+        final LocalTime entranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
-        final Meeting meeting = new Meeting("모임1",
-                LocalDate.of(2022, 8, 1),
-                LocalDate.of(2022, 8, 10)
-        );
+        final Meeting meeting = new Meeting("모임1");
         final Meeting savedMeeting = meetingRepository.save(meeting);
 
         final Event event1 = new Event(
-                LocalDate.of(2022, 8, 3), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 3), entranceTime, leaveTime, savedMeeting);
         final Event event2 = new Event(
-                LocalDate.of(2022, 8, 4), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 4), entranceTime, leaveTime, savedMeeting);
         final Event event3 = new Event(
-                LocalDate.of(2022, 8, 5), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 5), entranceTime, leaveTime, savedMeeting);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);

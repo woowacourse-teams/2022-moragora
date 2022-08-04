@@ -6,8 +6,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.CoffeeStatResponse;
 import com.woowacourse.moragora.dto.CoffeeStatsResponse;
+import com.woowacourse.moragora.dto.EventRequest;
+import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
+import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.meeting.ClosingTimeExcessException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
@@ -32,6 +35,9 @@ class AttendanceServiceTest {
 
     @Autowired
     private AttendanceService attendanceService;
+
+    @Autowired
+    private EventService eventService;
 
     @Autowired
     private ServerTimeManager serverTimeManager;
@@ -69,9 +75,8 @@ class AttendanceServiceTest {
     @Test
     void updateAttendance_throwsException_ifParticipantNotFound() {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest("meeting", LocalDate.now(), LocalDate.now(),
-                LocalTime.now(),
-                LocalTime.now(), List.of(2L, 3L, 4L, 5L));
+        final MeetingRequest meetingRequest = new MeetingRequest("meeting",
+                List.of(2L, 3L, 4L, 5L));
         final Long meetingId = meetingService.save(meetingRequest, 1L);
         final Long userId = 6L;
 
@@ -101,25 +106,24 @@ class AttendanceServiceTest {
         // given
         final Long meetingId = 1L;
 
-        // 출석부 데이터 생성
-        final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
-        serverTimeManager.refresh(LocalDateTime.of(2022, 7, 15, 10, 0));
-        meetingService.findById(meetingId, 1L);
-        attendanceService.updateAttendance(meetingId, 1L, userAttendanceRequest);
+        final EventRequest eventRequest = EventRequest.builder()
+                .entranceTime(LocalTime.of(10, 0))
+                .leaveTime(LocalTime.of(12, 0))
+                .date(LocalDate.of(2022, 7, 16)).build();
+        final List<Event> events = eventService.save(new EventsRequest(List.of(eventRequest)), meetingId);
+        eventService.saveAttendances(events.get(0));
 
         // when
-        serverTimeManager.refresh(LocalDateTime.of(2022, 7, 15, 10, 6));
         final CoffeeStatsResponse response = attendanceService.countUsableCoffeeStack(meetingId);
 
         // then
         assertThat(response).usingRecursiveComparison()
                 .isEqualTo(new CoffeeStatsResponse(
                         List.of(
-                                new CoffeeStatResponse(1L, "아스피", 1L),
+                                new CoffeeStatResponse(1L, "아스피", 2L),
                                 new CoffeeStatResponse(2L, "필즈", 3L),
                                 new CoffeeStatResponse(3L, "포키", 1L),
-                                new CoffeeStatResponse(4L, "썬", 1L),
-                                new CoffeeStatResponse(5L, "우디", 1L)
+                                new CoffeeStatResponse(4L, "썬", 1L)
                         ))
                 );
     }
@@ -129,14 +133,13 @@ class AttendanceServiceTest {
     void disableUsedTardy() {
         // given
         final Long meetingId = 1L;
-        final Long loginId = 1L;
 
-        final LocalDateTime dateTime1 = LocalDateTime.of(2022, 7, 14, 10, 10);
-        serverTimeManager.refresh(dateTime1);
-        meetingService.findById(meetingId, loginId);
-        final LocalDateTime dateTime2 = LocalDateTime.of(2022, 7, 15, 10, 10);
-        serverTimeManager.refresh(dateTime2);
-        meetingService.findById(meetingId, loginId);
+        final EventRequest eventRequest = EventRequest.builder()
+                .entranceTime(LocalTime.of(10, 0))
+                .leaveTime(LocalTime.of(12, 0))
+                .date(LocalDate.of(2022, 7, 16)).build();
+        final List<Event> events = eventService.save(new EventsRequest(List.of(eventRequest)), meetingId);
+        eventService.saveAttendances(events.get(0));
 
         // when, then
         assertThatCode(() -> attendanceService.disableUsedTardy(meetingId))

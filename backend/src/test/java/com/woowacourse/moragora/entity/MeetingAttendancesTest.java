@@ -33,7 +33,7 @@ class MeetingAttendancesTest {
         final User user1 = new User("sun@gmail.com", encodedPassword, "sun");
         final User user2 = new User("kun@gmail.com", encodedPassword, "kun");
         final User user3 = new User("forki@gmail.com", encodedPassword, "forki");
-        final Meeting meeting = new Meeting("미팅1", date, date);
+        final Meeting meeting = new Meeting("미팅1");
         final Event event = new Event(date, time, time, meeting);
         final Participant participant1 = new Participant(user1, meeting, true);
         final Participant participant2 = new Participant(user2, meeting, false);
@@ -67,7 +67,7 @@ class MeetingAttendancesTest {
         final LocalDate startDate = endDate.minusDays(1);
         final LocalTime time = now.toLocalTime();
 
-        final Meeting meeting = new Meeting("미팅1", startDate, endDate);
+        final Meeting meeting = new Meeting("미팅1");
         final Event event1 = new Event(startDate, time, time, meeting);
         final Event event2 = new Event(endDate, time, time, meeting);
         final Participant participant1 = new Participant(user1, meeting, true);
@@ -106,7 +106,7 @@ class MeetingAttendancesTest {
         final LocalDate endDate = now.toLocalDate();
         final LocalDate startDate = endDate.minusDays(1);
         final LocalTime time = now.toLocalTime();
-        final Meeting meeting = new Meeting("미팅1", startDate, endDate);
+        final Meeting meeting = new Meeting("미팅1");
         final Event event1 = new Event(startDate, time, time, meeting);
         final Event event2 = new Event(endDate, time, time, meeting);
 

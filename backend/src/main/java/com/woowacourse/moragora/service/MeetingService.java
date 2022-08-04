@@ -70,10 +70,6 @@ public class MeetingService {
 
         saveParticipants(meeting, loginUser, users);
 
-        request.getStartDate().datesUntil(request.getEndDate().plusDays(1))
-                .map(date -> new Event(date, request.getEntranceTime(), request.getLeaveTime(), meeting))
-                .forEach(eventRepository::save);
-
         return meeting.getId();
     }
 
@@ -97,9 +93,6 @@ public class MeetingService {
                 .orElse(null);
 
         final boolean hasEventToday = hasUpcomingEvent && event.isSameDate(today);
-        if (hasEventToday) {
-            putAttendanceIfAbsent(meeting, participants);
-        }
 
         final MeetingAttendances meetingAttendances = findAttendancesByMeeting(meeting.getParticipantIds());
         final boolean isActive = hasEventToday && serverTimeManager.isAttendanceTime(event.getEntranceTime());
@@ -121,8 +114,7 @@ public class MeetingService {
                         meetingAttendances, isOver, participant))
                 .collect(Collectors.toList());
 
-        return MeetingResponse.of(
-                meeting, isMaster, isActive, participantResponses, meetingAttendances, hasUpcomingEvent, events.size());
+        return MeetingResponse.of(meeting, isMaster, isActive, participantResponses, meetingAttendances, hasUpcomingEvent, events.size());
     }
 
 
