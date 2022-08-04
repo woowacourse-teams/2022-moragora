@@ -105,20 +105,21 @@ const MeetingPage = () => {
           <h1>{meetingQuery.data.body.name}</h1>
         </S.TitleSection>
         <DivideLine />
-        {!meetingQuery.data.body.hasUpcomingEvent && (
-          <>
-            <S.EmptyStateBox>
-              <S.EmptyStateTitle>다가오는 일정이 없습니다.</S.EmptyStateTitle>
-              <S.EmptyStateParagraph>
-                다음 일정을 설정하세요.
-              </S.EmptyStateParagraph>
-              <S.EventCreateLink to={`/meeting/${id}/config`}>
-                일정 설정하기
-              </S.EventCreateLink>
-            </S.EmptyStateBox>
-            <DivideLine />
-          </>
-        )}
+        {!meetingQuery.data.body.hasUpcomingEvent &&
+          meetingQuery.data.body.isMaster && (
+            <>
+              <S.EmptyStateBox>
+                <S.EmptyStateTitle>다가오는 일정이 없습니다.</S.EmptyStateTitle>
+                <S.EmptyStateParagraph>
+                  다음 일정을 설정하세요.
+                </S.EmptyStateParagraph>
+                <S.EventCreateLink to={`/meeting/${id}/config`}>
+                  일정 설정하기
+                </S.EventCreateLink>
+              </S.EmptyStateBox>
+              <DivideLine />
+            </>
+          )}
         <S.MeetingDetailBox>
           <S.MeetingStatusSection>
             <S.SectionTitle>출결상황</S.SectionTitle>
