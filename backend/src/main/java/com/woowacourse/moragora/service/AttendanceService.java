@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.moragora.dto.CoffeeStatsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
@@ -22,7 +23,7 @@ import com.woowacourse.moragora.repository.UserRepository;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,18 +74,18 @@ public class AttendanceService {
         attendance.changeAttendanceStatus(request.getAttendanceStatus());
     }
 
+    public CoffeeStatsResponse countUsableCoffeeStack(final Long meetingId) {
+        final MeetingAttendances meetingAttendances = findMeetingAttendancesBy(meetingId);
+        validateEnoughTardyCountToDisable(meetingAttendances);
+        final Map<User, Long> userCoffeeStats = meetingAttendances.countUsableAttendancesPerUsers();
+        return CoffeeStatsResponse.from(userCoffeeStats);
+    }
+
     @Transactional
     public void disableUsedTardy(final Long meetingId) {
-        final Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
-        final List<Participant> participants = meeting.getParticipants();
-        final List<Long> participantIds = participants.stream()
-                .map(Participant::getId)
-                .collect(Collectors.toList());
-        final List<Attendance> attendances = attendanceRepository.findByParticipantIdIn(participantIds);
-        final MeetingAttendances meetingAttendances = new MeetingAttendances(attendances, participants.size());
+        final MeetingAttendances meetingAttendances = findMeetingAttendancesBy(meetingId);
         validateEnoughTardyCountToDisable(meetingAttendances);
-        meetingAttendances.disableAttendances(participants.size());
+        meetingAttendances.disableAttendances();
     }
 
     private void validateAttendanceTime(final Meeting meeting) {
@@ -95,6 +96,14 @@ public class AttendanceService {
         if (serverTimeManager.isOverClosingTime(entranceTime)) {
             throw new ClosingTimeExcessException();
         }
+    }
+
+    private MeetingAttendances findMeetingAttendancesBy(final Long meetingId) {
+        final Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        final List<Long> participantIds = meeting.getParticipantIds();
+        final List<Attendance> attendances = attendanceRepository.findByParticipantIdIn(participantIds);
+        return new MeetingAttendances(attendances, participantIds.size());
     }
 
     private void validateEnoughTardyCountToDisable(final MeetingAttendances attendances) {

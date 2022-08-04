@@ -3,9 +3,11 @@ package com.woowacourse.moragora.controller;
 import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
 import com.woowacourse.auth.support.MasterAuthorization;
+import com.woowacourse.moragora.dto.CoffeeStatsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.service.AttendanceService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -32,6 +34,12 @@ public class AttendanceController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/meetings/{meetingId}/coffees/use")
+    public ResponseEntity<CoffeeStatsResponse> showUserCoffeeStats(@PathVariable final Long meetingId) {
+        final CoffeeStatsResponse response = attendanceService.countUsableCoffeeStack(meetingId);
+        return ResponseEntity.ok(response);
+    }
+
     @MasterAuthorization
     @PostMapping("/meetings/{meetingId}/coffees/use")
     public ResponseEntity<Void> useCoffeeStack(@PathVariable final Long meetingId,
@@ -39,5 +47,4 @@ public class AttendanceController {
         attendanceService.disableUsedTardy(meetingId);
         return ResponseEntity.noContent().build();
     }
-
 }
