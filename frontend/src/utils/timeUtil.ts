@@ -31,3 +31,47 @@ export const dateToFormattedString = (date: Date) => {
 
   return `${year}-${month}-${day}`;
 };
+
+export const getAllDatesInMonth = (year: number, month: number) => {
+  const date = new Date(year, month, 1);
+
+  const dates = [];
+
+  while (date.getMonth() === month) {
+    dates.push(new Date(date));
+    date.setDate(date.getDate() + 1);
+  }
+
+  return dates;
+};
+
+export const getlastDateOfMonth = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+export const getAllSameDays = (day: number, begin: Date, end: Date) => {
+  const dates: Date[] = [];
+  const beginDate = new Date(begin);
+  const endDate = new Date(
+    end.getFullYear(),
+    end.getMonth(),
+    end.getDate() + 1
+  );
+
+  endDate.setMilliseconds(-1);
+  beginDate.setDate(beginDate.getDate() + 1);
+
+  if (day > 6) {
+    return dates;
+  }
+
+  while (beginDate.getDay() !== day) {
+    beginDate.setDate(beginDate.getDate() + 1);
+  }
+
+  while (beginDate.getTime() <= endDate.getTime()) {
+    dates.push(new Date(beginDate));
+    beginDate.setDate(beginDate.getDate() + 7);
+  }
+
+  return dates;
+};

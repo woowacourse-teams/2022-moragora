@@ -1,6 +1,7 @@
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
 import DialogButton from 'components/@shared/DialogButton';
+import { Link } from 'react-router-dom';
 
 export const Layout = styled.div`
   display: flex;
@@ -29,7 +30,12 @@ export const TitleSection = styled.section`
   padding: 0.75rem;
 `;
 
-export const MeetingDetailSection = styled.section`
+export const MeetingDetailBox = styled.div`
+  overflow-x: hidden;
+  overflow-y: scroll;
+`;
+
+export const MeetingStatusSection = styled.section`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -77,7 +83,6 @@ export const UserListSection = styled.section`
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow: hidden;
   width: 100%;
 `;
 
@@ -105,4 +110,48 @@ export const UserDataBox = styled.div`
 export const UserListBox = styled.div`
   display: flex;
   overflow: hidden;
+`;
+
+export const EmptyStateBox = styled.div`
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+`;
+
+export const EmptyStateTitle = styled.h2`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: ${({ theme: { colors } }) => colors['subtle-dark']};
+`;
+
+export const EmptyStateParagraph = styled.p`
+  font-size: 1rem;
+  color: ${({ theme: { colors } }) => colors['subtle-light']};
+`;
+
+export const EventCreateLink = styled(Link)`
+  // reset
+  color: inherit;
+  text-decoration: inherit;
+
+  margin-top: 1.5rem;
+  text-align: center;
+  width: 100%;
+  background-color: ${({ theme: { colors } }) => colors['primary']};
+  color: ${({ theme: { colors } }) => colors['white']};
+  padding: 0.75rem 0;
+  border-radius: 1.5rem;
+
+  :hover {
+    background-color: ${({ theme: { colors } }) => colors['primary-subtle']};
+  }
+
+  :disabled {
+    background-color: ${({ theme: { colors } }) => colors['background']};
+    color: ${({ theme: { colors } }) => colors['subtle-light']};
+    pointer-events: none;
+  }
 `;
