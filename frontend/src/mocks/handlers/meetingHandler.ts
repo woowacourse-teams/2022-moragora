@@ -2,14 +2,15 @@ import { DefaultBodyType, rest } from 'msw';
 import meetings from 'mocks/fixtures/meeting';
 import users from 'mocks/fixtures/users';
 import {
+  AttendanceStatus,
   UserAttendanceCheckRequestBody,
   UserCoffeeStatsResponseBody,
 } from 'types/userType';
 import {
   MeetingListResponseBody,
   MeetingCreateRequestBody,
+  MeetingResponseBody,
 } from 'types/meetingType';
-import { addMinute } from 'utils/timeUtil';
 import { DELAY } from 'mocks/configs';
 import { extractIdFromHeader } from 'mocks/utils';
 
@@ -41,15 +42,17 @@ export default [
     const myMeetings = meetings.filter(({ userIds }) =>
       userIds.includes(user.id)
     );
+
     const responseBody: MeetingListResponseBody = {
-      meetings: myMeetings.map(
-        ({ leaveTime, attendanceCount, userIds, ...meeting }) => ({
-          ...meeting,
-          isMaster: false,
-          isCoffeeTime: true,
-          tardyCount: 3,
-        })
-      ),
+      meetings: myMeetings.map(({ attendanceCount, userIds, ...meeting }) => ({
+        ...meeting,
+        isMaster: false,
+        isCoffeeTime: true,
+        tardyCount: 3,
+        hasUpcomingEvent: false,
+        entranceTime: '10:00',
+        closingTime: '10:05',
+      })),
     };
 
     return res(ctx.status(200), ctx.json(responseBody), ctx.delay(DELAY));
@@ -83,22 +86,33 @@ export default [
         return res(ctx.status(404), ctx.delay(DELAY));
       }
 
+      const joinedUsers = meeting.userIds.map((id) => {
+        const { password, accessToken, ...user } = users[id];
+
+        return {
+          ...user,
+          attendanceStatus: 'tardy' as AttendanceStatus,
+          tardyCount: 3,
+        };
+      });
+
+      const isCoffeeTime =
+        joinedUsers.reduce((next, { tardyCount }) => next + tardyCount, 0) >=
+        joinedUsers.length;
+
       const { userIds, ...joinedMeeting } = {
         ...meeting,
-        isMaster: false,
-        isCoffeeTime: false,
-        users: meeting.userIds.map((id) => {
-          const { password, accessToken, ...user } = users[id];
-
-          return {
-            ...user,
-            attendanceStatus: 'tardy',
-            tardyCount: 3,
-          };
-        }),
+        isMaster: true,
+        isCoffeeTime,
+        hasUpcomingEvent: true,
+        entranceTime: '10:00',
+        leaveTime: '18:00',
+        users: joinedUsers,
       };
 
-      return res(ctx.status(200), ctx.json(joinedMeeting), ctx.delay(DELAY));
+      const responseBody: MeetingResponseBody = joinedMeeting;
+
+      return res(ctx.status(200), ctx.json(responseBody), ctx.delay(DELAY));
     }
   ),
 
@@ -167,8 +181,7 @@ export default [
       meetings.push({
         ...meeting,
         id,
-        closingTime: addMinute(meeting.entranceTime, 5),
-        isActive: true,
+        isActive: false,
         attendanceCount: 0,
       });
 
