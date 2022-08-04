@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.controller;
 
+import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
 import com.woowacourse.auth.support.MasterAuthorization;
 import com.woowacourse.moragora.dto.EventsRequest;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Authentication
 public class EventController {
 
     private final EventService eventService;
@@ -28,7 +30,7 @@ public class EventController {
                                     @PathVariable final Long meetingId,
                                     @AuthenticationPrincipal final Long loginId) {
         final List<Event> savedEvent = eventService.save(request, meetingId);
-        eventService.saveAll(savedEvent);
+        eventService.saveSchedules(savedEvent);
         return ResponseEntity.noContent().build();
     }
 }

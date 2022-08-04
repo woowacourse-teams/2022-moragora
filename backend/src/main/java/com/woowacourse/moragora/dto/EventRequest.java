@@ -5,6 +5,7 @@ import com.woowacourse.moragora.entity.Meeting;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import javax.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,6 +28,7 @@ public class EventRequest {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
 
+    @Builder
     public EventRequest(final LocalTime entranceTime, final LocalTime leaveTime, final LocalDate date) {
         this.entranceTime = entranceTime;
         this.leaveTime = leaveTime;
@@ -35,5 +37,14 @@ public class EventRequest {
 
     public Event toEntity(final Meeting meeting) {
         return new Event(date, entranceTime, leaveTime, meeting);
+    }
+
+    @Override
+    public String toString() {
+        return "EventRequest{" +
+                "entranceTime=" + entranceTime +
+                ", leaveTime=" + leaveTime +
+                ", date=" + date +
+                '}';
     }
 }

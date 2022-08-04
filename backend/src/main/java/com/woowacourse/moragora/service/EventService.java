@@ -55,7 +55,7 @@ public class EventService {
     }
 
     @Transactional
-    public void saveAll(final List<Event> events) {
+    public void saveSchedules(final List<Event> events) {
         events.forEach(event -> {
             ScheduledFuture<?> task = taskScheduler.schedule(
                     () -> saveAttendances(event), Date.from(getInstant(event)));
@@ -63,13 +63,13 @@ public class EventService {
         });
     }
 
-    public void saveAttendances(final Event param) {
-        final Event event = eventRepository.findById(param.getId())
+    public void saveAttendances(final Event event) {
+        final Event foundEvent = eventRepository.findById(event.getId())
                 .orElseThrow(EventNotFoundException::new);
-        final Meeting meeting = event.getMeeting();
+        final Meeting meeting = foundEvent.getMeeting();
         final List<Participant> participants = meeting.getParticipants();
         final List<Attendance> attendances = participants.stream()
-                .map(participant -> new Attendance(Status.TARDY, false, participant, event))
+                .map(participant -> new Attendance(Status.TARDY, false, participant, foundEvent))
                 .collect(Collectors.toList());
         attendanceRepository.saveAll(attendances);
     }

@@ -4,6 +4,7 @@ import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ public class EventsRequest {
 
     private List<EventRequest> events;
 
+    @Builder
     public EventsRequest(final List<EventRequest> events) {
         this.events = events;
     }
@@ -21,5 +23,12 @@ public class EventsRequest {
         return events.stream()
                 .map(event -> event.toEntity(meeting))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public String toString() {
+        return "EventsRequest{" +
+                "events=" + events +
+                '}';
     }
 }
