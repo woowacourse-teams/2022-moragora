@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -36,6 +37,7 @@ public class Event {
     @JoinColumn(name = "meeting_id")
     private Meeting meeting;
 
+    @Builder
     public Event(final Long id,
                  final LocalDate date,
                  final LocalTime entranceTime,

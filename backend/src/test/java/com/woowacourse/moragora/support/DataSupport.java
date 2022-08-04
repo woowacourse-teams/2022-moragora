@@ -61,10 +61,7 @@ public class DataSupport {
         return participant;
     }
 
-    public Attendance saveAttendance(final Participant participant, final LocalDate attendanceDate, final
-    Status status) {
-        final Event event = eventRepository
-                .save(new Event(attendanceDate, ENTRANCE_TIME, LEAVE_TIME, participant.getMeeting()));
+    public Attendance saveAttendance(final Participant participant, final Event event, final Status status) {
         return attendanceRepository.save(new Attendance(status, false, participant, event));
     }
 
@@ -93,7 +90,7 @@ public class DataSupport {
         return meetingRepository.save(meeting);
     }
 
-    public Event saveEvent(final Meeting meeting) {
-        return eventRepository.save(new Event())
+    public Event saveEvent(final Event event) {
+        return eventRepository.save(event);
     }
 }
