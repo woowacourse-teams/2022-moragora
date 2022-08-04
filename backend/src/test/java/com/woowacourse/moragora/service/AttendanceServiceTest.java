@@ -99,27 +99,16 @@ class AttendanceServiceTest {
     @Test
     void countUsableCoffeeStack() {
         // given
-        // 모임 생성
-//        final LocalDate endDate = LocalDate.now();
-//        final LocalDate startDate = endDate.minusDays(1);
-//        final LocalTime now = LocalTime.now();
-//        final MeetingRequest meetingRequest = new MeetingRequest("meeting",
-//                startDate,
-//                endDate,
-//                now,
-//                now,
-//                List.of(2L, 3L)
-//        );
         final Long meetingId = 1L;
 
         // 출석부 데이터 생성
         final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
-        serverTimeManager.refresh(LocalDateTime.of(2022, 7, 15, 10, 00));
+        serverTimeManager.refresh(LocalDateTime.of(2022, 7, 15, 10, 0));
         meetingService.findById(meetingId, 1L);
         attendanceService.updateAttendance(meetingId, 1L, userAttendanceRequest);
 
         // when
-        serverTimeManager.refresh(LocalDateTime.of(2022, 7, 15, 10, 06));
+        serverTimeManager.refresh(LocalDateTime.of(2022, 7, 15, 10, 6));
         final CoffeeStatsResponse response = attendanceService.countUsableCoffeeStack(meetingId);
 
         // then
