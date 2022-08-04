@@ -51,8 +51,10 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
     void findOne() {
         // given
         final int id = 1;
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 10, 0);
 
+        given(serverTimeManager.isAttendanceTime(any(LocalTime.class)))
+                .willReturn(true);
         given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
                 .willReturn(false);
         given(serverTimeManager.getDate())
@@ -71,8 +73,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("attendanceCount", equalTo(3))
                 .body("startDate", equalTo("2022-07-10"))
                 .body("endDate", equalTo("2022-08-10"))
-                .body("entranceTime", equalTo("10:00"))
-                .body("leaveTime", equalTo("18:00"))
+                .body("isActive", equalTo(true))
                 .body("isMaster", equalTo(true))
                 .body("isCoffeeTime", equalTo(false))
                 .body("hasUpcomingEvent", equalTo(true))

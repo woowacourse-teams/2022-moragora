@@ -98,6 +98,7 @@ public class MeetingService {
         final List<Event> events = eventRepository.findByMeetingIdAndDateLessThanEqual(
                 meetingId, today);
 
+        final boolean isActive = serverTimeManager.isAttendanceTime(event.getEntranceTime());
         final boolean isMaster = participants.stream()
                 .filter(Participant::getIsMaster)
                 .anyMatch(participant -> participant.getUser().getId() == loginId);
@@ -105,7 +106,7 @@ public class MeetingService {
         final boolean hasUpcomingEvent = eventRepository.countByMeetingIdAndDateGreaterThanEqual(meetingId, today) > 0;
 
         return MeetingResponse.of(
-                meeting, isMaster, participantResponses, meetingAttendances, event, hasUpcomingEvent, events.size());
+                meeting, isMaster, isActive, participantResponses, meetingAttendances, hasUpcomingEvent, events.size());
     }
 
 

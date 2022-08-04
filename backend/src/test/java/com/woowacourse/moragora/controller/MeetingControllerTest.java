@@ -272,11 +272,9 @@ class MeetingControllerTest extends ControllerTest {
         final int attendanceCount = 0;
         final LocalDate startDate = LocalDate.of(2022, 7, 10);
         final LocalDate endDate = LocalDate.of(2022, 8, 10);
-        final LocalTime entranceTime = LocalTime.of(10, 0);
-        final LocalTime leaveTime = LocalTime.of(18, 0);
         final boolean isMaster = true;
         final MeetingResponse meetingResponse = new MeetingResponse(id, name, attendanceCount, startDate, endDate,
-                entranceTime, leaveTime, isMaster, false, true, participantResponses
+                true, isMaster, false, true, participantResponses
         );
 
         final Long loginId = validateToken("1");
@@ -293,8 +291,7 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.attendanceCount", equalTo(0)))
                 .andExpect(jsonPath("$.startDate", equalTo("2022-07-10")))
                 .andExpect(jsonPath("$.endDate", equalTo("2022-08-10")))
-                .andExpect(jsonPath("$.entranceTime", equalTo("10:00")))
-                .andExpect(jsonPath("$.leaveTime", equalTo("18:00")))
+                .andExpect(jsonPath("$.isActive", equalTo(true)))
                 .andExpect(jsonPath("$.isMaster", equalTo(true)))
                 .andExpect(jsonPath("$.isCoffeeTime", equalTo(false)))
                 .andExpect(jsonPath("$.hasUpcomingEvent", equalTo(true)))
@@ -311,8 +308,7 @@ class MeetingControllerTest extends ControllerTest {
                                         .description(attendanceCount),
                                 fieldWithPath("startDate").type(JsonFieldType.STRING).description(startDate),
                                 fieldWithPath("endDate").type(JsonFieldType.STRING).description(endDate),
-                                fieldWithPath("entranceTime").type(JsonFieldType.STRING).description(entranceTime),
-                                fieldWithPath("leaveTime").type(JsonFieldType.STRING).description(leaveTime),
+                                fieldWithPath("isActive").type(JsonFieldType.BOOLEAN).description(true),
                                 fieldWithPath("isMaster").type(JsonFieldType.BOOLEAN).description(isMaster),
                                 fieldWithPath("isCoffeeTime").type(JsonFieldType.BOOLEAN).description(false),
                                 fieldWithPath("hasUpcomingEvent").type(JsonFieldType.BOOLEAN).description(true),

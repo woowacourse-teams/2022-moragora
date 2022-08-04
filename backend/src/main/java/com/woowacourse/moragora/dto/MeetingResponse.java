@@ -1,10 +1,8 @@
 package com.woowacourse.moragora.dto;
 
-import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.MeetingAttendances;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.Getter;
@@ -21,8 +19,7 @@ public class MeetingResponse {
     private final long attendanceCount;
     private final LocalDate startDate;
     private final LocalDate endDate;
-    private final String entranceTime;
-    private final String leaveTime;
+    private final Boolean isActive;
     private final Boolean isMaster;
     private final Boolean isCoffeeTime;
     private final Boolean hasUpcomingEvent;
@@ -33,8 +30,7 @@ public class MeetingResponse {
                            final long attendanceCount,
                            final LocalDate startDate,
                            final LocalDate endDate,
-                           final LocalTime entranceTime,
-                           final LocalTime leaveTime,
+                           final Boolean isActive,
                            final Boolean isMaster,
                            final Boolean isCoffeeTime,
                            final Boolean hasUpcomingEvent,
@@ -44,8 +40,7 @@ public class MeetingResponse {
         this.attendanceCount = attendanceCount;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.entranceTime = entranceTime.format(TIME_FORMATTER);
-        this.leaveTime = leaveTime.format(TIME_FORMATTER);
+        this.isActive = isActive;
         this.isMaster = isMaster;
         this.isCoffeeTime = isCoffeeTime;
         this.hasUpcomingEvent = hasUpcomingEvent;
@@ -54,9 +49,9 @@ public class MeetingResponse {
 
     public static MeetingResponse of(final Meeting meeting,
                                      final boolean isMaster,
+                                     final boolean isActive,
                                      final List<ParticipantResponse> participantResponses,
                                      final MeetingAttendances meetingAttendances,
-                                     final Event event,
                                      final boolean hasUpcomingEvent,
                                      final int attendanceCount) {
         return new MeetingResponse(
@@ -65,8 +60,7 @@ public class MeetingResponse {
                 attendanceCount,
                 meeting.getStartDate(),
                 meeting.getEndDate(),
-                event.getEntranceTime(),
-                event.getLeaveTime(),
+                isActive,
                 isMaster,
                 meetingAttendances.isTardyStackFull(),
                 hasUpcomingEvent,
