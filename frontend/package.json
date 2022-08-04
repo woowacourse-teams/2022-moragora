@@ -19,7 +19,8 @@
   "scripts": {
     "cypress:open": "cypress open",
     "cypress:run": "cypress run --browser chrome",
-    "test": "npm run cypress:run",
+    "test:dev": "start-server-and-test start http://localhost:3000 cypress:open",
+    "test:ci": "start-server-and-test start http://localhost:3000 cypress:run",
     "start": "webpack serve --progress --config ./webpack/webpack.dev.js",
     "build": "webpack --progress --config ./webpack/webpack.prod.js",
     "storybook": "start-storybook -s public -p 6006",
@@ -61,6 +62,7 @@
     "msw": "^0.43.0",
     "msw-storybook-addon": "^1.6.3",
     "prettier": "^2.7.1",
+    "start-server-and-test": "^1.14.0",
     "storybook-addon-react-router-v6": "^0.1.10",
     "style-loader": "^3.3.1",
     "ts-loader": "^9.3.1",
