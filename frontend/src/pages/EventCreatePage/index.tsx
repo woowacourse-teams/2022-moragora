@@ -29,7 +29,7 @@ const EventCreatePage = () => {
   const navigate = useNavigate();
   const { events, selectedDates, clearSelectedDates, addEvents, removeEvents } =
     useContext(CalendarContext);
-  const { values, errors, onSubmit, register } = useForm();
+  const { values, errors, isValid, onSubmit, register } = useForm();
   const meetingQuery = useQuery(
     ['meeting', meetingId],
     getMeetingData(meetingId, user.accessToken)
@@ -144,7 +144,7 @@ const EventCreatePage = () => {
               `}
               type="submit"
               form="add-events-form"
-              disabled={selectedDates.length === 0}
+              disabled={!isValid || selectedDates.length === 0}
             >
               추가
             </DialogButton>
