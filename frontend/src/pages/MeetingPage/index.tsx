@@ -90,7 +90,6 @@ const MeetingPage = () => {
     );
   }
 
-  console.log(meetingQuery.data.body);
   return (
     <>
       {isModalOpened && (
