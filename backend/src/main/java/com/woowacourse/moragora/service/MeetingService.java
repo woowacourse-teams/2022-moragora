@@ -70,10 +70,6 @@ public class MeetingService {
 
         saveParticipants(meeting, loginUser, users);
 
-        request.getStartDate().datesUntil(request.getEndDate())
-                .map(date -> new Event(date, request.getEntranceTime(), request.getLeaveTime(), meeting))
-                .forEach(eventRepository::save);
-
         return meeting.getId();
     }
 
@@ -102,7 +98,7 @@ public class MeetingService {
                 .filter(Participant::getIsMaster)
                 .anyMatch(participant -> participant.getUser().getId() == loginId);
 
-        return MeetingResponse.of(meeting, isMaster, participantResponses, meetingAttendances, event, events.size());
+        return MeetingResponse.of(meeting, isMaster, participantResponses, meetingAttendances, events.size());
     }
 
 

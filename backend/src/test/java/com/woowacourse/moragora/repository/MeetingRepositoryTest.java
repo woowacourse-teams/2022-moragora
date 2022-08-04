@@ -3,7 +3,6 @@ package com.woowacourse.moragora.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.entity.Meeting;
-import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +20,7 @@ class MeetingRepositoryTest {
     @Test
     void save() {
         // given
-        final Meeting meeting = new Meeting("모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10));
+        final Meeting meeting = new Meeting("모임1");
 
         // when
         final Meeting savedMeeting = meetingRepository.save(meeting);

@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.entity;
 
+import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import javax.persistence.Column;
@@ -10,12 +11,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "event")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Event {
 
@@ -41,6 +43,7 @@ public class Event {
                  final LocalTime entranceTime,
                  final LocalTime leaveTime,
                  final Meeting meeting) {
+        validateEntranceLeaveTime(entranceTime, leaveTime);
         this.id = id;
         this.date = date;
         this.entranceTime = entranceTime;
@@ -54,5 +57,11 @@ public class Event {
 
     public boolean isSameDate(final LocalDate date) {
         return this.date.isEqual(date);
+    }
+
+    private void validateEntranceLeaveTime(final LocalTime entranceTime, final LocalTime leaveTime) {
+        if (entranceTime.isAfter(leaveTime)) {
+            throw new IllegalEntranceLeaveTimeException();
+        }
     }
 }

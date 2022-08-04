@@ -7,6 +7,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.auth.dto.LoginRequest;
+import com.woowacourse.moragora.dto.EventRequest;
+import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import io.restassured.response.ValidatableResponse;
@@ -31,10 +33,6 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         // given
         final MeetingRequest meetingRequest = new MeetingRequest(
                 "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
                 List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
 
@@ -69,10 +67,6 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("id", equalTo(id))
                 .body("name", equalTo("모임1"))
                 .body("attendanceCount", equalTo(3))
-                .body("startDate", equalTo("2022-07-10"))
-                .body("endDate", equalTo("2022-08-10"))
-                .body("entranceTime", equalTo("10:00"))
-                .body("leaveTime", equalTo("18:00"))
                 .body("isMaster", equalTo(true))
                 .body("users.id", containsInAnyOrder(1, 2, 3, 4, 5, 6, 7))
                 .body("users.nickname", containsInAnyOrder("아스피", "필즈", "포키",
@@ -92,25 +86,33 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         // given
         final MeetingRequest meetingRequest1 = new MeetingRequest(
                 "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
                 List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
         final MeetingRequest meetingRequest2 = new MeetingRequest(
                 "모임2",
-                LocalDate.of(2022, 7, 13),
-                LocalDate.of(2022, 8, 13),
-                LocalTime.of(9, 0),
-                LocalTime.of(17, 0),
                 List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
         final String token = signUpAndGetToken();
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
 
-        post("/meetings", meetingRequest1, token);
-        post("/meetings", meetingRequest2, token);
+        final ValidatableResponse post1 = post("/meetings", meetingRequest1, token);
+        final ValidatableResponse post2 = post("/meetings", meetingRequest2, token);
+        final Long meetingId1 = Long.parseLong(post1.extract().header("Location").split("/meetings/")[1]);
+        final Long meetingId2 = Long.parseLong(post2.extract().header("Location").split("/meetings/")[1]);
+        post("/meetings/" + meetingId1 + "/events", new EventsRequest(List.of(
+                        new EventRequest(
+                                LocalTime.of(10, 0),
+                                LocalTime.of(18, 0),
+                                LocalDate.of(2022, 7, 14)
+                        ))),
+                token);
+        post("/meetings/" + meetingId2 + "/events", new EventsRequest(List.of(
+                        new EventRequest(
+                                LocalTime.of(9, 0),
+                                LocalTime.of(17, 0),
+                                LocalDate.of(2022, 7, 14)
+                        ))),
+                token);
 
         given(serverTimeManager.isAttendanceTime(LocalTime.of(10, 0)))
                 .willReturn(false);
@@ -133,8 +135,6 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.id", containsInAnyOrder(2, 3))
                 .body("meetings.name", containsInAnyOrder("모임1", "모임2"))
                 .body("meetings.isActive", containsInAnyOrder(false, true))
-                .body("meetings.startDate", containsInAnyOrder("2022-07-10", "2022-07-13"))
-                .body("meetings.endDate", containsInAnyOrder("2022-08-10", "2022-08-13"))
                 .body("meetings.entranceTime", containsInAnyOrder("10:00", "09:00"))
                 .body("meetings.closingTime", containsInAnyOrder("10:05", "09:05"))
                 .body("meetings.tardyCount", containsInAnyOrder(0, 0))

@@ -3,6 +3,8 @@ package com.woowacourse.moragora.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.woowacourse.moragora.dto.EventRequest;
+import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
@@ -32,6 +34,9 @@ class MeetingServiceTest {
     private MeetingService meetingService;
 
     @Autowired
+    private EventService eventService;
+
+    @Autowired
     private ServerTimeManager serverTimeManager;
 
     @DisplayName("미팅 방을 저장한다.")
@@ -40,10 +45,6 @@ class MeetingServiceTest {
         // given
         final MeetingRequest meetingRequest = new MeetingRequest(
                 "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
                 List.of(2L, 3L, 4L, 5L, 6L, 7L)
         );
 
@@ -61,10 +62,6 @@ class MeetingServiceTest {
         final Long loginId = 1L;
         final MeetingRequest meetingRequest = new MeetingRequest(
                 "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
                 List.of(loginId, 2L, 3L, 4L, 5L, 6L, 7L)
         );
 
@@ -80,10 +77,6 @@ class MeetingServiceTest {
         final Long duplicatedId = 2L;
         final MeetingRequest meetingRequest = new MeetingRequest(
                 "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
                 List.of(duplicatedId, duplicatedId, 3L, 4L, 5L, 6L, 7L)
         );
 
@@ -98,10 +91,6 @@ class MeetingServiceTest {
         // given
         final MeetingRequest meetingRequest = new MeetingRequest(
                 "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
                 List.of()
         );
 
@@ -116,10 +105,6 @@ class MeetingServiceTest {
         // given
         final MeetingRequest meetingRequest = new MeetingRequest(
                 "모임1",
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
                 List.of(2L, 8L)
         );
 
@@ -138,10 +123,6 @@ class MeetingServiceTest {
                 1L,
                 "모임1",
                 3,
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
                 true, false, null
         );
 
@@ -167,10 +148,6 @@ class MeetingServiceTest {
                 1L,
                 "모임1",
                 3,
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
                 true, false, null
         );
 
@@ -196,10 +173,6 @@ class MeetingServiceTest {
                 1L,
                 "모임1",
                 3,
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
                 true, false,
                 List.of(
                         new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
@@ -233,10 +206,6 @@ class MeetingServiceTest {
                 1L,
                 "모임1",
                 3,
-                LocalDate.of(2022, 7, 10),
-                LocalDate.of(2022, 8, 10),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
                 true, false,
                 List.of(
                         new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
@@ -300,28 +269,21 @@ class MeetingServiceTest {
         // given
         final long userId = 1L;
         final LocalDate startDate = LocalDate.of(2022, 7, 10);
-        final LocalDate endDate = LocalDate.of(2022, 8, 10);
         final LocalTime entranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
-        final Meeting meeting = new Meeting(
-                "모임1",
-                startDate,
-                endDate);
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임2",
-                startDate,
-                endDate,
-                entranceTime,
-                leaveTime,
-                List.of(2L, 3L)
-        );
-
+        final Meeting meeting = new Meeting("모임1");
+        final MeetingRequest meetingRequest = new MeetingRequest("모임2", List.of(2L, 3L));
+        final EventsRequest eventsRequest = new EventsRequest(List.of(
+                new EventRequest(LocalTime.of(10, 0), LocalTime.of(18, 0), LocalDate.of(2022, 7, 12)),
+                new EventRequest(LocalTime.of(10, 0), LocalTime.of(18, 0), LocalDate.of(2022, 7, 13))
+        ));
         final Event event = new Event(1L, startDate, entranceTime, leaveTime, meeting);
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 12, 10, 5);
         serverTimeManager.refresh(dateTime);
 
-        meetingService.save(meetingRequest, userId);
+        final Long savedMeetingId = meetingService.save(meetingRequest, userId);
+        eventService.save(eventsRequest, savedMeetingId);
 
         // when
         final MyMeetingsResponse myMeetingsResponse = meetingService.findAllByUserId(userId);

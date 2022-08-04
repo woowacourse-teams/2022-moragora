@@ -10,9 +10,7 @@ import com.woowacourse.moragora.exception.meeting.ClosingTimeExcessException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.support.ServerTimeManager;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,9 +64,8 @@ class AttendanceServiceTest {
     @Test
     void updateAttendance_throwsException_ifParticipantNotFound() {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest("meeting", LocalDate.now(), LocalDate.now(),
-                LocalTime.now(),
-                LocalTime.now(), List.of(2L, 3L, 4L, 5L));
+        final MeetingRequest meetingRequest = new MeetingRequest("meeting",
+                List.of(2L, 3L, 4L, 5L));
         final Long meetingId = meetingService.save(meetingRequest, 1L);
         final Long userId = 6L;
 
