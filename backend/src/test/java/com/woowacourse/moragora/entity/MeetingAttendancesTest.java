@@ -1,5 +1,9 @@
 package com.woowacourse.moragora.entity;
 
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.UserFixtures.FORKY;
+import static com.woowacourse.moragora.support.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.UserFixtures.SUN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.entity.user.EncodedPassword;
@@ -56,14 +60,13 @@ class MeetingAttendancesTest {
     @ValueSource(ints = {1, 2, 3})
     void disableAttendances(final int sizeToDisable) {
         // given
-        final EncodedPassword encodedPassword = EncodedPassword.fromRawValue("qwer1234!");
         final LocalDateTime now = LocalDateTime.now();
         final LocalDate date = now.toLocalDate();
-        final LocalTime time = now.toLocalTime();
-        final User user1 = new User("sun@gmail.com", encodedPassword, "sun");
-        final User user2 = new User("kun@gmail.com", encodedPassword, "kun");
-        final User user3 = new User("forki@gmail.com", encodedPassword, "forki");
-        final Meeting meeting = new Meeting("미팅1", date, date, time, time);
+
+        final User user1 = KUN.create();
+        final User user2 = SUN.create();
+        final User user3 = FORKY.create();
+        final Meeting meeting = MORAGORA.create();
         final Participant participant1 = new Participant(user1, meeting, true);
         final Participant participant2 = new Participant(user2, meeting, false);
         final Participant participant3 = new Participant(user3, meeting, false);

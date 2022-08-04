@@ -66,7 +66,7 @@ class AttendanceServiceTest {
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 1);
         serverTimeManager.refresh(dateTime);
-        dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 1), Status.TARDY, false);
+        dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 1), false, Status.TARDY);
 
         // when, then
         assertThatCode(() -> attendanceService.updateAttendance(meeting.getId(), user.getId(), request))
@@ -141,18 +141,17 @@ class AttendanceServiceTest {
     @Test
     void disableUsedTardy() {
         // given
-        final Long meetingId = 1L;
-        final Long loginId = 1L;
+        final Meeting meeting = MORAGORA.create();
+        final User user = KUN.create();
 
-        final LocalDateTime dateTime1 = LocalDateTime.of(2022, 7, 14, 10, 10);
-        serverTimeManager.refresh(dateTime1);
-        meetingService.findById(meetingId, loginId);
-        final LocalDateTime dateTime2 = LocalDateTime.of(2022, 7, 15, 10, 10);
-        serverTimeManager.refresh(dateTime2);
-        meetingService.findById(meetingId, loginId);
+        final Participant participant = dataSupport.saveParticipant(user, meeting);
+        dataSupport.saveAttendance(participant, meeting.getStartDate(), Status.TARDY);
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 2, 10, 0);
+        serverTimeManager.refresh(dateTime);
 
         // when, then
-        assertThatCode(() -> attendanceService.disableUsedTardy(meetingId))
+        assertThatCode(() -> attendanceService.disableUsedTardy(meeting.getId()))
                 .doesNotThrowAnyException();
     }
 }

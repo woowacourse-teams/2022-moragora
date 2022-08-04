@@ -1,5 +1,8 @@
 package com.woowacourse.auth.service;
 
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.UserFixtures.PHILLZ;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -7,7 +10,12 @@ import com.woowacourse.auth.dto.LoginRequest;
 import com.woowacourse.auth.dto.LoginResponse;
 import com.woowacourse.auth.exception.AuthorizationFailureException;
 import com.woowacourse.moragora.dto.UserRequest;
+import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.service.UserService;
+import com.woowacourse.moragora.support.DataSupport;
+import com.woowacourse.moragora.support.DatabaseCleanUp;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +31,18 @@ public class AuthServiceTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private DataSupport dataSupport;
+
+    @Autowired
+    private DatabaseCleanUp databaseCleanUp;
+
+    @BeforeEach
+    void setUp() {
+        databaseCleanUp.afterPropertiesSet();
+        databaseCleanUp.execute();
+    }
 
     @DisplayName("로그인 정보를 받아 토큰을 생성한다.")
     @Test
@@ -76,21 +96,31 @@ public class AuthServiceTest {
     @Test
     void isMaster() {
         // given
-        final Long meetingId = 1L;
-        final Long loginId = 1L;
+        final User user1 = dataSupport.saveUser(KUN.create());
+        final User user2 = dataSupport.saveUser(PHILLZ.create());
+
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        dataSupport.saveParticipant(user1, meeting, true);
+        dataSupport.saveParticipant(user2, meeting, false);
 
         // when, then
-        assertThat(authService.isMaster(meetingId, loginId)).isTrue();
+        assertThat(authService.isMaster(meeting.getId(), user1.getId())).isTrue();
     }
 
     @DisplayName("해당 유저가 해당 미팅의 마스터인지 체크한다(아닌 경우)")
     @Test
     void isMaster_Not() {
         // given
-        final Long meetingId = 1L;
-        final Long loginId = 2L;
+        final User user1 = dataSupport.saveUser(KUN.create());
+        final User user2 = dataSupport.saveUser(PHILLZ.create());
+
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        dataSupport.saveParticipant(user1, meeting, true);
+        dataSupport.saveParticipant(user2, meeting, false);
 
         // when, then
-        assertThat(authService.isMaster(meetingId, loginId)).isFalse();
+        assertThat(authService.isMaster(meeting.getId(), user2.getId())).isFalse();
     }
 }

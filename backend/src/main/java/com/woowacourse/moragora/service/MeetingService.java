@@ -100,6 +100,12 @@ public class MeetingService {
         return new MyMeetingsResponse(myMeetingResponses);
     }
 
+    private MeetingAttendances getMeetingAttendances(final Participant participant) {
+        final Meeting meeting = participant.getMeeting();
+        final List<Participant> participants = meeting.getParticipants();
+        return findAttendancesByMeeting(participants);
+    }
+
     /**
      * 참가자 userIds 내부에 loginId가 있는지 검증해야 userIds.size()가 0인지 검증이 정상적으로 이루어집니다.
      */
