@@ -70,7 +70,7 @@ public class MeetingService {
 
         saveParticipants(meeting, loginUser, users);
 
-        request.getStartDate().datesUntil(request.getEndDate())
+        request.getStartDate().datesUntil(request.getEndDate().plusDays(1))
                 .map(date -> new Event(date, request.getEntranceTime(), request.getLeaveTime(), meeting))
                 .forEach(eventRepository::save);
 
@@ -101,7 +101,7 @@ public class MeetingService {
             putAttendanceIfAbsent(meeting, participants);
         }
 
-        final MeetingAttendances meetingAttendances = findAttendancesByMeeting(participants);
+        final MeetingAttendances meetingAttendances = findAttendancesByMeeting(meeting.getParticipantIds());
         final boolean isActive = hasEventToday && serverTimeManager.isAttendanceTime(event.getEntranceTime());
         final boolean isOver = !hasEventToday || serverTimeManager.isOverClosingTime(event.getEntranceTime());
 
@@ -137,8 +137,8 @@ public class MeetingService {
 
     private MeetingAttendances getMeetingAttendances(final Participant participant) {
         final Meeting meeting = participant.getMeeting();
-        final List<Participant> participants = meeting.getParticipants();
-        return findAttendancesByMeeting(participants);
+        final List<Long> participantIds = meeting.getParticipantIds();
+        return findAttendancesByMeeting(participantIds);
     }
 
     /**
@@ -197,12 +197,9 @@ public class MeetingService {
         }
     }
 
-    private MeetingAttendances findAttendancesByMeeting(final List<Participant> participants) {
-        final List<Long> participantIds = participants.stream()
-                .map(Participant::getId)
-                .collect(Collectors.toList());
+    private MeetingAttendances findAttendancesByMeeting(final List<Long> participantIds) {
         final List<Attendance> foundAttendances = attendanceRepository.findByParticipantIdIn(participantIds);
-        return new MeetingAttendances(foundAttendances, participants.size());
+        return new MeetingAttendances(foundAttendances, participantIds.size());
     }
 
     private ParticipantResponse generateParticipantResponse(final LocalDateTime now,

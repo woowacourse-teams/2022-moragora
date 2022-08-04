@@ -1,8 +1,11 @@
 package com.woowacourse.moragora.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.woowacourse.moragora.dto.CoffeeStatResponse;
+import com.woowacourse.moragora.dto.CoffeeStatsResponse;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Status;
@@ -90,6 +93,35 @@ class AttendanceServiceTest {
         // when, then
         assertThatThrownBy(() -> attendanceService.updateAttendance(1L, 1L, request))
                 .isInstanceOf(ClosingTimeExcessException.class);
+    }
+
+    @DisplayName("유저별 다음에 사용될 커피스택을 조회한다.")
+    @Test
+    void countUsableCoffeeStack() {
+        // given
+        final Long meetingId = 1L;
+
+        // 출석부 데이터 생성
+        final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
+        serverTimeManager.refresh(LocalDateTime.of(2022, 7, 15, 10, 0));
+        meetingService.findById(meetingId, 1L);
+        attendanceService.updateAttendance(meetingId, 1L, userAttendanceRequest);
+
+        // when
+        serverTimeManager.refresh(LocalDateTime.of(2022, 7, 15, 10, 6));
+        final CoffeeStatsResponse response = attendanceService.countUsableCoffeeStack(meetingId);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .isEqualTo(new CoffeeStatsResponse(
+                        List.of(
+                                new CoffeeStatResponse(1L, "아스피", 1L),
+                                new CoffeeStatResponse(2L, "필즈", 3L),
+                                new CoffeeStatResponse(3L, "포키", 1L),
+                                new CoffeeStatResponse(4L, "썬", 1L),
+                                new CoffeeStatResponse(5L, "우디", 1L)
+                        ))
+                );
     }
 
     @DisplayName("사용된 커피스택을 비활성화한다.")

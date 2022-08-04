@@ -4,6 +4,7 @@ import com.woowacourse.moragora.exception.meeting.IllegalStartEndDateException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -46,5 +47,11 @@ public class Meeting {
         if (startDate.isAfter(endDate)) {
             throw new IllegalStartEndDateException();
         }
+    }
+
+    public List<Long> getParticipantIds() {
+        return participants.stream()
+                .map(Participant::getId)
+                .collect(Collectors.toList());
     }
 }
