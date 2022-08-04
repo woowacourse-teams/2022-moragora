@@ -32,12 +32,12 @@ public class MeetingAttendances {
     public boolean isTardyStackFull() {
         return countTardy() >= numberOfParticipants;
     }
-
+    
     public void disableAttendances(final int disableSize) {
         final List<Attendance> filteredAttendances = values.stream()
                 .filter(Attendance::isEnabled)
                 .filter(Attendance::isTardy)
-                .sorted(Comparator.comparing(Attendance::getAttendanceDate))
+                .sorted(Comparator.comparingLong(Attendance::getId))
                 .limit(disableSize)
                 .collect(Collectors.toList());
 

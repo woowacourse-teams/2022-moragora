@@ -10,6 +10,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,6 +22,10 @@ import org.springframework.http.MediaType;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AcceptanceTest {
+
+    private static final LocalTime ENTRANCE_TIME = LocalTime.of(10, 0);
+    private static final LocalTime LEAVE_TIME = LocalTime.of(18, 0);
+
 
     @LocalServerPort
     int port;
@@ -81,7 +86,7 @@ public class AcceptanceTest {
     }
 
     protected String signUpAndGetToken(final User user) {
-        final String password = "1234asdfg!";
+        final String password = "1234asdf!";
         final UserRequest userRequest = new UserRequest(user.getEmail(), password, user.getNickname());
         post("/users", userRequest);
 
@@ -93,7 +98,7 @@ public class AcceptanceTest {
 
     protected List<Long> saveUsers(final List<User> users) {
         final List<UserRequest> userRequests = users.stream()
-                .map(user -> new UserRequest(user.getEmail(), "1234asdfg!", user.getNickname()))
+                .map(user -> new UserRequest(user.getEmail(), "1234asdf!", user.getNickname()))
                 .collect(Collectors.toList());
 
         final List<Long> userIds = new ArrayList<>();
@@ -117,8 +122,8 @@ public class AcceptanceTest {
                 .name(meeting.getName())
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
+                .entranceTime(ENTRANCE_TIME)
+                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 

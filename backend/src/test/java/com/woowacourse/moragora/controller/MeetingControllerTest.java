@@ -40,6 +40,9 @@ import org.springframework.test.web.servlet.ResultActions;
 
 class MeetingControllerTest extends ControllerTest {
 
+    private static final LocalTime ENTRANCE_TIME = LocalTime.of(10, 0);
+    private static final LocalTime LEAVE_TIME = LocalTime.of(18, 0);
+
     @DisplayName("미팅 방을 생성한다.")
     @Test
     void add() throws Exception {
@@ -51,8 +54,8 @@ class MeetingControllerTest extends ControllerTest {
                 .name(meeting.getName())
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
+                .entranceTime(ENTRANCE_TIME)
+                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 
@@ -72,9 +75,9 @@ class MeetingControllerTest extends ControllerTest {
                                         .description(meeting.getStartDate()),
                                 fieldWithPath("endDate").type(JsonFieldType.STRING).description(meeting.getEndDate()),
                                 fieldWithPath("entranceTime").type(JsonFieldType.STRING)
-                                        .description(meeting.getEntranceTime()),
+                                        .description(ENTRANCE_TIME),
                                 fieldWithPath("leaveTime").type(JsonFieldType.STRING)
-                                        .description(meeting.getLeaveTime()),
+                                        .description(LEAVE_TIME),
                                 fieldWithPath("userIds").type(JsonFieldType.ARRAY).description(userIds)
                         )
                 ));
@@ -91,8 +94,8 @@ class MeetingControllerTest extends ControllerTest {
                 .name(meeting.getName())
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
+                .entranceTime(ENTRANCE_TIME)
+                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 
@@ -123,8 +126,8 @@ class MeetingControllerTest extends ControllerTest {
                 .name(name)
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
+                .entranceTime(ENTRANCE_TIME)
+                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 
@@ -181,8 +184,8 @@ class MeetingControllerTest extends ControllerTest {
                 .name(meeting.getName())
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
+                .entranceTime(ENTRANCE_TIME)
+                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 
@@ -210,8 +213,8 @@ class MeetingControllerTest extends ControllerTest {
                 .name(meeting.getName())
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
+                .entranceTime(ENTRANCE_TIME)
+                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 
@@ -239,8 +242,8 @@ class MeetingControllerTest extends ControllerTest {
                 .name(meeting.getName())
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
+                .entranceTime(ENTRANCE_TIME)
+                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 
@@ -268,8 +271,8 @@ class MeetingControllerTest extends ControllerTest {
                 .name(meeting.getName())
                 .startDate(meeting.getStartDate())
                 .endDate(meeting.getEndDate())
-                .entranceTime(meeting.getEntranceTime())
-                .leaveTime(meeting.getLeaveTime())
+                .entranceTime(ENTRANCE_TIME)
+                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 

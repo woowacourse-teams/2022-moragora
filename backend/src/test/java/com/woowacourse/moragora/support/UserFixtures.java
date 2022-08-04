@@ -13,7 +13,8 @@ public enum UserFixtures {
     PHILLZ("phillz@email.com", EncodedPassword.fromRawValue("1234asdf!"), "phillz"),
     WOODY("woodi@email.com", EncodedPassword.fromRawValue("1234asdf!"), "woody"),
     BATD("batd@email.com", EncodedPassword.fromRawValue("1234asdf!"), "batd"),
-    MASTER("master@email.com", EncodedPassword.fromRawValue("1234asdf!"), "master");
+    MASTER("master@email.com", EncodedPassword.fromRawValue("1234asdf!"), "master"),
+    NO_MASTER("nomaster@email.com", EncodedPassword.fromRawValue("1234asdf!"), "noMaster");
 
     private final String email;
 

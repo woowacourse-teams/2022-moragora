@@ -2,13 +2,15 @@ package com.woowacourse.moragora.acceptance;
 
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.MASTER;
+import static com.woowacourse.moragora.support.UserFixtures.NO_MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
+import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-import com.woowacourse.auth.dto.LoginRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
@@ -49,13 +51,8 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         findOne(token, meetingId);
 
         // when
-        final ValidatableResponse response = RestAssured.given().log().all()
-                .auth().oauth2(token)
-                .body(userAttendanceRequest)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .when().put("/meetings/" + meetingId + "/users/" + userIds.get(0))
-                .then().log().all();
+        final ValidatableResponse response = put("/meetings/" + meetingId + "/users/" + userIds.get(0),
+                userAttendanceRequest, token);
 
         // then
         response.statusCode(HttpStatus.NO_CONTENT.value());
@@ -65,21 +62,29 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
     @DisplayName("마스터가 아닌 참가자가 미팅 참가자의 출석을 업데이트하면 상태코드 403을 반환한다.")
     @Test
     void updateAttendance_NotMaster() {
-        // given
-        final int meetingId = 1;
-        final int userId = 1;
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
         final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
-        final LoginRequest noMasterLoginRequest = new LoginRequest("bbb222@foo.com", "1234smart!");
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 1);
 
         given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
                 .willReturn(false);
         given(serverTimeManager.getDate())
                 .willReturn(dateTime.toLocalDate());
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime);
+
+        final String masterToken = signUpAndGetToken(MASTER.create());
+        final String noMasterToken = signUpAndGetToken(NO_MASTER.create());
+
+        final List<User> users = createUsers();
+        users.add(NO_MASTER.create());
+        final List<Long> userIds = saveUsers(users);
+        final int meetingId = saveMeeting(masterToken, userIds, MORAGORA.create());
+        findOne(noMasterToken, meetingId);
 
         // when
-        final ValidatableResponse response = put("/meetings/" + meetingId + "/users/" + userId,
-                userAttendanceRequest, signInAndGetToken(noMasterLoginRequest));
+        final ValidatableResponse response = put("/meetings/" + meetingId + "/users/" + userIds.get(0),
+                userAttendanceRequest, noMasterToken);
 
         // then
         response.statusCode(HttpStatus.FORBIDDEN.value())
@@ -91,10 +96,6 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
     @Test
     void useCoffeeStack() {
         // given
-        final int meetingId = 1;
-        final LoginRequest masterLoginRequest = new LoginRequest("aaa111@foo.com", "1234smart!");
-        final String token = signUpAndGetToken(masterLoginRequest);
-
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 15, 0, 0);
         given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
                 .willReturn(false);
@@ -102,7 +103,12 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .willReturn(dateTime);
         given(serverTimeManager.getDate())
                 .willReturn(dateTime.toLocalDate());
-        get("/meetings/" + meetingId, token);
+
+        final String token = signUpAndGetToken(MASTER.create());
+
+        final List<Long> userIds = saveUsers(createUsers());
+        final int meetingId = saveMeeting(token, userIds, MORAGORA.create());
+        findOne(token, meetingId);
 
         // when
         final ValidatableResponse response = RestAssured.given().log().all()
@@ -121,9 +127,6 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
     @Test
     void useCoffeeStack_NotMaster() {
         // given
-        final int meetingId = 1;
-        final LoginRequest noMasterLoginRequest = new LoginRequest("bbb222@foo.com", "1234smart!");
-        final String token = signInAndGetToken(noMasterLoginRequest);
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 15, 0, 0);
         given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
@@ -132,11 +135,19 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .willReturn(dateTime);
         given(serverTimeManager.getDate())
                 .willReturn(dateTime.toLocalDate());
-        get("/meetings/" + meetingId, token);
+        
+        final String masterToken = signUpAndGetToken(MASTER.create());
+        final String noMasterToken = signUpAndGetToken(NO_MASTER.create());
+
+        final List<User> users = createUsers();
+        users.add(NO_MASTER.create());
+        final List<Long> userIds = saveUsers(users);
+        final int meetingId = saveMeeting(masterToken, userIds, MORAGORA.create());
+        findOne(noMasterToken, meetingId);
 
         // when
         final ValidatableResponse response = RestAssured.given().log().all()
-                .auth().oauth2(token)
+                .auth().oauth2(noMasterToken)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when().post("/meetings/" + meetingId + "/coffees/use")

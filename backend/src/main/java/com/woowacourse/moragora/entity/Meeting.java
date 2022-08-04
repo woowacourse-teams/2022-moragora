@@ -34,12 +34,6 @@ public class Meeting {
     @Column(nullable = false)
     private LocalDate endDate;
 
-    @Column(nullable = false)
-    private LocalTime entranceTime;
-
-    @Column(nullable = false)
-    private LocalTime leaveTime;
-
     @OneToMany(mappedBy = "meeting")
     private List<Participant> participants = new ArrayList<>();
 
