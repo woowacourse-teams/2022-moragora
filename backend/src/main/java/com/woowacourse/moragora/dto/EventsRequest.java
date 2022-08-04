@@ -7,9 +7,11 @@ import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @NoArgsConstructor
 @Getter
+@ToString
 public class EventsRequest {
 
     private List<EventRequest> events;
@@ -23,12 +25,5 @@ public class EventsRequest {
         return events.stream()
                 .map(event -> event.toEntity(meeting))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public String toString() {
-        return "EventsRequest{" +
-                "events=" + events +
-                '}';
     }
 }

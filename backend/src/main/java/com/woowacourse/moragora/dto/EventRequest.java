@@ -8,10 +8,12 @@ import javax.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @NoArgsConstructor
 @Getter
+@ToString
 public class EventRequest {
 
     private static final String MISSING_REQUIRED_INPUT = "필수 입력 값이 누락됐습니다.";
@@ -37,14 +39,5 @@ public class EventRequest {
 
     public Event toEntity(final Meeting meeting) {
         return new Event(date, entranceTime, leaveTime, meeting);
-    }
-
-    @Override
-    public String toString() {
-        return "EventRequest{" +
-                "entranceTime=" + entranceTime +
-                ", leaveTime=" + leaveTime +
-                ", date=" + date +
-                '}';
     }
 }
