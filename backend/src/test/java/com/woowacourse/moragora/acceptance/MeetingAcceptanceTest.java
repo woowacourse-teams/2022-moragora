@@ -137,7 +137,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.isActive", containsInAnyOrder(false, true))
                 .body("meetings.entranceTime", containsInAnyOrder("10:00", "09:00"))
                 .body("meetings.closingTime", containsInAnyOrder("10:05", "09:05"))
-                .body("meetings.tardyCount", containsInAnyOrder(0, 0))
+                .body("meetings.tardyCount", containsInAnyOrder(1, 1))
                 .body("meetings.isMaster", containsInAnyOrder(true, true));
     }
 }

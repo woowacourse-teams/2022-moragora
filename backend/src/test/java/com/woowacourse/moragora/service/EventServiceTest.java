@@ -39,7 +39,6 @@ class EventServiceTest {
                         )
                 ));
 
-
         // when, then
         assertThatCode(() -> eventService.save(eventsRequest, meetingId))
                 .doesNotThrowAnyException();
