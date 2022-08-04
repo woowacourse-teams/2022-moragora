@@ -29,7 +29,7 @@ const EventCreatePage = () => {
   const navigate = useNavigate();
   const { events, selectedDates, clearSelectedDates, addEvents, removeEvents } =
     useContext(CalendarContext);
-  const { values, errors, isValid, onSubmit, register } = useForm();
+  const { values, errors, onSubmit, register } = useForm();
   const meetingQuery = useQuery(
     ['meeting', meetingId],
     getMeetingData(meetingId, user.accessToken)
@@ -83,6 +83,10 @@ const EventCreatePage = () => {
 
   if (!meetingQuery.data) {
     return <NotFoundPage />;
+  }
+
+  if (!meetingQuery.data.body.isMaster) {
+    return <Navigate to="/" />;
   }
 
   return (
@@ -144,7 +148,11 @@ const EventCreatePage = () => {
               `}
               type="submit"
               form="add-events-form"
-              disabled={!isValid || selectedDates.length === 0}
+              disabled={
+                !values['entranceTime'] ||
+                !values['leaveTime'] ||
+                selectedDates.length === 0
+              }
             >
               추가
             </DialogButton>

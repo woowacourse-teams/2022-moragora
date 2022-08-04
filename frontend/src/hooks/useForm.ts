@@ -1,16 +1,13 @@
 import React, { useRef, useState } from 'react';
 
 type Values = Record<HTMLInputElement['name'], HTMLInputElement['value']>;
-type Errors = Record<HTMLInputElement['name'], string | null>;
+type Errors = Record<HTMLInputElement['name'], string>;
 
 const useForm = () => {
   const [values, setValues] = useState<Values>({});
   const [errors, setErrors] = useState<Errors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const inputElementList = useRef<HTMLInputElement[]>([]);
-  const isValid =
-    Object.keys(errors).length > 0 &&
-    Object.values(errors).every((error) => !!error);
 
   const validate = (target: HTMLInputElement) => {
     target.checkValidity();
@@ -116,7 +113,7 @@ const useForm = () => {
     };
   };
 
-  return { values, errors, isSubmitting, isValid, onSubmit, register };
+  return { values, errors, isSubmitting, onSubmit, register };
 };
 
 export default useForm;
