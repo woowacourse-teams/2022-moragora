@@ -24,7 +24,6 @@ import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,12 +101,9 @@ public class AttendanceService {
     private MeetingAttendances findMeetingAttendancesBy(final Long meetingId) {
         final Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(MeetingNotFoundException::new);
-        final List<Participant> participants = meeting.getParticipants();
-        final List<Long> participantIds = participants.stream()
-                .map(Participant::getId)
-                .collect(Collectors.toList());
+        final List<Long> participantIds = meeting.getParticipantIds();
         final List<Attendance> attendances = attendanceRepository.findByParticipantIdIn(participantIds);
-        return new MeetingAttendances(attendances, participants.size());
+        return new MeetingAttendances(attendances, participantIds.size());
     }
 
     private void validateEnoughTardyCountToDisable(final MeetingAttendances attendances) {
