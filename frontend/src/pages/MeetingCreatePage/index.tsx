@@ -37,7 +37,7 @@ const MeetingCreatePage = () => {
   const meetingCreateMutation = useMutation(createMeetingApi, {
     onSuccess: ({ body: { id } }) => {
       alert('모임 생성을 완료했습니다.');
-      navigate(`/meeting/${id}`);
+      navigate(`/meeting/${id}/config`);
     },
     onError: () => {
       alert('모임 생성을 실패했습니다.');
