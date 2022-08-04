@@ -40,6 +40,7 @@ export type MeetingResponseBody = {
   attendanceCount: number;
   entranceTime: string;
   leaveTime: string;
+  isActive: boolean;
   isMaster: boolean;
   isCoffeeTime: boolean;
   hasUpcomingEvent: boolean;

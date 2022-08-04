@@ -162,7 +162,10 @@ const MeetingPage = () => {
                     key={user.id}
                     meetingId={id}
                     user={user}
-                    disabled={!meetingQuery.data?.body.isMaster}
+                    disabled={
+                      !meetingQuery.data?.body.isMaster ||
+                      !meetingQuery.data.body.isActive
+                    }
                   />
                 ))}
               </S.UserList>

@@ -105,6 +105,7 @@ export default [
         isMaster: true,
         isCoffeeTime,
         hasUpcomingEvent: true,
+        isActive: true,
         entranceTime: '10:00',
         leaveTime: '18:00',
         users: joinedUsers,
