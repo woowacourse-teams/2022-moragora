@@ -1,11 +1,13 @@
 package com.woowacourse.moragora.entity;
 
 import com.woowacourse.moragora.entity.user.User;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MeetingAttendances {
 
@@ -25,15 +27,21 @@ public class MeetingAttendances {
         return new ParticipantAttendances(attendances);
     }
 
-    public int countTardy() {
-        return (int) values.stream()
+    public int countTardy(final boolean isAttendanceClosed, final LocalDate today) {
+        final Stream<Attendance> attendances = values.stream()
                 .filter(Attendance::isEnabled)
-                .filter(Attendance::isTardy)
+                .filter(Attendance::isTardy);
+
+        if (isAttendanceClosed) {
+            return (int) attendances.count();
+        }
+
+        return (int) attendances.filter(attendance -> attendance.getEvent().getDate().isBefore(today))
                 .count();
     }
 
-    public boolean isTardyStackFull() {
-        return countTardy() >= numberOfParticipants;
+    public boolean isTardyStackFull(final boolean isAttendanceClosed, final LocalDate today) {
+        return countTardy(isAttendanceClosed, today) >= numberOfParticipants;
     }
 
     public Map<User, Long> countUsableAttendancesPerUsers() {

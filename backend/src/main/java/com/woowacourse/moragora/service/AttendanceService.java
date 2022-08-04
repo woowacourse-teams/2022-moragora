@@ -21,9 +21,11 @@ import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
 import com.woowacourse.moragora.support.ServerTimeManager;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,16 +77,25 @@ public class AttendanceService {
     }
 
     public CoffeeStatsResponse countUsableCoffeeStack(final Long meetingId) {
+        final LocalDate today = serverTimeManager.getDate();
+        final Event event = eventRepository.findByMeetingIdAndDate(meetingId, today)
+                .orElse(null);
+        final boolean isOver = Objects.isNull(event) || serverTimeManager.isOverClosingTime(event.getEntranceTime());
         final MeetingAttendances meetingAttendances = findMeetingAttendancesBy(meetingId);
-        validateEnoughTardyCountToDisable(meetingAttendances);
+        validateEnoughTardyCountToDisable(meetingAttendances, isOver, today);
         final Map<User, Long> userCoffeeStats = meetingAttendances.countUsableAttendancesPerUsers();
         return CoffeeStatsResponse.from(userCoffeeStats);
     }
 
     @Transactional
     public void disableUsedTardy(final Long meetingId) {
+        final LocalDate today = serverTimeManager.getDate();
+        final Event event = eventRepository.findByMeetingIdAndDate(meetingId, today)
+                .orElse(null);
+        final boolean isOver = Objects.isNull(event) || serverTimeManager.isOverClosingTime(event.getEntranceTime());
+
         final MeetingAttendances meetingAttendances = findMeetingAttendancesBy(meetingId);
-        validateEnoughTardyCountToDisable(meetingAttendances);
+        validateEnoughTardyCountToDisable(meetingAttendances, isOver, today);
         meetingAttendances.disableAttendances();
     }
 
@@ -106,8 +117,10 @@ public class AttendanceService {
         return new MeetingAttendances(attendances, participantIds.size());
     }
 
-    private void validateEnoughTardyCountToDisable(final MeetingAttendances attendances) {
-        if (!attendances.isTardyStackFull()) {
+    private void validateEnoughTardyCountToDisable(final MeetingAttendances attendances,
+                                                   final boolean isOver,
+                                                   final LocalDate today) {
+        if (!attendances.isTardyStackFull(isOver, today)) {
             throw new InvalidCoffeeTimeException();
         }
     }
