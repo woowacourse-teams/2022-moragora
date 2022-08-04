@@ -14,5 +14,6 @@
 .DS_Store
 .vscode
 
-# video
+# test
+test-result.xml
 /cypress/videos

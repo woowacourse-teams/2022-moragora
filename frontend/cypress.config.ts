@@ -4,6 +4,10 @@ const webpackConfig = require('./webpack/webpack.test');
 console.log(webpackConfig);
 
 export default defineConfig({
+  reporter: 'junit',
+  reporterOptions: {
+    mochaFile: 'test-result.xml',
+  },
   e2e: {
     baseUrl: 'http://localhost:3000',
     setupNodeEvents(on, config) {
@@ -17,4 +21,6 @@ export default defineConfig({
       webpackConfig,
     },
   },
+  video: false,
+  screenshotOnRunFailure: false,
 });
