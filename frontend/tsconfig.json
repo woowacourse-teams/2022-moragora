@@ -50,10 +50,12 @@
     "resolveJsonModule": true,
     // json파일도 모듈로 취급해서 import할 수 있게 합니다
 
-    "baseUrl": "./src"
+    "baseUrl": "./src",
     // import something from './src/some/thing.ts' 이렇게 안하고
     // import something from 'some/thing.ts' 이렇게 해도 잘 작동하도록 합니다.
     // 즉, 번거롭게 앞에 path를 계속 적어줘야 하는 불편함을 줄여줍니다.
+
+    "types": ["cypress"]
 
     //"noImplicitAny": true,
     //"module": "commonjs",
