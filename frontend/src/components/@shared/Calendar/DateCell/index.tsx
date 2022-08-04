@@ -31,7 +31,9 @@ const DateCell = forwardRef<HTMLDivElement, DateCellProps>(
     );
 
     const isPreviousDate =
-      initialDate && date.getTime() < initialDate?.getTime();
+      initialDate &&
+      dateToFormattedString(date) !== dateToFormattedString(initialDate) &&
+      date.getTime() < initialDate?.getTime();
 
     const handleClick: React.MouseEventHandler<HTMLDivElement> = () => {
       isSelected ? unselectDate(date) : selectDate(date);
