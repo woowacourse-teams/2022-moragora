@@ -31,7 +31,7 @@ describe('유저', () => {
     };
     const invalidUser = {
       email: 'user1@google.com',
-      password: 'user2pw!',
+      password: 'user2pw?',
     };
 
     it('성공 시 참여 중인 모임 목록 페이지로 이동한다.', () => {
