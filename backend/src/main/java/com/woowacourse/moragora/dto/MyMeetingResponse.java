@@ -13,6 +13,7 @@ import lombok.ToString;
 public class MyMeetingResponse {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    private static final LocalTime MEANINGLESS_TIME_DATA = LocalTime.MIDNIGHT;
 
     private final Long id;
     private final String name;
@@ -85,8 +86,8 @@ public class MyMeetingResponse {
                 isActive,
                 meeting.getStartDate(),
                 meeting.getEndDate(),
-                LocalTime.MIDNIGHT,
-                LocalTime.MIDNIGHT,
+                MEANINGLESS_TIME_DATA,
+                MEANINGLESS_TIME_DATA,
                 tardyCount,
                 isMaster,
                 isCoffeeTime,
