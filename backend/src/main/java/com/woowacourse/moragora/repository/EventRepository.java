@@ -16,8 +16,12 @@ public interface EventRepository extends Repository<Event, Long> {
 
     List<Event> findByMeetingIdAndDateLessThanEqual(final Long meetingId, final LocalDate date);
 
+    Optional<Event> findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(final Long meetingId, final LocalDate date);
+
     Optional<Event> findByMeetingIdAndDate(final Long meetingId, final LocalDate date);
 
     @Query("select e from Event e join fetch e.meeting m join fetch m.participants where e.id=:id")
     Optional<Event> findById(@Param("id") final Long id);
+
+    Long countByMeetingIdAndDateGreaterThanEqual(final Long meetingId, final LocalDate date);
 }

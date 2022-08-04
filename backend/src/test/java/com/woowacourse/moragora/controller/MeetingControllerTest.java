@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.controller;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
@@ -182,11 +183,9 @@ class MeetingControllerTest extends ControllerTest {
         final int attendanceCount = 0;
         final LocalDate startDate = LocalDate.of(2022, 7, 10);
         final LocalDate endDate = LocalDate.of(2022, 8, 10);
-        final LocalTime entranceTime = LocalTime.of(10, 0);
-        final LocalTime leaveTime = LocalTime.of(18, 0);
         final boolean isMaster = true;
         final MeetingResponse meetingResponse =
-                new MeetingResponse(id, name, attendanceCount, isMaster, false, participantResponses);
+                new MeetingResponse(id, name, attendanceCount, true, isMaster, false, true, participantResponses);
 
         final Long loginId = validateToken("1");
         given(meetingService.findById(eq(1L), eq(loginId)))
@@ -200,8 +199,10 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.id", equalTo(1)))
                 .andExpect(jsonPath("$.name", equalTo("모임1")))
                 .andExpect(jsonPath("$.attendanceCount", equalTo(0)))
+                .andExpect(jsonPath("$.isActive", equalTo(true)))
                 .andExpect(jsonPath("$.isMaster", equalTo(true)))
                 .andExpect(jsonPath("$.isCoffeeTime", equalTo(false)))
+                .andExpect(jsonPath("$.hasUpcomingEvent", equalTo(true)))
                 .andExpect(jsonPath("$.users[*].id", containsInAnyOrder(1, 2)))
                 .andExpect(jsonPath("$.users[*].email", containsInAnyOrder("abc@naver.com", "def@naver.com")))
                 .andExpect(jsonPath("$.users[*].nickname", containsInAnyOrder("foo", "boo")))
@@ -213,8 +214,10 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("name").type(JsonFieldType.STRING).description(name),
                                 fieldWithPath("attendanceCount").type(JsonFieldType.NUMBER)
                                         .description(attendanceCount),
+                                fieldWithPath("isActive").type(JsonFieldType.BOOLEAN).description(true),
                                 fieldWithPath("isMaster").type(JsonFieldType.BOOLEAN).description(isMaster),
                                 fieldWithPath("isCoffeeTime").type(JsonFieldType.BOOLEAN).description(false),
+                                fieldWithPath("hasUpcomingEvent").type(JsonFieldType.BOOLEAN).description(true),
                                 fieldWithPath("users[].id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("users[].email").type(JsonFieldType.STRING).description("abc@email.com"),
                                 fieldWithPath("users[].nickname").type(JsonFieldType.STRING).description("foo"),
@@ -230,16 +233,16 @@ class MeetingControllerTest extends ControllerTest {
     void findAllByUserId() throws Exception {
         // given
         final MyMeetingResponse myMeetingResponse =
-                new MyMeetingResponse(1L, "모임1", true,
-                        LocalTime.of(10, 0),
-                        LocalTime.of(10, 5),
-                        1, true, false);
+                new MyMeetingResponse(1L, "모임1", false,
+                        LocalTime.of(0, 0),
+                        LocalTime.of(0, 0),
+                        1, true, false, false);
 
         final MyMeetingResponse myMeetingResponse2 =
                 new MyMeetingResponse(2L, "모임2", true,
                         LocalTime.of(9, 0),
                         LocalTime.of(9, 5),
-                        2, true, false);
+                        2, true, false, true);
 
         final MyMeetingsResponse meetingsResponse =
                 new MyMeetingsResponse(List.of(myMeetingResponse, myMeetingResponse2));
@@ -254,13 +257,24 @@ class MeetingControllerTest extends ControllerTest {
         performGet("/meetings/me")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.meetings[*].id", containsInAnyOrder(1, 2)))
-                .andExpect(jsonPath("$.meetings[*].name", containsInAnyOrder("모임1", "모임2")))
-                .andExpect(jsonPath("$.meetings[*].isActive", containsInAnyOrder(true, true)))
-                .andExpect(jsonPath("$.meetings[*].entranceTime", containsInAnyOrder("09:00", "10:00")))
-                .andExpect(jsonPath("$.meetings[*].closingTime", containsInAnyOrder("09:05", "10:05")))
-                .andExpect(jsonPath("$.meetings[*].tardyCount", containsInAnyOrder(1, 2)))
-                .andExpect(jsonPath("$.meetings[*].isMaster", containsInAnyOrder(true, true)))
-                .andExpect(jsonPath("$.meetings[*].isCoffeeTime", containsInAnyOrder(false, false)))
+                // 더 이상 일정이 없는 모임
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].name", contains("모임1")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].isActive", contains(false)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].entranceTime", contains("00:00")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].closingTime", contains("00:00")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].tardyCount", contains(1)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].isMaster", contains(true)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].isCoffeeTime", contains(false)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].hasUpcomingEvent", contains(false)))
+                // 일정이 있는 모임
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].name", contains("모임2")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].isActive", contains(true)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].entranceTime", contains("09:00")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].closingTime", contains("09:05")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].tardyCount", contains(2)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].isMaster", contains(true)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].isCoffeeTime", contains(false)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].hasUpcomingEvent", contains(true)))
                 .andDo(document("meeting/find-my-meetings",
                         responseFields(
                                 fieldWithPath("meetings[].id").type(JsonFieldType.NUMBER).description(1L),
@@ -272,10 +286,12 @@ class MeetingControllerTest extends ControllerTest {
                                         .description("09:05"),
                                 fieldWithPath("meetings[].tardyCount").type(JsonFieldType.NUMBER)
                                         .description(1),
-                                fieldWithPath("meetings[].isMaster").type(JsonFieldType.BOOLEAN).description(true)
-                                        .description(1),
+                                fieldWithPath("meetings[].isMaster").type(JsonFieldType.BOOLEAN)
+                                        .description(true),
                                 fieldWithPath("meetings[].isCoffeeTime").type(JsonFieldType.BOOLEAN)
-                                        .description(false)
+                                        .description(false),
+                                fieldWithPath("meetings[].hasUpcomingEvent").type(JsonFieldType.BOOLEAN)
+                                        .description(true)
                         )
                 ));
     }

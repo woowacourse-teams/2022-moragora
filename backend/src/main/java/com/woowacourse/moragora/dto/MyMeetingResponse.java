@@ -12,6 +12,7 @@ import lombok.ToString;
 public class MyMeetingResponse {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    private static final LocalTime MEANINGLESS_TIME_DATA = LocalTime.MIDNIGHT;
 
     private final Long id;
     private final String name;
@@ -21,6 +22,7 @@ public class MyMeetingResponse {
     private final int tardyCount;
     private final Boolean isMaster;
     private final Boolean isCoffeeTime;
+    private final Boolean hasUpcomingEvent;
 
     public MyMeetingResponse(final Long id,
                              final String name,
@@ -28,8 +30,9 @@ public class MyMeetingResponse {
                              final LocalTime entranceTime,
                              final LocalTime closingTime,
                              final int tardyCount,
-                             final boolean isMaster,
-                             final Boolean isCoffeeTime) {
+                             final Boolean isMaster,
+                             final Boolean isCoffeeTime,
+                             final Boolean hasUpcomingEvent) {
         this.id = id;
         this.name = name;
         this.isActive = isActive;
@@ -38,6 +41,7 @@ public class MyMeetingResponse {
         this.tardyCount = tardyCount;
         this.isMaster = isMaster;
         this.isCoffeeTime = isCoffeeTime;
+        this.hasUpcomingEvent = hasUpcomingEvent;
     }
 
     public static MyMeetingResponse of(final Meeting meeting,
@@ -56,7 +60,27 @@ public class MyMeetingResponse {
                 closingTime,
                 tardyCount,
                 isMaster,
-                isCoffeeTime
+                isCoffeeTime,
+                true
+        );
+    }
+
+    public static MyMeetingResponse whenHasNoUpcomingEventOf(final Meeting meeting,
+                                                             final boolean isActive,
+                                                             final int tardyCount,
+                                                             final boolean isMaster,
+                                                             final boolean isCoffeeTime) {
+
+        return new MyMeetingResponse(
+                meeting.getId(),
+                meeting.getName(),
+                isActive,
+                MEANINGLESS_TIME_DATA,
+                MEANINGLESS_TIME_DATA,
+                tardyCount,
+                isMaster,
+                isCoffeeTime,
+                false
         );
     }
 }

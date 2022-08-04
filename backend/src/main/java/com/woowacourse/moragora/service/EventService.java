@@ -63,6 +63,7 @@ public class EventService {
         });
     }
 
+    @Transactional
     public void saveAttendances(final Event event) {
         final Event foundEvent = eventRepository.findById(event.getId())
                 .orElseThrow(EventNotFoundException::new);

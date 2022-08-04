@@ -3,20 +3,15 @@ package com.woowacourse.moragora.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.woowacourse.moragora.dto.EventRequest;
-import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
-import com.woowacourse.moragora.entity.Event;
-import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.support.ServerTimeManager;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -123,7 +118,7 @@ class MeetingServiceTest {
                 1L,
                 "모임1",
                 3,
-                true, false, null
+                false, true, false, true, null
         );
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
@@ -148,7 +143,7 @@ class MeetingServiceTest {
                 1L,
                 "모임1",
                 3,
-                true, false, null
+                false, true, false, true, null
         );
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
@@ -173,7 +168,7 @@ class MeetingServiceTest {
                 1L,
                 "모임1",
                 3,
-                true, false,
+                false, true, false, true,
                 List.of(
                         new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
                         new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 1),
@@ -206,7 +201,7 @@ class MeetingServiceTest {
                 1L,
                 "모임1",
                 3,
-                true, false,
+                false, true, false, true,
                 List.of(
                         new ParticipantResponse(1L, "aaa111@foo.com", "아스피", Status.PRESENT, 1),
                         new ParticipantResponse(2L, "bbb222@foo.com", "필즈", Status.TARDY, 2),
@@ -226,6 +221,56 @@ class MeetingServiceTest {
 
         // then
         assertThat(response).usingRecursiveComparison()
+                .isEqualTo(expectedMeetingResponse);
+    }
+
+    @DisplayName("id로 모임 상세 정보를 조회한다(당일 일정이 없으면 출석부를 초기화 하지 않고 기존 출석 데이터를 응답한다).")
+    @Test
+    void findById_if_hasNoEvent_and_hasUpcomingEvent() {
+        // given
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
+        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
+                1L,
+                "모임1",
+                0,
+                false, true, false, true, null
+        );
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 9, 0, 0);
+        serverTimeManager.refresh(dateTime);
+
+        // when
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .ignoringFields("users")
+                .isEqualTo(expectedMeetingResponse);
+    }
+
+    @DisplayName("id로 모임 상세 정보를 조회한다(당일부터의 일정이 없을 경우 기존의 출석 데이터를 응답한다).")
+    @Test
+    void findById_if_hasNoEvent_and_hasNoUpcomingEvent() {
+        // given
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
+        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
+                1L,
+                "모임1",
+                5,
+                false, true, false, false, null
+        );
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 11, 0, 0);
+        serverTimeManager.refresh(dateTime);
+
+        // when
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .ignoringFields("users")
                 .isEqualTo(expectedMeetingResponse);
     }
 
@@ -267,37 +312,20 @@ class MeetingServiceTest {
     @Test
     void findAllByUserId() {
         // given
-        final long userId = 1L;
-        final LocalDate startDate = LocalDate.of(2022, 7, 10);
-        final LocalTime entranceTime = LocalTime.of(10, 0);
-        final LocalTime leaveTime = LocalTime.of(18, 0);
-        final Meeting meeting = new Meeting("모임1");
-        final MeetingRequest meetingRequest = new MeetingRequest("모임2", List.of(2L, 3L));
-        final EventsRequest eventsRequest = new EventsRequest(List.of(
-                new EventRequest(LocalTime.of(10, 0), LocalTime.of(18, 0), LocalDate.of(2022, 7, 12)),
-                new EventRequest(LocalTime.of(10, 0), LocalTime.of(18, 0), LocalDate.of(2022, 7, 13))
-        ));
-        final Event event = new Event(1L, startDate, entranceTime, leaveTime, meeting);
-
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 12, 10, 5);
-        serverTimeManager.refresh(dateTime);
-
-        final Long savedMeetingId = meetingService.save(meetingRequest, userId);
-        eventService.save(eventsRequest, savedMeetingId);
+        final Long loginId = 1L;
+        final Long meetingId = 1L;
 
         // when
-        final MyMeetingsResponse myMeetingsResponse = meetingService.findAllByUserId(userId);
+        final MyMeetingsResponse response = meetingService.findAllByUserId(loginId);
 
         // then
-        assertThat(myMeetingsResponse).usingRecursiveComparison()
-                .ignoringFields("meetings.id")
-                .isEqualTo(new MyMeetingsResponse(
-                        List.of(
-                                MyMeetingResponse.of(meeting, false,
-                                        serverTimeManager.calculateClosingTime(entranceTime), 0, event, true, false),
-                                MyMeetingResponse.of(meetingRequest.toEntity(), false,
-                                        serverTimeManager.calculateClosingTime(entranceTime), 0, event, true, false)
-                        ))
-                );
+        assertThat(response).usingRecursiveComparison()
+                .isEqualTo(new MyMeetingsResponse(List.of(
+                        new MyMeetingResponse(
+                                1L, "모임1", false,
+                                LocalTime.of(0, 0),
+                                LocalTime.of(0, 0),
+                                1, true, false, false)
+                )));
     }
 }
