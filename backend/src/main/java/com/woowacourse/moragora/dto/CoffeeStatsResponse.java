@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class CoffeeStatsResponse {
 
     private final List<CoffeeStatResponse> userCoffeeStats;
