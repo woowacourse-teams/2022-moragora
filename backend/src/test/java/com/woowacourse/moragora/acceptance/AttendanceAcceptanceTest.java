@@ -135,7 +135,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .willReturn(dateTime);
         given(serverTimeManager.getDate())
                 .willReturn(dateTime.toLocalDate());
-        
+
         final String masterToken = signUpAndGetToken(MASTER.create());
         final String noMasterToken = signUpAndGetToken(NO_MASTER.create());
 

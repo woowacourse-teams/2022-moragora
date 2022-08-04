@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 
 type Values = Record<HTMLInputElement['name'], HTMLInputElement['value']>;
-type Errors = Record<HTMLInputElement['name'], string | null>;
+type Errors = Record<HTMLInputElement['name'], string>;
 
 const useForm = () => {
   const [values, setValues] = useState<Values>({});

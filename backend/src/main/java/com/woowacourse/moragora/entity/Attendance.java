@@ -11,12 +11,13 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "attendance")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Attendance {
 
@@ -42,8 +43,8 @@ public class Attendance {
                       final Boolean disabled,
                       final Participant participant,
                       final Event event) {
-        this.disabled = disabled;
         this.status = status;
+        this.disabled = disabled;
         this.participant = participant;
         this.event = event;
     }

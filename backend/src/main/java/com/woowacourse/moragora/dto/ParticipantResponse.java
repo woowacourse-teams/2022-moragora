@@ -4,8 +4,10 @@ import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
 import java.util.Locale;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class ParticipantResponse {
 
     private final Long id;

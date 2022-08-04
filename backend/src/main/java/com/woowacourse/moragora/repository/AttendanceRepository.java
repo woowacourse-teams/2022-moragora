@@ -9,6 +9,8 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
 
     Attendance save(final Attendance attendance);
 
+    void saveAll(final Iterable<Attendance> attendances);
+
     Optional<Attendance> findByParticipantIdAndEventId(final Long participantId, final Long eventId);
 
     List<Attendance> findByParticipantIdIn(final List<Long> participantIds);

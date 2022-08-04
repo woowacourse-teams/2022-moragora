@@ -4,9 +4,11 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @NoArgsConstructor
 @Getter
+@ToString(exclude = "password")
 public class UserRequest {
 
     @Email(regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$", message = "입력 형식이 올바르지 않습니다.")

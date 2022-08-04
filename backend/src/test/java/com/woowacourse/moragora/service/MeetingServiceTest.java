@@ -40,6 +40,9 @@ class MeetingServiceTest {
     private MeetingService meetingService;
 
     @Autowired
+    private EventService eventService;
+
+    @Autowired
     private ServerTimeManager serverTimeManager;
 
     @Autowired
@@ -319,6 +322,56 @@ class MeetingServiceTest {
                 .isEqualTo(expectedMeetingResponse);
     }
 
+    @DisplayName("id로 모임 상세 정보를 조회한다(당일 일정이 없으면 출석부를 초기화 하지 않고 기존 출석 데이터를 응답한다).")
+    @Test
+    void findById_if_hasNoEvent_and_hasUpcomingEvent() {
+        // given
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
+        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
+                1L,
+                "모임1",
+                0,
+                false, true, false, true, null
+        );
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 9, 0, 0);
+        serverTimeManager.refresh(dateTime);
+
+        // when
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .ignoringFields("users")
+                .isEqualTo(expectedMeetingResponse);
+    }
+
+    @DisplayName("id로 모임 상세 정보를 조회한다(당일부터의 일정이 없을 경우 기존의 출석 데이터를 응답한다).")
+    @Test
+    void findById_if_hasNoEvent_and_hasNoUpcomingEvent() {
+        // given
+        final Long meetingId = 1L;
+        final Long loginId = 1L;
+        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
+                1L,
+                "모임1",
+                5,
+                false, true, false, false, null
+        );
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 11, 0, 0);
+        serverTimeManager.refresh(dateTime);
+
+        // when
+        final MeetingResponse response = meetingService.findById(meetingId, loginId);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .ignoringFields("users")
+                .isEqualTo(expectedMeetingResponse);
+    }
+
     @DisplayName("Master인 id로 모임 상세 정보를 조회한다")
     @Test
     void findById_isMaster() {
@@ -357,6 +410,26 @@ class MeetingServiceTest {
         assertThat(response.getIsMaster()).isFalse();
     }
 
+    @DisplayName("유저 id로 유저가 속한 모든 모임을 조회한다.")
+    @Test
+    void findAllByUserId() {
+        // given
+        final Long loginId = 1L;
+        final Long meetingId = 1L;
+
+        // when
+        final MyMeetingsResponse response = meetingService.findAllByUserId(loginId);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .isEqualTo(new MyMeetingsResponse(List.of(
+                        new MyMeetingResponse(
+                                1L, "모임1", false,
+                                LocalTime.of(0, 0),
+                                LocalTime.of(0, 0),
+                                1, true, false, false)
+                )));
+    }
 //    @DisplayName("유저 id로 유저가 속한 모든 모임을 조회한다.")
 //    @Test
 //    void findAllByUserId() {

@@ -1,7 +1,10 @@
 package com.woowacourse.moragora.entity;
 
+import com.woowacourse.moragora.entity.user.User;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MeetingAttendances {
@@ -32,16 +35,18 @@ public class MeetingAttendances {
     public boolean isTardyStackFull() {
         return countTardy() >= numberOfParticipants;
     }
-    
-    public void disableAttendances(final int disableSize) {
-        final List<Attendance> filteredAttendances = values.stream()
-                .filter(Attendance::isEnabled)
-                .filter(Attendance::isTardy)
-                .sorted(Comparator.comparingLong(Attendance::getId))
-                .limit(disableSize)
-                .collect(Collectors.toList());
 
-        filteredAttendances.forEach(Attendance::disable);
+    public Map<User, Long> countUsableAttendancesPerUsers() {
+        return filterUsableAttendances().stream()
+                .collect(Collectors.groupingBy(
+                        attendance -> attendance.getParticipant().getUser(),
+                        HashMap::new,
+                        Collectors.counting()
+                ));
+    }
+
+    public void disableAttendances() {
+        filterUsableAttendances().forEach(Attendance::disable);
     }
 
     private void validateSingleMeeting(final List<Attendance> value) {
@@ -54,5 +59,14 @@ public class MeetingAttendances {
         if (meetingCount > 1) {
             throw new IllegalArgumentException("한 미팅에 대한 참가자가 아닙니다.");
         }
+    }
+
+    private List<Attendance> filterUsableAttendances() {
+        return values.stream()
+                .filter(Attendance::isEnabled)
+                .filter(Attendance::isTardy)
+                .sorted(Comparator.comparing(attendance -> attendance.getEvent().getDate()))
+                .limit(numberOfParticipants)
+                .collect(Collectors.toList());
     }
 }

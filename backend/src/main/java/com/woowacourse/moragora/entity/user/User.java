@@ -12,12 +12,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "user")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class User {
 
@@ -41,12 +42,17 @@ public class User {
     private String nickname;
 
     @Builder
-    public User(final String email, final EncodedPassword password, final String nickname) {
+    public User(final Long id, final String email, final EncodedPassword password, final String nickname) {
         validateEmail(email);
         validateNickname(nickname);
+        this.id = id;
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+    }
+
+    public User(final String email, final EncodedPassword password, final String nickname) {
+        this(null, email, password, nickname);
     }
 
     private void validateEmail(final String email) {
