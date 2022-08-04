@@ -335,7 +335,7 @@ class MeetingControllerTest extends ControllerTest {
                         LocalDate.of(2022, 8, 10),
                         LocalTime.of(10, 0),
                         LocalTime.of(10, 5),
-                        1, true, false);
+                        1, true, false, true);
 
         final MyMeetingResponse myMeetingResponse2 =
                 new MyMeetingResponse(2L, "모임2", true,
@@ -343,7 +343,7 @@ class MeetingControllerTest extends ControllerTest {
                         LocalDate.of(2022, 8, 15),
                         LocalTime.of(9, 0),
                         LocalTime.of(9, 5),
-                        2, true, false);
+                        2, true, false, true);
 
         final MyMeetingsResponse meetingsResponse =
                 new MyMeetingsResponse(List.of(myMeetingResponse, myMeetingResponse2));
@@ -367,6 +367,7 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.meetings[*].tardyCount", containsInAnyOrder(1, 2)))
                 .andExpect(jsonPath("$.meetings[*].isMaster", containsInAnyOrder(true, true)))
                 .andExpect(jsonPath("$.meetings[*].isCoffeeTime", containsInAnyOrder(false, false)))
+                .andExpect(jsonPath("$.meetings[*].hasUpcomingEvent", containsInAnyOrder(true, true)))
                 .andDo(document("meeting/find-my-meetings",
                         responseFields(
                                 fieldWithPath("meetings[].id").type(JsonFieldType.NUMBER).description(1L),
@@ -385,7 +386,9 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("meetings[].isMaster").type(JsonFieldType.BOOLEAN).description(true)
                                         .description(1),
                                 fieldWithPath("meetings[].isCoffeeTime").type(JsonFieldType.BOOLEAN)
-                                        .description(false)
+                                        .description(false),
+                                fieldWithPath("meetings[].hasUpcomingEvent").type(JsonFieldType.BOOLEAN)
+                                        .description(true)
                         )
                 ));
     }

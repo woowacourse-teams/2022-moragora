@@ -214,8 +214,9 @@ public class MeetingService {
         final boolean isOver = serverTimeManager.isOverClosingTime(entranceTime);
         final LocalTime closingTime = serverTimeManager.calculateClosingTime(entranceTime);
         final int tardyCount = participantAttendances.countTardy(isOver, today);
+        final boolean hasUpcomingEvent = eventRepository.countByDateGreaterThanEqual(today) > 0;
 
         return MyMeetingResponse.of(meeting, isActive, closingTime, tardyCount, event,
-                participant.getIsMaster(), meetingAttendances.isTardyStackFull());
+                participant.getIsMaster(), meetingAttendances.isTardyStackFull(), hasUpcomingEvent);
     }
 }

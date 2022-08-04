@@ -331,10 +331,14 @@ class MeetingServiceTest {
                 .ignoringFields("meetings.id")
                 .isEqualTo(new MyMeetingsResponse(
                         List.of(
-                                MyMeetingResponse.of(meeting, false,
-                                        serverTimeManager.calculateClosingTime(entranceTime), 0, event, true, false),
-                                MyMeetingResponse.of(meetingRequest.toEntity(), false,
-                                        serverTimeManager.calculateClosingTime(entranceTime), 0, event, true, false)
+                                MyMeetingResponse.of(
+                                        meeting, false,
+                                        serverTimeManager.calculateClosingTime(entranceTime),
+                                        0, event, true, false, true),
+                                MyMeetingResponse.of(
+                                        meetingRequest.toEntity(), false,
+                                        serverTimeManager.calculateClosingTime(entranceTime),
+                                        0, event, true, false, true)
                         ))
                 );
     }
