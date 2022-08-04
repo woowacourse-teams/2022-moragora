@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.controller;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
@@ -330,12 +331,12 @@ class MeetingControllerTest extends ControllerTest {
     void findAllByUserId() throws Exception {
         // given
         final MyMeetingResponse myMeetingResponse =
-                new MyMeetingResponse(1L, "모임1", true,
+                new MyMeetingResponse(1L, "모임1", false,
                         LocalDate.of(2022, 7, 10),
                         LocalDate.of(2022, 8, 10),
-                        LocalTime.of(10, 0),
-                        LocalTime.of(10, 5),
-                        1, true, false, true);
+                        LocalTime.of(0, 0),
+                        LocalTime.of(0, 0),
+                        1, true, false, false);
 
         final MyMeetingResponse myMeetingResponse2 =
                 new MyMeetingResponse(2L, "모임2", true,
@@ -358,16 +359,28 @@ class MeetingControllerTest extends ControllerTest {
         performGet("/meetings/me")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.meetings[*].id", containsInAnyOrder(1, 2)))
-                .andExpect(jsonPath("$.meetings[*].name", containsInAnyOrder("모임1", "모임2")))
-                .andExpect(jsonPath("$.meetings[*].isActive", containsInAnyOrder(true, true)))
-                .andExpect(jsonPath("$.meetings[*].startDate", containsInAnyOrder("2022-07-10", "2022-07-15")))
-                .andExpect(jsonPath("$.meetings[*].endDate", containsInAnyOrder("2022-08-10", "2022-08-15")))
-                .andExpect(jsonPath("$.meetings[*].entranceTime", containsInAnyOrder("09:00", "10:00")))
-                .andExpect(jsonPath("$.meetings[*].closingTime", containsInAnyOrder("09:05", "10:05")))
-                .andExpect(jsonPath("$.meetings[*].tardyCount", containsInAnyOrder(1, 2)))
-                .andExpect(jsonPath("$.meetings[*].isMaster", containsInAnyOrder(true, true)))
-                .andExpect(jsonPath("$.meetings[*].isCoffeeTime", containsInAnyOrder(false, false)))
-                .andExpect(jsonPath("$.meetings[*].hasUpcomingEvent", containsInAnyOrder(true, true)))
+                // 더 이상 일정이 없는 모임
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].name", contains("모임1")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].isActive", contains(false)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].startDate", contains("2022-07-10")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].endDate", contains("2022-08-10")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].entranceTime", contains("00:00")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].closingTime", contains("00:00")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].tardyCount", contains(1)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].isMaster", contains(true)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].isCoffeeTime", contains(false)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='1')].hasUpcomingEvent", contains(false)))
+                // 일정이 있는 모임
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].name", contains("모임2")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].isActive", contains(true)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].startDate", contains("2022-07-15")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].endDate", contains("2022-08-15")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].entranceTime", contains("09:00")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].closingTime", contains("09:05")))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].tardyCount", contains(2)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].isMaster", contains(true)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].isCoffeeTime", contains(false)))
+                .andExpect(jsonPath("$.meetings[?(@.id=='2')].hasUpcomingEvent", contains(true)))
                 .andDo(document("meeting/find-my-meetings",
                         responseFields(
                                 fieldWithPath("meetings[].id").type(JsonFieldType.NUMBER).description(1L),
@@ -383,8 +396,8 @@ class MeetingControllerTest extends ControllerTest {
                                         .description("09:05"),
                                 fieldWithPath("meetings[].tardyCount").type(JsonFieldType.NUMBER)
                                         .description(1),
-                                fieldWithPath("meetings[].isMaster").type(JsonFieldType.BOOLEAN).description(true)
-                                        .description(1),
+                                fieldWithPath("meetings[].isMaster").type(JsonFieldType.BOOLEAN)
+                                        .description(true),
                                 fieldWithPath("meetings[].isCoffeeTime").type(JsonFieldType.BOOLEAN)
                                         .description(false),
                                 fieldWithPath("meetings[].hasUpcomingEvent").type(JsonFieldType.BOOLEAN)

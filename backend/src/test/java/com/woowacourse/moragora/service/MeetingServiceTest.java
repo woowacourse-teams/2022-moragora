@@ -318,7 +318,7 @@ class MeetingServiceTest {
 
         final Event event = new Event(1L, startDate, entranceTime, leaveTime, meeting);
 
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 12, 10, 5);
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 17, 10, 5);
         serverTimeManager.refresh(dateTime);
 
         meetingService.save(meetingRequest, userId);
@@ -331,14 +331,13 @@ class MeetingServiceTest {
                 .ignoringFields("meetings.id")
                 .isEqualTo(new MyMeetingsResponse(
                         List.of(
-                                MyMeetingResponse.of(
+                                MyMeetingResponse.whenHasNoUpcomingEventOf(
                                         meeting, false,
-                                        serverTimeManager.calculateClosingTime(entranceTime),
-                                        0, event, true, false, true),
+                                        1, true, false),
                                 MyMeetingResponse.of(
                                         meetingRequest.toEntity(), false,
                                         serverTimeManager.calculateClosingTime(entranceTime),
-                                        0, event, true, false, true)
+                                        0, event, true, false)
                         ))
                 );
     }

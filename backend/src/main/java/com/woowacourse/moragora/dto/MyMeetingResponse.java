@@ -56,8 +56,7 @@ public class MyMeetingResponse {
                                        final int tardyCount,
                                        final Event event,
                                        final boolean isMaster,
-                                       final boolean isCoffeeTime,
-                                       final boolean hasUpcomingEvent) {
+                                       final boolean isCoffeeTime) {
 
         return new MyMeetingResponse(
                 meeting.getId(),
@@ -70,8 +69,28 @@ public class MyMeetingResponse {
                 tardyCount,
                 isMaster,
                 isCoffeeTime,
-                hasUpcomingEvent
+                true
         );
     }
 
+    public static MyMeetingResponse whenHasNoUpcomingEventOf(final Meeting meeting,
+                                                             final boolean isActive,
+                                                             final int tardyCount,
+                                                             final boolean isMaster,
+                                                             final boolean isCoffeeTime) {
+
+        return new MyMeetingResponse(
+                meeting.getId(),
+                meeting.getName(),
+                isActive,
+                meeting.getStartDate(),
+                meeting.getEndDate(),
+                LocalTime.MIDNIGHT,
+                LocalTime.MIDNIGHT,
+                tardyCount,
+                isMaster,
+                isCoffeeTime,
+                false
+        );
+    }
 }

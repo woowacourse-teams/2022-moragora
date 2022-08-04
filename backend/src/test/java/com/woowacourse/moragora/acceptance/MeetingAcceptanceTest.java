@@ -109,7 +109,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
         );
         final String token = signUpAndGetToken();
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 0, 0);
+        final LocalDateTime now = LocalDateTime.of(2022, 8, 11, 0, 0);
 
         post("/meetings", meetingRequest1, token);
         post("/meetings", meetingRequest2, token);
@@ -125,7 +125,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         given(serverTimeManager.calculateClosingTime(LocalTime.of(9, 0)))
                 .willReturn(LocalTime.of(9, 5));
         given(serverTimeManager.getDate())
-                .willReturn(dateTime.toLocalDate());
+                .willReturn(now.toLocalDate());
 
         // when
         final ValidatableResponse response = get("/meetings/me", token);
@@ -133,15 +133,28 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         // then
         response.statusCode(HttpStatus.OK.value())
                 .body("meetings.id", containsInAnyOrder(2, 3))
-                .body("meetings.name", containsInAnyOrder("모임1", "모임2"))
-                .body("meetings.isActive", containsInAnyOrder(false, true))
-                .body("meetings.startDate", containsInAnyOrder("2022-07-10", "2022-07-13"))
-                .body("meetings.endDate", containsInAnyOrder("2022-08-10", "2022-08-13"))
-                .body("meetings.entranceTime", containsInAnyOrder("10:00", "09:00"))
-                .body("meetings.closingTime", containsInAnyOrder("10:05", "09:05"))
-                .body("meetings.tardyCount", containsInAnyOrder(0, 0))
-                .body("meetings.isMaster", containsInAnyOrder(true, true))
-                .body("meetings.isCoffeeTime", containsInAnyOrder(false, false))
-                .body("meetings.hasUpcomingEvent", containsInAnyOrder(true, true));
+                // 더 이상 일정이 없는 모임
+                .body("meetings.find{it.id == 2}.name", equalTo("모임1"))
+                .body("meetings.find{it.id == 2}.isActive", equalTo(false))
+                .body("meetings.find{it.id == 2}.startDate", equalTo("2022-07-10"))
+                .body("meetings.find{it.id == 2}.endDate", equalTo("2022-08-10"))
+                .body("meetings.find{it.id == 2}.entranceTime", equalTo("00:00"))
+                .body("meetings.find{it.id == 2}.closingTime", equalTo("00:00"))
+                .body("meetings.find{it.id == 2}.tardyCount", equalTo(0))
+                .body("meetings.find{it.id == 2}.isMaster", equalTo(true))
+                .body("meetings.find{it.id == 2}.isCoffeeTime", equalTo(false))
+                .body("meetings.find{it.id == 2}.hasUpcomingEvent", equalTo(false))
+                // 일정 있는 모임
+                .body("meetings.find{it.id == 3}.name", equalTo("모임2"))
+                .body("meetings.find{it.id == 3}.isActive", equalTo(true))
+                .body("meetings.find{it.id == 3}.startDate", equalTo("2022-07-13"))
+                .body("meetings.find{it.id == 3}.endDate", equalTo("2022-08-13"))
+                .body("meetings.find{it.id == 3}.entranceTime", equalTo("09:00"))
+                .body("meetings.find{it.id == 3}.closingTime", equalTo("09:05"))
+                .body("meetings.find{it.id == 3}.tardyCount", equalTo(0))
+                .body("meetings.find{it.id == 3}.isMaster", equalTo(true))
+                .body("meetings.find{it.id == 3}.isCoffeeTime", equalTo(false))
+                .body("meetings.find{it.id == 3}.hasUpcomingEvent", equalTo(true))
+        ;
     }
 }

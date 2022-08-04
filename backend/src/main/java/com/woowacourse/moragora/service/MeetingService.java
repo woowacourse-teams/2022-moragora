@@ -102,7 +102,7 @@ public class MeetingService {
                 .filter(Participant::getIsMaster)
                 .anyMatch(participant -> participant.getUser().getId() == loginId);
 
-        final boolean hasUpcomingEvent = eventRepository.countByDateGreaterThanEqual(today) > 0;
+        final boolean hasUpcomingEvent = eventRepository.countByMeetingIdAndDateGreaterThanEqual(meetingId, today) > 0;
 
         return MeetingResponse.of(
                 meeting, isMaster, participantResponses, meetingAttendances, event, hasUpcomingEvent, events.size());
@@ -203,20 +203,35 @@ public class MeetingService {
     private MyMeetingResponse generateMyMeetingResponse(final Participant participant,
                                                         final MeetingAttendances meetingAttendances) {
         final Meeting meeting = participant.getMeeting();
-        final ParticipantAttendances participantAttendances = meetingAttendances.extractAttendancesByParticipant(
-                participant);
+        final ParticipantAttendances participantAttendances = meetingAttendances
+                .extractAttendancesByParticipant(participant);
 
         final LocalDate today = serverTimeManager.getDate();
-        final Event event = eventRepository.findByMeetingIdAndDate(meeting.getId(), today)
-                .orElseThrow(EventNotFoundException::new);
-        final LocalTime entranceTime = event.getEntranceTime();
-        final boolean isActive = serverTimeManager.isAttendanceTime(entranceTime);
-        final boolean isOver = serverTimeManager.isOverClosingTime(entranceTime);
-        final LocalTime closingTime = serverTimeManager.calculateClosingTime(entranceTime);
-        final int tardyCount = participantAttendances.countTardy(isOver, today);
-        final boolean hasUpcomingEvent = eventRepository.countByDateGreaterThanEqual(today) > 0;
+        final boolean hasUpcomingEvent =
+                eventRepository.countByMeetingIdAndDateGreaterThanEqual(meeting.getId(), today) > 0;
+        if (hasUpcomingEvent) {
+            // 이후 일정 존재
+            final Event event = eventRepository
+                    .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
+                    .orElseThrow(EventNotFoundException::new);
+            final LocalTime entranceTime = event.getEntranceTime();
+            final boolean isActive = serverTimeManager.isAttendanceTime(entranceTime);
+            final boolean isOver = serverTimeManager.isOverClosingTime(entranceTime);
+            final LocalTime closingTime = serverTimeManager.calculateClosingTime(entranceTime);
+            final int tardyCount = participantAttendances.countTardy(isOver, today);
+            return MyMeetingResponse.of(
+                    meeting, isActive, closingTime, tardyCount, event,
+                    participant.getIsMaster(), meetingAttendances.isTardyStackFull()
+            );
+        }
 
-        return MyMeetingResponse.of(meeting, isActive, closingTime, tardyCount, event,
-                participant.getIsMaster(), meetingAttendances.isTardyStackFull(), hasUpcomingEvent);
+        // 일정 없음
+        final boolean isActive = false;
+        final boolean isOver = true;
+        final int tardyCount = participantAttendances.countTardy(isOver, today);
+        return MyMeetingResponse.whenHasNoUpcomingEventOf(
+                meeting, isActive, tardyCount,
+                participant.getIsMaster(), meetingAttendances.isTardyStackFull()
+        );
     }
 }
