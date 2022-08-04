@@ -18,7 +18,7 @@
   "license": "MIT",
   "scripts": {
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run --browser chromium",
+    "cypress:run": "cypress run --browser electron",
     "test:dev": "start-server-and-test start http://localhost:3000 cypress:open",
     "test:ci": "start-server-and-test start http://localhost:3000 cypress:run",
     "start": "webpack serve --config ./webpack/webpack.dev.js",
