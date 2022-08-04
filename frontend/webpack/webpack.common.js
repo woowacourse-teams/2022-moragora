@@ -12,6 +12,7 @@ module.exports = {
   entry: join(__dirname, '../src/index.tsx'),
   devtool: 'eval-source-map',
   output: {
+    publicPath: '/',
     path: resolve(__dirname, '../build'),
     filename: '[name].bundle.js',
     assetModuleFilename: 'images/[hash][ext][query]',
