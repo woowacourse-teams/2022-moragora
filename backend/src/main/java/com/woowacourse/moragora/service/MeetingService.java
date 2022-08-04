@@ -105,7 +105,8 @@ public class MeetingService {
                     .collect(Collectors.toList());
 
             return MeetingResponse.of(
-                    meeting, isMaster, isActive, participantResponses, meetingAttendances, hasUpcomingEvent,
+                    meeting, isMaster, isActive, participantResponses,
+                    meetingAttendances.isTardyStackFull(isOver, today), hasUpcomingEvent,
                     events.size());
         }
 
@@ -114,7 +115,7 @@ public class MeetingService {
                         meetingAttendances, isOver, participant))
                 .collect(Collectors.toList());
 
-        return MeetingResponse.of(meeting, isMaster, isActive, participantResponses, meetingAttendances, hasUpcomingEvent, events.size());
+        return MeetingResponse.of(meeting, isMaster, isActive, participantResponses, meetingAttendances.isTardyStackFull(isOver, today), hasUpcomingEvent, events.size());
     }
 
 
@@ -239,11 +240,11 @@ public class MeetingService {
             final LocalTime closingTime = serverTimeManager.calculateClosingTime(entranceTime);
             return MyMeetingResponse.of(
                     meeting, isActive, closingTime, tardyCount, event,
-                    participant.getIsMaster(), meetingAttendances.isTardyStackFull()
+                    participant.getIsMaster(), meetingAttendances.isTardyStackFull(isOver, today)
             );
         }
         return MyMeetingResponse.whenHasNoUpcomingEventOf(
                 meeting, isActive, tardyCount,
-                participant.getIsMaster(), meetingAttendances.isTardyStackFull());
+                participant.getIsMaster(), meetingAttendances.isTardyStackFull(isOver, today));
     }
 }

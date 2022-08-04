@@ -80,7 +80,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 15, 0, 0);
         given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
-                .willReturn(false);
+                .willReturn(true);
         given(serverTimeManager.getDateAndTime())
                 .willReturn(dateTime);
         given(serverTimeManager.getDate())
