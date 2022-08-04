@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
-import { MeetingWithTardyCount } from 'types/meetingType';
+import { MeetingItemProps } from '.';
 
 export const Layout = styled.div<{
-  isActive: MeetingWithTardyCount['isActive'];
+  isActive: MeetingItemProps['meeting']['isActive'];
 }>`
   display: inline-block;
   border-radius: 2rem;
@@ -54,7 +54,7 @@ export const MeetingTimeSpan = styled.span`
   color: ${({ theme: { colors } }) => colors['subtle-dark']};
 `;
 
-export const CheckInSpan = styled.span`
+export const MeetingStatusSpan = styled.span`
   align-self: flex-end;
   font-size: 1rem;
   font-weight: 700;
