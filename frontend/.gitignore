@@ -1,0 +1,19 @@
+# production
+/build/
+
+# dependencies
+/node_modules/
+
+# env
+.env
+
+# log
+*.log
+
+# misc
+.DS_Store
+.vscode
+
+# test
+test-result.xml
+/cypress/videos

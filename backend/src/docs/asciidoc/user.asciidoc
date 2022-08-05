@@ -1,0 +1,75 @@
+= User
+:toc: left
+:toclevels: 2
+:sectlinks:
+:source-highlighter: highlightjs
+
+[[home]]
+== home
+
+* link:index.html[홈으로 가기]
+
+[[signUp]]
+== 회원 가입
+
+[[signUp-success]]
+=== HTTP request
+
+include::{snippets}/user/sign-up/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/user/sign-up/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/user/sign-up/request-fields.adoc[]
+
+[[checkEmail]]
+== 이메일 중복 검사
+
+[[checkEmail-success]]
+=== HTTP request
+
+include::{snippets}/user/check-duplicate-email/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/user/check-duplicate-email/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/user/check-duplicate-email/response-fields.adoc[]
+
+[[search]]
+== 유저 키워드 검색
+
+[[search-success]]
+=== HTTP request
+
+include::{snippets}/user/keyword-search/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/user/keyword-search/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/user/keyword-search/response-fields.adoc[]
+
+[[findMyInfo]]
+== 로그인한 회원 정보 조회
+
+[[findMyInfo-success]]
+=== HTTP request
+
+include::{snippets}/user/find-my-info/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/user/find-my-info/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/user/find-my-info/response-fields.adoc[]
+

@@ -1,0 +1,31 @@
+{
+  "presets": [
+    "@babel/preset-env",
+    [
+      "@babel/preset-react",
+      {
+        "runtime": "automatic", // jsx를 변환하는 플러그인들을 자동으로 포함시켜준다는 의이미다.
+        "importSource": "@emotion/react"
+        // jsx를 처리할때 emotion에서 제공하는 함수를 사용하라는 의미이다.
+        // 이렇게 해야 jsx에 달려있는 css prop를 해석하고 className으로 변환할 수 있기 때문이다.
+      }
+    ],
+    "@babel/preset-typescript"
+  ],
+  "plugins": [
+    "@babel/plugin-transform-runtime",
+    [
+      "@emotion",
+      {
+        "sourceMap": true, // sourceMap을 생성한다
+        "autoLabel": "dev-only", // label은 개발모드에서만 적용한다
+        "labelFormat": "[local]",
+        // const CardList = styled.ul 이런식으로 되어 있다면,
+        // local은 CardList가 된다.
+        "cssPropOptimization": true
+        // @emotion/react의 jsx함수를 모든 jsx파일에서 사용한다는 전제가 있다면
+        // true로 해준다. 그러면 뭔가 최적화를 해주는것 같다.
+      }
+    ]
+  ]
+}

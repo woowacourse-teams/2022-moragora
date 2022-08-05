@@ -1,0 +1,38 @@
+import { rest } from 'msw';
+import MeetingListPage from '.';
+import MobileLayout from 'components/layouts/MobileLayout';
+import Header from 'components/layouts/Header';
+
+export default {
+  title: 'Pages/MeetingListPage',
+  component: MeetingListPage,
+  parameters: {
+    reactRouter: {
+      routePath: '/meeting',
+    },
+  },
+};
+
+const Template = (args) => {
+  return (
+    <>
+      <MobileLayout>
+        <Header />
+        <MeetingListPage {...args} />
+      </MobileLayout>
+    </>
+  );
+};
+
+export const Default = Template.bind({});
+
+export const Failure = Template.bind({});
+Failure.parameters = {
+  msw: {
+    handlers: [
+      rest.get('*', (req, res, ctx) => {
+        return res(ctx.status(400), ctx.delay(700));
+      }),
+    ],
+  },
+};
