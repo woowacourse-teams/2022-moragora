@@ -100,7 +100,7 @@ class MeetingServiceTest {
         // given
         final MeetingRequest meetingRequest = new MeetingRequest(
                 "모임1",
-                List.of(2L, 8L)
+                List.of(2L, 50L)
         );
 
         // when, then
@@ -308,24 +308,4 @@ class MeetingServiceTest {
         assertThat(response.getIsMaster()).isFalse();
     }
 
-    @DisplayName("유저 id로 유저가 속한 모든 모임을 조회한다.")
-    @Test
-    void findAllByUserId() {
-        // given
-        final Long loginId = 1L;
-        final Long meetingId = 1L;
-
-        // when
-        final MyMeetingsResponse response = meetingService.findAllByUserId(loginId);
-
-        // then
-        assertThat(response).usingRecursiveComparison()
-                .isEqualTo(new MyMeetingsResponse(List.of(
-                        new MyMeetingResponse(
-                                1L, "모임1", false,
-                                LocalTime.of(0, 0),
-                                LocalTime.of(0, 0),
-                                1, true, false, false)
-                )));
-    }
 }
