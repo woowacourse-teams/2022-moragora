@@ -1,6 +1,10 @@
 package com.woowacourse.moragora.service;
 
+import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
+import static com.woowacourse.moragora.support.EventFixtures.EVENT2;
+import static com.woowacourse.moragora.support.EventFixtures.EVENT3;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.MeetingFixtures.TEATIME;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.PHILLZ;
@@ -11,8 +15,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingResponse;
+import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.entity.Attendance;
+import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
@@ -22,7 +29,6 @@ import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import com.woowacourse.moragora.support.ServerTimeManager;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,9 +44,6 @@ class MeetingServiceTest {
 
     @Autowired
     private MeetingService meetingService;
-
-    @Autowired
-    private EventService eventService;
 
     @Autowired
     private ServerTimeManager serverTimeManager;
@@ -67,8 +70,6 @@ class MeetingServiceTest {
 
         final MeetingRequest meetingRequest = MeetingRequest.builder()
                 .name(meeting.getName())
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
                 .userIds(userIds)
                 .build();
 
@@ -91,8 +92,6 @@ class MeetingServiceTest {
 
         final MeetingRequest meetingRequest = MeetingRequest.builder()
                 .name(meeting.getName())
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
                 .userIds(userIds)
                 .build();
 
@@ -111,8 +110,6 @@ class MeetingServiceTest {
         final Meeting meeting = MORAGORA.create();
         final MeetingRequest meetingRequest = MeetingRequest.builder()
                 .name(meeting.getName())
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
                 .userIds(List.of(user.getId(), user.getId()))
                 .build();
 
@@ -130,8 +127,6 @@ class MeetingServiceTest {
         final Meeting meeting = MORAGORA.create();
         final MeetingRequest meetingRequest = MeetingRequest.builder()
                 .name(meeting.getName())
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
                 .userIds(List.of(user.getId()))
                 .build();
 
@@ -150,8 +145,6 @@ class MeetingServiceTest {
 
         final MeetingRequest meetingRequest = MeetingRequest.builder()
                 .name(meeting.getName())
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
                 .userIds(List.of(99L))
                 .build();
 
@@ -166,21 +159,26 @@ class MeetingServiceTest {
         // given
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
         final User user = dataSupport.saveUser(KUN.create());
-        final Participant participant = dataSupport.saveParticipant(user, meeting, false);
-        dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 1), Status.TARDY);
-        dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 2), Status.TARDY);
-        dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 3), Status.TARDY);
+        final Participant participant = dataSupport.saveParticipant(user, meeting, true);
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        final Event event3 = dataSupport.saveEvent(EVENT3.create(meeting));
+        dataSupport.saveAttendance(participant, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant, event2, Status.TARDY);
+        dataSupport.saveAttendance(participant, event3, Status.TARDY);
 
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
+                .usersResponse(List.of(ParticipantResponse.of(user, Status.TARDY, 3)))
                 .attendanceCount(3)
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
                 .isCoffeeTime(true)
+                .isActive(false)
+                .isMaster(true)
+                .hasUpcomingEvent(false)
                 .build();
 
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 3, 10, 6);
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 4, 10, 6);
         serverTimeManager.refresh(dateTime);
 
         // when
@@ -199,17 +197,23 @@ class MeetingServiceTest {
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
         final User user = dataSupport.saveUser(KUN.create());
         final Participant participant = dataSupport.saveParticipant(user, meeting);
-        dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 1), Status.TARDY);
-        dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 2), Status.TARDY);
-        dataSupport.saveAttendance(participant, LocalDate.of(2022, 8, 3), Status.TARDY);
+
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        final Event event3 = dataSupport.saveEvent(EVENT3.create(meeting));
+        dataSupport.saveAttendance(participant, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant, event2, Status.TARDY);
+        dataSupport.saveAttendance(participant, event3, Status.TARDY);
 
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
-                .attendanceCount(4)
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
+                .usersResponse(List.of(ParticipantResponse.of(user, Status.TARDY, 3)))
+                .attendanceCount(3)
                 .isCoffeeTime(true)
+                .isActive(false)
+                .isMaster(false)
+                .hasUpcomingEvent(false)
                 .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 4, 10, 0);
@@ -230,19 +234,17 @@ class MeetingServiceTest {
         // given
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
         final User user1 = dataSupport.saveUser(KUN.create());
-        final Participant participant1 = dataSupport.saveParticipant(user1, meeting);
-        final Attendance attendance1 = dataSupport.saveAttendance(participant1, LocalDate.of(2022, 8, 1),
-                Status.TARDY);
+        final Participant participant1 = dataSupport.saveParticipant(user1, meeting, true);
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Attendance attendance1 = dataSupport.saveAttendance(participant1, event1, Status.TARDY);
 
         final User user2 = dataSupport.saveUser(PHILLZ.create());
         final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
-        final Attendance attendance2 = dataSupport.saveAttendance(participant2, LocalDate.of(2022, 8, 1),
-                Status.TARDY);
+        final Attendance attendance2 = dataSupport.saveAttendance(participant2, event1, Status.TARDY);
 
         final User user3 = dataSupport.saveUser(WOODY.create());
         final Participant participant3 = dataSupport.saveParticipant(user3, meeting);
-        final Attendance attendance3 = dataSupport.saveAttendance(participant3, LocalDate.of(2022, 8, 1),
-                Status.TARDY);
+        final Attendance attendance3 = dataSupport.saveAttendance(participant3, event1, Status.TARDY);
 
         final List<ParticipantResponse> usersResponse = List.of(
                 new ParticipantResponse(user1.getId(), user1.getEmail(), user1.getNickname(),
@@ -255,11 +257,12 @@ class MeetingServiceTest {
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
-                .attendanceCount(1)
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
                 .usersResponse(usersResponse)
+                .attendanceCount(1)
                 .isCoffeeTime(true)
+                .isActive(true)
+                .isMaster(true)
+                .hasUpcomingEvent(true)
                 .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 4);
@@ -279,19 +282,17 @@ class MeetingServiceTest {
         // given
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
         final User user1 = dataSupport.saveUser(KUN.create());
-        final Participant participant1 = dataSupport.saveParticipant(user1, meeting);
-        final Attendance attendance1 = dataSupport.saveAttendance(participant1, LocalDate.of(2022, 8, 1),
-                Status.TARDY);
+        final Participant participant1 = dataSupport.saveParticipant(user1, meeting, true);
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Attendance attendance1 = dataSupport.saveAttendance(participant1, event1, Status.TARDY);
 
         final User user2 = dataSupport.saveUser(PHILLZ.create());
         final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
-        final Attendance attendance2 = dataSupport.saveAttendance(participant2, LocalDate.of(2022, 8, 1),
-                Status.TARDY);
+        final Attendance attendance2 = dataSupport.saveAttendance(participant2, event1, Status.TARDY);
 
         final User user3 = dataSupport.saveUser(WOODY.create());
         final Participant participant3 = dataSupport.saveParticipant(user3, meeting);
-        final Attendance attendance3 = dataSupport.saveAttendance(participant3, LocalDate.of(2022, 8, 1),
-                Status.TARDY);
+        final Attendance attendance3 = dataSupport.saveAttendance(participant3, event1, Status.TARDY);
 
         final List<ParticipantResponse> usersResponse = List.of(
                 new ParticipantResponse(user1.getId(), user1.getEmail(), user1.getNickname(),
@@ -304,11 +305,12 @@ class MeetingServiceTest {
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
-                .attendanceCount(1)
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
                 .usersResponse(usersResponse)
+                .attendanceCount(1)
                 .isCoffeeTime(true)
+                .isActive(false)
+                .isMaster(true)
+                .hasUpcomingEvent(true)
                 .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 6);
@@ -326,20 +328,28 @@ class MeetingServiceTest {
     @Test
     void findById_if_hasNoEvent_and_hasUpcomingEvent() {
         // given
-        final Long meetingId = 1L;
-        final Long loginId = 1L;
-        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
-                1L,
-                "모임1",
-                0,
-                false, true, false, true, null
-        );
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final User user = dataSupport.saveUser(KUN.create());
+        final Participant participant = dataSupport.saveParticipant(user, meeting, true);
+        final Event event = dataSupport.saveEvent(EVENT1.create(meeting));
+        dataSupport.saveEvent(EVENT2.create(meeting));
+        dataSupport.saveAttendance(participant, event, Status.PRESENT);
 
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 9, 0, 0);
+        final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
+                .id(meeting.getId())
+                .name(meeting.getName())
+                .attendanceCount(1)
+                .isCoffeeTime(false)
+                .isActive(true)
+                .isMaster(true)
+                .hasUpcomingEvent(true)
+                .build();
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 9, 59);
         serverTimeManager.refresh(dateTime);
 
         // when
-        final MeetingResponse response = meetingService.findById(meetingId, loginId);
+        final MeetingResponse response = meetingService.findById(meeting.getId(), user.getId());
 
         // then
         assertThat(response).usingRecursiveComparison()
@@ -351,20 +361,27 @@ class MeetingServiceTest {
     @Test
     void findById_if_hasNoEvent_and_hasNoUpcomingEvent() {
         // given
-        final Long meetingId = 1L;
-        final Long loginId = 1L;
-        final MeetingResponse expectedMeetingResponse = new MeetingResponse(
-                1L,
-                "모임1",
-                5,
-                false, true, false, false, null
-        );
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final User user = dataSupport.saveUser(KUN.create());
+        final Participant participant = dataSupport.saveParticipant(user, meeting, true);
+        final Event event = dataSupport.saveEvent(EVENT1.create(meeting));
+        dataSupport.saveAttendance(participant, event, Status.PRESENT);
 
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 11, 0, 0);
+        final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
+                .id(meeting.getId())
+                .name(meeting.getName())
+                .attendanceCount(1)
+                .isCoffeeTime(false)
+                .isActive(false)
+                .isMaster(true)
+                .hasUpcomingEvent(false)
+                .build();
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 2, 9, 59);
         serverTimeManager.refresh(dateTime);
 
         // when
-        final MeetingResponse response = meetingService.findById(meetingId, loginId);
+        final MeetingResponse response = meetingService.findById(meeting.getId(), user.getId());
 
         // then
         assertThat(response).usingRecursiveComparison()
@@ -414,53 +431,46 @@ class MeetingServiceTest {
     @Test
     void findAllByUserId() {
         // given
-        final Long loginId = 1L;
-        final Long meetingId = 1L;
+        final Meeting meeting1 = MORAGORA.create();
+        final Meeting meeting2 = TEATIME.create();
+        final User user = KUN.create();
+        dataSupport.saveParticipant(user, meeting1, true);
+        dataSupport.saveParticipant(user, meeting2, true);
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting1));
+        final Event event2 = dataSupport.saveEvent(EVENT1.create(meeting2));
+
+        final MyMeetingResponse response1 = MyMeetingResponse.builder()
+                .id(meeting1.getId())
+                .name(meeting1.getName())
+                .isActive(false)
+                .entranceTime(event1.getEntranceTime())
+                .closingTime(event1.getEntranceTime().plusMinutes(5))
+                .tardyCount(0)
+                .isMaster(true)
+                .isCoffeeTime(false)
+                .hasUpcomingEvent(true)
+                .build();
+
+        final MyMeetingResponse response2 = MyMeetingResponse.builder()
+                .id(meeting2.getId())
+                .name(meeting2.getName())
+                .isActive(false)
+                .entranceTime(event2.getEntranceTime())
+                .closingTime(event2.getEntranceTime().plusMinutes(5))
+                .tardyCount(0)
+                .isMaster(true)
+                .isCoffeeTime(false)
+                .hasUpcomingEvent(true)
+                .build();
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 5);
+        serverTimeManager.refresh(dateTime);
 
         // when
-        final MyMeetingsResponse response = meetingService.findAllByUserId(loginId);
+        final MyMeetingsResponse response = meetingService.findAllByUserId(user.getId());
 
         // then
         assertThat(response).usingRecursiveComparison()
-                .isEqualTo(new MyMeetingsResponse(List.of(
-                        new MyMeetingResponse(
-                                1L, "모임1", false,
-                                LocalTime.of(0, 0),
-                                LocalTime.of(0, 0),
-                                1, true, false, false)
-                )));
+                .isEqualTo(new MyMeetingsResponse(List.of(response1, response2)));
     }
-//    @DisplayName("유저 id로 유저가 속한 모든 모임을 조회한다.")
-//    @Test
-//    void findAllByUserId() {
-//        // given
-//        final User user = dataSupport.saveUser(KUN.create());
-//        final Meeting meeting1 = dataSupport.saveMeeting(MORAGORA.create());
-//        final Meeting meeting2 = dataSupport.saveMeeting(F12.create());
-//
-//        final Participant participant1 = dataSupport.saveParticipant(user, meeting1);
-//        dataSupport.saveAttendance(participant1, LocalDate.of(2022, 8, 1), Status.TARDY);
-//
-//        final Participant participant2 = dataSupport.saveParticipant(user, meeting2);
-//
-//        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 6);
-//        serverTimeManager.refresh(dateTime);
-//        new Event(dateTime.toLocalDate(), )
-//
-//        // when
-//        final MyMeetingsResponse myMeetingsResponse = meetingService.findAllByUserId(user.getId());
-//
-//        // then
-//        assertThat(myMeetingsResponse).usingRecursiveComparison()
-//                .isEqualTo(new MyMeetingsResponse(
-//                        List.of(
-//                                MyMeetingResponse.of(meeting1, false,
-//                                        serverTimeManager.calculateClosingTime(LocalTime.of(10, 0)),
-//                                        1, participant1.getIsMaster(), true),
-//                                MyMeetingResponse.of(meeting2, false,
-//                                        serverTimeManager.calculateClosingTime(meeting2.getEntranceTime()), 0,
-//                                        participant2.getIsMaster(), false)
-//                        ))
-//                );
-//    }
 }

@@ -1,6 +1,6 @@
 package com.woowacourse.moragora.service;
 
-import static com.woowacourse.moragora.support.UserFixtures.values;
+import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -8,10 +8,11 @@ import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
+import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
-import com.woowacourse.moragora.support.UserFixtures;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -92,15 +93,17 @@ class UserServiceTest {
     void searchByKeyword() {
         // given
         final String keyword = "email";
-        for (UserFixtures value : values()) {
-            userService.create(new UserRequest(value.getEmail(), "1234asdf!", value.getNickname()));
+
+        final List<User> users = createUsers();
+        for (User user : users) {
+            userService.create(new UserRequest(user.getEmail(), "1234asdf!", user.getNickname()));
         }
 
         // when
         final UsersResponse response = userService.searchByKeyword(keyword);
 
         // then
-        assertThat(response.getUsers()).hasSize(8);
+        assertThat(response.getUsers()).hasSize(7);
     }
 
     @DisplayName("keyword를 입력하지 않고 검색하면 예외가 발생한다.")

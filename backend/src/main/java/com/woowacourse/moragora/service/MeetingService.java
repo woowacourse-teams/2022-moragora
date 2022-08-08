@@ -13,7 +13,6 @@ import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.ParticipantAttendances;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
-import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
@@ -114,7 +113,8 @@ public class MeetingService {
                         meetingAttendances, isOver, participant))
                 .collect(Collectors.toList());
 
-        return MeetingResponse.of(meeting, isMaster, isActive, participantResponses, meetingAttendances, hasUpcomingEvent, events.size());
+        return MeetingResponse.of(meeting, isMaster, isActive, participantResponses, meetingAttendances,
+                hasUpcomingEvent, events.size());
     }
 
 
@@ -153,20 +153,6 @@ public class MeetingService {
     private void validateUserExists(final List<Long> userIds, final List<User> users) {
         if (users.size() != userIds.size()) {
             throw new UserNotFoundException();
-        }
-    }
-
-    private void putAttendanceIfAbsent(final Meeting meeting, final List<Participant> participants) {
-        final List<Long> participantIds = participants.stream()
-                .map(Participant::getId)
-                .collect(Collectors.toList());
-        final Event event = eventRepository.findByMeetingIdAndDate(meeting.getId(), serverTimeManager.getDate())
-                .orElseThrow(EventNotFoundException::new);
-        final List<Attendance> attendances = attendanceRepository
-                .findByParticipantIdInAndEventId(participantIds, event.getId());
-
-        if (attendances.size() == 0) {
-            saveAttendances(participants, event);
         }
     }
 

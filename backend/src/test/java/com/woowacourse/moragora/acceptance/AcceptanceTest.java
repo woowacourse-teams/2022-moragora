@@ -1,8 +1,11 @@
 package com.woowacourse.moragora.acceptance;
 
 import com.woowacourse.auth.dto.LoginRequest;
+import com.woowacourse.moragora.dto.EventRequest;
+import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.UserRequest;
+import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
@@ -10,7 +13,6 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,10 +24,6 @@ import org.springframework.http.MediaType;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AcceptanceTest {
-
-    private static final LocalTime ENTRANCE_TIME = LocalTime.of(10, 0);
-    private static final LocalTime LEAVE_TIME = LocalTime.of(18, 0);
-
 
     @LocalServerPort
     int port;
@@ -120,10 +118,6 @@ public class AcceptanceTest {
     protected int saveMeeting(final String token, final List<Long> userIds, final Meeting meeting) {
         final MeetingRequest meetingRequest = MeetingRequest.builder()
                 .name(meeting.getName())
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
-                .entranceTime(ENTRANCE_TIME)
-                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 
@@ -137,7 +131,12 @@ public class AcceptanceTest {
         return Integer.parseInt(value);
     }
 
-    protected void findOne(final String token, final int meetingId) {
-        get("/meetings/" + meetingId, token);
+    protected void saveEvents(final String token, final List<Event> events, final Long meetingId) {
+        final List<EventRequest> eventRequests = events.stream()
+                .map(event -> new EventRequest(event.getEntranceTime(), event.getLeaveTime(), event.getDate()))
+                .collect(Collectors.toList());
+
+        EventsRequest eventsRequest = new EventsRequest(eventRequests);
+        post("/meetings/" + meetingId + "/events", eventsRequest, token);
     }
 }

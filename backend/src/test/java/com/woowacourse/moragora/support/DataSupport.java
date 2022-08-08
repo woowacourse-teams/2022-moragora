@@ -11,17 +11,12 @@ import com.woowacourse.moragora.repository.EventRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DataSupport {
-
-    private static final LocalTime ENTRANCE_TIME = LocalTime.of(10, 0);
-    private static final LocalTime LEAVE_TIME = LocalTime.of(18, 0);
 
     private final UserRepository userRepository;
 
@@ -46,11 +41,7 @@ public class DataSupport {
     }
 
     public Participant saveParticipant(final User user, final Meeting meeting) {
-        final User savedUser = userRepository.save(user);
-        final Meeting savedMeeting = meetingRepository.save(meeting);
-        final Participant participant = participantRepository.save(new Participant(savedUser, savedMeeting, false));
-        participant.mapMeeting(savedMeeting);
-        return participant;
+        return saveParticipant(user, meeting, false);
     }
 
     public Participant saveParticipant(final User user, final Meeting meeting, final boolean isMaster) {
@@ -65,12 +56,6 @@ public class DataSupport {
         return attendanceRepository.save(new Attendance(status, false, participant, event));
     }
 
-    public Attendance saveAttendance(final Participant participant, final LocalDate attendanceDate,
-                                     final boolean disabled, final Status status) {
-        final Event event = eventRepository
-                .save(new Event(attendanceDate, ENTRANCE_TIME, LEAVE_TIME, participant.getMeeting()));
-        return attendanceRepository.save(new Attendance(status, disabled, participant, event));
-    }
 
     public User saveUser(final User user) {
         return userRepository.save(user);

@@ -1,9 +1,9 @@
 package com.woowacourse.moragora.repository;
 
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.support.MeetingFixtures;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ class MeetingRepositoryTest {
     @Test
     void save() {
         // given
-        final Meeting meeting = MeetingFixtures.MORAGORA.create();
+        final Meeting meeting = MORAGORA.create();
 
         // when
         final Meeting savedMeeting = meetingRepository.save(meeting);
@@ -32,7 +32,7 @@ class MeetingRepositoryTest {
     @Test
     void findById() {
         // given, when
-        final Meeting meeting = meetingRepository.save(MeetingFixtures.MORAGORA.create());
+        final Meeting meeting = meetingRepository.save(MORAGORA.create());
         final Meeting foundMeeting = meetingRepository.findById(meeting.getId())
                 .get();
 

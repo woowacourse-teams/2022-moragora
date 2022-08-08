@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.repository;
 
+import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.AZPI;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
@@ -12,7 +13,6 @@ import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.DataSupport;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,11 +39,14 @@ class AttendanceRepositoryTest {
     @Test
     void findByParticipantIdAndEventId() {
         // given
-        final Participant participant = dataSupport.saveParticipant(KUN.create(), MORAGORA.create(), false);
-        final LocalDate attendanceDate = LocalDate.of(2022, 7, 14);
-        dataSupport.saveAttendance(participant, attendanceDate, Status.TARDY);
-        final Optional<Event> event = eventRepository.findByMeetingIdAndDate(1L, attendanceDate);
-        assert (event.isPresent());
+        final Meeting meeting = MORAGORA.create();
+        final Participant participant = dataSupport.saveParticipant(KUN.create(), meeting, false);
+        final Event event1 = EVENT1.create(meeting);
+        final Event savedEvent = eventRepository.save(event1);
+
+        attendanceRepository.save(new Attendance(Status.TARDY, false, participant, savedEvent));
+
+        final Optional<Event> event = eventRepository.findByMeetingIdAndDate(meeting.getId(), savedEvent.getDate());
 
         // when
         final Optional<Attendance> attendance = attendanceRepository
@@ -65,8 +68,11 @@ class AttendanceRepositoryTest {
         final Participant participant1 = dataSupport.saveParticipant(user1, meeting);
         final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
 
-        dataSupport.saveAttendance(participant1, meeting.getStartDate(), Status.TARDY);
-        dataSupport.saveAttendance(participant2, meeting.getStartDate(), Status.PRESENT);
+        final Event event = EVENT1.create(meeting);
+        final Event savedEvent = eventRepository.save(event);
+
+        attendanceRepository.save(new Attendance(Status.TARDY, true, participant1, savedEvent));
+        attendanceRepository.save(new Attendance(Status.TARDY, true, participant2, savedEvent));
 
         final List<Participant> participants = List.of(participant1, participant2);
 
@@ -93,14 +99,10 @@ class AttendanceRepositoryTest {
         final Participant participant1 = dataSupport.saveParticipant(user1, meeting);
         final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
 
-        final Attendance attendance1 = dataSupport.saveAttendance(participant1, meeting.getStartDate(), Status.TARDY);
-        final Attendance attendance2 = dataSupport.saveAttendance(participant2, meeting.getStartDate(), Status.PRESENT);
+        final Event event = EVENT1.create(meeting);
+        final Event savedEvent = eventRepository.save(event);
 
-        final Event event1 = attendance1.getEvent();
-        final Event event2 = attendance2.getEvent();
-
-        System.out.println("event1.get = " + event1.getId());
-        System.out.println("event2.getId() = " + event2.getId());
+        final Attendance attendance1 = dataSupport.saveAttendance(participant1, savedEvent, Status.TARDY);
 
         final List<Participant> participants = List.of(participant1, participant2);
 

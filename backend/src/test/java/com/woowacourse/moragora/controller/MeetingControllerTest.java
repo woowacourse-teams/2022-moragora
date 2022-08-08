@@ -22,6 +22,7 @@ import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.time.LocalDate;
@@ -49,10 +50,6 @@ class MeetingControllerTest extends ControllerTest {
 
         final MeetingRequest meetingRequest = MeetingRequest.builder()
                 .name(meeting.getName())
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
-                .entranceTime(ENTRANCE_TIME)
-                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 
@@ -68,13 +65,6 @@ class MeetingControllerTest extends ControllerTest {
                 .andDo(document("meeting/create-meeting",
                         requestFields(
                                 fieldWithPath("name").type(JsonFieldType.STRING).description(meeting.getName()),
-                                fieldWithPath("startDate").type(JsonFieldType.STRING)
-                                        .description(meeting.getStartDate()),
-                                fieldWithPath("endDate").type(JsonFieldType.STRING).description(meeting.getEndDate()),
-                                fieldWithPath("entranceTime").type(JsonFieldType.STRING)
-                                        .description(ENTRANCE_TIME),
-                                fieldWithPath("leaveTime").type(JsonFieldType.STRING)
-                                        .description(LEAVE_TIME),
                                 fieldWithPath("userIds").type(JsonFieldType.ARRAY).description(userIds)
                         )
                 ));
@@ -89,16 +79,12 @@ class MeetingControllerTest extends ControllerTest {
 
         final MeetingRequest meetingRequest = MeetingRequest.builder()
                 .name(meeting.getName())
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
-                .entranceTime(ENTRANCE_TIME)
-                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
-                .willThrow(new IllegalStartEndDateException());
+                .willThrow(new IllegalEntranceLeaveTimeException());
 
         // when
         final ResultActions resultActions = performPost("/meetings", meetingRequest);
@@ -106,7 +92,7 @@ class MeetingControllerTest extends ControllerTest {
         // then
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
-                        .value("시작 날짜보다 종료 날짜가 이를 수 없습니다."));
+                        .value("시작 시간보다 종료 시간이 이를 수 없습니다."));
     }
 
     @DisplayName("미팅 방 이름의 길이가 50자를 초과할 경우 예외가 발생한다.")
@@ -116,15 +102,10 @@ class MeetingControllerTest extends ControllerTest {
             "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghija"})
     void add_throwsException_ifMeetingNameTooLong(final String name) throws Exception {
         // given
-        final Meeting meeting = MORAGORA.create();
         final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
 
         final MeetingRequest meetingRequest = MeetingRequest.builder()
                 .name(name)
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
-                .entranceTime(ENTRANCE_TIME)
-                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 
@@ -149,10 +130,6 @@ class MeetingControllerTest extends ControllerTest {
 
         final MeetingRequest meetingRequest = MeetingRequest.builder()
                 .name(meeting.getName())
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
-                .entranceTime(ENTRANCE_TIME)
-                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 
@@ -178,10 +155,6 @@ class MeetingControllerTest extends ControllerTest {
 
         final MeetingRequest meetingRequest = MeetingRequest.builder()
                 .name(meeting.getName())
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
-                .entranceTime(ENTRANCE_TIME)
-                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 
@@ -207,10 +180,6 @@ class MeetingControllerTest extends ControllerTest {
 
         final MeetingRequest meetingRequest = MeetingRequest.builder()
                 .name(meeting.getName())
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
-                .entranceTime(ENTRANCE_TIME)
-                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 
@@ -236,10 +205,6 @@ class MeetingControllerTest extends ControllerTest {
 
         final MeetingRequest meetingRequest = MeetingRequest.builder()
                 .name(meeting.getName())
-                .startDate(meeting.getStartDate())
-                .endDate(meeting.getEndDate())
-                .entranceTime(ENTRANCE_TIME)
-                .leaveTime(LEAVE_TIME)
                 .userIds(userIds)
                 .build();
 
