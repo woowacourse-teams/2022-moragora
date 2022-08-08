@@ -47,7 +47,7 @@ class MeetingAttendancesTest {
                 List.of(attendance1, attendance2, attendance3), 3);
 
         // when
-        final int actual = meetingAttendances.countTardy();
+        final int actual = meetingAttendances.countTardy(true, now.toLocalDate());
 
         // then
         assertThat(actual).isEqualTo(expected);
@@ -129,6 +129,6 @@ class MeetingAttendancesTest {
         meetingAttendances.disableAttendances();
 
         // then
-        assertThat(meetingAttendances.countTardy()).isEqualTo(3);
+        assertThat(meetingAttendances.countTardy(true, now.toLocalDate())).isEqualTo(3);
     }
 }

@@ -259,7 +259,7 @@ class MeetingServiceTest {
                 .name(meeting.getName())
                 .usersResponse(usersResponse)
                 .attendanceCount(1)
-                .isCoffeeTime(true)
+                .isCoffeeTime(false)
                 .isActive(true)
                 .isMaster(true)
                 .hasUpcomingEvent(true)

@@ -46,7 +46,7 @@ public class MeetingResponse {
                                      final boolean isMaster,
                                      final boolean isActive,
                                      final List<ParticipantResponse> participantResponses,
-                                     final MeetingAttendances meetingAttendances,
+                                     final boolean isCoffeeTime,
                                      final boolean hasUpcomingEvent,
                                      final int attendanceCount) {
         return new MeetingResponse(
@@ -55,7 +55,7 @@ public class MeetingResponse {
                 attendanceCount,
                 isActive,
                 isMaster,
-                meetingAttendances.isTardyStackFull(),
+                isCoffeeTime,
                 hasUpcomingEvent,
                 participantResponses
         );
