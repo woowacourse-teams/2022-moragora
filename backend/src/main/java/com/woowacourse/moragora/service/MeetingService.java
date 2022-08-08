@@ -114,7 +114,8 @@ public class MeetingService {
                         meetingAttendances, isOver, participant))
                 .collect(Collectors.toList());
 
-        return MeetingResponse.of(meeting, isMaster, isActive, participantResponses, meetingAttendances.isTardyStackFull(isOver, today), hasUpcomingEvent, events.size());
+        return MeetingResponse.of(meeting, isMaster, isActive, participantResponses,
+                meetingAttendances.isTardyStackFull(isOver, today), hasUpcomingEvent, events.size());
     }
 
 

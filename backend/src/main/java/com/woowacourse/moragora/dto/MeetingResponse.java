@@ -1,7 +1,6 @@
 package com.woowacourse.moragora.dto;
 
 import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.entity.MeetingAttendances;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.Builder;

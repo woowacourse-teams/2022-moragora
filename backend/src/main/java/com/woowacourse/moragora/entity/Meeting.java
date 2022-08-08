@@ -28,13 +28,13 @@ public class Meeting {
     @Column(nullable = false)
     private String name;
 
+    @OneToMany(mappedBy = "meeting")
+    private final List<Participant> participants = new ArrayList<>();
+
     @Builder
     public Meeting(final String name) {
         this.name = name;
     }
-
-    @OneToMany(mappedBy = "meeting")
-    private List<Participant> participants = new ArrayList<>();
 
     public List<Long> getParticipantIds() {
         return participants.stream()
