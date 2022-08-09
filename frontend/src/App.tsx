@@ -1,8 +1,6 @@
 import { useContext } from 'react';
 import Router from 'router';
-import { css } from '@emotion/react';
 import * as S from './App.styled';
-import MobileLayout from 'components/layouts/MobileLayout';
 import Header from 'components/layouts/Header';
 import Spinner from 'components/@shared/Spinner';
 import { userContext, UserContextValues } from 'contexts/userContext';
@@ -24,34 +22,28 @@ const App = () => {
     }
   );
 
+  if (isLoading) {
+    return (
+      <S.App>
+        <S.Layout>
+          <S.SpinnerBox>
+            <Spinner />
+          </S.SpinnerBox>
+        </S.Layout>
+      </S.App>
+    );
+  }
+
   return (
     <>
-      <div
-        css={css`
-          width: 100vw;
-          height: 100vh;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        `}
-      >
-        <MobileLayout>
-          {isLoading ? (
-            <S.Layout>
-              <S.SpinnerBox>
-                <Spinner />
-              </S.SpinnerBox>
-            </S.Layout>
-          ) : (
-            <>
-              <Header />
-              <CalendarProvider initialDate={new Date()}>
-                <Router />
-              </CalendarProvider>
-            </>
-          )}
-        </MobileLayout>
-      </div>
+      <S.App>
+        <S.Layout>
+          <Header />
+          <CalendarProvider initialDate={new Date()}>
+            <Router />
+          </CalendarProvider>
+        </S.Layout>
+      </S.App>
       <div id="root-modal" />
     </>
   );
