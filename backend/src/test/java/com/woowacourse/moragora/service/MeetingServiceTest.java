@@ -18,7 +18,6 @@ import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
-import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
@@ -170,12 +169,11 @@ class MeetingServiceTest {
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
-                .usersResponse(List.of(ParticipantResponse.of(user, Status.TARDY, 3)))
-                .attendanceCount(3)
+                .participantResponses(List.of(ParticipantResponse.of(user, 3, participant.getIsMaster())))
+                .attendedEventCount(3)
                 .isCoffeeTime(true)
                 .isActive(false)
-                .isMaster(true)
-                .hasUpcomingEvent(false)
+                .isLoginUserMaster(true)
                 .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 4, 10, 6);
@@ -208,12 +206,11 @@ class MeetingServiceTest {
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
-                .usersResponse(List.of(ParticipantResponse.of(user, Status.TARDY, 3)))
-                .attendanceCount(3)
+                .participantResponses(List.of(ParticipantResponse.of(user, 3, participant.getIsMaster())))
+                .attendedEventCount(3)
                 .isCoffeeTime(true)
                 .isActive(false)
-                .isMaster(false)
-                .hasUpcomingEvent(false)
+                .isLoginUserMaster(false)
                 .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 4, 10, 0);
@@ -236,33 +233,32 @@ class MeetingServiceTest {
         final User user1 = dataSupport.saveUser(KUN.create());
         final Participant participant1 = dataSupport.saveParticipant(user1, meeting, true);
         final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
-        final Attendance attendance1 = dataSupport.saveAttendance(participant1, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant1, event1, Status.TARDY);
 
         final User user2 = dataSupport.saveUser(PHILLZ.create());
         final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
-        final Attendance attendance2 = dataSupport.saveAttendance(participant2, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant2, event1, Status.TARDY);
 
         final User user3 = dataSupport.saveUser(WOODY.create());
         final Participant participant3 = dataSupport.saveParticipant(user3, meeting);
-        final Attendance attendance3 = dataSupport.saveAttendance(participant3, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant3, event1, Status.TARDY);
 
         final List<ParticipantResponse> usersResponse = List.of(
-                new ParticipantResponse(user1.getId(), user1.getEmail(), user1.getNickname(),
-                        attendance1.getStatus(), 0),
-                new ParticipantResponse(user2.getId(), user2.getEmail(), user2.getNickname(),
-                        attendance2.getStatus(), 0),
-                new ParticipantResponse(user3.getId(), user3.getEmail(), user3.getNickname(),
-                        attendance3.getStatus(), 0)
+                new ParticipantResponse(user1.getId(), user1.getEmail(), user1.getNickname(), 0,
+                        participant1.getIsMaster()),
+                new ParticipantResponse(user2.getId(), user2.getEmail(), user2.getNickname(), 0,
+                        participant2.getIsMaster()),
+                new ParticipantResponse(user3.getId(), user3.getEmail(), user3.getNickname(), 0,
+                        participant3.getIsMaster())
         );
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
-                .usersResponse(usersResponse)
-                .attendanceCount(1)
+                .participantResponses(usersResponse)
+                .attendedEventCount(1)
                 .isCoffeeTime(false)
                 .isActive(true)
-                .isMaster(true)
-                .hasUpcomingEvent(true)
+                .isLoginUserMaster(true)
                 .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 4);
@@ -284,33 +280,32 @@ class MeetingServiceTest {
         final User user1 = dataSupport.saveUser(KUN.create());
         final Participant participant1 = dataSupport.saveParticipant(user1, meeting, true);
         final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
-        final Attendance attendance1 = dataSupport.saveAttendance(participant1, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant1, event1, Status.TARDY);
 
         final User user2 = dataSupport.saveUser(PHILLZ.create());
         final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
-        final Attendance attendance2 = dataSupport.saveAttendance(participant2, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant2, event1, Status.TARDY);
 
         final User user3 = dataSupport.saveUser(WOODY.create());
         final Participant participant3 = dataSupport.saveParticipant(user3, meeting);
-        final Attendance attendance3 = dataSupport.saveAttendance(participant3, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant3, event1, Status.TARDY);
 
         final List<ParticipantResponse> usersResponse = List.of(
-                new ParticipantResponse(user1.getId(), user1.getEmail(), user1.getNickname(),
-                        attendance1.getStatus(), 1),
-                new ParticipantResponse(user2.getId(), user2.getEmail(), user2.getNickname(),
-                        attendance2.getStatus(), 1),
-                new ParticipantResponse(user3.getId(), user3.getEmail(), user3.getNickname(),
-                        attendance3.getStatus(), 1)
+                new ParticipantResponse(user1.getId(), user1.getEmail(), user1.getNickname(), 1,
+                        participant1.getIsMaster()),
+                new ParticipantResponse(user2.getId(), user2.getEmail(), user2.getNickname(), 1,
+                        participant2.getIsMaster()),
+                new ParticipantResponse(user3.getId(), user3.getEmail(), user3.getNickname(), 1,
+                        participant3.getIsMaster())
         );
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
-                .usersResponse(usersResponse)
-                .attendanceCount(1)
+                .participantResponses(usersResponse)
+                .attendedEventCount(1)
                 .isCoffeeTime(true)
                 .isActive(false)
-                .isMaster(true)
-                .hasUpcomingEvent(true)
+                .isLoginUserMaster(true)
                 .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 6);
@@ -338,11 +333,10 @@ class MeetingServiceTest {
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
-                .attendanceCount(1)
+                .attendedEventCount(1)
                 .isCoffeeTime(false)
                 .isActive(true)
-                .isMaster(true)
-                .hasUpcomingEvent(true)
+                .isLoginUserMaster(true)
                 .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 9, 59);
@@ -370,11 +364,10 @@ class MeetingServiceTest {
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
-                .attendanceCount(1)
+                .attendedEventCount(1)
                 .isCoffeeTime(false)
                 .isActive(false)
-                .isMaster(true)
-                .hasUpcomingEvent(false)
+                .isLoginUserMaster(true)
                 .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 2, 9, 59);
@@ -396,7 +389,7 @@ class MeetingServiceTest {
         final Meeting meeting = MORAGORA.create();
         final User user = KUN.create();
 
-        final Participant participant = dataSupport.saveParticipant(user, meeting, true);
+        dataSupport.saveParticipant(user, meeting, true);
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 5);
         serverTimeManager.refresh(dateTime);
@@ -405,7 +398,7 @@ class MeetingServiceTest {
         final MeetingResponse response = meetingService.findById(meeting.getId(), user.getId());
 
         // then
-        assertThat(response.getIsMaster()).isTrue();
+        assertThat(response.getIsLoginUserMaster()).isTrue();
     }
 
     @DisplayName("Master가 아닌 id로 모임 상세 정보를 조회한다")
@@ -415,7 +408,7 @@ class MeetingServiceTest {
         final Meeting meeting = MORAGORA.create();
         final User user = KUN.create();
 
-        final Participant participant = dataSupport.saveParticipant(user, meeting, false);
+        dataSupport.saveParticipant(user, meeting, false);
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 14, 10, 5);
         serverTimeManager.refresh(dateTime);
@@ -424,7 +417,7 @@ class MeetingServiceTest {
         final MeetingResponse response = meetingService.findById(meeting.getId(), user.getId());
 
         // then
-        assertThat(response.getIsMaster()).isFalse();
+        assertThat(response.getIsLoginUserMaster()).isFalse();
     }
 
     @DisplayName("유저 id로 유저가 속한 모든 모임을 조회한다.")

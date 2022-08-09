@@ -21,11 +21,9 @@ import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -227,17 +225,15 @@ class MeetingControllerTest extends ControllerTest {
     void findOne() throws Exception {
         // given
         final List<ParticipantResponse> participantResponses = new ArrayList<>();
-        participantResponses.add(new ParticipantResponse(1L, "abc@naver.com", "foo", Status.TARDY, 5));
-        participantResponses.add(new ParticipantResponse(2L, "def@naver.com", "boo", Status.TARDY, 8));
+        participantResponses.add(new ParticipantResponse(1L, "abc@naver.com", "foo", 5, true));
+        participantResponses.add(new ParticipantResponse(2L, "def@naver.com", "boo", 8, false));
 
         final long id = 1L;
         final String name = "모임1";
         final int attendanceCount = 0;
-        final LocalDate startDate = LocalDate.of(2022, 7, 10);
-        final LocalDate endDate = LocalDate.of(2022, 8, 10);
         final boolean isMaster = true;
         final MeetingResponse meetingResponse =
-                new MeetingResponse(id, name, attendanceCount, true, isMaster, false, true, participantResponses);
+                new MeetingResponse(id, name, attendanceCount, isMaster, false, true, participantResponses);
 
         final Long loginId = validateToken("1");
         given(meetingService.findById(eq(1L), eq(loginId)))
@@ -250,32 +246,29 @@ class MeetingControllerTest extends ControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", equalTo(1)))
                 .andExpect(jsonPath("$.name", equalTo("모임1")))
-                .andExpect(jsonPath("$.attendanceCount", equalTo(0)))
+                .andExpect(jsonPath("$.attendedEventCount", equalTo(0)))
                 .andExpect(jsonPath("$.isActive", equalTo(true)))
-                .andExpect(jsonPath("$.isMaster", equalTo(true)))
+                .andExpect(jsonPath("$.isLoginUserMaster", equalTo(true)))
                 .andExpect(jsonPath("$.isCoffeeTime", equalTo(false)))
-                .andExpect(jsonPath("$.hasUpcomingEvent", equalTo(true)))
                 .andExpect(jsonPath("$.users[*].id", containsInAnyOrder(1, 2)))
                 .andExpect(jsonPath("$.users[*].email", containsInAnyOrder("abc@naver.com", "def@naver.com")))
                 .andExpect(jsonPath("$.users[*].nickname", containsInAnyOrder("foo", "boo")))
-                .andExpect(jsonPath("$.users[*].attendanceStatus", containsInAnyOrder("tardy", "tardy")))
                 .andExpect(jsonPath("$.users[*].tardyCount", containsInAnyOrder(5, 8)))
+                .andExpect(jsonPath("$.users[*].isMaster", containsInAnyOrder(true, false)))
                 .andDo(document("meeting/find-one-meeting",
                         responseFields(
                                 fieldWithPath("id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("name").type(JsonFieldType.STRING).description(name),
-                                fieldWithPath("attendanceCount").type(JsonFieldType.NUMBER)
+                                fieldWithPath("attendedEventCount").type(JsonFieldType.NUMBER)
                                         .description(attendanceCount),
                                 fieldWithPath("isActive").type(JsonFieldType.BOOLEAN).description(true),
-                                fieldWithPath("isMaster").type(JsonFieldType.BOOLEAN).description(isMaster),
+                                fieldWithPath("isLoginUserMaster").type(JsonFieldType.BOOLEAN).description(isMaster),
                                 fieldWithPath("isCoffeeTime").type(JsonFieldType.BOOLEAN).description(false),
-                                fieldWithPath("hasUpcomingEvent").type(JsonFieldType.BOOLEAN).description(true),
                                 fieldWithPath("users[].id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("users[].email").type(JsonFieldType.STRING).description("abc@email.com"),
                                 fieldWithPath("users[].nickname").type(JsonFieldType.STRING).description("foo"),
-                                fieldWithPath("users[].attendanceStatus").type(JsonFieldType.STRING)
-                                        .description("tardy"),
-                                fieldWithPath("users[].tardyCount").type(JsonFieldType.NUMBER).description(5)
+                                fieldWithPath("users[].tardyCount").type(JsonFieldType.NUMBER).description(5),
+                                fieldWithPath("users[].isMaster").type(JsonFieldType.BOOLEAN).description(true)
                         )
                 ));
     }
