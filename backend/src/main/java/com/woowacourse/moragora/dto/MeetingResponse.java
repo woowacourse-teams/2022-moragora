@@ -1,9 +1,9 @@
 package com.woowacourse.moragora.dto;
 
 import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.entity.MeetingAttendances;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -22,6 +22,7 @@ public class MeetingResponse {
     private final Boolean hasUpcomingEvent;
     private final List<ParticipantResponse> users;
 
+    @Builder
     public MeetingResponse(final Long id,
                            final String name,
                            final long attendanceCount,

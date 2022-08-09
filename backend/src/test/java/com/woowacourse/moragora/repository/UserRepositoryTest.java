@@ -1,8 +1,11 @@
 package com.woowacourse.moragora.repository;
 
+import static com.woowacourse.moragora.support.UserFixtures.FORKY;
+import static com.woowacourse.moragora.support.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.UserFixtures.SUN;
+import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
 import java.util.List;
 import java.util.Optional;
@@ -11,11 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-@SpringBootTest
-@Transactional
+@DataJpaTest
 class UserRepositoryTest {
 
     @Autowired
@@ -25,8 +26,7 @@ class UserRepositoryTest {
     @Test
     void save() {
         // given
-        final EncodedPassword encodedPassword = EncodedPassword.fromRawValue("asdfqer1!");
-        final User user = new User("kun@naver.com", encodedPassword, "kun");
+        final User user = KUN.create();
 
         // when
         final User savedUser = userRepository.save(user);
@@ -38,14 +38,14 @@ class UserRepositoryTest {
     @DisplayName("id로 유저를 검색할 수 있다.")
     @Test
     void findById() {
-        // given, when
-        final EncodedPassword encodedPassword = EncodedPassword.fromRawValue("asdfqer1!");
-        final User savedUser = userRepository.save(new User("kun@naver.com", encodedPassword, "kun"));
+        // given
+        final User user = KUN.create();
+        final User savedUser = userRepository.save(user);
 
         // when
-        final User user = userRepository.findById(savedUser.getId()).get();
+        final User foundUser = userRepository.findById(savedUser.getId()).get();
 
-        assertThat(user).usingRecursiveComparison()
+        assertThat(foundUser).usingRecursiveComparison()
                 .ignoringFields("id")
                 .isEqualTo(savedUser);
     }
@@ -53,35 +53,46 @@ class UserRepositoryTest {
     @DisplayName("여러 id로 여러명의 유저를 검색할 수 있다.")
     @Test
     void findByIdIn() {
-        // given, when
-        final List<User> users = userRepository.findByIdIn(List.of(1L, 2L, 3L));
+        // given
+        final User user1 = userRepository.save(KUN.create());
+        final User user2 = userRepository.save(SUN.create());
+        final User user3 = userRepository.save(FORKY.create());
+
+        // when
+        final List<User> users = userRepository.findByIdIn(List.of(user1.getId(), user2.getId(), user3.getId()));
 
         // then
-        assertThat(users).hasSize(3);
+        assertThat(users.containsAll(List.of(user1, user2, user3))).isTrue();
     }
 
     @DisplayName("이메일로 유저를 검색한다.")
     @Test
     void findByEmail() {
         // given
-        final String email = "kun@email.com";
-        userRepository.save(new User(email, EncodedPassword.fromRawValue("qweradsf123!"), "kun"));
+        final User user = KUN.create();
+        final User savedUser = userRepository.save(user);
 
         // when
-        final Optional<User> user = userRepository.findByEmail(email);
+        final Optional<User> foundUser = userRepository.findByEmail(savedUser.getEmail());
 
         // then
-        assertThat(user.isPresent()).isTrue();
+        assertThat(foundUser.isPresent()).isTrue();
     }
 
     @DisplayName("keyword로 유저를 검색할 수 있다.")
     @ParameterizedTest
-    @CsvSource(value = {"foo,7", "ggg777@foo.com,1"})
+    @CsvSource(value = {"kun,1", "email,7"})
     void findByNicknameOrEmailContaining(final String keyword, final int expectedSize) {
-        // given, when
-        final List<User> users = userRepository.findByNicknameOrEmailLike(keyword);
+        // given
+        final List<User> users = createUsers();
+        for (User user : users) {
+            userRepository.save(user);
+        }
+
+        // when
+        final List<User> foundUsers = userRepository.findByNicknameOrEmailLike(keyword);
 
         // then
-        assertThat(users).hasSize(expectedSize);
+        assertThat(foundUsers).hasSize(expectedSize);
     }
 }

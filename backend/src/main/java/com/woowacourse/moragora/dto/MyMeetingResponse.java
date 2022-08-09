@@ -4,6 +4,7 @@ import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -24,6 +25,7 @@ public class MyMeetingResponse {
     private final Boolean isCoffeeTime;
     private final Boolean hasUpcomingEvent;
 
+    @Builder
     public MyMeetingResponse(final Long id,
                              final String name,
                              final Boolean isActive,

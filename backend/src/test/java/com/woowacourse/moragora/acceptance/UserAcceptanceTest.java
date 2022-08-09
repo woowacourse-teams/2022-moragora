@@ -1,11 +1,15 @@
 package com.woowacourse.moragora.acceptance;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static com.woowacourse.moragora.support.UserFixtures.MASTER;
+import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.woowacourse.moragora.dto.UserRequest;
+import com.woowacourse.moragora.entity.user.User;
 import io.restassured.response.ValidatableResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -61,35 +65,43 @@ class UserAcceptanceTest extends AcceptanceTest {
     @Test
     void search() {
         // given
-        final String keyword = "foo";
+        final String keyword = "email";
+        final List<User> users = createUsers();
+        final List<Long> ids = saveUsers(users);
+
+        final List<Integer> userIds = ids.stream()
+                .map(Long::intValue)
+                .collect(Collectors.toList());
+
+        final List<String> nicknames = users.stream()
+                .map(User::getNickname)
+                .collect(Collectors.toList());
+
+        final List<String> emails = users.stream()
+                .map(User::getEmail)
+                .collect(Collectors.toList());
 
         // when
         final ValidatableResponse response = get("/users?keyword=" + keyword);
 
         // then
         response.statusCode(HttpStatus.OK.value())
-                .body("users.id", containsInAnyOrder(1, 2, 3, 4, 5, 6, 7))
-                .body("users.nickname", containsInAnyOrder("아스피", "필즈", "포키",
-                        "썬", "우디", "쿤", "반듯"))
-                .body("users.email", containsInAnyOrder("aaa111@foo.com",
-                        "bbb222@foo.com",
-                        "ccc333@foo.com",
-                        "ddd444@foo.com",
-                        "eee555@foo.com",
-                        "fff666@foo.com",
-                        "ggg777@foo.com"));
+                .body("users.id", equalTo(userIds))
+                .body("users.nickname", equalTo(nicknames))
+                .body("users.email", equalTo(emails));
     }
 
     @DisplayName("로그인 한 상태에서 자신의 회원정보를 요청하면 회원정보와 상태코드 200을 반환받는다.")
     @Test
     void findMe() {
         // given, when
-        ValidatableResponse response = get("/users/me", signUpAndGetToken());
+        final User user = MASTER.create();
+        ValidatableResponse response = get("/users/me", signUpAndGetToken(user));
 
         // then
         response.statusCode(HttpStatus.OK.value())
                 .body("id", notNullValue())
-                .body("email", equalTo("test@naver.com"))
-                .body("nickname", equalTo("kun"));
+                .body("email", equalTo(user.getEmail()))
+                .body("nickname", equalTo(user.getNickname()));
     }
 }
