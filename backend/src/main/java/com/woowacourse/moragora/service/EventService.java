@@ -1,6 +1,8 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
+import com.woowacourse.moragora.dto.EventsResponse;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
@@ -11,6 +13,7 @@ import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.EventRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
+import com.woowacourse.moragora.support.ServerTimeManager;
 import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalTime;
@@ -35,15 +38,19 @@ public class EventService {
     private final EventRepository eventRepository;
     private final MeetingRepository meetingRepository;
     private final AttendanceRepository attendanceRepository;
+    private final ServerTimeManager serverTimeManager;
+
 
     public EventService(final TaskScheduler taskScheduler,
                         final EventRepository eventRepository,
                         final MeetingRepository meetingRepository,
-                        final AttendanceRepository attendanceRepository) {
+                        final AttendanceRepository attendanceRepository,
+                        final ServerTimeManager serverTimeManager) {
         this.taskScheduler = taskScheduler;
         this.eventRepository = eventRepository;
         this.meetingRepository = meetingRepository;
         this.attendanceRepository = attendanceRepository;
+        this.serverTimeManager = serverTimeManager;
     }
 
     @Transactional
@@ -79,5 +86,21 @@ public class EventService {
         final LocalTime localTime = event.getEntranceTime().minusMinutes(SCHEDULING_SUBTRACT_TIME);
         return localTime.atDate(event.getDate()).
                 atZone(ZoneId.systemDefault()).toInstant();
+    }
+
+    public EventsResponse findAll(final Long meetingId) {
+        List<Event> events = eventRepository.findByMeetingId(meetingId);
+        final List<EventResponse> eventResponses = events.stream()
+                .map(event -> new EventResponse(
+                        event.getId(),
+                        serverTimeManager.calculateOpeningTime(event.getEntranceTime()),
+                        serverTimeManager.calculateClosingTime(event.getEntranceTime()),
+                        event.getEntranceTime(),
+                        event.getLeaveTime(),
+                        event.getDate()
+                ))
+                .collect(Collectors.toList());
+
+        return new EventsResponse(eventResponses);
     }
 }

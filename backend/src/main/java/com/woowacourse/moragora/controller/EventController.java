@@ -4,17 +4,21 @@ import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
 import com.woowacourse.auth.support.MasterAuthorization;
 import com.woowacourse.moragora.dto.EventsRequest;
+import com.woowacourse.moragora.dto.EventsResponse;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.service.EventService;
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/meetings/{meetingId}/events")
 @Authentication
 public class EventController {
 
@@ -25,12 +29,18 @@ public class EventController {
     }
 
     @MasterAuthorization
-    @PostMapping("/meetings/{meetingId}/events")
+    @PostMapping
     public ResponseEntity<Void> add(@RequestBody @Valid final EventsRequest request,
                                     @PathVariable final Long meetingId,
                                     @AuthenticationPrincipal final Long loginId) {
         final List<Event> savedEvent = eventService.save(request, meetingId);
         eventService.saveSchedules(savedEvent);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<EventsResponse> findAll(@PathVariable final Long meetingId) {
+        EventsResponse eventsResponse = eventService.findAll(meetingId);
+        return ResponseEntity.ok(eventsResponse);
     }
 }

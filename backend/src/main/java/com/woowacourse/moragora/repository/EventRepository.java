@@ -24,4 +24,6 @@ public interface EventRepository extends Repository<Event, Long> {
     Optional<Event> findById(@Param("id") final Long id);
 
     Long countByMeetingIdAndDateGreaterThanEqual(final Long meetingId, final LocalDate date);
+
+    List<Event> findByMeetingId(final Long meetingId);
 }

@@ -37,6 +37,10 @@ public class ServerTimeManager {
         return entranceTime.plusMinutes(ATTENDANCE_END_INTERVAL);
     }
 
+    public LocalTime calculateOpeningTime(final LocalTime entranceTime) {
+        return entranceTime.minusMinutes(ATTENDANCE_START_INTERVAL);
+    }
+
     public void refresh(final LocalDateTime localDateTime) {
         dateTime.changeDateTime(localDateTime);
     }
