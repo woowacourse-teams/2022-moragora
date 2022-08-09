@@ -2,7 +2,7 @@ import { rest } from 'msw';
 import EventCreatePage from '.';
 import Header from 'components/layouts/Header';
 import { CalendarProvider } from 'contexts/calendarContext';
-import DeviceLayout from 'components/layouts/DeviceLayout';
+import AppLayout from 'components/layouts/AppLayout';
 
 export default {
   title: 'Pages/EventCreatePage',
@@ -17,12 +17,12 @@ export default {
 
 const Template = (args) => {
   return (
-    <DeviceLayout>
+    <AppLayout>
       <Header />
       <CalendarProvider initialDate={new Date()}>
         <EventCreatePage {...args} />
       </CalendarProvider>
-    </DeviceLayout>
+    </AppLayout>
   );
 };
 

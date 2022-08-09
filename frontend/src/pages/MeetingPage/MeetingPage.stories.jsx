@@ -1,7 +1,7 @@
 import { rest } from 'msw';
 import MeetingPage from '.';
 import Header from 'components/layouts/Header';
-import DeviceLayout from 'components/layouts/DeviceLayout';
+import AppLayout from 'components/layouts/AppLayout';
 
 export default {
   title: 'Pages/MeetingPage',
@@ -16,11 +16,11 @@ export default {
 
 const Template = (args) => {
   return (
-    <DeviceLayout>
+    <AppLayout>
       <Header />
       <MeetingPage {...args} />
       <div id="root-modal" />
-    </DeviceLayout>
+    </AppLayout>
   );
 };
 

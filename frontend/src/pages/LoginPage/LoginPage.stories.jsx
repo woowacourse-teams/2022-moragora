@@ -1,7 +1,7 @@
 import { rest } from 'msw';
 import LoginPage from '.';
 import Header from 'components/layouts/Header';
-import DeviceLayout from 'components/layouts/DeviceLayout';
+import AppLayout from 'components/layouts/AppLayout';
 
 export default {
   title: 'Pages/LoginPage',
@@ -10,10 +10,10 @@ export default {
 
 const Template = (args) => {
   return (
-    <DeviceLayout>
+    <AppLayout>
       <Header />
       <LoginPage {...args} />
-    </DeviceLayout>
+    </AppLayout>
   );
 };
 

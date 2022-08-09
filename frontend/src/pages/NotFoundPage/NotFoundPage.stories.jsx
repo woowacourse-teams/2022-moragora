@@ -1,7 +1,7 @@
 import { rest } from 'msw';
 import NotFoundPage from '.';
 import Header from 'components/layouts/Header';
-import DeviceLayout from 'components/layouts/DeviceLayout';
+import AppLayout from 'components/layouts/AppLayout';
 
 export default {
   title: 'Pages/NotFoundPage',
@@ -10,10 +10,10 @@ export default {
 
 const Template = (args) => {
   return (
-    <DeviceLayout>
+    <AppLayout>
       <Header />
       <NotFoundPage {...args} />
-    </DeviceLayout>
+    </AppLayout>
   );
 };
 

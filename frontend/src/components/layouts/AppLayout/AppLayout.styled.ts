@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-export const DeviceLayout = styled.div`
+export const AppLayout = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;

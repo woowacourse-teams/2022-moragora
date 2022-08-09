@@ -1,7 +1,7 @@
 import { rest } from 'msw';
 import MeetingListPage from '.';
 import Header from 'components/layouts/Header';
-import DeviceLayout from 'components/layouts/DeviceLayout';
+import AppLayout from 'components/layouts/AppLayout';
 
 export default {
   title: 'Pages/MeetingListPage',
@@ -15,10 +15,10 @@ export default {
 
 const Template = (args) => {
   return (
-    <DeviceLayout>
+    <AppLayout>
       <Header />
       <MeetingListPage {...args} />
-    </DeviceLayout>
+    </AppLayout>
   );
 };
 

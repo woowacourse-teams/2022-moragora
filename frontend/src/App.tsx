@@ -7,7 +7,7 @@ import { userContext, UserContextValues } from 'contexts/userContext';
 import { CalendarProvider } from 'contexts/calendarContext';
 import useQuery from 'hooks/useQuery';
 import { getLoginUserDataApi } from 'apis/userApis';
-import DeviceLayout from 'components/layouts/DeviceLayout';
+import AppLayout from 'components/layouts/AppLayout';
 
 const App = () => {
   const { login, accessToken } = useContext(userContext) as UserContextValues;
@@ -25,22 +25,22 @@ const App = () => {
 
   if (isLoading) {
     return (
-      <DeviceLayout>
+      <AppLayout>
         <S.SpinnerBox>
           <Spinner />
         </S.SpinnerBox>
-      </DeviceLayout>
+      </AppLayout>
     );
   }
 
   return (
     <>
-      <DeviceLayout>
+      <AppLayout>
         <Header />
         <CalendarProvider initialDate={new Date()}>
           <Router />
         </CalendarProvider>
-      </DeviceLayout>
+      </AppLayout>
       <div id="root-modal" />
     </>
   );
