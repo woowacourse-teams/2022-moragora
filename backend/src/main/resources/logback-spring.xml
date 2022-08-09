@@ -11,14 +11,40 @@
     <property name="LOG_PATTERN"
               value="[%d{yyyy-MM-dd HH:mm:ss}:%-4relative] [%thread] [%C.%M:%L] - %msg%n"/>
 
-    <include resource="file-info-appender.xml"/>
-    <include resource="file-warn-appender.xml"/>
-    <include resource="file-error-appender.xml"/>
 
-    <root level="INFO">
-        <appender-ref ref="FILE-INFO"/>
-        <appender-ref ref="FILE-WARN"/>
-        <appender-ref ref="FILE-ERROR"/>
-    </root>
+    <springProfile name="local">
+        <include resource="console-appender.xml"/>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="dev">
+        <include resource="console-appender.xml"/>
+        <include resource="file-info-appender.xml"/>
+        <include resource="file-warn-appender.xml"/>
+        <include resource="file-error-appender.xml"/>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE-INFO"/>
+            <appender-ref ref="FILE-WARN"/>
+            <appender-ref ref="FILE-ERROR"/>
+        </root>
+    </springProfile>
+
+
+    <springProfile name="prod">
+        <include resource="file-info-appender.xml"/>
+        <include resource="file-warn-appender.xml"/>
+        <include resource="file-error-appender.xml"/>
+
+        <root level="INFO">
+            <appender-ref ref="FILE-INFO"/>
+            <appender-ref ref="FILE-WARN"/>
+            <appender-ref ref="FILE-ERROR"/>
+        </root>
+    </springProfile>
 
 </configuration>

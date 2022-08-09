@@ -1,0 +1,54 @@
+[2022-08-09 11:12:45:730 ] [main] [org.springframework.boot.StartupInfoLogger.logStarting:55] - Starting MoragoraApplication using Java 11.0.14 on DESKTOP-ITHUQUS with PID 11920 (C:\dev\1. intelliJ-workspace\wooteco\wooteco-level3-4\moragora-non-submoduled\backend\build\classes\java\main started by progr in C:\dev\1. intelliJ-workspace\wooteco\wooteco-level3-4\moragora-non-submoduled\backend)
+[2022-08-09 11:12:45:730 ] [background-preinit] [org.hibernate.validator.internal.util.Version.<clinit>:21] - HV000001: Hibernate Validator 6.2.3.Final
+[2022-08-09 11:12:45:734 ] [main] [org.springframework.boot.SpringApplication.logStartupProfileInfo:651] - The following 1 profile is active: "dev"
+[2022-08-09 11:12:46:1520] [main] [org.springframework.data.repository.config.RepositoryConfigurationDelegate.registerRepositoriesIn:132] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+[2022-08-09 11:12:46:1627] [main] [org.springframework.data.repository.config.RepositoryConfigurationDelegate.registerRepositoriesIn:201] - Finished Spring Data repository scanning in 98 ms. Found 5 JPA repository interfaces.
+[2022-08-09 11:12:46:2375] [main] [org.springframework.boot.web.embedded.tomcat.TomcatWebServer.initialize:108] - Tomcat initialized with port(s): 8080 (http)
+[2022-08-09 11:12:46:2388] [main] [org.apache.juli.logging.DirectJDKLog.log:173] - Initializing ProtocolHandler ["http-nio-8080"]
+[2022-08-09 11:12:46:2389] [main] [org.apache.juli.logging.DirectJDKLog.log:173] - Starting service [Tomcat]
+[2022-08-09 11:12:46:2389] [main] [org.apache.juli.logging.DirectJDKLog.log:173] - Starting Servlet engine: [Apache Tomcat/9.0.64]
+[2022-08-09 11:12:47:2525] [main] [org.apache.juli.logging.DirectJDKLog.log:173] - Initializing Spring embedded WebApplicationContext
+[2022-08-09 11:12:47:2525] [main] [org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.prepareWebApplicationContext:290] - Root WebApplicationContext: initialization completed in 1738 ms
+[2022-08-09 11:12:47:2708] [main] [org.hibernate.jpa.internal.util.LogHelper.logPersistenceUnitInformation:31] - HHH000204: Processing PersistenceUnitInfo [name: default]
+[2022-08-09 11:12:47:2755] [main] [org.hibernate.Version.logVersion:44] - HHH000412: Hibernate ORM core version 5.6.9.Final
+[2022-08-09 11:12:47:2895] [main] [org.hibernate.annotations.common.reflection.java.JavaReflectionManager.<clinit>:56] - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+[2022-08-09 11:12:47:3027] [main] [com.zaxxer.hikari.HikariDataSource.getConnection:110] - HikariPool-1 - Starting...
+[2022-08-09 11:12:47:3138] [main] [com.zaxxer.hikari.HikariDataSource.getConnection:123] - HikariPool-1 - Start completed.
+[2022-08-09 11:12:47:3164] [main] [org.hibernate.dialect.Dialect.<init>:175] - HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[2022-08-09 11:12:48:3901] [main] [org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator.initiateService:52] - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+[2022-08-09 11:12:48:3911] [main] [org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory:437] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+[2022-08-09 11:12:49:5197] [main] [org.apache.juli.logging.DirectJDKLog.log:173] - Starting ProtocolHandler ["http-nio-8080"]
+[2022-08-09 11:12:49:5217] [main] [org.springframework.boot.web.embedded.tomcat.TomcatWebServer.start:220] - Tomcat started on port(s): 8080 (http) with context path ''
+[2022-08-09 11:12:49:5356] [main] [org.springframework.boot.StartupInfoLogger.logStarted:61] - Started MoragoraApplication in 5.196 seconds (JVM running for 6.719)
+[2022-08-09 11:13:07:22732] [http-nio-8080-exec-1] [org.apache.juli.logging.DirectJDKLog.log:173] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+[2022-08-09 11:13:07:22733] [http-nio-8080-exec-1] [org.springframework.web.servlet.FrameworkServlet.initServletBean:525] - Initializing Servlet 'dispatcherServlet'
+[2022-08-09 11:13:07:22735] [http-nio-8080-exec-1] [org.springframework.web.servlet.FrameworkServlet.initServletBean:547] - Completed initialization in 2 ms
+[2022-08-09 11:13:07:22764] [http-nio-8080-exec-1] [com.woowacourse.logging.LoggingAspect.logRequest:20] - [request log] signature = ResponseEntity com.woowacourse.auth.controller.TestController.login(), requestBody = []
+[2022-08-09 11:15:01:137091] [SpringApplicationShutdownHook] [org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.destroy:651] - Closing JPA EntityManagerFactory for persistence unit 'default'
+[2022-08-09 11:15:01:137095] [SpringApplicationShutdownHook] [com.zaxxer.hikari.HikariDataSource.close:350] - HikariPool-1 - Shutdown initiated...
+[2022-08-09 11:15:01:137099] [SpringApplicationShutdownHook] [com.zaxxer.hikari.HikariDataSource.close:352] - HikariPool-1 - Shutdown completed.
+[2022-08-09 11:15:05:722 ] [main] [org.springframework.boot.StartupInfoLogger.logStarting:55] - Starting MoragoraApplication using Java 11.0.14 on DESKTOP-ITHUQUS with PID 12548 (C:\dev\1. intelliJ-workspace\wooteco\wooteco-level3-4\moragora-non-submoduled\backend\build\classes\java\main started by progr in C:\dev\1. intelliJ-workspace\wooteco\wooteco-level3-4\moragora-non-submoduled\backend)
+[2022-08-09 11:15:05:721 ] [background-preinit] [org.hibernate.validator.internal.util.Version.<clinit>:21] - HV000001: Hibernate Validator 6.2.3.Final
+[2022-08-09 11:15:05:725 ] [main] [org.springframework.boot.SpringApplication.logStartupProfileInfo:651] - The following 1 profile is active: "prod"
+[2022-08-09 11:15:06:1479] [main] [org.springframework.data.repository.config.RepositoryConfigurationDelegate.registerRepositoriesIn:132] - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+[2022-08-09 11:15:06:1583] [main] [org.springframework.data.repository.config.RepositoryConfigurationDelegate.registerRepositoriesIn:201] - Finished Spring Data repository scanning in 94 ms. Found 5 JPA repository interfaces.
+[2022-08-09 11:15:07:2306] [main] [org.springframework.boot.web.embedded.tomcat.TomcatWebServer.initialize:108] - Tomcat initialized with port(s): 8080 (http)
+[2022-08-09 11:15:07:2314] [main] [org.apache.juli.logging.DirectJDKLog.log:173] - Initializing ProtocolHandler ["http-nio-8080"]
+[2022-08-09 11:15:07:2315] [main] [org.apache.juli.logging.DirectJDKLog.log:173] - Starting service [Tomcat]
+[2022-08-09 11:15:07:2315] [main] [org.apache.juli.logging.DirectJDKLog.log:173] - Starting Servlet engine: [Apache Tomcat/9.0.64]
+[2022-08-09 11:15:07:2452] [main] [org.apache.juli.logging.DirectJDKLog.log:173] - Initializing Spring embedded WebApplicationContext
+[2022-08-09 11:15:07:2452] [main] [org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.prepareWebApplicationContext:290] - Root WebApplicationContext: initialization completed in 1681 ms
+[2022-08-09 11:15:07:2641] [main] [org.hibernate.jpa.internal.util.LogHelper.logPersistenceUnitInformation:31] - HHH000204: Processing PersistenceUnitInfo [name: default]
+[2022-08-09 11:15:07:2691] [main] [org.hibernate.Version.logVersion:44] - HHH000412: Hibernate ORM core version 5.6.9.Final
+[2022-08-09 11:15:07:2837] [main] [org.hibernate.annotations.common.reflection.java.JavaReflectionManager.<clinit>:56] - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+[2022-08-09 11:15:07:2970] [main] [com.zaxxer.hikari.HikariDataSource.getConnection:110] - HikariPool-1 - Starting...
+[2022-08-09 11:15:08:3088] [main] [com.zaxxer.hikari.HikariDataSource.getConnection:123] - HikariPool-1 - Start completed.
+[2022-08-09 11:15:08:3110] [main] [org.hibernate.dialect.Dialect.<init>:175] - HHH000400: Using dialect: org.hibernate.dialect.H2Dialect
+[2022-08-09 11:15:08:3816] [main] [org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator.initiateService:52] - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+[2022-08-09 11:15:08:3826] [main] [org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory:437] - Initialized JPA EntityManagerFactory for persistence unit 'default'
+[2022-08-09 11:15:10:5263] [main] [org.apache.juli.logging.DirectJDKLog.log:173] - Starting ProtocolHandler ["http-nio-8080"]
+[2022-08-09 11:15:10:5285] [main] [org.springframework.boot.web.embedded.tomcat.TomcatWebServer.start:220] - Tomcat started on port(s): 8080 (http) with context path ''
+[2022-08-09 11:15:10:5412] [main] [org.springframework.boot.StartupInfoLogger.logStarted:61] - Started MoragoraApplication in 5.254 seconds (JVM running for 6.901)
+[2022-08-09 11:15:14:9792] [SpringApplicationShutdownHook] [org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.destroy:651] - Closing JPA EntityManagerFactory for persistence unit 'default'
+[2022-08-09 11:15:14:9795] [SpringApplicationShutdownHook] [com.zaxxer.hikari.HikariDataSource.close:350] - HikariPool-1 - Shutdown initiated...
+[2022-08-09 11:15:14:9798] [SpringApplicationShutdownHook] [com.zaxxer.hikari.HikariDataSource.close:352] - HikariPool-1 - Shutdown completed.
