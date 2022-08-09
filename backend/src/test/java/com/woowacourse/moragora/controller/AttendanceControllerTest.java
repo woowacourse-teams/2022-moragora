@@ -17,7 +17,6 @@ import com.woowacourse.moragora.dto.AttendancesResponse;
 import com.woowacourse.moragora.dto.CoffeeStatResponse;
 import com.woowacourse.moragora.dto.CoffeeStatsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
-import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
@@ -37,7 +36,7 @@ class AttendanceControllerTest extends ControllerTest {
         // given
         final Long meetingId = 99L;
         final Long userId = 1L;
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
 
         validateToken("1");
 
@@ -58,18 +57,19 @@ class AttendanceControllerTest extends ControllerTest {
         // given
         final Long meetingId = 1L;
         final Long userId = 1L;
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
 
         validateToken("1");
 
         // when
-        final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
+        final ResultActions resultActions = performPost(
+                "/meetings/" + meetingId + "/users/" + userId + "/attendances/today", request);
 
         // then
         resultActions.andExpect(status().isNoContent())
                 .andDo(document("meeting/enter-Attendance",
                         requestFields(
-                                fieldWithPath("attendanceStatus").type(JsonFieldType.STRING).description("present")
+                                fieldWithPath("isPresent").type(JsonFieldType.BOOLEAN).description("true")
                         )
                 ));
     }
@@ -80,7 +80,7 @@ class AttendanceControllerTest extends ControllerTest {
         // given
         final Long meetingId = 1L;
         final Long userId = 8L;
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
 
         validateToken("1");
 
@@ -89,7 +89,8 @@ class AttendanceControllerTest extends ControllerTest {
                 .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
 
         // when
-        final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
+        final ResultActions resultActions = performPost(
+                "/meetings/" + meetingId + "/users/" + userId + "/attendances/today", request);
 
         // then
         resultActions.andExpect(status().isNotFound());
@@ -138,7 +139,7 @@ class AttendanceControllerTest extends ControllerTest {
         // given
         final Long meetingId = 1L;
         final Long userId = 1L;
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
         validateToken("1");
         performPut("/meetings/" + meetingId + "/users/" + userId, request);
 

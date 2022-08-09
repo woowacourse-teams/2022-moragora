@@ -9,6 +9,7 @@ import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.MeetingAttendances;
 import com.woowacourse.moragora.entity.Participant;
+import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.InvalidCoffeeTimeException;
@@ -95,7 +96,11 @@ public class AttendanceService {
                 .findByParticipantIdAndEventId(participant.getId(), event.getId())
                 .orElseThrow(AttendanceNotFoundException::new);
 
-        attendance.changeAttendanceStatus(request.getAttendanceStatus());
+        if (request.getIsPresent()) {
+            attendance.changeAttendanceStatus(Status.PRESENT);
+            return;
+        }
+        attendance.changeAttendanceStatus(Status.TARDY);
     }
 
     public CoffeeStatsResponse countUsableCoffeeStack(final Long meetingId) {

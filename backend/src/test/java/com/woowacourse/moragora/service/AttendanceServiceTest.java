@@ -19,7 +19,6 @@ import com.woowacourse.moragora.dto.CoffeeStatsResponse;
 import com.woowacourse.moragora.dto.EventRequest;
 import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
-import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
@@ -70,7 +69,7 @@ class AttendanceServiceTest {
     @Test
     void updateAttendance() {
         // given
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
 
         final User user = KUN.create();
         final Meeting meeting = MORAGORA.create();
@@ -79,7 +78,7 @@ class AttendanceServiceTest {
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 1);
         serverTimeManager.refresh(dateTime);
-        final Attendance attendance = dataSupport.saveAttendance(participant, event, Status.TARDY);
+        dataSupport.saveAttendance(participant, event, Status.TARDY);
 
         // when, then
         assertThatCode(() -> attendanceService.updateAttendance(meeting.getId(), user.getId(), request))
@@ -90,7 +89,7 @@ class AttendanceServiceTest {
     @Test
     void updateAttendance_throwsException_ifMeetingNotFound() {
         // given
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
         final User user = KUN.create();
         final Long meetingId = 99L;
 
@@ -111,7 +110,7 @@ class AttendanceServiceTest {
         dataSupport.saveParticipant(user1, meeting, true);
         dataSupport.saveParticipant(user2, meeting);
 
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
 
         // when, then
         assertThatThrownBy(() -> attendanceService.updateAttendance(meeting.getId(), user3.getId(), request))
@@ -122,7 +121,7 @@ class AttendanceServiceTest {
     @Test
     void updateAttendance_throwsException_ifDeadlineTimeExcess() {
         // given
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
 
         final User user = KUN.create();
         final Meeting meeting = MORAGORA.create();
