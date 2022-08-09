@@ -3,13 +3,20 @@ package com.woowacourse.moragora.acceptance;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
+import static com.woowacourse.moragora.support.UserFixtures.getEmailsIncludingMaster;
+import static com.woowacourse.moragora.support.UserFixtures.getNicknamesIncludingMaster;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import io.restassured.response.ValidatableResponse;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -41,49 +48,44 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .header("Location", notNullValue());
     }
 
-//    @DisplayName("사용자가 특정 모임을 조회하면 해당 모임 상세 정보와 상태코드 200을 반환한다.")
-//    @Test
-//    void findOne() {
-//        // given
-//        final String token = signUpAndGetToken(MASTER.create());
-//        final List<User> users = createUsers();
-//        final List<String> userEmails = users.stream()
-//                .map(User::getEmail)
-//                .collect(Collectors.toList());
-//
-//        final List<String> userNames = users.stream()
-//                .map(User::getNickname)
-//                .collect(Collectors.toList());
-//
-//        final List<Long> userIds = saveUsers(users);
-//        final Meeting meeting = MORAGORA.create();
-//        final int meetingId = saveMeeting(token, userIds, meeting);
-//
-//        userIds.add(1L);
-//        userNames.add(MASTER.getNickname());
-//        userEmails.add(MASTER.getEmail());
-//
-//        final List<Integer> ids = userIds.stream()
-//                .map(Long::intValue)
-//                .collect(Collectors.toList());
-//
-//        given(serverTimeManager.getDate())
-//                .willReturn(LocalDate.of(2022, 8, 1));
-//
-//        // when
-//        final ValidatableResponse response = get("/meetings/" + meetingId, token);
-//
-//        // then
-//        response.statusCode(HttpStatus.OK.value())
-//                .body("id", equalTo(meetingId))
-//                .body("name", equalTo(meeting.getName()))
-//                .body("attendanceCount", equalTo(1))
-//                .body("isActive", equalTo(true))
-//                .body("hasUpcomingEvent", equalTo(true))
-//                .body("users.id", equalTo(ids))
-//                .body("users.nickname", equalTo(userNames))
-//                .body("users.email", equalTo(userEmails));
-//    }
+    @DisplayName("사용자가 특정 모임을 조회하면 해당 모임 상세 정보와 상태코드 200을 반환한다.")
+    @Test
+    void findOne() {
+        // given
+        final User loginUser = MASTER.create();
+        final Long loginId = signUp(loginUser);
+        final String token = login(loginUser);
+
+        final List<User> users = createUsers();
+        final List<Long> userIds = saveUsers(users);
+
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(token, userIds, meeting);
+
+        userIds.add(loginId);
+
+        final List<Integer> ids = userIds.stream()
+                .map(Long::intValue)
+                .collect(Collectors.toList());
+
+        given(serverTimeManager.getDate())
+                .willReturn(LocalDate.of(2022, 8, 1));
+
+        // when
+        final ValidatableResponse response = get("/meetings/" + meetingId, token);
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("id", equalTo(meetingId))
+                .body("name", equalTo(meeting.getName()))
+                .body("attendedEventCount", equalTo(0))
+                .body("isLoginUserMaster", equalTo(true))
+                .body("isCoffeeTime", equalTo(false))
+                .body("isActive", equalTo(false))
+                .body("users.id", equalTo(ids))
+                .body("users.nickname", equalTo(getNicknamesIncludingMaster()))
+                .body("users.email", equalTo(getEmailsIncludingMaster()));
+    }
 //
 //    @DisplayName("사용자가 자신이 속한 모든 모임을 조회하면 모임 정보와 상태코드 200을 반환한다.")
 //    @Test

@@ -22,7 +22,6 @@ import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -88,8 +87,7 @@ public class MeetingService {
 
         final MeetingAttendances meetingAttendances = findAttendancesByMeeting(meeting.getParticipantIds());
         final List<ParticipantResponse> participantResponses = participants.stream()
-                .map(participant -> generateParticipantResponse(serverTimeManager.getDateAndTime(),
-                        meetingAttendances, isOver, participant))
+                .map(participant -> generateParticipantResponse(today, meetingAttendances, isOver, participant))
                 .collect(Collectors.toList());
 
         final List<Event> attendedEvents = eventRepository.findByMeetingIdAndDateLessThanEqual(meetingId, today);
@@ -155,13 +153,13 @@ public class MeetingService {
         return new MeetingAttendances(foundAttendances, participantIds.size());
     }
 
-    private ParticipantResponse generateParticipantResponse(final LocalDateTime now,
+    private ParticipantResponse generateParticipantResponse(final LocalDate now,
                                                             final MeetingAttendances meetingAttendances,
                                                             final boolean isOver,
                                                             final Participant participant) {
         final ParticipantAttendances participantAttendances =
                 meetingAttendances.extractAttendancesByParticipant(participant);
-        final int tardyCount = participantAttendances.countTardy(isOver, now.toLocalDate());
+        final int tardyCount = participantAttendances.countTardy(isOver, now);
 
         return ParticipantResponse.of(participant.getUser(), tardyCount, participant.getIsMaster());
     }

@@ -96,11 +96,12 @@ class UserAcceptanceTest extends AcceptanceTest {
     void findMe() {
         // given, when
         final User user = MASTER.create();
-        ValidatableResponse response = get("/users/me", signUpAndGetToken(user));
+        final Long id = signUp(user);
+        ValidatableResponse response = get("/users/me", login(user));
 
         // then
         response.statusCode(HttpStatus.OK.value())
-                .body("id", notNullValue())
+                .body("id", equalTo(id.intValue()))
                 .body("email", equalTo(user.getEmail()))
                 .body("nickname", equalTo(user.getNickname()));
     }

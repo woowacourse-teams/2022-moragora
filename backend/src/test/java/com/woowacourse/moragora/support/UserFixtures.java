@@ -33,6 +33,19 @@ public enum UserFixtures {
                 BATD.create());
     }
 
+    public static List<String> getEmailsIncludingMaster() {
+        return List.of(
+                KUN.email, AZPI.email, SUN.email, FORKY.email, PHILLZ.email, WOODY.email, BATD.email, MASTER.email
+        );
+    }
+
+    public static List<String> getNicknamesIncludingMaster() {
+        return List.of(
+                KUN.nickname, AZPI.nickname, SUN.nickname, FORKY.nickname,
+                PHILLZ.nickname, WOODY.nickname, BATD.nickname, MASTER.nickname
+        );
+    }
+
     public User create() {
         return User.builder()
                 .email(this.email)
