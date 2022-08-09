@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.controller;
 
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -19,7 +20,9 @@ import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
+import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.time.LocalDate;
@@ -35,14 +38,20 @@ import org.springframework.test.web.servlet.ResultActions;
 
 class MeetingControllerTest extends ControllerTest {
 
+    private static final LocalTime ENTRANCE_TIME = LocalTime.of(10, 0);
+    private static final LocalTime LEAVE_TIME = LocalTime.of(18, 0);
+
     @DisplayName("미팅 방을 생성한다.")
     @Test
     void add() throws Exception {
         // given
-        final String name = "모임1";
-        final List<Long> userIds = List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L);
+        final Meeting meeting = MORAGORA.create();
+        final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
 
-        final MeetingRequest meetingRequest = new MeetingRequest(name, userIds);
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .userIds(userIds)
+                .build();
 
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
@@ -55,10 +64,35 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(header().string("Location", equalTo("/meetings/" + 1)))
                 .andDo(document("meeting/create-meeting",
                         requestFields(
-                                fieldWithPath("name").type(JsonFieldType.STRING).description(name),
+                                fieldWithPath("name").type(JsonFieldType.STRING).description(meeting.getName()),
                                 fieldWithPath("userIds").type(JsonFieldType.ARRAY).description(userIds)
                         )
                 ));
+    }
+
+    @DisplayName("미팅 방을 생성 시 시작 날짜보다 종료 날짜가 이른 경우 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifStartDateIsLaterThanEndDate() throws Exception {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .userIds(userIds)
+                .build();
+
+        final Long loginId = validateToken("1");
+        given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
+                .willThrow(new IllegalEntranceLeaveTimeException());
+
+        // when
+        final ResultActions resultActions = performPost("/meetings", meetingRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("시작 시간보다 종료 시간이 이를 수 없습니다."));
     }
 
     @DisplayName("미팅 방 이름의 길이가 50자를 초과할 경우 예외가 발생한다.")
@@ -68,10 +102,12 @@ class MeetingControllerTest extends ControllerTest {
             "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghija"})
     void add_throwsException_ifMeetingNameTooLong(final String name) throws Exception {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                name,
-                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
-        );
+        final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(name)
+                .userIds(userIds)
+                .build();
 
         validateToken("1");
 
@@ -89,10 +125,14 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void add_throwsException_ifUserIdsDuplicate() throws Exception {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                List.of(2L, 2L, 3L, 4L, 5L, 6L, 7L)
-        );
+        final Meeting meeting = MORAGORA.create();
+        final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .userIds(userIds)
+                .build();
+
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
                 .willThrow(new InvalidParticipantException("참가자 명단에 중복이 있습니다."));
@@ -110,10 +150,14 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void add_throwsException_ifUserIdsEmpty() throws Exception {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                List.of()
-        );
+        final Meeting meeting = MORAGORA.create();
+        final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .userIds(userIds)
+                .build();
+
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
                 .willThrow(new InvalidParticipantException("생성자를 제외한 참가자가 없습니다."));
@@ -131,10 +175,14 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void add_throwsException_ifUserIdsContainLoginId() throws Exception {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L)
-        );
+        final Meeting meeting = MORAGORA.create();
+        final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .userIds(userIds)
+                .build();
+
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
                 .willThrow(new InvalidParticipantException("생성자가 참가자 명단에 포함되어 있습니다."));
@@ -152,10 +200,14 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void add_throwsException_ifUserIdNotExist() throws Exception {
         // given
-        final MeetingRequest meetingRequest = new MeetingRequest(
-                "모임1",
-                List.of(1L, 2L, 3L, 4L, 5L, 6L, 8L)
-        );
+        final Meeting meeting = MORAGORA.create();
+        final List<Long> userIds = List.of(2L, 3L, 4L, 5L, 6L, 7L);
+
+        final MeetingRequest meetingRequest = MeetingRequest.builder()
+                .name(meeting.getName())
+                .userIds(userIds)
+                .build();
+
         final Long loginId = validateToken("1");
         given(meetingService.save(any(MeetingRequest.class), eq(loginId)))
                 .willThrow(new UserNotFoundException());
