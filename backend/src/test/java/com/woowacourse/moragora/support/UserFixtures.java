@@ -7,7 +7,7 @@ import java.util.List;
 public enum UserFixtures {
 
     KUN("kun@email.com", EncodedPassword.fromRawValue("1234asdf!"), "kun"),
-    AZPI("aspi@email.com", EncodedPassword.fromRawValue("1234asdf!"), "aspi"),
+    AZPI("azpi@email.com", EncodedPassword.fromRawValue("1234asdf!"), "azpi"),
     SUN("sun@email.com", EncodedPassword.fromRawValue("1234asdf!"), "sun"),
     FORKY("forky@email.com", EncodedPassword.fromRawValue("1234asdf!"), "forky"),
     PHILLZ("phillz@email.com", EncodedPassword.fromRawValue("1234asdf!"), "phillz"),
