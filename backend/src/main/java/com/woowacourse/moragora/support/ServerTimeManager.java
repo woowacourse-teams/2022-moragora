@@ -33,6 +33,10 @@ public class ServerTimeManager {
         return dateTime.isAfter(closingTime);
     }
 
+    public LocalTime calculateOpeningTime(final LocalTime entranceTime) {
+        return entranceTime.minusMinutes(ATTENDANCE_START_INTERVAL);
+    }
+
     public LocalTime calculateClosingTime(final LocalTime entranceTime) {
         return entranceTime.plusMinutes(ATTENDANCE_END_INTERVAL);
     }
