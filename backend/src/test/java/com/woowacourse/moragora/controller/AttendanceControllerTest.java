@@ -12,6 +12,8 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.woowacourse.moragora.dto.AttendanceResponse;
+import com.woowacourse.moragora.dto.AttendancesResponse;
 import com.woowacourse.moragora.dto.CoffeeStatResponse;
 import com.woowacourse.moragora.dto.CoffeeStatsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
@@ -144,5 +146,37 @@ class AttendanceControllerTest extends ControllerTest {
         // then
         resultActions.andExpect(status().isNoContent())
                 .andDo(document("meeting/use-coffee"));
+    }
+
+    @DisplayName("출석부를 조회한다.")
+    @Test
+    void showAttendances() throws Exception {
+        // given
+        final Long meetingId = 1L;
+        final Long userId = 1L;
+        validateToken(String.valueOf(userId));
+        final AttendancesResponse attendancesResponse = new AttendancesResponse(
+                List.of(
+                        new AttendanceResponse(1L, "썬", "NONE"),
+                        new AttendanceResponse(3L, "필즈", "NONE"),
+                        new AttendanceResponse(5L, "포키", "PRESENT")
+                )
+        );
+        given(attendanceService.findTodayAttendancesByMeeting(any(Long.class)))
+                .willReturn(attendancesResponse);
+        // when
+        final ResultActions resultActions = performGet("/meetings/" + meetingId + "/attendances/today");
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andDo(document("meeting/show-attendances",
+                        responseFields(
+                                fieldWithPath("users[].id").type(JsonFieldType.NUMBER)
+                                        .description(1L),
+                                fieldWithPath("users[].nickname").type(JsonFieldType.STRING)
+                                        .description("아스피"),
+                                fieldWithPath("users[].attendanceStatus").type(JsonFieldType.STRING)
+                                        .description("NONE")
+                        )));
     }
 }
