@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.moragora.dto.EventCancelRequest;
 import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
@@ -13,6 +14,7 @@ import com.woowacourse.moragora.repository.EventRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import java.sql.Date;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -73,6 +75,17 @@ public class EventService {
                 .map(participant -> new Attendance(Status.TARDY, false, participant, foundEvent))
                 .collect(Collectors.toList());
         attendanceRepository.saveAll(attendances);
+    }
+
+    @Transactional
+    public void delete(final EventCancelRequest request, final Long meetingId) {
+        final List<LocalDate> dates = request.getDates();
+        List<Event> events = eventRepository.findByMeetingIdAndDateIn(meetingId, dates);
+        final List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+        attendanceRepository.deleteByEventIdIn(eventIds);
+        eventRepository.deleteByDateInAndMeetingId(request.getDates(), meetingId);
     }
 
     private Instant getInstant(final Event event) {

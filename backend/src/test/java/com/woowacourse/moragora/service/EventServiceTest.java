@@ -5,6 +5,7 @@ import static com.woowacourse.moragora.support.EventFixtures.EVENT2;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
+import com.woowacourse.moragora.dto.EventCancelRequest;
 import com.woowacourse.moragora.dto.EventRequest;
 import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.entity.Event;
@@ -64,6 +65,22 @@ class EventServiceTest {
 
         // when, then
         assertThatCode(() -> eventService.save(eventsRequest, meeting.getId()))
+                .doesNotThrowAnyException();
+    }
+
+    @DisplayName("모임 일정들을 삭제한다.")
+    @Test
+    void remove() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        dataSupport.saveEvent(EVENT2.create(meeting));
+
+        final EventCancelRequest eventCancelRequest = new EventCancelRequest(
+                List.of(EVENT1.getDate(), EVENT2.getDate()));
+
+        // when, then
+        assertThatCode(() -> eventService.delete(eventCancelRequest, meeting.getId()))
                 .doesNotThrowAnyException();
     }
 }

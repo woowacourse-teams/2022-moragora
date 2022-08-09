@@ -42,4 +42,8 @@ public enum EventFixtures {
                 .meeting(meeting)
                 .build();
     }
+
+    public LocalDate getDate() {
+        return date;
+    }
 }
