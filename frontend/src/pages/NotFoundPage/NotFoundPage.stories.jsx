@@ -1,7 +1,7 @@
 import { rest } from 'msw';
 import NotFoundPage from '.';
-import MobileLayout from 'components/layouts/MobileLayout';
 import Header from 'components/layouts/Header';
+import DeviceLayout from 'components/layouts/DeviceLayout';
 
 export default {
   title: 'Pages/NotFoundPage',
@@ -10,12 +10,10 @@ export default {
 
 const Template = (args) => {
   return (
-    <>
-      <MobileLayout>
-        <Header />
-        <NotFoundPage {...args} />
-      </MobileLayout>
-    </>
+    <DeviceLayout>
+      <Header />
+      <NotFoundPage {...args} />
+    </DeviceLayout>
   );
 };
 

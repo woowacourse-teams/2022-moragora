@@ -1,7 +1,7 @@
 import { rest } from 'msw';
 import LoginPage from '.';
-import MobileLayout from 'components/layouts/MobileLayout';
 import Header from 'components/layouts/Header';
+import DeviceLayout from 'components/layouts/DeviceLayout';
 
 export default {
   title: 'Pages/LoginPage',
@@ -10,12 +10,10 @@ export default {
 
 const Template = (args) => {
   return (
-    <>
-      <MobileLayout>
-        <Header />
-        <LoginPage {...args} />
-      </MobileLayout>
-    </>
+    <DeviceLayout>
+      <Header />
+      <LoginPage {...args} />
+    </DeviceLayout>
   );
 };
 

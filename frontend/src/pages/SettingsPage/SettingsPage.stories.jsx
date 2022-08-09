@@ -1,7 +1,7 @@
 import { rest } from 'msw';
 import SettingsPage from '.';
-import MobileLayout from 'components/layouts/MobileLayout';
 import Header from 'components/layouts/Header';
+import DeviceLayout from 'components/layouts/DeviceLayout';
 
 export default {
   title: 'Pages/SettingsPage',
@@ -10,13 +10,11 @@ export default {
 
 const Template = (args) => {
   return (
-    <>
-      <MobileLayout>
-        <Header />
-        <SettingsPage {...args} />
-        <div id="root-modal" />
-      </MobileLayout>
-    </>
+    <DeviceLayout>
+      <Header />
+      <SettingsPage {...args} />
+      <div id="root-modal" />
+    </DeviceLayout>
   );
 };
 
