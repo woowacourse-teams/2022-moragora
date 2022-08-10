@@ -100,7 +100,7 @@ public class AttendanceService {
             attendance.changeAttendanceStatus(Status.PRESENT);
             return;
         }
-        attendance.changeAttendanceStatus(Status.TARDY);
+        attendance.changeAttendanceStatus(Status.NONE);
     }
 
     public CoffeeStatsResponse countUsableCoffeeStack(final Long meetingId) {
@@ -108,6 +108,7 @@ public class AttendanceService {
         final Event event = eventRepository.findByMeetingIdAndDate(meetingId, today)
                 .orElse(null);
         final boolean isOver = Objects.isNull(event) || serverTimeManager.isOverClosingTime(event.getEntranceTime());
+
         final MeetingAttendances meetingAttendances = findMeetingAttendancesBy(meetingId);
         validateEnoughTardyCountToDisable(meetingAttendances, isOver, today);
         final Map<User, Long> userCoffeeStats = meetingAttendances.countUsableAttendancesPerUsers();
