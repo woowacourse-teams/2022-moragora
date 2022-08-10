@@ -42,7 +42,8 @@ class EventControllerTest extends ControllerTest {
 
         // then
         verify(eventService, times(1)).save(any(EventsRequest.class), any(Long.class));
-        resultActions.andExpect(status().isNoContent());
+        resultActions.andExpect(status().isNoContent())
+                .andDo(document("event/add"));
     }
 
     @DisplayName("일정들을 삭제한다.")

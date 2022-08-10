@@ -1,0 +1,42 @@
+= Event
+:toc: left
+:toclevels: 2
+:sectlinks:
+:source-highlighter: highlightjs
+
+[[home]]
+== home
+
+* link:index.html[홈으로 가기]
+
+[[add]]
+== 생성
+
+[[add-success]]
+=== HTTP request
+
+include::{snippets}/event/add/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/event/add/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/event/add/request-body.adoc[]
+
+[[cancel]]
+== 삭제
+
+[[add-success]]
+=== HTTP request
+
+include::{snippets}/event/cancel-event/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/event/cancel-event/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/event/cancel-event/request-body.adoc[]
