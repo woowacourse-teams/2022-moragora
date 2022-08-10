@@ -22,12 +22,13 @@ import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.entity.user.EncodedPassword;
+import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -226,9 +227,12 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void findOne() throws Exception {
         // given
-        final List<ParticipantResponse> participantResponses = new ArrayList<>();
-        participantResponses.add(new ParticipantResponse(1L, "abc@naver.com", "foo", Status.TARDY, 5));
-        participantResponses.add(new ParticipantResponse(2L, "def@naver.com", "boo", Status.TARDY, 8));
+        final User user1 = new User(1L, "abc@naver.com", EncodedPassword.fromRawValue("qwer1234!"), "foo");
+        final User user2 = new User(2L, "def@naver.com", EncodedPassword.fromRawValue("qwer1234!"), "boo");
+        final List<ParticipantResponse> participantResponses = List.of(
+                ParticipantResponse.of(user1, Status.TARDY, 5),
+                ParticipantResponse.of(user2, Status.TARDY, 8)
+        );
 
         final long id = 1L;
         final String name = "모임1";
