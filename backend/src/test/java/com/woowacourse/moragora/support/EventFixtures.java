@@ -46,4 +46,12 @@ public enum EventFixtures {
     public LocalDate getDate() {
         return date;
     }
+
+    public LocalTime getEntranceTime() {
+        return entranceTime;
+    }
+
+    public LocalTime getLeaveTime() {
+        return leaveTime;
+    }
 }

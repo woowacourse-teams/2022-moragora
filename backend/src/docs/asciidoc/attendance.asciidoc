@@ -1,0 +1,28 @@
+= Attendance
+:toc: left
+:toclevels: 2
+:sectlinks:
+:source-highlighter: highlightjs
+
+[[home]]
+== home
+
+* link:index.html[홈으로 가기]
+
+[[show]]
+== 출석부 조회
+
+[[show]]
+=== HTTP request
+
+include::{snippets}/attendance/show/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/attendance/show/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/attendance/show/response-fields.adoc[]
+
+

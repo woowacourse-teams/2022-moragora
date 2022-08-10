@@ -1,33 +1,79 @@
-//package com.woowacourse.moragora.acceptance;
-//
-//import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
-//import static com.woowacourse.moragora.support.UserFixtures.MASTER;
-//import static com.woowacourse.moragora.support.UserFixtures.NO_MASTER;
-//import static com.woowacourse.moragora.support.UserFixtures.createUsers;
-//import static org.hamcrest.Matchers.equalTo;
-//import static org.mockito.ArgumentMatchers.any;
-//import static org.mockito.BDDMockito.given;
-//
-//import com.woowacourse.moragora.dto.UserAttendanceRequest;
-//import com.woowacourse.moragora.entity.Status;
-//import com.woowacourse.moragora.entity.user.User;
-//import com.woowacourse.moragora.support.ServerTimeManager;
-//import io.restassured.RestAssured;
-//import io.restassured.response.ValidatableResponse;
-//import java.time.LocalDateTime;
-//import java.time.LocalTime;
-//import java.util.List;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.boot.test.mock.mockito.MockBean;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.MediaType;
-//
-//class AttendanceAcceptanceTest extends AcceptanceTest {
-//
-//    @MockBean
-//    private ServerTimeManager serverTimeManager;
-//
+package com.woowacourse.moragora.acceptance;
+
+import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.UserFixtures.FORKY;
+import static com.woowacourse.moragora.support.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.UserFixtures.SUN;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.BDDMockito.given;
+
+import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.support.ServerTimeManager;
+import io.restassured.response.ValidatableResponse;
+import java.util.List;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+
+class AttendanceAcceptanceTest extends AcceptanceTest {
+
+    @MockBean
+    private ServerTimeManager serverTimeManager;
+
+    @DisplayName("오늘의 출석부를 요청하면 날짜에 해당하는 출석부와 상태코드 200을 반환한다.")
+    @Test
+    void showAttendance() {
+        // given
+        final User user1 = SUN.create();
+        final User user2 = KUN.create();
+        final User user3 = FORKY.create();
+        final List<Long> userIds = saveUsers(List.of(user2, user3));
+        final String token = signUpAndGetToken(user1);
+        final Meeting meeting = MORAGORA.create();
+        final Long meetingId = (long) saveMeeting(token, userIds, meeting);
+
+        saveEvents(token, List.of(EVENT1.create(meeting)), meetingId);
+        given(serverTimeManager.getDate())
+                .willReturn(EVENT1.getDate());
+
+        // when
+        final ValidatableResponse response = get("/meetings/" + meetingId + "/attendances/today", token);
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("users.nickname", containsInAnyOrder(SUN.getNickname(), KUN.getNickname(), FORKY.getNickname()))
+                .body("users.attendanceStatus", containsInAnyOrder("NONE", "NONE", "NONE"));
+    }
+
+    @DisplayName("오늘의 출석부를 요청할 때 오늘의 이벤트가 없다면 상태코드 400을 반환한다.")
+    @Test
+    void showAttendance_throwsException_ifEventNotExists() {
+        // given
+        final User user1 = SUN.create();
+        final User user2 = KUN.create();
+        final User user3 = FORKY.create();
+        final List<Long> userIds = saveUsers(List.of(user2, user3));
+        final String token = signUpAndGetToken(user1);
+        final Meeting meeting = MORAGORA.create();
+        final Long meetingId = (long) saveMeeting(token, userIds, meeting);
+
+        saveEvents(token, List.of(EVENT1.create(meeting)), meetingId);
+        given(serverTimeManager.getDate())
+                .willReturn(EVENT1.getDate().minusDays(1));
+
+        // when
+        final ValidatableResponse response = get("/meetings/" + meetingId + "/attendances/today", token);
+
+        // then
+        response.statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("message", equalTo("오늘의 일정이 존재하지 않아 출석부를 조회할 수 없습니다."));
+
+    }
+
 //    @DisplayName("미팅 참가자의 출석을 업데이트하면 상태코드 204을 반환한다.")
 //    @Test
 //    void updateAttendance() {
@@ -148,4 +194,4 @@
 //        // then
 //        response.statusCode(HttpStatus.FORBIDDEN.value());
 //    }
-//}
+}

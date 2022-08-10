@@ -247,13 +247,11 @@ class MeetingServiceTest {
         final Attendance attendance3 = dataSupport.saveAttendance(participant3, event1, Status.TARDY);
 
         final List<ParticipantResponse> usersResponse = List.of(
-                new ParticipantResponse(user1.getId(), user1.getEmail(), user1.getNickname(),
-                        attendance1.getStatus(), 0),
-                new ParticipantResponse(user2.getId(), user2.getEmail(), user2.getNickname(),
-                        attendance2.getStatus(), 0),
-                new ParticipantResponse(user3.getId(), user3.getEmail(), user3.getNickname(),
-                        attendance3.getStatus(), 0)
+                ParticipantResponse.of(user1, attendance1.getStatus(), 0),
+                ParticipantResponse.of(user2, attendance2.getStatus(), 0),
+                ParticipantResponse.of(user3, attendance3.getStatus(), 0)
         );
+
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
@@ -295,13 +293,11 @@ class MeetingServiceTest {
         final Attendance attendance3 = dataSupport.saveAttendance(participant3, event1, Status.TARDY);
 
         final List<ParticipantResponse> usersResponse = List.of(
-                new ParticipantResponse(user1.getId(), user1.getEmail(), user1.getNickname(),
-                        attendance1.getStatus(), 1),
-                new ParticipantResponse(user2.getId(), user2.getEmail(), user2.getNickname(),
-                        attendance2.getStatus(), 1),
-                new ParticipantResponse(user3.getId(), user3.getEmail(), user3.getNickname(),
-                        attendance3.getStatus(), 1)
+                ParticipantResponse.of(user1, attendance1.getStatus(), 1),
+                ParticipantResponse.of(user2, attendance2.getStatus(), 1),
+                ParticipantResponse.of(user3, attendance3.getStatus(), 1)
         );
+
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
