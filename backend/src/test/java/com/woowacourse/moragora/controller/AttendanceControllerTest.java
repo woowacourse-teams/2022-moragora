@@ -45,7 +45,8 @@ class AttendanceControllerTest extends ControllerTest {
                 .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
 
         // when
-        final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
+        final ResultActions resultActions = performPost(
+                "/meetings/" + meetingId + "/users/" + userId + "/attendances/today", request);
 
         //then
         resultActions.andExpect(status().isNotFound());

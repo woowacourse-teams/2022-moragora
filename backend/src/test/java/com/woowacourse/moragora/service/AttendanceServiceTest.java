@@ -19,6 +19,7 @@ import com.woowacourse.moragora.dto.CoffeeStatsResponse;
 import com.woowacourse.moragora.dto.EventRequest;
 import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
+import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
@@ -237,7 +238,7 @@ class AttendanceServiceTest {
         final User user = KUN.create();
         final Participant participant = dataSupport.saveParticipant(user, meeting);
         final Event event = dataSupport.saveEvent(EVENT1.create(meeting));
-        final Attendance attendance = dataSupport.saveAttendance(participant, event, Status.NONE);
+        dataSupport.saveAttendance(participant, event, Status.NONE);
 
         // when, then
         assertThatCode(() -> attendanceService.findTodayAttendancesByMeeting(meeting.getId()))
