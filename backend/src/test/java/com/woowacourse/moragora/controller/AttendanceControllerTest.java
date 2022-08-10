@@ -30,7 +30,6 @@ import org.springframework.test.web.servlet.ResultActions;
 
 class AttendanceControllerTest extends ControllerTest {
 
-
     @DisplayName("출석을 제출하려는 방이 존재하지 않는 경우 예외가 발생한다.")
     @Test
     void markAttendance_throwsException_ifMeetingNotFound() throws Exception {
@@ -166,6 +165,7 @@ class AttendanceControllerTest extends ControllerTest {
         );
         given(attendanceService.findTodayAttendancesByMeeting(any(Long.class)))
                 .willReturn(attendancesResponse);
+        
         // when
         final ResultActions resultActions = performGet("/meetings/" + meetingId + "/attendances/today");
 

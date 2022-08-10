@@ -1,6 +1,8 @@
 package com.woowacourse.moragora.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -36,6 +38,7 @@ class EventControllerTest extends ControllerTest {
                         )
                 ));
         validateToken("1");
+        doNothing().when(eventService).save(any(EventsRequest.class), anyLong());
 
         // when
         final ResultActions resultActions = performPost("/meetings/1/events", eventsRequest);
@@ -50,31 +53,19 @@ class EventControllerTest extends ControllerTest {
     @Test
     void cancel() throws Exception {
         // given
-        final EventsRequest eventsRequest = new EventsRequest(
-                List.of(
-                        new EventRequest(
-                                LocalTime.of(10, 0),
-                                LocalTime.of(18, 0),
-                                LocalDate.of(2022, 8, 3)
-                        ),
-                        new EventRequest(
-                                LocalTime.of(10, 0),
-                                LocalTime.of(18, 0),
-                                LocalDate.of(2022, 8, 4)
-                        )
-                ));
-        validateToken("1");
-        performPost("/meetings/1/events", eventsRequest);
-
         final EventCancelRequest eventCancelRequest = new EventCancelRequest(List.of(
                 LocalDate.of(2022, 8, 3),
                 LocalDate.of(2022, 8, 4)
         ));
 
+        validateToken("1");
+        doNothing().when(eventService).delete(any(EventCancelRequest.class), anyLong());
+
         // when
         final ResultActions resultActions = performDelete("/meetings/1/events", eventCancelRequest);
 
         // then
+        verify(eventService, times(1)).delete(any(EventCancelRequest.class), any(Long.class));
         resultActions.andExpect(status().isNoContent())
                 .andDo(document("event/cancel-event"));
     }
