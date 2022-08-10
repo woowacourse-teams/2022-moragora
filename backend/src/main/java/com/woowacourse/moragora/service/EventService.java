@@ -85,7 +85,7 @@ public class EventService {
                 .map(Event::getId)
                 .collect(Collectors.toList());
         attendanceRepository.deleteByEventIdIn(eventIds);
-        eventRepository.deleteByDateInAndMeetingId(request.getDates(), meetingId);
+        eventRepository.deleteByIdIn(eventIds);
     }
 
     private Instant getInstant(final Event event) {
