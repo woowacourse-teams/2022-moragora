@@ -58,7 +58,7 @@ class EventAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("모든 이벤트를 조회한다.")
     @Test
-    void findAll() {
+    void find_all() {
         // given
         final User user1 = KUN.create();
         final User user2 = AZPI.create();
@@ -100,6 +100,5 @@ class EventAcceptanceTest extends AcceptanceTest {
                 .body("events.meetingEndTime",
                         containsInAnyOrder("18:00", "18:00"))
                 .body("events.date", containsInAnyOrder("2022-08-01", "2022-08-02"));
-
     }
 }

@@ -16,6 +16,7 @@ import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import java.sql.Date;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -88,8 +89,8 @@ public class EventService {
                 atZone(ZoneId.systemDefault()).toInstant();
     }
 
-    public EventsResponse findAll(final Long meetingId) {
-        List<Event> events = eventRepository.findByMeetingId(meetingId);
+    public EventsResponse inquireByDuration(final Long meetingId, final LocalDate begin, final LocalDate end) {
+        List<Event> events = eventRepository.findByMeetingIdAndDuration(meetingId, begin, end);
         final List<EventResponse> eventResponses = events.stream()
                 .map(event -> new EventResponse(
                         event.getId(),

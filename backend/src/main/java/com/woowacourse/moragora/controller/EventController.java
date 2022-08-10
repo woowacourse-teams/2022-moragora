@@ -7,6 +7,7 @@ import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.EventsResponse;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.service.EventService;
+import java.time.LocalDate;
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -39,8 +41,10 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<EventsResponse> findAll(@PathVariable final Long meetingId) {
-        EventsResponse eventsResponse = eventService.findAll(meetingId);
+    public ResponseEntity<EventsResponse> inquireByDuration(@PathVariable final Long meetingId,
+                                                            @RequestParam(value = "begin", required = false) final LocalDate begin,
+                                                            @RequestParam(value = "end", required = false) final LocalDate end) {
+        EventsResponse eventsResponse = eventService.inquireByDuration(meetingId, begin, end);
         return ResponseEntity.ok(eventsResponse);
     }
 }

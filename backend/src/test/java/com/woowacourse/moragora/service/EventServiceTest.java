@@ -102,7 +102,7 @@ class EventServiceTest {
         ));
 
         // when
-        final EventsResponse response = eventService.findAll(meeting.getId());
+        final EventsResponse response = eventService.inquireByDuration(meeting.getId(), null, null);
 
         // then
         assertThat(response).usingRecursiveComparison()
