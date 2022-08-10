@@ -12,15 +12,19 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.woowacourse.moragora.dto.AttendanceResponse;
+import com.woowacourse.moragora.dto.AttendancesResponse;
 import com.woowacourse.moragora.dto.CoffeeStatResponse;
 import com.woowacourse.moragora.dto.CoffeeStatsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -144,5 +148,60 @@ class AttendanceControllerTest extends ControllerTest {
         // then
         resultActions.andExpect(status().isNoContent())
                 .andDo(document("meeting/use-coffee"));
+    }
+
+    @DisplayName("출석부를 조회한다.")
+    @Test
+    void showAttendances() throws Exception {
+        // given
+        final Long meetingId = 1L;
+        final Long userId = 1L;
+        validateToken(String.valueOf(userId));
+        final AttendancesResponse attendancesResponse = new AttendancesResponse(
+                List.of(
+                        new AttendanceResponse(1L, "썬", "none"),
+                        new AttendanceResponse(3L, "필즈", "none"),
+                        new AttendanceResponse(5L, "포키", "present")
+                )
+        );
+        given(attendanceService.findTodayAttendancesByMeeting(any(Long.class)))
+                .willReturn(attendancesResponse);
+        // when
+        final ResultActions resultActions = performGet("/meetings/" + meetingId + "/attendances/today");
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andDo(document("attendance/show",
+                        responseFields(
+                                fieldWithPath("users[].id").type(JsonFieldType.NUMBER)
+                                        .description(1L),
+                                fieldWithPath("users[].nickname").type(JsonFieldType.STRING)
+                                        .description("썬"),
+                                fieldWithPath("users[].attendanceStatus").type(JsonFieldType.STRING)
+                                        .description("none")
+                        )));
+    }
+
+    @DisplayName("오늘의 이벤트가 존재하지 않을 때 출석부를 조회할 경우 예외가 발생한다.")
+    @Test
+    void showAttendances_throwsException_ifEventNotExists() throws Exception {
+        // given
+        final Long meetingId = 1L;
+        final Long userId = 1L;
+        validateToken(String.valueOf(userId));
+
+        given(attendanceService.findTodayAttendancesByMeeting(any(Long.class)))
+                .willThrow(new ClientRuntimeException("오늘의 일정이 존재하지 않아 출석부를 조회할 수 없습니다.", HttpStatus.BAD_REQUEST));
+
+        // when
+        final ResultActions resultActions = performGet("/meetings/" + meetingId + "/attendances/today");
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andDo(document("attendance/show-event-not-exists",
+                        responseFields(
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("오늘의 일정이 존재하지 않아 출석부를 조회할 수 없습니다.")
+                        )));
     }
 }

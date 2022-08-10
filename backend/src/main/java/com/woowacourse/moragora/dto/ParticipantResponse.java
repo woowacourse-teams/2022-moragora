@@ -2,7 +2,6 @@ package com.woowacourse.moragora.dto;
 
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
-import java.util.Locale;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -24,16 +23,8 @@ public class ParticipantResponse {
         this.id = id;
         this.email = email;
         this.nickname = nickname;
-        this.attendanceStatus = attendanceStatus.toLowerCase(Locale.ROOT);
+        this.attendanceStatus = attendanceStatus.toLowerCase();
         this.tardyCount = tardyCount;
-    }
-
-    public ParticipantResponse(final Long id,
-                               final String email,
-                               final String nickname,
-                               final Status attendanceStatus,
-                               final int tardyCount) {
-        this(id, email, nickname, attendanceStatus.name(), tardyCount);
     }
 
     public static ParticipantResponse of(final User foundUser, final Status attendanceStatus, final int tardyCount) {
@@ -41,7 +32,7 @@ public class ParticipantResponse {
                 foundUser.getId(),
                 foundUser.getEmail(),
                 foundUser.getNickname(),
-                attendanceStatus,
+                attendanceStatus.name(),
                 tardyCount);
     }
 }
