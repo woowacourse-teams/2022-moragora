@@ -161,7 +161,7 @@ public class MeetingService {
                 meetingAttendances.extractAttendancesByParticipant(participant);
         final int tardyCount = participantAttendances.countTardy(isOver, now);
 
-        return ParticipantResponse.of(participant.getUser(), tardyCount, participant.getIsMaster());
+        return ParticipantResponse.of(participant, tardyCount);
     }
 
     private MyMeetingResponse generateMyMeetingResponse(final Participant participant,

@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.dto;
 
+import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.user.User;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,12 +29,13 @@ public class ParticipantResponse {
         this.isMaster = isMaster;
     }
 
-    public static ParticipantResponse of(final User foundUser, final int tardyCount, final boolean isMaster) {
+    public static ParticipantResponse of(final Participant participant, final int tardyCount) {
+        final User user = participant.getUser();
         return new ParticipantResponse(
-                foundUser.getId(),
-                foundUser.getEmail(),
-                foundUser.getNickname(),
+                user.getId(),
+                user.getEmail(),
+                user.getNickname(),
                 tardyCount,
-                isMaster);
+                participant.getIsMaster());
     }
 }
