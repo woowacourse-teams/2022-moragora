@@ -19,6 +19,7 @@ import com.woowacourse.moragora.dto.CoffeeStatsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.meeting.NotCheckInTimeException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -28,29 +29,6 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 class AttendanceControllerTest extends ControllerTest {
-
-
-    @DisplayName("출석을 제출하려는 방이 존재하지 않는 경우 예외가 발생한다.")
-    @Test
-    void markAttendance_throwsException_ifMeetingNotFound() throws Exception {
-        // given
-        final Long meetingId = 99L;
-        final Long userId = 1L;
-        final UserAttendanceRequest request = new UserAttendanceRequest(true);
-
-        validateToken("1");
-
-        doThrow(new MeetingNotFoundException())
-                .when(attendanceService)
-                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
-
-        // when
-        final ResultActions resultActions = performPost(
-                "/meetings/" + meetingId + "/users/" + userId + "/attendances/today", request);
-
-        //then
-        resultActions.andExpect(status().isNotFound());
-    }
 
     @DisplayName("사용자 출석여부를 반영한다.")
     @Test
@@ -75,17 +53,17 @@ class AttendanceControllerTest extends ControllerTest {
                 ));
     }
 
-    @DisplayName("출석을 제출하려는 사용자가 미팅에 존재하지 않으면 예외가 발생한다.")
+    @DisplayName("출석부가 활성화되지 않았을 때 출석을 제출하면 예외가 발생한다.")
     @Test
-    void markAttendance_throwsException_ifParticipantNotFound() throws Exception {
+    void markAttendance_throwsException_ifCheckInIsNotActive() throws Exception {
         // given
-        final Long meetingId = 1L;
-        final Long userId = 8L;
+        final Long meetingId = 99L;
+        final Long userId = 1L;
         final UserAttendanceRequest request = new UserAttendanceRequest(true);
 
         validateToken("1");
 
-        doThrow(new ParticipantNotFoundException())
+        doThrow(new NotCheckInTimeException())
                 .when(attendanceService)
                 .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
 
@@ -93,8 +71,9 @@ class AttendanceControllerTest extends ControllerTest {
         final ResultActions resultActions = performPost(
                 "/meetings/" + meetingId + "/users/" + userId + "/attendances/today", request);
 
-        // then
-        resultActions.andExpect(status().isNotFound());
+        //then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").value("출석 가능한 시간이 아닙니다."));
     }
 
     @DisplayName("모임의 유저별 사용될 커피 스택 개수를 조회한다.")

@@ -15,7 +15,7 @@ import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.InvalidCoffeeTimeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.AttendanceNotFoundException;
-import com.woowacourse.moragora.exception.meeting.ClosingTimeExcessException;
+import com.woowacourse.moragora.exception.meeting.NotCheckInTimeException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
@@ -88,10 +88,11 @@ public class AttendanceService {
 
         final Participant participant = participantRepository.findByMeetingIdAndUserId(meeting.getId(), user.getId())
                 .orElseThrow(ParticipantNotFoundException::new);
-        validateAttendanceTime(meeting);
-
         final Event event = eventRepository.findByMeetingIdAndDate(meetingId, serverTimeManager.getDate())
                 .orElseThrow(EventNotFoundException::new);
+
+        validateAttendanceTime(event);
+
         final Attendance attendance = attendanceRepository
                 .findByParticipantIdAndEventId(participant.getId(), event.getId())
                 .orElseThrow(AttendanceNotFoundException::new);
@@ -127,13 +128,11 @@ public class AttendanceService {
         meetingAttendances.disableAttendances();
     }
 
-    private void validateAttendanceTime(final Meeting meeting) {
-        final Event event = eventRepository.findByMeetingIdAndDate(meeting.getId(), serverTimeManager.getDate())
-                .orElseThrow(EventNotFoundException::new);
+    private void validateAttendanceTime(final Event event) {
         final LocalTime entranceTime = event.getEntranceTime();
 
-        if (serverTimeManager.isOverClosingTime(entranceTime)) {
-            throw new ClosingTimeExcessException();
+        if (!serverTimeManager.isAttendanceTime(entranceTime)) {
+            throw new NotCheckInTimeException();
         }
     }
 
