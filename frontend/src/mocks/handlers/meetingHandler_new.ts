@@ -9,6 +9,8 @@ import {
   MeetingListResponseBody,
   MeetingCreateRequestBody,
   MeetingResponseBody,
+  MeetingUpdateRequestBody,
+  MeetingMasterAssignRequestBody,
 } from 'types/meetingType_new';
 import { DELAY } from 'mocks/configs';
 import { extractIdFromHeader } from 'mocks/utils';
@@ -125,7 +127,7 @@ export default [
     (req, res, ctx) => {
       const token = extractIdFromHeader(req);
 
-      if (!token.isValidToken) {
+      if (!token.isValidToken || !token.id) {
         return res(
           ctx.status(401),
           ctx.json({ message: '유효하지 않은 토큰입니다.' })
@@ -142,20 +144,104 @@ export default [
       }
 
       const meeting = req.body;
-      const id = meetings.length;
+      const meetingId = meetings.length;
 
       meetings.push({
         ...meeting,
-        id,
+        id: meetingId,
         isActive: false,
         attendanceEventCount: 0,
+        masterId: token.id,
       });
 
       return res(
         ctx.status(201),
-        ctx.set('Location', `/meetings/${id}`),
+        ctx.set('Location', `/meetings/${meetingId}`),
         ctx.delay(DELAY)
       );
+    }
+  ),
+
+  rest.put<MeetingUpdateRequestBody, Pick<MeetingPathParams, 'meetingId'>>(
+    `${process.env.API_SERVER_HOST}/meetings/:meetingId`,
+    (req, res, ctx) => {
+      const token = extractIdFromHeader(req);
+      const meetingId = Number(req.params.meetingId);
+      const { name } = req.body;
+
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      const user = users.find(({ id }) => id === token.id);
+
+      if (!user) {
+        return res(
+          ctx.status(404),
+          ctx.json({ message: '유저가 존재하지 않습니다.' })
+        );
+      }
+
+      const meeting = meetings.find(({ id }) => id === meetingId);
+
+      if (!meeting) {
+        return res(
+          ctx.status(404),
+          ctx.json({ message: '모임이 존재하지 않습니다.' })
+        );
+      }
+
+      if (meeting.masterId !== token.id) {
+        return res(ctx.status(403));
+      }
+
+      meeting.name = name;
+
+      return res(ctx.status(204), ctx.delay(DELAY));
+    }
+  ),
+
+  rest.delete<DefaultBodyType, Pick<MeetingPathParams, 'meetingId'>>(
+    `${process.env.API_SERVER_HOST}/meetings/:meetingId`,
+    (req, res, ctx) => {
+      const token = extractIdFromHeader(req);
+      const meetingId = Number(req.params.meetingId);
+
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      const user = users.find(({ id }) => id === token.id);
+
+      if (!user) {
+        return res(
+          ctx.status(404),
+          ctx.json({ message: '유저가 존재하지 않습니다.' })
+        );
+      }
+
+      const meetingIndex = meetings.findIndex(({ id }) => id === meetingId);
+
+      if (meetingIndex === -1) {
+        return res(
+          ctx.status(404),
+          ctx.json({ message: '모임이 존재하지 않습니다.' })
+        );
+      }
+
+      if (meetings[meetingIndex].masterId !== token.id) {
+        return res(ctx.status(403));
+      }
+
+      meetings.splice(meetingIndex, 1);
+
+      return res(ctx.status(204), ctx.delay(DELAY));
     }
   ),
 
@@ -210,6 +296,117 @@ export default [
         return res(
           ctx.status(401),
           ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      return res(ctx.status(204), ctx.delay(DELAY));
+    }
+  ),
+
+  rest.delete<DefaultBodyType, Pick<MeetingPathParams, 'meetingId'>>(
+    `${process.env.API_SERVER_HOST}/meetings/:meetingId/me`,
+    (req, res, ctx) => {
+      const token = extractIdFromHeader(req);
+      const meetingId = Number(req.params.meetingId);
+
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      const meeting = meetings.find(({ id }) => id === meetingId);
+
+      if (!meeting) {
+        return res(
+          ctx.status(404),
+          ctx.json({ message: '모임이 존재하지 않습니다.' })
+        );
+      }
+
+      if (!meeting.userIds.find((id) => id === token.id)) {
+        return res(
+          ctx.status(404),
+          ctx.json({
+            message: '해당 미팅에 유저가 존재하지 않습니다.',
+          })
+        );
+      }
+
+      if (meeting.masterId === token.id) {
+        return res(
+          ctx.status(403),
+          ctx.json({
+            message: '마스터는 모임을 나갈 수 없습니다.',
+          })
+        );
+      }
+
+      return res(ctx.status(204), ctx.delay(DELAY));
+    }
+  ),
+
+  rest.put<
+    MeetingMasterAssignRequestBody,
+    Pick<MeetingPathParams, 'meetingId'>
+  >(
+    `${process.env.API_SERVER_HOST}/meetings/:meetingId/me`,
+    (req, res, ctx) => {
+      const token = extractIdFromHeader(req);
+      const meetingId = Number(req.params.meetingId);
+      const { userId } = req.body;
+
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      const user = users.find(({ id }) => id === token.id);
+      const targetUser = users.find(({ id }) => id === userId);
+
+      if (!user || !targetUser) {
+        return res(
+          ctx.status(404),
+          ctx.json({ message: '유저가 존재하지 않습니다.' })
+        );
+      }
+
+      const meeting = meetings.find(({ id }) => id === meetingId);
+
+      if (!meeting) {
+        return res(
+          ctx.status(404),
+          ctx.json({ message: '모임이 존재하지 않습니다.' })
+        );
+      }
+
+      if (meeting.masterId !== token.id) {
+        return res(
+          ctx.status(403),
+          ctx.json({
+            message: '해당 모임의 마스터만 마스터 권한을 양도할 수 있습니다.',
+          })
+        );
+      }
+
+      if (!meeting.userIds.find((id) => id === userId)) {
+        return res(
+          ctx.status(404),
+          ctx.json({
+            message: '해당 미팅에 유저가 존재하지 않습니다.',
+          })
+        );
+      }
+
+      if (meeting.masterId === userId) {
+        return res(
+          ctx.status(403),
+          ctx.json({
+            message: '마스터에게는 마스터 권한을 양도할 수 있습니다.',
+          })
         );
       }
 

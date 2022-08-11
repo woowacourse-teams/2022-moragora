@@ -1,5 +1,5 @@
 import { MeetingEvent } from './eventType_new';
-import { Participant } from './userType_new';
+import { Participant, User } from './userType_new';
 
 export type Meeting = {
   id: number;
@@ -19,6 +19,10 @@ export type MeetingWithTardyCount = {
 export type MeetingCreateRequestBody = {
   name: string;
   userIds: number[];
+};
+
+export type MeetingUpdateRequestBody = {
+  name: string;
 };
 
 export type MeetingListResponseBody = {
@@ -41,4 +45,8 @@ export type MeetingResponseBody = {
   isLoginUserMaster: boolean;
   isCoffeeTime: boolean;
   users: (Participant & { isMaster: boolean })[];
+};
+
+export type MeetingMasterAssignRequestBody = {
+  userId: User['id'];
 };
