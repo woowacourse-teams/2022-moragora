@@ -45,13 +45,13 @@ class EventAcceptanceTest extends AcceptanceTest {
         final EventsRequest eventsRequest = new EventsRequest(
                 List.of(
                         new EventRequest(
-                                event1.getEntranceTime(),
-                                event1.getLeaveTime(),
+                                event1.getStartTime(),
+                                event1.getEndTime(),
                                 event1.getDate()
                         ),
                         new EventRequest(
-                                event2.getEntranceTime(),
-                                event2.getLeaveTime(),
+                                event2.getStartTime(),
+                                event2.getEndTime(),
                                 event2.getDate()
                         )
                 ));
@@ -81,10 +81,10 @@ class EventAcceptanceTest extends AcceptanceTest {
 
         given(serverTimeManager.getDate())
                 .willReturn(LocalDate.of(2022, 7, 31));
-        given(serverTimeManager.calculateOpeningTime(event1.getEntranceTime()))
-                .willReturn(event1.getEntranceTime().minusMinutes(30));
-        given(serverTimeManager.calculateClosingTime(event1.getEntranceTime()))
-                .willReturn(event1.getEntranceTime().plusMinutes(5));
+        given(serverTimeManager.calculateOpeningTime(event1.getStartTime()))
+                .willReturn(event1.getStartTime().minusMinutes(30));
+        given(serverTimeManager.calculateClosingTime(event1.getStartTime()))
+                .willReturn(event1.getStartTime().plusMinutes(5));
 
         // when
         final ValidatableResponse response = get("/meetings/" + meetingId + "/events/upcoming", token);

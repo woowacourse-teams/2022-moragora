@@ -84,8 +84,8 @@ public class MeetingService {
 
         final LocalDate today = serverTimeManager.getDate();
         final Optional<Event> event = eventRepository.findByMeetingIdAndDate(meeting.getId(), today);
-        final boolean isActive = event.isPresent() && serverTimeManager.isAttendanceTime(event.get().getEntranceTime());
-        final boolean isOver = event.isPresent() && serverTimeManager.isOverClosingTime(event.get().getEntranceTime());
+        final boolean isActive = event.isPresent() && serverTimeManager.isAttendanceTime(event.get().getStartTime());
+        final boolean isOver = event.isPresent() && serverTimeManager.isOverClosingTime(event.get().getStartTime());
 
         final MeetingAttendances meetingAttendances = findAttendancesByMeeting(meeting.getParticipantIds());
         final List<ParticipantResponse> participantResponses = participants.stream()
@@ -178,10 +178,10 @@ public class MeetingService {
         final Optional<Event> upcomingEvent = eventRepository
                 .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today);
         final boolean isActive =
-                upcomingEvent.isPresent() && serverTimeManager.isAttendanceTime(upcomingEvent.get().getEntranceTime());
+                upcomingEvent.isPresent() && serverTimeManager.isAttendanceTime(upcomingEvent.get().getStartTime());
 
         final boolean isOver =
-                upcomingEvent.isPresent() && serverTimeManager.isOverClosingTime(upcomingEvent.get().getEntranceTime());
+                upcomingEvent.isPresent() && serverTimeManager.isOverClosingTime(upcomingEvent.get().getStartTime());
         final boolean isCoffeeTime = meetingAttendances.isTardyStackFull(isOver, today);
         final int tardyCount = participantAttendances.countTardy(isOver, today);
 
@@ -191,7 +191,7 @@ public class MeetingService {
             );
         }
         final Event event = upcomingEvent.get();
-        final LocalTime entranceTime = event.getEntranceTime();
+        final LocalTime entranceTime = event.getStartTime();
         final LocalTime attendanceOpenTime = serverTimeManager.calculateOpeningTime(entranceTime);
         final LocalTime attendanceClosedTime = serverTimeManager.calculateClosingTime(entranceTime);
         return MyMeetingResponse.of(

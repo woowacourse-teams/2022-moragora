@@ -27,8 +27,8 @@ import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
-import com.woowacourse.moragora.exception.meeting.NotCheckInTimeException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.meeting.NotCheckInTimeException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
@@ -223,8 +223,8 @@ class AttendanceServiceTest {
         serverTimeManager.refresh(dateTime);
 
         final EventRequest eventRequest = EventRequest.builder()
-                .entranceTime(event.getEntranceTime())
-                .leaveTime(event.getLeaveTime())
+                .entranceTime(event.getStartTime())
+                .leaveTime(event.getEndTime())
                 .date(event.getDate()).build();
 
         eventService.save(new EventsRequest(List.of(eventRequest)), meeting.getId());

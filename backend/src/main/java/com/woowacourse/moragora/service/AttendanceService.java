@@ -15,8 +15,8 @@ import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.InvalidCoffeeTimeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.AttendanceNotFoundException;
-import com.woowacourse.moragora.exception.meeting.NotCheckInTimeException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.meeting.NotCheckInTimeException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
@@ -108,7 +108,7 @@ public class AttendanceService {
         final LocalDate today = serverTimeManager.getDate();
         final Event event = eventRepository.findByMeetingIdAndDate(meetingId, today)
                 .orElse(null);
-        final boolean isOver = Objects.isNull(event) || serverTimeManager.isOverClosingTime(event.getEntranceTime());
+        final boolean isOver = Objects.isNull(event) || serverTimeManager.isOverClosingTime(event.getStartTime());
 
         final MeetingAttendances meetingAttendances = findMeetingAttendancesBy(meetingId);
         validateEnoughTardyCountToDisable(meetingAttendances, isOver, today);
@@ -121,7 +121,7 @@ public class AttendanceService {
         final LocalDate today = serverTimeManager.getDate();
         final Event event = eventRepository.findByMeetingIdAndDate(meetingId, today)
                 .orElse(null);
-        final boolean isOver = Objects.isNull(event) || serverTimeManager.isOverClosingTime(event.getEntranceTime());
+        final boolean isOver = Objects.isNull(event) || serverTimeManager.isOverClosingTime(event.getStartTime());
 
         final MeetingAttendances meetingAttendances = findMeetingAttendancesBy(meetingId);
         validateEnoughTardyCountToDisable(meetingAttendances, isOver, today);
@@ -129,7 +129,7 @@ public class AttendanceService {
     }
 
     private void validateAttendanceTime(final Event event) {
-        final LocalTime entranceTime = event.getEntranceTime();
+        final LocalTime entranceTime = event.getStartTime();
 
         if (!serverTimeManager.isAttendanceTime(entranceTime)) {
             throw new NotCheckInTimeException();

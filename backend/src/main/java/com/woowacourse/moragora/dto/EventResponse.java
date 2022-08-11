@@ -37,8 +37,8 @@ public class EventResponse {
                 event.getId(),
                 attendanceOpenTime.format(TIME_FORMATTER),
                 attendanceClosedTime.format(TIME_FORMATTER),
-                event.getEntranceTime().format(TIME_FORMATTER),
-                event.getLeaveTime().format(TIME_FORMATTER),
+                event.getStartTime().format(TIME_FORMATTER),
+                event.getEndTime().format(TIME_FORMATTER),
                 event.getDate()
         );
     }

@@ -78,7 +78,7 @@ public class EventService {
                         meetingId, serverTimeManager.getDate())
                 .orElseThrow(EventNotFoundException::new);
 
-        final LocalTime entranceTime = event.getEntranceTime();
+        final LocalTime entranceTime = event.getStartTime();
         final LocalTime attendanceOpenTime = serverTimeManager.calculateOpeningTime(entranceTime);
         final LocalTime attendanceClosedTime = serverTimeManager.calculateClosingTime(entranceTime);
         return EventResponse.of(event, attendanceOpenTime, attendanceClosedTime);

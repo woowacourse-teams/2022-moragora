@@ -361,7 +361,6 @@ class MeetingControllerTest extends ControllerTest {
         performGet("/meetings/me")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.meetings[*].id", containsInAnyOrder(1)))
-                // 더 이상 일정이 없는 모임
                 .andExpect(jsonPath("$.meetings[*].name", contains("모임1")))
                 .andExpect(jsonPath("$.meetings[*].tardyCount", contains(2)))
                 .andExpect(jsonPath("$.meetings[*].isLoginUserMaster", contains(true)))
