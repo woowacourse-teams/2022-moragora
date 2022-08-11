@@ -78,8 +78,7 @@ public class MeetingService {
                 .orElseThrow(MeetingNotFoundException::new);
 
         final List<Participant> participants = meeting.getParticipants();
-        final Participant participant = participantRepository.findByMeetingIdAndUserId(
-                        meeting.getId(), loginId)
+        final Participant participant = participantRepository.findByMeetingIdAndUserId(meeting.getId(), loginId)
                 .orElseThrow(ParticipantNotFoundException::new);
 
         final LocalDate today = serverTimeManager.getDate();
