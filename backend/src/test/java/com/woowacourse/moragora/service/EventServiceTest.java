@@ -2,6 +2,7 @@ package com.woowacourse.moragora.service;
 
 import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.EventFixtures.EVENT2;
+import static com.woowacourse.moragora.support.EventFixtures.EVENT3;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -75,7 +76,7 @@ class EventServiceTest {
 
     @DisplayName("모임 일정 전체를 조회한다.")
     @Test
-    void findAll() {
+    void find_all() {
         // given
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
 
@@ -103,6 +104,110 @@ class EventServiceTest {
 
         // when
         final EventsResponse response = eventService.inquireByDuration(meeting.getId(), null, null);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .isEqualTo(expectedEventsResponse);
+    }
+
+    @DisplayName("특정 일정 이후의 일정을 조회한다.")
+    @Test
+    void find_isGreaterThanEqualBegin() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        final Event event3 = dataSupport.saveEvent(EVENT3.create(meeting));
+
+        final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
+                new EventResponse(
+                        event2.getId(),
+                        event2.getEntranceTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getEntranceTime().plusMinutes(ATTENDANCE_END_INTERVAL),
+                        event2.getEntranceTime(),
+                        event2.getLeaveTime(),
+                        event2.getDate()
+                ),
+                new EventResponse(
+                        event3.getId(),
+                        event3.getEntranceTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event3.getEntranceTime().plusMinutes(ATTENDANCE_END_INTERVAL),
+                        event3.getEntranceTime(),
+                        event3.getLeaveTime(),
+                        event3.getDate()
+                )
+        ));
+
+        // when
+        final EventsResponse response = eventService.inquireByDuration(meeting.getId(), event2.getDate(), null);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .isEqualTo(expectedEventsResponse);
+    }
+
+    @DisplayName("특정 일정 이전의 일정을 조회한다.")
+    @Test
+    void find_isLessThanEqualEnd() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        dataSupport.saveEvent(EVENT3.create(meeting));
+
+        final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
+                new EventResponse(
+                        event1.getId(),
+                        event1.getEntranceTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event1.getEntranceTime().plusMinutes(ATTENDANCE_END_INTERVAL),
+                        event1.getEntranceTime(),
+                        event1.getLeaveTime(),
+                        event1.getDate()
+                ),
+                new EventResponse(
+                        event2.getId(),
+                        event2.getEntranceTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getEntranceTime().plusMinutes(ATTENDANCE_END_INTERVAL),
+                        event2.getEntranceTime(),
+                        event2.getLeaveTime(),
+                        event2.getDate()
+                )
+        ));
+
+        // when
+        final EventsResponse response = eventService.inquireByDuration(meeting.getId(), null, event2.getDate());
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .isEqualTo(expectedEventsResponse);
+    }
+
+    @DisplayName("특정 기간 안의 일정을 조회한다.")
+    @Test
+    void find_inDuration() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        dataSupport.saveEvent(EVENT3.create(meeting));
+
+        final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
+                new EventResponse(
+                        event2.getId(),
+                        event2.getEntranceTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getEntranceTime().plusMinutes(ATTENDANCE_END_INTERVAL),
+                        event2.getEntranceTime(),
+                        event2.getLeaveTime(),
+                        event2.getDate()
+                )
+        ));
+
+        // when
+        final EventsResponse response = eventService
+                .inquireByDuration(meeting.getId(), event2.getDate(), event2.getDate());
 
         // then
         assertThat(response).usingRecursiveComparison()

@@ -39,9 +39,6 @@ import org.springframework.test.web.servlet.ResultActions;
 
 class MeetingControllerTest extends ControllerTest {
 
-    private static final LocalTime ENTRANCE_TIME = LocalTime.of(10, 0);
-    private static final LocalTime LEAVE_TIME = LocalTime.of(18, 0);
-
     @DisplayName("미팅 방을 생성한다.")
     @Test
     void add() throws Exception {
