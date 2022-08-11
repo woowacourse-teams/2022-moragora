@@ -62,7 +62,7 @@ class EventAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("마스터 권한이 없는 참가자가 일정 등록을 요청하는 경우 상태코드 403을 반환한다.")
     @Test
-    void add_NotMaster() {
+    void add_notMaster() {
         // given
         final User master = MASTER.create();
         final User noMaster = NO_MASTER.create();
@@ -116,7 +116,7 @@ class EventAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("마스터가 아닌 참가자가 일정 삭제 요청을 하면 상태코드 403을 반환한다.")
     @Test
-    void cancel_NotMaster() {
+    void cancel_notMaster() {
         // given
         final User master = MASTER.create();
         final User noMaster = NO_MASTER.create();

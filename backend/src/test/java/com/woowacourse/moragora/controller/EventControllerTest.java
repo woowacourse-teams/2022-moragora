@@ -1,8 +1,6 @@
 package com.woowacourse.moragora.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -38,7 +36,6 @@ class EventControllerTest extends ControllerTest {
                         )
                 ));
         validateToken("1");
-        doNothing().when(eventService).save(any(EventsRequest.class), anyLong());
 
         // when
         final ResultActions resultActions = performPost("/meetings/1/events", eventsRequest);
@@ -59,7 +56,6 @@ class EventControllerTest extends ControllerTest {
         ));
 
         validateToken("1");
-        doNothing().when(eventService).delete(any(EventCancelRequest.class), anyLong());
 
         // when
         final ResultActions resultActions = performDelete("/meetings/1/events", eventCancelRequest);
