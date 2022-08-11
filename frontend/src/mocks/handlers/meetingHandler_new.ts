@@ -125,7 +125,7 @@ export default [
     (req, res, ctx) => {
       const token = extractIdFromHeader(req);
 
-      if (!token.isValidToken) {
+      if (!token.isValidToken || !token.id) {
         return res(
           ctx.status(401),
           ctx.json({ message: '유효하지 않은 토큰입니다.' })
@@ -142,18 +142,19 @@ export default [
       }
 
       const meeting = req.body;
-      const id = meetings.length;
+      const meetingId = meetings.length;
 
       meetings.push({
         ...meeting,
-        id,
+        id: meetingId,
         isActive: false,
         attendanceEventCount: 0,
+        masterId: token.id,
       });
 
       return res(
         ctx.status(201),
-        ctx.set('Location', `/meetings/${id}`),
+        ctx.set('Location', `/meetings/${meetingId}`),
         ctx.delay(DELAY)
       );
     }

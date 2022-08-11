@@ -7,6 +7,12 @@ import {
 } from 'types/userType';
 import { DELAY } from 'mocks/configs';
 import { extractIdFromHeader, generateToken } from 'mocks/utils';
+import {
+  UserDeleteRequestBody,
+  UserUpdateNicknameRequestBody,
+  UserUpdatePasswordRequestBody,
+} from 'types/userType_new';
+import meetings from 'mocks/fixtures/meetings_new';
 
 export default [
   rest.post<UserRegisterRequestBody>(
@@ -153,4 +159,122 @@ export default [
       ctx.delay(DELAY)
     );
   }),
+
+  rest.put<UserUpdateNicknameRequestBody>(
+    `${process.env.API_SERVER_HOST}/users/me/nickname`,
+    (req, res, ctx) => {
+      const token = extractIdFromHeader(req);
+      const { nickname } = req.body;
+
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      const user = users.find(({ id }) => id === token.id);
+
+      if (!user) {
+        return res(
+          ctx.status(404),
+          ctx.json({ message: '유저가 존재하지 않습니다.' })
+        );
+      }
+
+      user.nickname = nickname;
+
+      return res(ctx.status(204), ctx.delay(DELAY));
+    }
+  ),
+
+  rest.put<UserUpdatePasswordRequestBody>(
+    `${process.env.API_SERVER_HOST}/users/me/password`,
+    (req, res, ctx) => {
+      const token = extractIdFromHeader(req);
+      const { oldPassword, newPassword } = req.body;
+
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      const user = users.find(({ id }) => id === token.id);
+
+      if (!user) {
+        return res(
+          ctx.status(404),
+          ctx.json({ message: '유저가 존재하지 않습니다.' })
+        );
+      }
+
+      if (user.password !== oldPassword) {
+        return res(
+          ctx.status(400),
+          ctx.json({
+            message: '비밀번호가 올바르지 않습니다.',
+          }),
+          ctx.delay(DELAY)
+        );
+      }
+
+      if (oldPassword === newPassword) {
+        return res(
+          ctx.status(400),
+          ctx.json({
+            message: '새로운 비밀번호가 기존의 비밀번호와 일치합니다',
+          }),
+          ctx.delay(DELAY)
+        );
+      }
+
+      user.password = newPassword;
+
+      return res(ctx.status(204), ctx.delay(DELAY));
+    }
+  ),
+
+  rest.delete<UserDeleteRequestBody>(
+    `${process.env.API_SERVER_HOST}/users/me`,
+    (req, res, ctx) => {
+      const token = extractIdFromHeader(req);
+      const { password } = req.body;
+
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      const userIndex = users.findIndex(({ id }) => id === token.id);
+
+      if (userIndex === -1) {
+        return res(
+          ctx.status(404),
+          ctx.json({ message: '유저가 존재하지 않습니다.' })
+        );
+      }
+
+      if (users[userIndex].password !== password) {
+        return res(
+          ctx.status(400),
+          ctx.json({
+            message: '비밀번호가 올바르지 않습니다.',
+          }),
+          ctx.delay(DELAY)
+        );
+      }
+
+      if (meetings.some(({ masterId }) => masterId === users[userIndex].id)) {
+        return res(ctx.status(403), ctx.delay(DELAY));
+      }
+
+      users.splice(userIndex, 1);
+
+      return res(ctx.status(204), ctx.delay(DELAY));
+    }
+  ),
 ];
