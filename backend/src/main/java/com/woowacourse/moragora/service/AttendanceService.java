@@ -108,7 +108,7 @@ public class AttendanceService {
         final LocalDate today = serverTimeManager.getDate();
         final Event event = eventRepository.findByMeetingIdAndDate(meetingId, today)
                 .orElse(null);
-        final boolean isOver = Objects.isNull(event) || serverTimeManager.isOverClosingTime(event.getStartTime());
+        final boolean isOver = Objects.isNull(event) || serverTimeManager.isAttendanceClosed(event.getStartTime());
 
         final MeetingAttendances meetingAttendances = findMeetingAttendancesBy(meetingId);
         validateEnoughTardyCountToDisable(meetingAttendances, isOver, today);
@@ -121,7 +121,7 @@ public class AttendanceService {
         final LocalDate today = serverTimeManager.getDate();
         final Event event = eventRepository.findByMeetingIdAndDate(meetingId, today)
                 .orElse(null);
-        final boolean isOver = Objects.isNull(event) || serverTimeManager.isOverClosingTime(event.getStartTime());
+        final boolean isOver = Objects.isNull(event) || serverTimeManager.isAttendanceClosed(event.getStartTime());
 
         final MeetingAttendances meetingAttendances = findMeetingAttendancesBy(meetingId);
         validateEnoughTardyCountToDisable(meetingAttendances, isOver, today);
@@ -131,7 +131,7 @@ public class AttendanceService {
     private void validateAttendanceTime(final Event event) {
         final LocalTime entranceTime = event.getStartTime();
 
-        if (!serverTimeManager.isAttendanceTime(entranceTime)) {
+        if (!serverTimeManager.isAttendanceOpen(entranceTime)) {
             throw new NotCheckInTimeException();
         }
     }

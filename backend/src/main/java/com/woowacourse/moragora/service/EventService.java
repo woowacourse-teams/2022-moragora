@@ -79,8 +79,8 @@ public class EventService {
                 .orElseThrow(EventNotFoundException::new);
 
         final LocalTime entranceTime = event.getStartTime();
-        final LocalTime attendanceOpenTime = serverTimeManager.calculateOpeningTime(entranceTime);
-        final LocalTime attendanceClosedTime = serverTimeManager.calculateClosingTime(entranceTime);
+        final LocalTime attendanceOpenTime = serverTimeManager.calculateOpenTime(entranceTime);
+        final LocalTime attendanceClosedTime = serverTimeManager.calculateClosedTime(entranceTime);
         return EventResponse.of(event, attendanceOpenTime, attendanceClosedTime);
     }
 }

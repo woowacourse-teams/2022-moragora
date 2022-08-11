@@ -81,9 +81,9 @@ class EventAcceptanceTest extends AcceptanceTest {
 
         given(serverTimeManager.getDate())
                 .willReturn(LocalDate.of(2022, 7, 31));
-        given(serverTimeManager.calculateOpeningTime(event1.getStartTime()))
+        given(serverTimeManager.calculateOpenTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().minusMinutes(30));
-        given(serverTimeManager.calculateClosingTime(event1.getStartTime()))
+        given(serverTimeManager.calculateClosedTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().plusMinutes(5));
 
         // when

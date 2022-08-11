@@ -223,8 +223,8 @@ class AttendanceServiceTest {
         serverTimeManager.refresh(dateTime);
 
         final EventRequest eventRequest = EventRequest.builder()
-                .entranceTime(event.getStartTime())
-                .leaveTime(event.getEndTime())
+                .meetingStartTime(event.getStartTime())
+                .meetingEndTime(event.getEndTime())
                 .date(event.getDate()).build();
 
         eventService.save(new EventsRequest(List.of(eventRequest)), meeting.getId());

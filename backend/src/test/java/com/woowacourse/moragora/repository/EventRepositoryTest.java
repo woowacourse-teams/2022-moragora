@@ -82,18 +82,18 @@ public class EventRepositoryTest {
     void findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(final int month, final int day,
                                                                 final int expectedMonth, final int expectedDay) {
         // given
-        final LocalTime enteranceTime = LocalTime.of(10, 0);
-        final LocalTime leaveTime = LocalTime.of(18, 0);
+        final LocalTime meetingStartTime = LocalTime.of(10, 0);
+        final LocalTime meetingEndTime = LocalTime.of(18, 0);
         final Meeting meeting = new Meeting("모임1");
 
         final Meeting savedMeeting = meetingRepository.save(meeting);
 
         final Event event1 = new Event(
-                LocalDate.of(2022, 8, 3), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 3), meetingStartTime, meetingEndTime, savedMeeting);
         final Event event2 = new Event(
-                LocalDate.of(2022, 8, 4), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 4), meetingStartTime, meetingEndTime, savedMeeting);
         final Event event3 = new Event(
-                LocalDate.of(2022, 8, 5), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 5), meetingStartTime, meetingEndTime, savedMeeting);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);
@@ -112,18 +112,18 @@ public class EventRepositoryTest {
     @Test
     void findByMeetingIdAndDate() {
         // given
-        final LocalTime enteranceTime = LocalTime.of(10, 0);
-        final LocalTime leaveTime = LocalTime.of(18, 0);
+        final LocalTime meetingStartTime = LocalTime.of(10, 0);
+        final LocalTime meetingEndTime = LocalTime.of(18, 0);
         final Meeting meeting = new Meeting("모임1");
 
         final Meeting savedMeeting = meetingRepository.save(meeting);
 
         final Event event1 = new Event(
-                LocalDate.of(2022, 8, 3), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 3), meetingStartTime, meetingEndTime, savedMeeting);
         final Event event2 = new Event(
-                LocalDate.of(2022, 8, 4), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 4), meetingStartTime, meetingEndTime, savedMeeting);
         final Event event3 = new Event(
-                LocalDate.of(2022, 8, 5), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 5), meetingStartTime, meetingEndTime, savedMeeting);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);

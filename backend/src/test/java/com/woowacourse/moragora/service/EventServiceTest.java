@@ -60,14 +60,14 @@ class EventServiceTest {
         final EventsRequest eventsRequest = new EventsRequest(
                 List.of(
                         EventRequest.builder()
-                                .entranceTime(event1.getStartTime())
-                                .leaveTime(event1.getEndTime())
+                                .meetingStartTime(event1.getStartTime())
+                                .meetingEndTime(event1.getEndTime())
                                 .date(event1.getDate())
                                 .build()
                         ,
                         EventRequest.builder()
-                                .entranceTime(event2.getStartTime())
-                                .leaveTime(event2.getEndTime())
+                                .meetingStartTime(event2.getStartTime())
+                                .meetingEndTime(event2.getEndTime())
                                 .date(event2.getDate())
                                 .build()
                 ));

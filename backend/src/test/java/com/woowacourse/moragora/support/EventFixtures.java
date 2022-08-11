@@ -37,8 +37,8 @@ public enum EventFixtures {
     public Event create(final Meeting meeting) {
         return Event.builder()
                 .date(date)
-                .entranceTime(entranceTime)
-                .leaveTime(leaveTime)
+                .startTime(entranceTime)
+                .endTime(leaveTime)
                 .meeting(meeting)
                 .build();
     }
