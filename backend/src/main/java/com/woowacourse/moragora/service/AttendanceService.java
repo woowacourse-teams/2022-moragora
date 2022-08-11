@@ -1,5 +1,7 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.moragora.dto.AttendanceResponse;
+import com.woowacourse.moragora.dto.AttendancesResponse;
 import com.woowacourse.moragora.dto.CoffeeStatsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Attendance;
@@ -8,6 +10,7 @@ import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.MeetingAttendances;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.InvalidCoffeeTimeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.AttendanceNotFoundException;
@@ -26,6 +29,8 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,6 +57,23 @@ public class AttendanceService {
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
         this.serverTimeManager = serverTimeManager;
+    }
+
+    public AttendancesResponse findTodayAttendancesByMeeting(final Long meetingId) {
+        final Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        final LocalDate date = serverTimeManager.getDate();
+        final Event event = eventRepository.findByMeetingIdAndDate(meetingId, date)
+                .orElseThrow(() -> new ClientRuntimeException("오늘의 일정이 존재하지 않아 출석부를 조회할 수 없습니다.",
+                        HttpStatus.BAD_REQUEST));
+
+        final List<Attendance> attendances = attendanceRepository.findByParticipantIdInAndEventId(
+                meeting.getParticipantIds(), event.getId());
+        final List<AttendanceResponse> attendanceResponses = attendances.stream()
+                .map(AttendanceResponse::from)
+                .collect(Collectors.toList());
+
+        return new AttendancesResponse(attendanceResponses);
     }
 
     @Transactional

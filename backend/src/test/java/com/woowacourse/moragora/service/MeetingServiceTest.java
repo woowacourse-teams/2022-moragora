@@ -251,6 +251,7 @@ class MeetingServiceTest {
                 new ParticipantResponse(user3.getId(), user3.getEmail(), user3.getNickname(), 0,
                         participant3.getIsMaster())
         );
+
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
@@ -298,6 +299,7 @@ class MeetingServiceTest {
                 new ParticipantResponse(user3.getId(), user3.getEmail(), user3.getNickname(), 1,
                         participant3.getIsMaster())
         );
+
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())

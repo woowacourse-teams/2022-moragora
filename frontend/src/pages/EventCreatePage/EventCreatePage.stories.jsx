@@ -1,8 +1,8 @@
 import { rest } from 'msw';
 import EventCreatePage from '.';
-import MobileLayout from 'components/layouts/MobileLayout';
 import Header from 'components/layouts/Header';
 import { CalendarProvider } from 'contexts/calendarContext';
+import AppLayout from 'components/layouts/AppLayout';
 
 export default {
   title: 'Pages/EventCreatePage',
@@ -17,14 +17,12 @@ export default {
 
 const Template = (args) => {
   return (
-    <>
-      <MobileLayout>
-        <Header />
-        <CalendarProvider initialDate={new Date()}>
-          <EventCreatePage {...args} />
-        </CalendarProvider>
-      </MobileLayout>
-    </>
+    <AppLayout>
+      <Header />
+      <CalendarProvider initialDate={new Date()}>
+        <EventCreatePage {...args} />
+      </CalendarProvider>
+    </AppLayout>
   );
 };
 
