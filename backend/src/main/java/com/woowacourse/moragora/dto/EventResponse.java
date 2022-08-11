@@ -5,8 +5,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class EventResponse {
 
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
@@ -41,3 +43,4 @@ public class EventResponse {
         );
     }
 }
+
