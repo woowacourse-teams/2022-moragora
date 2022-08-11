@@ -4,6 +4,7 @@ import com.woowacourse.moragora.entity.Event;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
@@ -27,5 +28,7 @@ public interface EventRepository extends Repository<Event, Long> {
 
     List<Event> findByMeetingIdAndDateIn(final Long meetingId, List<LocalDate> dates);
 
-    void deleteByIdIn(final List<Long> eventIds);
+    @Modifying
+    @Query("delete from Event e where e.id in :ids")
+    void deleteByIdIn(@Param("ids") final List<Long> ids);
 }

@@ -3,7 +3,10 @@ package com.woowacourse.moragora.repository;
 import com.woowacourse.moragora.entity.Attendance;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
 public interface AttendanceRepository extends Repository<Attendance, Long> {
 
@@ -17,5 +20,7 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
 
     List<Attendance> findByParticipantIdInAndEventId(final List<Long> participantIds, final Long eventId);
 
-    void deleteByEventIdIn(final List<Long> eventIds);
+    @Modifying
+    @Query("delete from Attendance a where a.event.id in :eventIds")
+    void deleteByEventIdIn(@Param("eventIds") final List<Long> eventIds);
 }

@@ -61,7 +61,7 @@ class EventControllerTest extends ControllerTest {
         final ResultActions resultActions = performDelete("/meetings/1/events", eventCancelRequest);
 
         // then
-        verify(eventService, times(1)).delete(any(EventCancelRequest.class), any(Long.class));
+        verify(eventService, times(1)).cancel(any(EventCancelRequest.class), any(Long.class));
         resultActions.andExpect(status().isNoContent())
                 .andDo(document("event/cancel-event"));
     }

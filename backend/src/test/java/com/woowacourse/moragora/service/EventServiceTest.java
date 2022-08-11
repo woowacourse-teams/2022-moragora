@@ -70,7 +70,7 @@ class EventServiceTest {
 
     @DisplayName("모임 일정들을 삭제한다.")
     @Test
-    void remove() {
+    void cancel() {
         // given
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
         dataSupport.saveEvent(EVENT1.create(meeting));
@@ -80,7 +80,7 @@ class EventServiceTest {
                 List.of(EVENT1.getDate(), EVENT2.getDate()));
 
         // when, then
-        assertThatCode(() -> eventService.delete(eventCancelRequest, meeting.getId()))
+        assertThatCode(() -> eventService.cancel(eventCancelRequest, meeting.getId()))
                 .doesNotThrowAnyException();
     }
 }

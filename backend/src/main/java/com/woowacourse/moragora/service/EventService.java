@@ -11,8 +11,8 @@ import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.EventRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
-import java.util.Collection;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -69,7 +69,7 @@ public class EventService {
     }
 
     @Transactional
-    public void delete(final EventCancelRequest request, final Long meetingId) {
+    public void cancel(final EventCancelRequest request, final Long meetingId) {
         final List<LocalDate> dates = request.getDates();
         List<Event> events = eventRepository.findByMeetingIdAndDateIn(meetingId, dates);
         final List<Long> eventIds = events.stream()

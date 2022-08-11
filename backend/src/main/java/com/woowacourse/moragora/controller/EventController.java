@@ -40,7 +40,7 @@ public class EventController {
     public ResponseEntity<Void> cancel(@PathVariable final Long meetingId,
                                        @RequestBody @Valid final EventCancelRequest request,
                                        @AuthenticationPrincipal final Long loginId) {
-        eventService.delete(request, meetingId);
+        eventService.cancel(request, meetingId);
         return ResponseEntity.noContent().build();
     }
 }
