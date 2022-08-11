@@ -1,5 +1,5 @@
 export type Attendance = {
   id: number;
-  nickname: String;
+  nickname: string;
   attendanceStatus: 'none' | 'present' | 'tardy';
 };
