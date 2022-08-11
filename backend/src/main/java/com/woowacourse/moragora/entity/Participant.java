@@ -47,8 +47,4 @@ public class Participant {
             meeting.getParticipants().add(this);
         }
     }
-
-    public boolean isUserMaster(final Long id) {
-        return isMaster && user.getId().equals(id);
-    }
 }

@@ -14,6 +14,7 @@ import com.woowacourse.moragora.entity.ParticipantAttendances;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
+import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.EventRepository;
@@ -77,8 +78,9 @@ public class MeetingService {
                 .orElseThrow(MeetingNotFoundException::new);
 
         final List<Participant> participants = meeting.getParticipants();
-        final boolean isLoginUserMaster = participants.stream()
-                .anyMatch(participant -> participant.isUserMaster(loginId));
+        final Participant participant = participantRepository.findByMeetingIdAndUserId(
+                        meeting.getId(), loginId)
+                .orElseThrow(ParticipantNotFoundException::new);
 
         final LocalDate today = serverTimeManager.getDate();
         final Optional<Event> event = eventRepository.findByMeetingIdAndDate(meeting.getId(), today);
@@ -87,12 +89,13 @@ public class MeetingService {
 
         final MeetingAttendances meetingAttendances = findAttendancesByMeeting(meeting.getParticipantIds());
         final List<ParticipantResponse> participantResponses = participants.stream()
-                .map(participant -> generateParticipantResponse(today, meetingAttendances, isOver, participant))
+                .map(it -> generateParticipantResponse(today, meetingAttendances, isOver, it))
                 .collect(Collectors.toList());
 
         final List<Event> attendedEvents = eventRepository.findByMeetingIdAndDateLessThanEqual(meetingId, today);
         return MeetingResponse.from(
-                meeting, attendedEvents.size(), isLoginUserMaster, meetingAttendances.isTardyStackFull(isOver, today),
+                meeting, attendedEvents.size(), participant.getIsMaster(),
+                meetingAttendances.isTardyStackFull(isOver, today),
                 isActive, participantResponses
         );
     }
