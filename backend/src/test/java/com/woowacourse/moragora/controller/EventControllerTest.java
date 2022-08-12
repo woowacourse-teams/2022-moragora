@@ -4,6 +4,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.woowacourse.moragora.dto.EventCancelRequest;
@@ -14,6 +18,7 @@ import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 class EventControllerTest extends ControllerTest {
@@ -43,7 +48,17 @@ class EventControllerTest extends ControllerTest {
         // then
         verify(eventService, times(1)).save(any(EventsRequest.class), any(Long.class));
         resultActions.andExpect(status().isNoContent())
-                .andDo(document("event/add"));
+                .andDo(document("event/add",
+                        preprocessRequest(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("events[].entranceTime").type(JsonFieldType.STRING)
+                                        .description("10:00"),
+                                fieldWithPath("events[].leaveTime").type(JsonFieldType.STRING)
+                                        .description("18:00"),
+                                fieldWithPath("events[].date").type(JsonFieldType.STRING)
+                                        .description("2022-08-03")
+                        ))
+                );
     }
 
     @DisplayName("일정들을 삭제한다.")
@@ -63,6 +78,11 @@ class EventControllerTest extends ControllerTest {
         // then
         verify(eventService, times(1)).cancel(any(EventCancelRequest.class), any(Long.class));
         resultActions.andExpect(status().isNoContent())
-                .andDo(document("event/cancel-event"));
+                .andDo(document("event/cancel-event",
+                        preprocessRequest(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("dates").type(JsonFieldType.ARRAY)
+                                        .description("[2022-08-03, 2022-08-04]")
+                        )));
     }
 }

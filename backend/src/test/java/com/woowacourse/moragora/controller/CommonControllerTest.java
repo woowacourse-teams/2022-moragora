@@ -2,6 +2,8 @@ package com.woowacourse.moragora.controller;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -34,6 +36,7 @@ public class CommonControllerTest extends ControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("serverTime").value(expected.getTime()))
                 .andDo(document("common/server-time",
+                        preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("serverTime").type(JsonFieldType.NUMBER).description(expected.getTime())
                         )

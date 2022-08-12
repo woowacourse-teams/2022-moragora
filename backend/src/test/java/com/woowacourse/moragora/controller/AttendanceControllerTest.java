@@ -6,6 +6,9 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -67,6 +70,7 @@ class AttendanceControllerTest extends ControllerTest {
         // then
         resultActions.andExpect(status().isNoContent())
                 .andDo(document("meeting/enter-Attendance",
+                        preprocessRequest(prettyPrint()),
                         requestFields(
                                 fieldWithPath("attendanceStatus").type(JsonFieldType.STRING).description("present")
                         )
@@ -120,6 +124,7 @@ class AttendanceControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='5')].coffeeCount", contains(1)))
                 .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='6')].coffeeCount", contains(1)))
                 .andDo(document("meeting/usable-coffee",
+                        preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("userCoffeeStats[].id").type(JsonFieldType.NUMBER)
                                         .description(1L),
@@ -165,13 +170,14 @@ class AttendanceControllerTest extends ControllerTest {
         );
         given(attendanceService.findTodayAttendancesByMeeting(any(Long.class)))
                 .willReturn(attendancesResponse);
-        
+
         // when
         final ResultActions resultActions = performGet("/meetings/" + meetingId + "/attendances/today");
 
         // then
         resultActions.andExpect(status().isOk())
                 .andDo(document("attendance/show",
+                        preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("users[].id").type(JsonFieldType.NUMBER)
                                         .description(1L),
@@ -199,6 +205,7 @@ class AttendanceControllerTest extends ControllerTest {
         // then
         resultActions.andExpect(status().isBadRequest())
                 .andDo(document("attendance/show-event-not-exists",
+                        preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("message").type(JsonFieldType.STRING)
                                         .description("오늘의 일정이 존재하지 않아 출석부를 조회할 수 없습니다.")
