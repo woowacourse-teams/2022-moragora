@@ -3,6 +3,7 @@ package com.woowacourse.moragora.service;
 import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
+import com.woowacourse.moragora.entity.Events;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
@@ -46,9 +47,11 @@ public class EventService {
     public void save(final EventsRequest request, final Long meetingId) {
         final Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(MeetingNotFoundException::new);
-        final List<Event> events = request.toEntities(meeting);
-        eventRepository.saveAll(events);
-        saveAllAttendances(meeting.getParticipants(), events);
+        final List<Event> newEvents = request.toEntities(meeting);
+        final Events events = new Events(eventRepository.findByMeetingId(meetingId));
+
+        eventRepository.saveAll(events.saveAll(newEvents));
+        saveAllAttendances(meeting.getParticipants(), newEvents);
     }
 
     private void saveAllAttendances(final List<Participant> participants, final List<Event> events) {

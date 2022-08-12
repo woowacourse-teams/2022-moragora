@@ -61,6 +61,15 @@ public class Event {
         return this.date.isEqual(date);
     }
 
+    public boolean isSameMeeting(final Meeting meeting) {
+        return this.meeting.equals(meeting);
+    }
+
+    public void changeTime(final LocalTime startTime, final LocalTime endTime) {
+        entranceTime = startTime;
+        leaveTime = endTime;
+    }
+
     private void validateEntranceLeaveTime(final LocalTime entranceTime, final LocalTime leaveTime) {
         if (entranceTime.isAfter(leaveTime)) {
             throw new IllegalEntranceLeaveTimeException();

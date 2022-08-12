@@ -2,6 +2,7 @@ package com.woowacourse.moragora.acceptance;
 
 import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.EventFixtures.EVENT2;
+import static com.woowacourse.moragora.support.EventFixtures.EVENT3;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.AZPI;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
@@ -12,6 +13,7 @@ import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
 import io.restassured.response.ValidatableResponse;
+import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,6 +52,60 @@ class EventAcceptanceTest extends AcceptanceTest {
 
         // when
         final ValidatableResponse response = post("/meetings/" + meetingId + "/events", eventsRequest, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("일정을 수정 및 생성을 하고 상태코드 200을 반환한다.")
+    @Test
+    void saveOrUpdate() {
+        // given
+        final User user1 = KUN.create();
+        final User user2 = AZPI.create();
+        final List<Long> userIds = saveUsers(List.of(user2));
+
+        final String token = signUpAndGetToken(user1);
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(token, userIds, meeting);
+
+        final Event event1 = EVENT1.create(meeting);
+        final Event event2 = EVENT2.create(meeting);
+        final Event event3 = EVENT3.create(meeting);
+
+        final EventsRequest eventsRequest = new EventsRequest(
+                List.of(
+                        new EventRequest(
+                                event1.getEntranceTime(),
+                                event1.getLeaveTime(),
+                                event1.getDate()
+                        ),
+                        new EventRequest(
+                                event2.getEntranceTime(),
+                                event2.getLeaveTime(),
+                                event2.getDate()
+                        )
+                ));
+
+        post("/meetings/" + meetingId + "/events", eventsRequest, token);
+
+        final EventsRequest updateEventsRequest = new EventsRequest(
+                List.of(
+                        new EventRequest(
+                                LocalTime.of(11, 0),
+                                event1.getLeaveTime(),
+                                event1.getDate()
+                        ),
+                        new EventRequest(
+                                event3.getEntranceTime(),
+                                event3.getLeaveTime(),
+                                event3.getDate()
+                        )
+                )
+        );
+
+        // when
+        final ValidatableResponse response = post("/meetings/" + meetingId + "/events", updateEventsRequest, token);
 
         // then
         response.statusCode(HttpStatus.NO_CONTENT.value());

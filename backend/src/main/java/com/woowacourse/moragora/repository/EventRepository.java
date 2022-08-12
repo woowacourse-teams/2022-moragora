@@ -11,8 +11,10 @@ import org.springframework.data.repository.query.Param;
 public interface EventRepository extends Repository<Event, Long> {
 
     Event save(final Event event);
-
+    
     List<Event> saveAll(final Iterable<Event> events);
+
+    List<Event> findByMeetingId(final Long meetingId);
 
     List<Event> findByMeetingIdAndDateLessThanEqual(final Long meetingId, final LocalDate date);
 
