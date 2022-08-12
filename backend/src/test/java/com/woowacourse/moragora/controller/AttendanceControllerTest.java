@@ -104,6 +104,7 @@ class AttendanceControllerTest extends ControllerTest {
                         new CoffeeStatResponse(6L, "쿤", 1L)
                 )
         );
+        validateToken("1");
         given(attendanceService.countUsableCoffeeStack(any(Long.class)))
                 .willReturn(coffeeStatsResponse);
 
