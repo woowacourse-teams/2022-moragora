@@ -217,7 +217,7 @@ public class UserControllerTest extends ControllerTest {
                 ));
     }
 
-    @DisplayName("로그인하지 않은 상태로 회원의 정보를 조회하면 예외가 발생한다.")
+    @DisplayName("로그인하지 않은 상태에서 회원의 정보를 조회하면 예외가 발생한다.")
     @Test
     void findMe_ifNotLoggedIn() throws Exception {
         // given, when
