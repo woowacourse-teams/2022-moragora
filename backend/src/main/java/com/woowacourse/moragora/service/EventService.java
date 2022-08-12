@@ -1,15 +1,19 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.EventRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
+import com.woowacourse.moragora.support.ServerTimeManager;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -31,15 +35,18 @@ public class EventService {
     private final EventRepository eventRepository;
     private final MeetingRepository meetingRepository;
     private final AttendanceRepository attendanceRepository;
+    private final ServerTimeManager serverTimeManager;
 
     public EventService(final TaskScheduler taskScheduler,
                         final EventRepository eventRepository,
                         final MeetingRepository meetingRepository,
-                        final AttendanceRepository attendanceRepository) {
+                        final AttendanceRepository attendanceRepository,
+                        final ServerTimeManager serverTimeManager) {
         this.taskScheduler = taskScheduler;
         this.eventRepository = eventRepository;
         this.meetingRepository = meetingRepository;
         this.attendanceRepository = attendanceRepository;
+        this.serverTimeManager = serverTimeManager;
     }
 
     @Transactional
@@ -64,5 +71,16 @@ public class EventService {
         return participants.stream()
                 .map(participant -> new Attendance(Status.NONE, false, participant, event))
                 .collect(Collectors.toList());
+    }
+
+    public EventResponse findUpcomingEvent(final Long meetingId) {
+        final Event event = eventRepository.findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(
+                        meetingId, serverTimeManager.getDate())
+                .orElseThrow(EventNotFoundException::new);
+
+        final LocalTime entranceTime = event.getStartTime();
+        final LocalTime attendanceOpenTime = serverTimeManager.calculateOpenTime(entranceTime);
+        final LocalTime attendanceClosedTime = serverTimeManager.calculateClosedTime(entranceTime);
+        return EventResponse.of(event, attendanceOpenTime, attendanceClosedTime);
     }
 }

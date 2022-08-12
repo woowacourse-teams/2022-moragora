@@ -147,7 +147,7 @@ public class AcceptanceTest {
 
     protected void saveEvents(final String token, final List<Event> events, final Long meetingId) {
         final List<EventRequest> eventRequests = events.stream()
-                .map(event -> new EventRequest(event.getEntranceTime(), event.getLeaveTime(), event.getDate()))
+                .map(event -> new EventRequest(event.getStartTime(), event.getEndTime(), event.getDate()))
                 .collect(Collectors.toList());
 
         EventsRequest eventsRequest = new EventsRequest(eventRequests);

@@ -1,17 +1,25 @@
 package com.woowacourse.moragora.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.woowacourse.moragora.dto.EventRequest;
+import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
+import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 class EventControllerTest extends ControllerTest {
@@ -41,5 +49,59 @@ class EventControllerTest extends ControllerTest {
         // then
         verify(eventService, times(1)).save(any(EventsRequest.class), any(Long.class));
         resultActions.andExpect(status().isNoContent());
+    }
+
+    @DisplayName("모임의 가장 가까운 일정을 조회한다.")
+    @Test
+    void showUpcomingEvent() throws Exception {
+        // given
+        final EventResponse eventResponse = new EventResponse(
+                1L,
+                "09:30", "10:05", "10:00", "18:00",
+                LocalDate.of(2022, 8, 1));
+        validateToken("1");
+
+        given(eventService.findUpcomingEvent(any(Long.class)))
+                .willReturn(eventResponse);
+
+        // when, then
+        performGet("/meetings/1/events/upcoming")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").value(1))
+                .andExpect(jsonPath("attendanceOpenTime").value("09:30"))
+                .andExpect(jsonPath("attendanceClosedTime").value("10:05"))
+                .andExpect(jsonPath("meetingStartTime").value("10:00"))
+                .andExpect(jsonPath("meetingEndTime").value("18:00"))
+                .andExpect(jsonPath("date").value("2022-08-01"))
+                .andDo(document("event/find-upcoming",
+                        responseFields(
+                                fieldWithPath("id").type(JsonFieldType.NUMBER).description(1L),
+                                fieldWithPath("attendanceOpenTime").type(JsonFieldType.STRING).description("09:30"),
+                                fieldWithPath("attendanceClosedTime").type(JsonFieldType.STRING).description("10:05"),
+                                fieldWithPath("meetingStartTime").type(JsonFieldType.STRING).description("10:00"),
+                                fieldWithPath("meetingEndTime").type(JsonFieldType.STRING).description("18:00"),
+                                fieldWithPath("date").type(JsonFieldType.STRING).description("2022-08-01")
+                        )
+                ));
+    }
+
+    @DisplayName("모임과 가장 가까운 일정 조회 시 모임의 다음 일정이 존재하지 않으면 예외가 발생한다.")
+    @Test
+    void showUpcomingEvent_ifEventNotFound() throws Exception {
+        // given
+        validateToken("1");
+
+        given(eventService.findUpcomingEvent(any(Long.class)))
+                .willThrow(new EventNotFoundException());
+
+        // when, then
+        performGet("/meetings/1/events/upcoming")
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("message").value("일정이 존재하지 않습니다."))
+                .andDo(document("event/find-upcoming-not-found",
+                        responseFields(
+                                fieldWithPath("message").type(JsonFieldType.STRING).description("일정이 존재하지 않습니다.")
+                        )
+                ));
     }
 }
