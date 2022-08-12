@@ -20,7 +20,7 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
 
     List<Attendance> findByParticipantIdInAndEventId(final List<Long> participantIds, final Long eventId);
 
-    @Modifying
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("delete from Attendance a where a.event.id in :eventIds")
     void deleteByEventIdIn(@Param("eventIds") final List<Long> eventIds);
 }

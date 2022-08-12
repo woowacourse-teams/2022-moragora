@@ -28,7 +28,7 @@ public interface EventRepository extends Repository<Event, Long> {
 
     List<Event> findByMeetingIdAndDateIn(final Long meetingId, List<LocalDate> dates);
 
-    @Modifying
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("delete from Event e where e.id in :ids")
     void deleteByIdIn(@Param("ids") final List<Long> ids);
 }
