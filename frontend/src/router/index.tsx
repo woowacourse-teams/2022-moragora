@@ -8,6 +8,7 @@ import Auth from './Auth';
 import SettingsPage from 'pages/SettingsPage';
 import NotFoundPage from 'pages/NotFoundPage';
 import EventCreatePage from 'pages/EventCreatePage';
+import MeetingDetailPage from 'pages/MeetingDetailPage';
 
 const Router = () => {
   return useRoutes([
@@ -23,10 +24,20 @@ const Router = () => {
       element: <Auth shouldLogin={true} />,
       children: [
         {
-          path: '/meeting',
+          path: 'meeting',
           children: [
             { path: '', element: <MeetingListPage /> },
-            { path: ':id', element: <MeetingPage /> },
+            {
+              path: ':id',
+              element: <MeetingDetailPage />,
+              children: [
+                { path: '', element: <Navigate to="coffee-stack" replace /> },
+                { path: 'coffee-stack', element: <MeetingPage /> },
+                { path: 'event-create', element: <EventCreatePage /> },
+                { path: 'config', element: <div>config</div> },
+                { path: '*', element: <NotFoundPage /> },
+              ],
+            },
             { path: ':id/config', element: <EventCreatePage /> },
             { path: 'create', element: <MeetingCreatePage /> },
           ],
