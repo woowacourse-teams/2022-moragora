@@ -7,6 +7,8 @@ import ModalPortal from 'components/ModalPortal';
 import ModalWindow from 'components/@shared/ModalWindow';
 import { userContext } from 'contexts/userContext';
 import Avatar from 'components/@shared/Avatar';
+import EditIconSVG from 'assets/Edit.svg';
+import { css } from '@emotion/react';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
@@ -39,9 +41,19 @@ const SettingsPage = () => {
       <S.Layout>
         <S.ProfileBox>
           <Avatar />
-          <S.NicknameParagraph>
-            {userState?.user?.nickname || 'unknown'}
-          </S.NicknameParagraph>
+          <div
+            css={css`
+              position: relative;
+              right: -0.6rem;
+              display: flex;
+              gap: 0.2rem;
+            `}
+          >
+            <S.NicknameInput
+              placeholder={userState?.user?.nickname || 'unknown'}
+            />
+            <S.EditIconImg css={css``} src={EditIconSVG} />
+          </div>
         </S.ProfileBox>
         <S.LogoutButtonBox>
           <Button onClick={() => handleOpen()}>로그아웃</Button>

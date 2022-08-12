@@ -16,8 +16,37 @@ export const ProfileBox = styled.div`
   align-items: center;
 `;
 
-export const NicknameParagraph = styled.p`
+export const EditIconImg = styled.img``;
+
+export const NicknameInput = styled.input`
+  padding: 0.2rem 0.3rem;
+  width: fit-content;
+
   font-weight: 700;
+
+  text-align: center;
+
+  border: none;
+  outline: none;
+
+  ::placeholder {
+    text-align: center;
+  }
+
+  :focus {
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid;
+
+    ${EditIconImg} {
+      opacity: 0;
+    }
+
+    ::placeholder {
+      outline: none;
+      opacity: 0;
+    }
+  }
 `;
 
 export const Image = styled.img`
