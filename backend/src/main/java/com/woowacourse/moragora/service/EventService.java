@@ -70,6 +70,8 @@ public class EventService {
 
     @Transactional
     public void cancel(final EventCancelRequest request, final Long meetingId) {
+        meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
         final List<LocalDate> dates = request.getDates();
         List<Event> events = eventRepository.findByMeetingIdAndDateIn(meetingId, dates);
         final List<Long> eventIds = events.stream()
