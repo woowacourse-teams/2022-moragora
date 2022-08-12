@@ -69,7 +69,7 @@ class AttendanceControllerTest extends ControllerTest {
 
         // then
         resultActions.andExpect(status().isNoContent())
-                .andDo(document("meeting/enter-Attendance",
+                .andDo(document("attendance/mark-attendance",
                         preprocessRequest(prettyPrint()),
                         requestFields(
                                 fieldWithPath("attendanceStatus").type(JsonFieldType.STRING).description("present")
@@ -123,7 +123,7 @@ class AttendanceControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='3')].coffeeCount", contains(2)))
                 .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='5')].coffeeCount", contains(1)))
                 .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='6')].coffeeCount", contains(1)))
-                .andDo(document("meeting/usable-coffee",
+                .andDo(document("attendance/usable-coffee",
                         preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("userCoffeeStats[].id").type(JsonFieldType.NUMBER)
@@ -151,7 +151,7 @@ class AttendanceControllerTest extends ControllerTest {
 
         // then
         resultActions.andExpect(status().isNoContent())
-                .andDo(document("meeting/use-coffee"));
+                .andDo(document("attendance/use-coffee"));
     }
 
     @DisplayName("출석부를 조회한다.")
