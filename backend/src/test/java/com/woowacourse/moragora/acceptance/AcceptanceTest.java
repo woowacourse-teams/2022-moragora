@@ -93,15 +93,29 @@ public class AcceptanceTest {
                 .then().log().all();
     }
 
-    protected String signUpAndGetToken(final User user) {
+    protected Long signUp(final User user) {
         final String password = "1234asdf!";
         final UserRequest userRequest = new UserRequest(user.getEmail(), password, user.getNickname());
-        post("/users", userRequest);
+        final ValidatableResponse response = post("/users", userRequest);
 
-        final LoginRequest loginRequest = new LoginRequest(user.getEmail(), password);
+        final String value = response
+                .extract()
+                .header("Location")
+                .split("/users/")[1];
+
+        return Long.valueOf(value);
+    }
+
+    protected String login(final User user) {
+        final LoginRequest loginRequest = new LoginRequest(user.getEmail(), "1234asdf!");
         final ExtractableResponse<Response> response = post("/login", loginRequest).extract();
 
         return response.jsonPath().get("accessToken");
+    }
+
+    protected String signUpAndGetToken(final User user) {
+        signUp(user);
+        return login(user);
     }
 
     protected List<Long> saveUsers(final List<User> users) {

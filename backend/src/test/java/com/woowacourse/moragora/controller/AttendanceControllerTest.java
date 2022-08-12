@@ -20,9 +20,9 @@ import com.woowacourse.moragora.dto.AttendancesResponse;
 import com.woowacourse.moragora.dto.CoffeeStatResponse;
 import com.woowacourse.moragora.dto.CoffeeStatsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
-import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.meeting.NotCheckInTimeException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -39,7 +39,7 @@ class AttendanceControllerTest extends ControllerTest {
         // given
         final Long meetingId = 99L;
         final Long userId = 1L;
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
 
         validateToken("1");
 
@@ -60,19 +60,20 @@ class AttendanceControllerTest extends ControllerTest {
         // given
         final Long meetingId = 1L;
         final Long userId = 1L;
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
 
         validateToken("1");
 
         // when
-        final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
+        final ResultActions resultActions = performPost(
+                "/meetings/" + meetingId + "/users/" + userId + "/attendances/today", request);
 
         // then
         resultActions.andExpect(status().isNoContent())
                 .andDo(document("attendance/mark-attendance",
                         preprocessRequest(prettyPrint()),
                         requestFields(
-                                fieldWithPath("attendanceStatus").type(JsonFieldType.STRING).description("present")
+                                fieldWithPath("isPresent").type(JsonFieldType.BOOLEAN).description("true")
                         )
                 ));
     }
@@ -83,7 +84,7 @@ class AttendanceControllerTest extends ControllerTest {
         // given
         final Long meetingId = 1L;
         final Long userId = 8L;
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
 
         validateToken("1");
 
@@ -96,6 +97,29 @@ class AttendanceControllerTest extends ControllerTest {
 
         // then
         resultActions.andExpect(status().isNotFound());
+    }
+
+    @DisplayName("출석부가 활성화되지 않았을 때 출석을 제출하면 예외가 발생한다.")
+    @Test
+    void markAttendance_throwsException_ifCheckInIsNotActive() throws Exception {
+        // given
+        final Long meetingId = 99L;
+        final Long userId = 1L;
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
+
+        validateToken("1");
+
+        doThrow(new NotCheckInTimeException())
+                .when(attendanceService)
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
+
+        // when
+        final ResultActions resultActions = performPost(
+                "/meetings/" + meetingId + "/users/" + userId + "/attendances/today", request);
+
+        //then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").value("출석 가능한 시간이 아닙니다."));
     }
 
     @DisplayName("모임의 유저별 사용될 커피 스택 개수를 조회한다.")
@@ -142,7 +166,7 @@ class AttendanceControllerTest extends ControllerTest {
         // given
         final Long meetingId = 1L;
         final Long userId = 1L;
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
         validateToken("1");
         performPut("/meetings/" + meetingId + "/users/" + userId, request);
 
