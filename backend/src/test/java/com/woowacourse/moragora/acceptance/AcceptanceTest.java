@@ -83,15 +83,39 @@ public class AcceptanceTest {
                 .then().log().all();
     }
 
-    protected String signUpAndGetToken(final User user) {
+    protected ValidatableResponse delete(final String uri, final Object requestBody, final String token) {
+        return RestAssured.given().log().all()
+                .auth().oauth2(token)
+                .body(requestBody)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when().delete(uri)
+                .then().log().all();
+    }
+
+    protected Long signUp(final User user) {
         final String password = "1234asdf!";
         final UserRequest userRequest = new UserRequest(user.getEmail(), password, user.getNickname());
-        post("/users", userRequest);
+        final ValidatableResponse response = post("/users", userRequest);
 
-        final LoginRequest loginRequest = new LoginRequest(user.getEmail(), password);
+        final String value = response
+                .extract()
+                .header("Location")
+                .split("/users/")[1];
+
+        return Long.valueOf(value);
+    }
+
+    protected String login(final User user) {
+        final LoginRequest loginRequest = new LoginRequest(user.getEmail(), "1234asdf!");
         final ExtractableResponse<Response> response = post("/login", loginRequest).extract();
 
         return response.jsonPath().get("accessToken");
+    }
+
+    protected String signUpAndGetToken(final User user) {
+        signUp(user);
+        return login(user);
     }
 
     protected List<Long> saveUsers(final List<User> users) {
@@ -133,7 +157,7 @@ public class AcceptanceTest {
 
     protected void saveEvents(final String token, final List<Event> events, final Long meetingId) {
         final List<EventRequest> eventRequests = events.stream()
-                .map(event -> new EventRequest(event.getEntranceTime(), event.getLeaveTime(), event.getDate()))
+                .map(event -> new EventRequest(event.getStartTime(), event.getEndTime(), event.getDate()))
                 .collect(Collectors.toList());
 
         EventsRequest eventsRequest = new EventsRequest(eventRequests);

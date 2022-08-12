@@ -6,15 +6,22 @@ import static com.woowacourse.moragora.support.EventFixtures.EVENT3;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.woowacourse.moragora.dto.EventCancelRequest;
 import com.woowacourse.moragora.dto.EventRequest;
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.EventsResponse;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
+import com.woowacourse.moragora.support.ServerTimeManager;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,6 +46,9 @@ class EventServiceTest {
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
 
+    @Autowired
+    private ServerTimeManager serverTimeManager;
+
     @BeforeEach
     void setUp() {
         databaseCleanUp.afterPropertiesSet();
@@ -57,14 +67,14 @@ class EventServiceTest {
         final EventsRequest eventsRequest = new EventsRequest(
                 List.of(
                         EventRequest.builder()
-                                .entranceTime(event1.getEntranceTime())
-                                .leaveTime(event1.getLeaveTime())
+                                .meetingStartTime(event1.getStartTime())
+                                .meetingEndTime(event1.getEndTime())
                                 .date(event1.getDate())
                                 .build()
                         ,
                         EventRequest.builder()
-                                .entranceTime(event2.getEntranceTime())
-                                .leaveTime(event2.getLeaveTime())
+                                .meetingStartTime(event2.getStartTime())
+                                .meetingEndTime(event2.getEndTime())
                                 .date(event2.getDate())
                                 .build()
                 ));
@@ -72,6 +82,82 @@ class EventServiceTest {
         // when, then
         assertThatCode(() -> eventService.save(eventsRequest, meeting.getId()))
                 .doesNotThrowAnyException();
+    }
+
+    @DisplayName("모임 일정들을 삭제한다.")
+    @Test
+    void cancel() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        dataSupport.saveEvent(EVENT2.create(meeting));
+
+        final EventCancelRequest eventCancelRequest = new EventCancelRequest(
+                List.of(EVENT1.getDate(), EVENT2.getDate()));
+
+        // when, then
+        assertThatCode(() -> eventService.cancel(eventCancelRequest, meeting.getId()))
+                .doesNotThrowAnyException();
+    }
+
+    @DisplayName("없는 모임의 일정을 삭제요청 시 예외를 반환한다.")
+    @Test
+    void cancel_noMeeting() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        dataSupport.saveEvent(EVENT2.create(meeting));
+
+        final EventCancelRequest eventCancelRequest = new EventCancelRequest(
+                List.of(EVENT1.getDate(), EVENT2.getDate()));
+
+        // when, then
+        assertThatThrownBy(() -> eventService.cancel(eventCancelRequest, 2L))
+                .isInstanceOf(MeetingNotFoundException.class);
+    }
+
+    @DisplayName("모임의 가장 가까운 일정을 조회한다.")
+    @Test
+    void findUpcomingEvent() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        final Event event1 = EVENT1.create(meeting);
+        final Event event2 = EVENT2.create(meeting);
+        dataSupport.saveEvent(event1);
+        dataSupport.saveEvent(event2);
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 30, 10, 6);
+        serverTimeManager.refresh(dateTime);
+
+        final EventResponse expected = EventResponse.of(
+                event1, LocalTime.of(9, 30), LocalTime.of(10, 5));
+
+        // when
+        final EventResponse actual = eventService.findUpcomingEvent(meeting.getId());
+
+        // then
+        assertThat(actual).usingRecursiveComparison()
+                .isEqualTo(expected);
+    }
+
+    @DisplayName("모임의 가장 가까운 일정을 조회했을 때, 다음 일정이 존재하지 않으면 예외가 발생한다.")
+    @Test
+    void findUpcomingEvent_ifEventNotFound() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        final Event event1 = EVENT1.create(meeting);
+        final Event event2 = EVENT2.create(meeting);
+        dataSupport.saveEvent(event1);
+        dataSupport.saveEvent(event2);
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 3, 10, 6);
+        serverTimeManager.refresh(dateTime);
+
+        // when, then
+        assertThatThrownBy(() -> eventService.findUpcomingEvent(meeting.getId()))
+                .isInstanceOf(EventNotFoundException.class);
     }
 
     @DisplayName("모임 일정 전체를 조회한다.")
@@ -86,18 +172,18 @@ class EventServiceTest {
         final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
                 new EventResponse(
                         event1.getId(),
-                        event1.getEntranceTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                        event1.getEntranceTime().plusMinutes(ATTENDANCE_END_INTERVAL),
-                        event1.getEntranceTime(),
-                        event1.getLeaveTime(),
+                        event1.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event1.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL),
+                        event1.getStartTime(),
+                        event1.getEndTime(),
                         event1.getDate()
                 ),
                 new EventResponse(
                         event2.getId(),
-                        event2.getEntranceTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                        event2.getEntranceTime().plusMinutes(ATTENDANCE_END_INTERVAL),
-                        event2.getEntranceTime(),
-                        event2.getLeaveTime(),
+                        event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL),
+                        event2.getStartTime(),
+                        event2.getEndTime(),
                         event2.getDate()
                 )
         ));
@@ -123,18 +209,18 @@ class EventServiceTest {
         final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
                 new EventResponse(
                         event2.getId(),
-                        event2.getEntranceTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                        event2.getEntranceTime().plusMinutes(ATTENDANCE_END_INTERVAL),
-                        event2.getEntranceTime(),
-                        event2.getLeaveTime(),
+                        event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL),
+                        event2.getStartTime(),
+                        event2.getEndTime(),
                         event2.getDate()
                 ),
                 new EventResponse(
                         event3.getId(),
-                        event3.getEntranceTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                        event3.getEntranceTime().plusMinutes(ATTENDANCE_END_INTERVAL),
-                        event3.getEntranceTime(),
-                        event3.getLeaveTime(),
+                        event3.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event3.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL),
+                        event3.getStartTime(),
+                        event3.getEndTime(),
                         event3.getDate()
                 )
         ));
@@ -160,18 +246,18 @@ class EventServiceTest {
         final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
                 new EventResponse(
                         event1.getId(),
-                        event1.getEntranceTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                        event1.getEntranceTime().plusMinutes(ATTENDANCE_END_INTERVAL),
-                        event1.getEntranceTime(),
-                        event1.getLeaveTime(),
+                        event1.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event1.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL),
+                        event1.getStartTime(),
+                        event1.getEndTime(),
                         event1.getDate()
                 ),
                 new EventResponse(
                         event2.getId(),
-                        event2.getEntranceTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                        event2.getEntranceTime().plusMinutes(ATTENDANCE_END_INTERVAL),
-                        event2.getEntranceTime(),
-                        event2.getLeaveTime(),
+                        event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL),
+                        event2.getStartTime(),
+                        event2.getEndTime(),
                         event2.getDate()
                 )
         ));
@@ -197,10 +283,10 @@ class EventServiceTest {
         final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
                 new EventResponse(
                         event2.getId(),
-                        event2.getEntranceTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                        event2.getEntranceTime().plusMinutes(ATTENDANCE_END_INTERVAL),
-                        event2.getEntranceTime(),
-                        event2.getLeaveTime(),
+                        event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL),
+                        event2.getStartTime(),
+                        event2.getEndTime(),
                         event2.getDate()
                 )
         ));

@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.moragora.dto.EventCancelRequest;
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.EventsResponse;
@@ -8,13 +9,15 @@ import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.EventRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
-import java.util.Collection;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -74,15 +77,39 @@ public class EventService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void cancel(final EventCancelRequest request, final Long meetingId) {
+        meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        final List<LocalDate> dates = request.getDates();
+        List<Event> events = eventRepository.findByMeetingIdAndDateIn(meetingId, dates);
+        final List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+        attendanceRepository.deleteByEventIdIn(eventIds);
+        eventRepository.deleteByIdIn(eventIds);
+    }
+
+    public EventResponse findUpcomingEvent(final Long meetingId) {
+        final Event event = eventRepository.findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(
+                meetingId, serverTimeManager.getDate())
+                .orElseThrow(EventNotFoundException::new);
+
+        final LocalTime entranceTime = event.getStartTime();
+        final LocalTime attendanceOpenTime = serverTimeManager.calculateOpeningTime(entranceTime);
+        final LocalTime attendanceClosedTime = serverTimeManager.calculateClosingTime(entranceTime);
+        return EventResponse.of(event, attendanceOpenTime, attendanceClosedTime);
+    }
+
     public EventsResponse inquireByDuration(final Long meetingId, final LocalDate begin, final LocalDate end) {
         List<Event> events = eventRepository.findByMeetingIdAndDuration(meetingId, begin, end);
         final List<EventResponse> eventResponses = events.stream()
                 .map(event -> new EventResponse(
                         event.getId(),
-                        serverTimeManager.calculateOpeningTime(event.getEntranceTime()),
-                        serverTimeManager.calculateClosingTime(event.getEntranceTime()),
-                        event.getEntranceTime(),
-                        event.getLeaveTime(),
+                        serverTimeManager.calculateOpeningTime(event.getStartTime()),
+                        serverTimeManager.calculateClosingTime(event.getStartTime()),
+                        event.getStartTime(),
+                        event.getEndTime(),
                         event.getDate()
                 ))
                 .collect(Collectors.toList());

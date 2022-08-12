@@ -21,24 +21,24 @@ public class ServerTimeManager {
         this.dateTime = dateTime;
     }
 
-    public boolean isAttendanceTime(final LocalTime entranceTime) {
-        final LocalTime attendanceStartTime = entranceTime.minusMinutes(ATTENDANCE_START_INTERVAL);
-        final LocalTime attendanceClosingTime = entranceTime.plusMinutes(ATTENDANCE_END_INTERVAL);
+    public boolean isAttendanceOpen(final LocalTime meetingStartTime) {
+        final LocalTime attendanceOpenTime = meetingStartTime.minusMinutes(ATTENDANCE_START_INTERVAL);
+        final LocalTime attendanceClosedTime = meetingStartTime.plusMinutes(ATTENDANCE_END_INTERVAL);
 
-        return dateTime.isBetween(attendanceStartTime, attendanceClosingTime);
+        return dateTime.isBetween(attendanceOpenTime, attendanceClosedTime);
     }
 
-    public boolean isOverClosingTime(final LocalTime entranceTime) {
-        final LocalTime closingTime = entranceTime.plusMinutes(ATTENDANCE_END_INTERVAL);
+    public boolean isAttendanceClosed(final LocalTime meetingStartTime) {
+        final LocalTime closingTime = meetingStartTime.plusMinutes(ATTENDANCE_END_INTERVAL);
         return dateTime.isAfter(closingTime);
     }
 
-    public LocalTime calculateClosingTime(final LocalTime entranceTime) {
-        return entranceTime.plusMinutes(ATTENDANCE_END_INTERVAL);
+    public LocalTime calculateClosingTime(final LocalTime meetingStartTime) {
+        return meetingStartTime.plusMinutes(ATTENDANCE_END_INTERVAL);
     }
 
-    public LocalTime calculateOpeningTime(final LocalTime entranceTime) {
-        return entranceTime.minusMinutes(ATTENDANCE_START_INTERVAL);
+    public LocalTime calculateOpeningTime(final LocalTime meetingStartTime) {
+        return meetingStartTime.minusMinutes(ATTENDANCE_START_INTERVAL);
     }
 
     public void refresh(final LocalDateTime localDateTime) {

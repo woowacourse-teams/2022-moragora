@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.dto;
 
+import com.woowacourse.moragora.entity.Event;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -42,4 +43,18 @@ public class EventResponse {
         this(id, attendanceOpenTime.format(TIME_FORMATTER), attendanceClosedTime.format(TIME_FORMATTER),
                 meetingStartTime.format(TIME_FORMATTER), meetingEndTime.format(TIME_FORMATTER), date);
     }
+
+    public static EventResponse of(final Event event,
+                                   final LocalTime attendanceOpenTime,
+                                   final LocalTime attendanceClosedTime) {
+        return new EventResponse(
+                event.getId(),
+                attendanceOpenTime.format(TIME_FORMATTER),
+                attendanceClosedTime.format(TIME_FORMATTER),
+                event.getStartTime().format(TIME_FORMATTER),
+                event.getEndTime().format(TIME_FORMATTER),
+                event.getDate()
+        );
+    }
 }
+

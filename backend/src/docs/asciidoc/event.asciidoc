@@ -25,6 +25,47 @@ include::{snippets}/event/add/http-response.adoc[]
 
 include::{snippets}/event/add/request-fields.adoc[]
 
+
+[[cancel]]
+== 삭제
+
+[[cancel]]
+=== HTTP request
+
+include::{snippets}/event/cancel-event/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/event/cancel-event/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/event/cancel-event/request-fields.adoc[]
+
+
+[[find-upcoming]]
+== 다가오는 일정 조회
+
+[[find-upcoming-success]]
+=== HTTP request
+
+include::{snippets}/event/find-upcoming/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/event/find-upcoming/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/event/find-upcoming/response-fields.adoc[]
+
+[[find-upcoming-not-found]]
+=== 다가오는 일정이 존재하지 않을 경우
+
+include::{snippets}/event/find-upcoming-not-found/http-response.adoc[]
+
+
+
 [[find-all]]
 == 모든 일정 조회
 
