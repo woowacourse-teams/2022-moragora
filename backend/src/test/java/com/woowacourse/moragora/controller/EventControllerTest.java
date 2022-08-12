@@ -5,11 +5,16 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.woowacourse.moragora.dto.EventCancelRequest;
 import com.woowacourse.moragora.dto.EventRequest;
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
@@ -48,7 +53,43 @@ class EventControllerTest extends ControllerTest {
 
         // then
         verify(eventService, times(1)).save(any(EventsRequest.class), any(Long.class));
-        resultActions.andExpect(status().isNoContent());
+        resultActions.andExpect(status().isNoContent())
+                .andDo(document("event/add",
+                        preprocessRequest(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("events[].meetingStartTime").type(JsonFieldType.STRING)
+                                        .description("10:00"),
+                                fieldWithPath("events[].meetingEndTime").type(JsonFieldType.STRING)
+                                        .description("18:00"),
+                                fieldWithPath("events[].date").type(JsonFieldType.STRING)
+                                        .description("2022-08-03")
+                        ))
+                );
+    }
+
+    @DisplayName("일정들을 삭제한다.")
+    @Test
+    void cancel() throws Exception {
+        // given
+        final EventCancelRequest eventCancelRequest = new EventCancelRequest(List.of(
+                LocalDate.of(2022, 8, 3),
+                LocalDate.of(2022, 8, 4)
+        ));
+
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performDelete("/meetings/1/events", eventCancelRequest);
+
+        // then
+        verify(eventService, times(1)).cancel(any(EventCancelRequest.class), any(Long.class));
+        resultActions.andExpect(status().isNoContent())
+                .andDo(document("event/cancel-event",
+                        preprocessRequest(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("dates").type(JsonFieldType.ARRAY)
+                                        .description("[2022-08-03, 2022-08-04]")
+                        )));
     }
 
     @DisplayName("모임의 가장 가까운 일정을 조회한다.")
@@ -74,6 +115,7 @@ class EventControllerTest extends ControllerTest {
                 .andExpect(jsonPath("meetingEndTime").value("18:00"))
                 .andExpect(jsonPath("date").value("2022-08-01"))
                 .andDo(document("event/find-upcoming",
+                        preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("attendanceOpenTime").type(JsonFieldType.STRING).description("09:30"),
@@ -99,6 +141,7 @@ class EventControllerTest extends ControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("message").value("일정이 존재하지 않습니다."))
                 .andDo(document("event/find-upcoming-not-found",
+                        preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("message").type(JsonFieldType.STRING).description("일정이 존재하지 않습니다.")
                         )

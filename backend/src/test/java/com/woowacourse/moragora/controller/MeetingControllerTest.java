@@ -9,6 +9,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -39,9 +42,6 @@ import org.springframework.test.web.servlet.ResultActions;
 
 class MeetingControllerTest extends ControllerTest {
 
-    private static final LocalTime ENTRANCE_TIME = LocalTime.of(10, 0);
-    private static final LocalTime LEAVE_TIME = LocalTime.of(18, 0);
-
     @DisplayName("미팅 방을 생성한다.")
     @Test
     void add() throws Exception {
@@ -64,6 +64,7 @@ class MeetingControllerTest extends ControllerTest {
         resultActions.andExpect(status().isCreated())
                 .andExpect(header().string("Location", equalTo("/meetings/" + 1)))
                 .andDo(document("meeting/create-meeting",
+                        preprocessRequest(prettyPrint()),
                         requestFields(
                                 fieldWithPath("name").type(JsonFieldType.STRING).description(meeting.getName()),
                                 fieldWithPath("userIds").type(JsonFieldType.ARRAY).description(userIds)
@@ -259,6 +260,7 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.users[*].tardyCount", containsInAnyOrder(5, 8)))
                 .andExpect(jsonPath("$.users[*].isMaster", containsInAnyOrder(true, false)))
                 .andDo(document("meeting/find-one-meeting",
+                        preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("name").type(JsonFieldType.STRING).description(name),
@@ -313,6 +315,7 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.meetings[*].upcomingEvent.meetingEndTime", contains("18:00")))
                 .andExpect(jsonPath("$.meetings[*].upcomingEvent.date", contains("2022-08-01")))
                 .andDo(document("meeting/find-my-meetings",
+                        preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("meetings[].id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("meetings[].name").type(JsonFieldType.STRING).description("모임1"),

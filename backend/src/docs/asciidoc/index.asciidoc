@@ -9,8 +9,8 @@
 * link:auth.html[Auth]
 * link:user.html[User]
 * link:meeting.html[Meeting]
-* link:event.html[Event]
 * link:attendance.html[Attendance]
+* link:event.html[Event]
 * link:common.html[Common]
 
 [[overview]]

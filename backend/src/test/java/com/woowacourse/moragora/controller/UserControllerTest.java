@@ -5,6 +5,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -50,6 +53,7 @@ public class UserControllerTest extends ControllerTest {
         resultActions.andExpect(status().isCreated())
                 .andExpect(header().string("Location", equalTo("/users/" + 1)))
                 .andDo(document("user/sign-up",
+                        preprocessRequest(prettyPrint()),
                         requestFields(
                                 fieldWithPath("email").type(JsonFieldType.STRING).description(email),
                                 fieldWithPath("password").type(JsonFieldType.STRING).description(password),
@@ -103,6 +107,7 @@ public class UserControllerTest extends ControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("$.isExist").value(isExist))
                 .andDo(document("user/check-duplicate-email",
+                        preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("isExist").type(JsonFieldType.BOOLEAN).description(isExist)
                         )
@@ -163,6 +168,7 @@ public class UserControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.users[*].nickname", containsInAnyOrder(
                         "아스피", "필즈", "포키", "썬", "우디", "쿤", "반듯")))
                 .andDo(document("user/keyword-search",
+                        preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("users[].id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("users[].email").type(JsonFieldType.STRING).description("aaa111@foo.com"),
@@ -209,6 +215,7 @@ public class UserControllerTest extends ControllerTest {
                 .andExpect(jsonPath("email").value(email))
                 .andExpect(jsonPath("nickname").value(nickname))
                 .andDo(document("user/find-my-info",
+                        preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("email").type(JsonFieldType.STRING).description("foo@email.com"),

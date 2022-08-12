@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.moragora.dto.EventCancelRequest;
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.entity.Attendance;
@@ -12,6 +13,7 @@ import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.EventRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
+import java.time.LocalDate;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.LocalTime;
 import java.util.Collection;
@@ -71,6 +73,19 @@ public class EventService {
         return participants.stream()
                 .map(participant -> new Attendance(Status.NONE, false, participant, event))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void cancel(final EventCancelRequest request, final Long meetingId) {
+        meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        final List<LocalDate> dates = request.getDates();
+        List<Event> events = eventRepository.findByMeetingIdAndDateIn(meetingId, dates);
+        final List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+        attendanceRepository.deleteByEventIdIn(eventIds);
+        eventRepository.deleteByIdIn(eventIds);
     }
 
     public EventResponse findUpcomingEvent(final Long meetingId) {

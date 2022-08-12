@@ -7,11 +7,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.woowacourse.moragora.dto.EventCancelRequest;
 import com.woowacourse.moragora.dto.EventRequest;
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
@@ -75,6 +77,38 @@ class EventServiceTest {
         // when, then
         assertThatCode(() -> eventService.save(eventsRequest, meeting.getId()))
                 .doesNotThrowAnyException();
+    }
+
+    @DisplayName("모임 일정들을 삭제한다.")
+    @Test
+    void cancel() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        dataSupport.saveEvent(EVENT2.create(meeting));
+
+        final EventCancelRequest eventCancelRequest = new EventCancelRequest(
+                List.of(EVENT1.getDate(), EVENT2.getDate()));
+
+        // when, then
+        assertThatCode(() -> eventService.cancel(eventCancelRequest, meeting.getId()))
+                .doesNotThrowAnyException();
+    }
+
+    @DisplayName("없는 모임의 일정을 삭제요청 시 예외를 반환한다.")
+    @Test
+    void cancel_noMeeting() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        dataSupport.saveEvent(EVENT2.create(meeting));
+
+        final EventCancelRequest eventCancelRequest = new EventCancelRequest(
+                List.of(EVENT1.getDate(), EVENT2.getDate()));
+
+        // when, then
+        assertThatThrownBy(() -> eventService.cancel(eventCancelRequest, 2L))
+                .isInstanceOf(MeetingNotFoundException.class);
     }
 
     @DisplayName("모임의 가장 가까운 일정을 조회한다.")

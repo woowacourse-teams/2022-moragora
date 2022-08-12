@@ -6,6 +6,9 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -30,6 +33,27 @@ import org.springframework.test.web.servlet.ResultActions;
 
 class AttendanceControllerTest extends ControllerTest {
 
+    @DisplayName("출석을 제출하려는 방이 존재하지 않는 경우 예외가 발생한다.")
+    @Test
+    void markAttendance_throwsException_ifMeetingNotFound() throws Exception {
+        // given
+        final Long meetingId = 99L;
+        final Long userId = 1L;
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
+
+        validateToken("1");
+
+        doThrow(new MeetingNotFoundException())
+                .when(attendanceService)
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
+
+        // when
+        final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
+
+        //then
+        resultActions.andExpect(status().isNotFound());
+    }
+
     @DisplayName("사용자 출석여부를 반영한다.")
     @Test
     void markAttendance() throws Exception {
@@ -46,11 +70,33 @@ class AttendanceControllerTest extends ControllerTest {
 
         // then
         resultActions.andExpect(status().isNoContent())
-                .andDo(document("meeting/enter-Attendance",
+                .andDo(document("attendance/mark-attendance",
+                        preprocessRequest(prettyPrint()),
                         requestFields(
                                 fieldWithPath("isPresent").type(JsonFieldType.BOOLEAN).description("true")
                         )
                 ));
+    }
+
+    @DisplayName("출석을 제출하려는 사용자가 미팅에 존재하지 않으면 예외가 발생한다.")
+    @Test
+    void markAttendance_throwsException_ifParticipantNotFound() throws Exception {
+        // given
+        final Long meetingId = 1L;
+        final Long userId = 8L;
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
+
+        validateToken("1");
+
+        doThrow(new ParticipantNotFoundException())
+                .when(attendanceService)
+                .updateAttendance(anyLong(), anyLong(), any(UserAttendanceRequest.class));
+
+        // when
+        final ResultActions resultActions = performPut("/meetings/" + meetingId + "/users/" + userId, request);
+
+        // then
+        resultActions.andExpect(status().isNotFound());
     }
 
     @DisplayName("출석부가 활성화되지 않았을 때 출석을 제출하면 예외가 발생한다.")
@@ -101,7 +147,8 @@ class AttendanceControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='3')].coffeeCount", contains(2)))
                 .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='5')].coffeeCount", contains(1)))
                 .andExpect(jsonPath("$.userCoffeeStats[?(@.id=='6')].coffeeCount", contains(1)))
-                .andDo(document("meeting/usable-coffee",
+                .andDo(document("attendance/usable-coffee",
+                        preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("userCoffeeStats[].id").type(JsonFieldType.NUMBER)
                                         .description(1L),
@@ -128,7 +175,7 @@ class AttendanceControllerTest extends ControllerTest {
 
         // then
         resultActions.andExpect(status().isNoContent())
-                .andDo(document("meeting/use-coffee"));
+                .andDo(document("attendance/use-coffee"));
     }
 
     @DisplayName("출석부를 조회한다.")
@@ -147,12 +194,14 @@ class AttendanceControllerTest extends ControllerTest {
         );
         given(attendanceService.findTodayAttendancesByMeeting(any(Long.class)))
                 .willReturn(attendancesResponse);
+
         // when
         final ResultActions resultActions = performGet("/meetings/" + meetingId + "/attendances/today");
 
         // then
         resultActions.andExpect(status().isOk())
                 .andDo(document("attendance/show",
+                        preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("users[].id").type(JsonFieldType.NUMBER)
                                         .description(1L),
@@ -180,6 +229,7 @@ class AttendanceControllerTest extends ControllerTest {
         // then
         resultActions.andExpect(status().isBadRequest())
                 .andDo(document("attendance/show-event-not-exists",
+                        preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("message").type(JsonFieldType.STRING)
                                         .description("오늘의 일정이 존재하지 않아 출석부를 조회할 수 없습니다.")
