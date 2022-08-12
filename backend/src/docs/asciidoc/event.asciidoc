@@ -23,7 +23,7 @@ include::{snippets}/event/add/http-response.adoc[]
 
 === Request fields
 
-include::{snippets}/event/add/request-body.adoc[]
+include::{snippets}/event/add/request-fields.adoc[]
 
 [[cancel]]
 == 삭제
@@ -39,4 +39,4 @@ include::{snippets}/event/cancel-event/http-response.adoc[]
 
 === Request fields
 
-include::{snippets}/event/cancel-event/request-body.adoc[]
+include::{snippets}/event/cancel-event/request-fields.adoc[]
