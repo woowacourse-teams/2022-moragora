@@ -1,17 +1,24 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.auth.exception.AuthorizationFailureException;
 import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.NicknameRequest;
+import com.woowacourse.moragora.dto.PasswordRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
+import com.woowacourse.moragora.entity.user.RawPassword;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.NoParameterException;
+import com.woowacourse.moragora.exception.user.InvalidPasswordException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.repository.UserRepository;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,5 +73,32 @@ public class UserService {
         final User user = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
         user.updateNickname(request.getNickname());
+    }
+
+    @Transactional
+    public void updatePassword(final PasswordRequest request, final Long id) {
+        final User user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+
+        final String oldPassword = request.getOldPassword();
+        final String newPassword = request.getNewPassword();
+        validatePasswords(oldPassword, newPassword);
+        validateOldPassword(user, oldPassword);
+
+        user.updatePassword(EncodedPassword.fromRawValue(newPassword));
+    }
+
+    private void validatePasswords(final String oldPassword, final String newPassword) {
+        if (Objects.equals(oldPassword, newPassword)) {
+            throw new ClientRuntimeException("새로운 비밀번호가 기존의 비밀번호와 일치합니다.", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void validateOldPassword(final User user, final String oldPassword) {
+        try {
+            user.checkPassword(new RawPassword(oldPassword));
+        } catch (AuthorizationFailureException e) {
+            throw new InvalidPasswordException();
+        }
     }
 }

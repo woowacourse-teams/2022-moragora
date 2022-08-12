@@ -88,3 +88,30 @@ include::{snippets}/user/change-my-nickname/http-response.adoc[]
 === Request fields
 
 include::{snippets}/user/change-my-nickname/request-fields.adoc[]
+
+[[changeMyPassword]]
+== 비밀번호 수정
+
+[[changeMyPassword-success]]
+=== HTTP request
+
+include::{snippets}/user/change-my-password/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/user/change-my-password/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/user/change-my-password/request-fields.adoc[]
+
+[[changeMyPassword-fail]]
+=== 기존 비밀번호와 새 비밀번호가 같을 경우
+
+=== HTTP response
+
+include::{snippets}/user/change-my-password-same-as-is/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/user/change-my-password-same-as-is/response-fields.adoc[]

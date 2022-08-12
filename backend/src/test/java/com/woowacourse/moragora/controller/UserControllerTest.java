@@ -3,7 +3,9 @@ package com.woowacourse.moragora.controller;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -19,10 +21,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.NicknameRequest;
+import com.woowacourse.moragora.dto.PasswordRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.NoParameterException;
+import com.woowacourse.moragora.exception.user.InvalidPasswordException;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +35,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -244,6 +250,81 @@ public class UserControllerTest extends ControllerTest {
                 .andDo(document("user/change-my-nickname",
                         requestFields(
                                 fieldWithPath("nickname").type(JsonFieldType.STRING).description(nickname)
+                        )
+                ));
+    }
+
+    @DisplayName("로그인한 회원의 비밀번호를 수정한다.")
+    @Test
+    void changeMyPassword() throws Exception {
+        // given
+        validateToken("1");
+        final String oldPassword = "1234asdf!";
+        final String newPassword = "new1234!";
+        final PasswordRequest request = new PasswordRequest(oldPassword, newPassword);
+
+        // when
+        final ResultActions resultActions = performPut("/users/me/password", request);
+
+        // then
+        verify(userService, times(1)).updatePassword(any(PasswordRequest.class), any(Long.class));
+        resultActions.andExpect(status().isNoContent())
+                .andDo(document("user/change-my-password",
+                        requestFields(
+                                fieldWithPath("oldPassword").type(JsonFieldType.STRING).description(oldPassword),
+                                fieldWithPath("newPassword").type(JsonFieldType.STRING).description(newPassword)
+                        )
+                ));
+    }
+
+    @DisplayName("기존 비밀번호와 같은 비밀번호로 비밀번호를 수정하면 예외가 발생한다.")
+    @Test
+    void changeMyPassword_throwsException_ifSamePassword() throws Exception {
+        // given
+        validateToken("1");
+        final String oldPassword = "1234asdf!";
+        final String newPassword = "1234asdf!";
+        final PasswordRequest request = new PasswordRequest(oldPassword, newPassword);
+
+        doThrow(new ClientRuntimeException("새로운 비밀번호가 기존의 비밀번호와 일치합니다.", HttpStatus.BAD_REQUEST))
+                .when(userService)
+                .updatePassword(any(PasswordRequest.class), anyLong());
+
+        // when
+        final ResultActions resultActions = performPut("/users/me/password", request);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andDo(document("user/change-my-password-same-as-is",
+                        responseFields(
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("새로운 비밀번호가 기존의 비밀번호와 일치합니다.")
+                        )
+                ));
+    }
+
+    @DisplayName("기존 비밀번호를 틀리게 입력하고 비밀번호를 수정하면 예외가 발생한다.")
+    @Test
+    void changeMyPassword_throwsException_ifWrongPassword() throws Exception {
+        // given
+        validateToken("1");
+        final String oldPassword = "1234wrong!";
+        final String newPassword = "1234asdf!";
+        final PasswordRequest request = new PasswordRequest(oldPassword, newPassword);
+
+        doThrow(new InvalidPasswordException())
+                .when(userService)
+                .updatePassword(any(PasswordRequest.class), anyLong());
+
+        // when
+        final ResultActions resultActions = performPut("/users/me/password", request);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andDo(document("user/change-my-password-wrong-password",
+                        responseFields(
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("비밀번호가 올바르지 않습니다.")
                         )
                 ));
     }

@@ -79,6 +79,10 @@ public class User {
         this.nickname = nickname;
     }
 
+    public void updatePassword(final EncodedPassword newPassword) {
+        this.password = newPassword;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {

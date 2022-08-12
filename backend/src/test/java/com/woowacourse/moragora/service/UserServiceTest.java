@@ -8,11 +8,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.NicknameRequest;
+import com.woowacourse.moragora.dto.PasswordRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.NoParameterException;
+import com.woowacourse.moragora.exception.user.InvalidPasswordException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
@@ -168,5 +171,52 @@ class UserServiceTest {
         // when, then
         assertThatThrownBy(() -> userService.updateNickname(request, 100L))
                 .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @DisplayName("회원의 비밀번호를 변경한다.")
+    @Test
+    void updatePassword() {
+        // given
+        final User user = dataSupport.saveUser(BATD.create());
+        final PasswordRequest request = new PasswordRequest("1234asdf!", "new1234!");
+
+        // when, then
+        assertThatNoException().isThrownBy(() -> userService.updatePassword(request, user.getId()));
+    }
+
+    @DisplayName("존재하지 않는 회원의 비밀번호를 변경하면 예외가 발생한다.")
+    @Test
+    void updatePassword_throwsException_ifUserNotFound() {
+        // given
+        final PasswordRequest request = new PasswordRequest("1234asdf!", "new1234!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.updatePassword(request, 100L))
+                .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @DisplayName("기존 비밀번호를 틀리게 입력하고 비밀번호를 변경하면 예외가 발생한다.")
+    @Test
+    void updatePassword__throwsException_ifWrongPassword() {
+        // given
+        final User user = dataSupport.saveUser(BATD.create());
+        final PasswordRequest request = new PasswordRequest("1234wrong!", "new1234!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.updatePassword(request, 1L))
+                .isInstanceOf(InvalidPasswordException.class);
+    }
+
+    @DisplayName("기존 비밀번호와 동일한 비밀번호로 변경하면 예외가 발생한다.")
+    @Test
+    void updatePassword_throwsException_ifSamePassword() {
+        // given
+        final User user = dataSupport.saveUser(BATD.create());
+        final PasswordRequest request = new PasswordRequest("1234asdf!", "1234asdf!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.updatePassword(request, 1L))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("새로운 비밀번호가 기존의 비밀번호와 일치합니다.");
     }
 }

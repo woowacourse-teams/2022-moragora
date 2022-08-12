@@ -4,6 +4,7 @@ import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
 import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.NicknameRequest;
+import com.woowacourse.moragora.dto.PasswordRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
@@ -59,6 +60,14 @@ public class UserController {
     public ResponseEntity<Void> changeMyNickname(@RequestBody @Valid final NicknameRequest nicknameRequest,
                                                  @AuthenticationPrincipal final Long id) {
         userService.updateNickname(nicknameRequest, id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/me/password")
+    @Authentication
+    public ResponseEntity<Void> changeMyPassword(@RequestBody @Valid final PasswordRequest passwordRequest,
+                                                 @AuthenticationPrincipal final Long id) {
+        userService.updatePassword(passwordRequest, id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -70,7 +70,7 @@ public class AuthControllerTest extends ControllerTest {
         final ResultActions resultActions = performPost("/login", loginRequest);
 
         // then
-        resultActions.andExpect(status().isUnauthorized())
+        resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message").value(message))
                 .andDo(document("auth/login-fail",
                         preprocessRequest(prettyPrint()),
