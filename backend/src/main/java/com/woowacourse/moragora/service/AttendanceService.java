@@ -29,7 +29,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -66,13 +65,13 @@ public class AttendanceService {
         final LocalDate date = serverTimeManager.getDate();
         final Event event = eventRepository.findByMeetingIdAndDate(meetingId, date)
                 .orElseThrow(() -> new ClientRuntimeException("오늘의 일정이 존재하지 않아 출석부를 조회할 수 없습니다.",
-                        HttpStatus.BAD_REQUEST));
+                        HttpStatus.NOT_FOUND));
 
-        final List<Attendance> attendances = attendanceRepository.findByParticipantIdInAndEventId(
-                meeting.getParticipantIds(), event.getId());
+        final List<Attendance> attendances = attendanceRepository
+                .findByParticipantIdInAndEventId(meeting.getParticipantIds(), event.getId());
         final List<AttendanceResponse> attendanceResponses = attendances.stream()
                 .map(AttendanceResponse::from)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
 
         return new AttendancesResponse(attendanceResponses);
     }
@@ -105,26 +104,16 @@ public class AttendanceService {
     }
 
     public CoffeeStatsResponse countUsableCoffeeStack(final Long meetingId) {
-        final LocalDate today = serverTimeManager.getDate();
-        final Event event = eventRepository.findByMeetingIdAndDate(meetingId, today)
-                .orElse(null);
-        final boolean isOver = Objects.isNull(event) || serverTimeManager.isAttendanceClosed(event.getStartTime());
-
         final MeetingAttendances meetingAttendances = findMeetingAttendancesBy(meetingId);
-        validateEnoughTardyCountToDisable(meetingAttendances, isOver, today);
+        validateEnoughTardyCountToDisable(meetingAttendances);
         final Map<User, Long> userCoffeeStats = meetingAttendances.countUsableAttendancesPerUsers();
         return CoffeeStatsResponse.from(userCoffeeStats);
     }
 
     @Transactional
     public void disableUsedTardy(final Long meetingId) {
-        final LocalDate today = serverTimeManager.getDate();
-        final Event event = eventRepository.findByMeetingIdAndDate(meetingId, today)
-                .orElse(null);
-        final boolean isOver = Objects.isNull(event) || serverTimeManager.isAttendanceClosed(event.getStartTime());
-
         final MeetingAttendances meetingAttendances = findMeetingAttendancesBy(meetingId);
-        validateEnoughTardyCountToDisable(meetingAttendances, isOver, today);
+        validateEnoughTardyCountToDisable(meetingAttendances);
         meetingAttendances.disableAttendances();
     }
 
@@ -140,14 +129,19 @@ public class AttendanceService {
         final Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(MeetingNotFoundException::new);
         final List<Long> participantIds = meeting.getParticipantIds();
-        final List<Attendance> attendances = attendanceRepository.findByParticipantIdIn(participantIds);
+        final List<Long> attendedEventIds = eventRepository
+                .findByMeetingIdAndDateLessThanEqual(meetingId, serverTimeManager.getDate())
+                .stream()
+                .map(Event::getId)
+                .collect(Collectors.toUnmodifiableList());
+
+        final List<Attendance> attendances = attendanceRepository
+                .findByParticipantIdInAndEventIdIn(participantIds, attendedEventIds);
         return new MeetingAttendances(attendances, participantIds.size());
     }
 
-    private void validateEnoughTardyCountToDisable(final MeetingAttendances attendances,
-                                                   final boolean isOver,
-                                                   final LocalDate today) {
-        if (!attendances.isTardyStackFull(isOver, today)) {
+    private void validateEnoughTardyCountToDisable(final MeetingAttendances attendances) {
+        if (!attendances.isTardyStackFull()) {
             throw new InvalidCoffeeTimeException();
         }
     }

@@ -56,7 +56,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .body("users.attendanceStatus", containsInAnyOrder("NONE", "NONE", "NONE"));
     }
 
-    @DisplayName("오늘의 출석부를 요청할 때 오늘의 이벤트가 없다면 상태코드 400을 반환한다.")
+    @DisplayName("오늘의 출석부를 요청할 때 오늘의 이벤트가 없다면 상태코드 404를 반환한다.")
     @Test
     void showAttendance_throwsException_ifEventNotExists() {
         // given
@@ -76,7 +76,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         final ValidatableResponse response = get("/meetings/" + meetingId + "/attendances/today", token);
 
         // then
-        response.statusCode(HttpStatus.BAD_REQUEST.value())
+        response.statusCode(HttpStatus.NOT_FOUND.value())
                 .body("message", equalTo("오늘의 일정이 존재하지 않아 출석부를 조회할 수 없습니다."));
 
     }

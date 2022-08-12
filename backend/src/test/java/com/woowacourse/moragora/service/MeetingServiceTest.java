@@ -235,15 +235,15 @@ class MeetingServiceTest {
         final User user1 = dataSupport.saveUser(KUN.create());
         final Participant participant1 = dataSupport.saveParticipant(user1, meeting, true);
         final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
-        dataSupport.saveAttendance(participant1, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant1, event1, Status.NONE);
 
         final User user2 = dataSupport.saveUser(PHILLZ.create());
         final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
-        dataSupport.saveAttendance(participant2, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant2, event1, Status.NONE);
 
         final User user3 = dataSupport.saveUser(WOODY.create());
         final Participant participant3 = dataSupport.saveParticipant(user3, meeting);
-        dataSupport.saveAttendance(participant3, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant3, event1, Status.NONE);
 
         final List<ParticipantResponse> usersResponse = List.of(
                 new ParticipantResponse(user1.getId(), user1.getEmail(), user1.getNickname(), 0,
@@ -275,6 +275,7 @@ class MeetingServiceTest {
                 .isEqualTo(expectedMeetingResponse);
     }
 
+    // TODO: 출석 마감 스케쥴링 구현 후 해당 test에서 status를 모두 NONE으로 생성해도 테스트가 통과해야 함
     @DisplayName("id로 모임 상세 정보를 조회한다(출석 마감 시간이 지나면 당일 지각 스택도 반영된다.)")
     @Test
     void findById_ifOverClosingTime() {

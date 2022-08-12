@@ -33,6 +33,6 @@ public class Meeting {
     public List<Long> getParticipantIds() {
         return participants.stream()
                 .map(Participant::getId)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 }

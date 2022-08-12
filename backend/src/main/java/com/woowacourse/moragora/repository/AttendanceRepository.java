@@ -16,7 +16,7 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
 
     Optional<Attendance> findByParticipantIdAndEventId(final Long participantId, final Long eventId);
 
-    List<Attendance> findByParticipantIdIn(final List<Long> participantIds);
+    List<Attendance> findByParticipantIdInAndEventIdIn(final List<Long> participantIds, final List<Long> eventIds);
 
     List<Attendance> findByParticipantIdInAndEventId(final List<Long> participantIds, final Long eventId);
 
