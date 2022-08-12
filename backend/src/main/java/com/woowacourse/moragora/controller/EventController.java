@@ -4,11 +4,13 @@ import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
 import com.woowacourse.auth.support.MasterAuthorization;
 import com.woowacourse.moragora.dto.EventCancelRequest;
+import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.service.EventService;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,5 +44,12 @@ public class EventController {
                                        @AuthenticationPrincipal final Long loginId) {
         eventService.cancel(request, meetingId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/upcoming")
+    public ResponseEntity<EventResponse> showUpcomingEvent(@PathVariable final Long meetingId,
+                                                           @AuthenticationPrincipal final Long loginId) {
+        final EventResponse eventResponse = eventService.findUpcomingEvent(meetingId);
+        return ResponseEntity.ok(eventResponse);
     }
 }

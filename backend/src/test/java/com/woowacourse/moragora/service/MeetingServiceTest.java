@@ -13,6 +13,7 @@ import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
@@ -29,6 +30,7 @@ import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -432,30 +434,30 @@ class MeetingServiceTest {
         dataSupport.saveParticipant(user, meeting1, true);
         dataSupport.saveParticipant(user, meeting2, true);
         final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting1));
-        final Event event2 = dataSupport.saveEvent(EVENT1.create(meeting2));
+        final Event event2 = dataSupport.saveEvent(EVENT1.create(meeting1));
+
+        final LocalTime entranceTime = event1.getStartTime();
+        final EventResponse upcomingEvent = EventResponse.of(event1, entranceTime.minusMinutes(30),
+                entranceTime.plusMinutes(5));
 
         final MyMeetingResponse response1 = MyMeetingResponse.builder()
                 .id(meeting1.getId())
                 .name(meeting1.getName())
-                .isActive(false)
-                .entranceTime(event1.getEntranceTime())
-                .closingTime(event1.getEntranceTime().plusMinutes(5))
                 .tardyCount(0)
-                .isMaster(true)
+                .isLoginUserMaster(true)
                 .isCoffeeTime(false)
-                .hasUpcomingEvent(true)
+                .isActive(false)
+                .upcomingEvent(upcomingEvent)
                 .build();
 
         final MyMeetingResponse response2 = MyMeetingResponse.builder()
                 .id(meeting2.getId())
                 .name(meeting2.getName())
-                .isActive(false)
-                .entranceTime(event2.getEntranceTime())
-                .closingTime(event2.getEntranceTime().plusMinutes(5))
                 .tardyCount(0)
-                .isMaster(true)
+                .isLoginUserMaster(true)
                 .isCoffeeTime(false)
-                .hasUpcomingEvent(true)
+                .isActive(false)
+                .upcomingEvent(null)
                 .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 5);

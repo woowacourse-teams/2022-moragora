@@ -4,6 +4,7 @@ import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -18,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
@@ -27,6 +29,7 @@ import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -280,19 +283,15 @@ class MeetingControllerTest extends ControllerTest {
     void findAllByUserId() throws Exception {
         // given
         final MyMeetingResponse myMeetingResponse =
-                new MyMeetingResponse(1L, "모임1", false,
-                        LocalTime.of(0, 0),
-                        LocalTime.of(0, 0),
-                        1, true, false, false);
-
-        final MyMeetingResponse myMeetingResponse2 =
-                new MyMeetingResponse(2L, "모임2", true,
-                        LocalTime.of(9, 0),
-                        LocalTime.of(9, 5),
-                        2, true, false, true);
-
+                new MyMeetingResponse(1L, "모임1", 1, true, false, false,
+                        new EventResponse(1L,
+                                "09:30", "10:05",
+                                "10:00", "18:00",
+                                LocalDate.of(2022, 8, 1)
+                        )
+                );
         final MyMeetingsResponse meetingsResponse =
-                new MyMeetingsResponse(List.of(myMeetingResponse, myMeetingResponse2));
+                new MyMeetingsResponse(List.of(myMeetingResponse));
 
         validateToken("1");
 
@@ -303,44 +302,73 @@ class MeetingControllerTest extends ControllerTest {
         // then
         performGet("/meetings/me")
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.meetings[*].id", containsInAnyOrder(1, 2)))
-                // 더 이상 일정이 없는 모임
-                .andExpect(jsonPath("$.meetings[?(@.id=='1')].name", contains("모임1")))
-                .andExpect(jsonPath("$.meetings[?(@.id=='1')].isActive", contains(false)))
-                .andExpect(jsonPath("$.meetings[?(@.id=='1')].entranceTime", contains("00:00")))
-                .andExpect(jsonPath("$.meetings[?(@.id=='1')].closingTime", contains("00:00")))
-                .andExpect(jsonPath("$.meetings[?(@.id=='1')].tardyCount", contains(1)))
-                .andExpect(jsonPath("$.meetings[?(@.id=='1')].isMaster", contains(true)))
-                .andExpect(jsonPath("$.meetings[?(@.id=='1')].isCoffeeTime", contains(false)))
-                .andExpect(jsonPath("$.meetings[?(@.id=='1')].hasUpcomingEvent", contains(false)))
-                // 일정이 있는 모임
-                .andExpect(jsonPath("$.meetings[?(@.id=='2')].name", contains("모임2")))
-                .andExpect(jsonPath("$.meetings[?(@.id=='2')].isActive", contains(true)))
-                .andExpect(jsonPath("$.meetings[?(@.id=='2')].entranceTime", contains("09:00")))
-                .andExpect(jsonPath("$.meetings[?(@.id=='2')].closingTime", contains("09:05")))
-                .andExpect(jsonPath("$.meetings[?(@.id=='2')].tardyCount", contains(2)))
-                .andExpect(jsonPath("$.meetings[?(@.id=='2')].isMaster", contains(true)))
-                .andExpect(jsonPath("$.meetings[?(@.id=='2')].isCoffeeTime", contains(false)))
-                .andExpect(jsonPath("$.meetings[?(@.id=='2')].hasUpcomingEvent", contains(true)))
+                .andExpect(jsonPath("$.meetings[*].id", containsInAnyOrder(1)))
+                .andExpect(jsonPath("$.meetings[*].name", contains("모임1")))
+                .andExpect(jsonPath("$.meetings[*].tardyCount", contains(1)))
+                .andExpect(jsonPath("$.meetings[*].isLoginUserMaster", contains(true)))
+                .andExpect(jsonPath("$.meetings[*].isCoffeeTime", contains(false)))
+                .andExpect(jsonPath("$.meetings[*].isActive", contains(false)))
+                .andExpect(jsonPath("$.meetings[*].upcomingEvent.id", contains(1)))
+                .andExpect(jsonPath("$.meetings[*].upcomingEvent.attendanceOpenTime", contains("09:30")))
+                .andExpect(jsonPath("$.meetings[*].upcomingEvent.attendanceClosedTime", contains("10:05")))
+                .andExpect(jsonPath("$.meetings[*].upcomingEvent.meetingStartTime", contains("10:00")))
+                .andExpect(jsonPath("$.meetings[*].upcomingEvent.meetingEndTime", contains("18:00")))
+                .andExpect(jsonPath("$.meetings[*].upcomingEvent.date", contains("2022-08-01")))
                 .andDo(document("meeting/find-my-meetings",
                         preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("meetings[].id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("meetings[].name").type(JsonFieldType.STRING).description("모임1"),
-                                fieldWithPath("meetings[].isActive").type(JsonFieldType.BOOLEAN).description(true),
-                                fieldWithPath("meetings[].entranceTime").type(JsonFieldType.STRING)
-                                        .description("09:00"),
-                                fieldWithPath("meetings[].closingTime").type(JsonFieldType.STRING)
-                                        .description("09:05"),
                                 fieldWithPath("meetings[].tardyCount").type(JsonFieldType.NUMBER)
                                         .description(1),
-                                fieldWithPath("meetings[].isMaster").type(JsonFieldType.BOOLEAN)
+                                fieldWithPath("meetings[].isLoginUserMaster").type(JsonFieldType.BOOLEAN)
                                         .description(true),
                                 fieldWithPath("meetings[].isCoffeeTime").type(JsonFieldType.BOOLEAN)
                                         .description(false),
-                                fieldWithPath("meetings[].hasUpcomingEvent").type(JsonFieldType.BOOLEAN)
-                                        .description(true)
+                                fieldWithPath("meetings[].isActive").type(JsonFieldType.BOOLEAN).description(true),
+                                fieldWithPath("meetings[].upcomingEvent.id").type(JsonFieldType.NUMBER)
+                                        .description(1),
+                                fieldWithPath("meetings[].upcomingEvent.attendanceOpenTime").type(JsonFieldType.STRING)
+                                        .description("09:30"),
+                                fieldWithPath("meetings[].upcomingEvent.attendanceClosedTime").type(
+                                                JsonFieldType.STRING)
+                                        .description("10:05"),
+                                fieldWithPath("meetings[].upcomingEvent.meetingStartTime").type(JsonFieldType.STRING)
+                                        .description("10:00"),
+                                fieldWithPath("meetings[].upcomingEvent.meetingEndTime").type(JsonFieldType.STRING)
+                                        .description("18:00"),
+                                fieldWithPath("meetings[].upcomingEvent.date").type(JsonFieldType.STRING)
+                                        .description("2022-08-01")
                         )
                 ));
+    }
+
+    @DisplayName("유저가 소속된 모든 미팅 방을 조회한다(다가오는 일정이 없으면 null 반환).")
+    @Test
+    void findAllByUserId_noUpcomingEvent() throws Exception {
+        // given
+        final MyMeetingResponse myMeetingResponse =
+                new MyMeetingResponse(1L, "모임1", 2, true, false, true,
+                        null);
+
+        final MyMeetingsResponse meetingsResponse =
+                new MyMeetingsResponse(List.of(myMeetingResponse));
+
+        validateToken("1");
+
+        // when
+        given(meetingService.findAllByUserId(eq(1L)))
+                .willReturn(meetingsResponse);
+
+        // then
+        performGet("/meetings/me")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.meetings[*].id", containsInAnyOrder(1)))
+                .andExpect(jsonPath("$.meetings[*].name", contains("모임1")))
+                .andExpect(jsonPath("$.meetings[*].tardyCount", contains(2)))
+                .andExpect(jsonPath("$.meetings[*].isLoginUserMaster", contains(true)))
+                .andExpect(jsonPath("$.meetings[*].isCoffeeTime", contains(false)))
+                .andExpect(jsonPath("$.meetings[*].isActive", contains(true)))
+                .andExpect(jsonPath("$.meetings[*].upcomingEvent", contains(nullValue())));
     }
 }
