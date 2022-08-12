@@ -4,6 +4,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -16,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.woowacourse.moragora.dto.EmailCheckResponse;
+import com.woowacourse.moragora.dto.NicknameRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
@@ -220,6 +223,27 @@ public class UserControllerTest extends ControllerTest {
                                 fieldWithPath("id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("email").type(JsonFieldType.STRING).description("foo@email.com"),
                                 fieldWithPath("nickname").type(JsonFieldType.STRING).description("foo")
+                        )
+                ));
+    }
+
+    @DisplayName("로그인한 회원의 닉네임을 수정한다.")
+    @Test
+    void changeMyNickname() throws Exception {
+        // given
+        validateToken("1");
+        final String nickname = "반듯";
+        final NicknameRequest request = new NicknameRequest(nickname);
+
+        // when
+        final ResultActions resultActions = performPut("/users/me/nickname", request);
+
+        // then
+        verify(userService, times(1)).updateNickname(any(NicknameRequest.class), any(Long.class));
+        resultActions.andExpect(status().isNoContent())
+                .andDo(document("user/change-my-nickname",
+                        requestFields(
+                                fieldWithPath("nickname").type(JsonFieldType.STRING).description(nickname)
                         )
                 ));
     }

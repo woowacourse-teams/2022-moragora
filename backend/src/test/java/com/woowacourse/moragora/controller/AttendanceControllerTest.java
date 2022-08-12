@@ -21,9 +21,7 @@ import com.woowacourse.moragora.dto.CoffeeStatResponse;
 import com.woowacourse.moragora.dto.CoffeeStatsResponse;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
-import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.meeting.NotCheckInTimeException;
-import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -168,7 +166,7 @@ class AttendanceControllerTest extends ControllerTest {
         final Long userId = 1L;
         final UserAttendanceRequest request = new UserAttendanceRequest(true);
         validateToken("1");
-        performPut("/meetings/" + meetingId + "/users/" + userId, request);
+        performPost("/meetings/" + meetingId + "/users/" + userId + "/attendances/today", request);
 
         // when
         final ResultActions resultActions = performPost("/meetings/" + meetingId + "/coffees/use");

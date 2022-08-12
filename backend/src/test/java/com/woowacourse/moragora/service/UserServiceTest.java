@@ -1,16 +1,20 @@
 package com.woowacourse.moragora.service;
 
+import static com.woowacourse.moragora.support.UserFixtures.BATD;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.EmailCheckResponse;
+import com.woowacourse.moragora.dto.NicknameRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
+import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +31,9 @@ class UserServiceTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private DataSupport dataSupport;
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
@@ -138,6 +145,28 @@ class UserServiceTest {
     void findById_throwsException_ifIdNotFound() {
         // given, when, then
         assertThatThrownBy(() -> userService.findById(0L))
+                .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @DisplayName("회원의 닉네임을 변경한다.")
+    @Test
+    void updateNickname() {
+        // given
+        final User user = dataSupport.saveUser(BATD.create());
+        final NicknameRequest request = new NicknameRequest("반듯");
+
+        // when, then
+        assertThatNoException().isThrownBy(() -> userService.updateNickname(request, user.getId()));
+    }
+
+    @DisplayName("존재하지 않는 회원의 닉네임을 변경하면 예외가 발생한다.")
+    @Test
+    void updateNickname_throwsException_ifUserNotFound() {
+        // given
+        final NicknameRequest request = new NicknameRequest("반듯");
+
+        // when, then
+        assertThatThrownBy(() -> userService.updateNickname(request, 100L))
                 .isInstanceOf(UserNotFoundException.class);
     }
 }

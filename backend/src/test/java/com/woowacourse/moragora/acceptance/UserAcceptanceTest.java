@@ -1,10 +1,12 @@
 package com.woowacourse.moragora.acceptance;
 
+import static com.woowacourse.moragora.support.UserFixtures.BATD;
 import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
+import com.woowacourse.moragora.dto.NicknameRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.entity.user.User;
 import io.restassured.response.ValidatableResponse;
@@ -12,6 +14,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 
 @DisplayName("회원 관련 기능")
@@ -104,5 +108,35 @@ class UserAcceptanceTest extends AcceptanceTest {
                 .body("id", equalTo(id.intValue()))
                 .body("email", equalTo(user.getEmail()))
                 .body("nickname", equalTo(user.getNickname()));
+    }
+
+    @DisplayName("로그인 한 상태에서 닉네임 수정을 요청하면 회원 정보를 수정한 후 상태코드 204을 반환한다.")
+    @Test
+    void changeMyNickname() {
+        // given
+        final String token = signUpAndGetToken(BATD.create());
+        final NicknameRequest request = new NicknameRequest("반듯");
+
+        // when
+        final ValidatableResponse response = put("/users/me/nickname", request, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("로그인한 상태에서 잘못된 형식의 닉네임으로 닉네임 수정을 요청하면 상태코드 400을 반환한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"반_듯", "멋쟁이프론트개발자우리의자랑밧드", ""})
+    void changeMyNickname_ifInvalidFormat(final String nickname) {
+        // given
+        final String token = signUpAndGetToken(BATD.create());
+        final NicknameRequest request = new NicknameRequest(nickname);
+
+        // when
+        final ValidatableResponse response = put("/users/me/nickname", request, token);
+
+        // then
+        response.statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("message", equalTo("입력 형식이 올바르지 않습니다."));
     }
 }

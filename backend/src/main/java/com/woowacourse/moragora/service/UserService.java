@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.EmailCheckResponse;
+import com.woowacourse.moragora.dto.NicknameRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
@@ -58,5 +59,12 @@ public class UserService {
         final User user = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
         return UserResponse.from(user);
+    }
+
+    @Transactional
+    public void updateNickname(final NicknameRequest request, final Long id) {
+        final User user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+        user.updateNickname(request.getNickname());
     }
 }

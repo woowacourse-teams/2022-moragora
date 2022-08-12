@@ -75,6 +75,10 @@ public class User {
         }
     }
 
+    public void updateNickname(final String nickname) {
+        this.nickname = nickname;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
