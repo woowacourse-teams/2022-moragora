@@ -15,11 +15,10 @@ const RegisterPage = () => {
   const { login } = useContext(userContext) as UserContextValues;
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
   const [isEmailExist, setIsEmailExist] = useState(true);
-  const [isValidPasswordConfirm, setIsValidPasswordConfirm] = useState(true);
 
   const { refetch: checkEmailRefetch } = useQuery(
     ['checkEmail'],
-    checkEmailApi(values['email']),
+    checkEmailApi(values['email'] as string),
     {
       enabled: false,
       onSuccess: ({ body: { isExist } }) => {
@@ -53,8 +52,8 @@ const RegisterPage = () => {
   };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    if (!isValidPasswordConfirm || isEmailExist) {
-      return;
+    if (isEmailExist) {
+      throw e;
     }
 
     const target = e.target as HTMLFormElement;
@@ -64,12 +63,23 @@ const RegisterPage = () => {
       formData.entries()
     ) as UserRegisterRequestBody;
 
-    registerMutate(formDataObject);
+    await registerMutate(formDataObject);
+  };
+
+  const handleError: React.FormEventHandler<HTMLFormElement> = (e) => {
+    const invalidInputs = Array.from(e.currentTarget.elements).filter(
+      (element) => element instanceof HTMLInputElement
+    ) as HTMLInputElement[];
+    const firstInvalidInput = invalidInputs.find(
+      (element) => !element.validity.valid
+    );
+
+    firstInvalidInput?.focus();
   };
 
   return (
     <S.Layout>
-      <S.Form id="register-form" {...onSubmit(handleSubmit)}>
+      <S.Form id="register-form" {...onSubmit(handleSubmit, handleError)}>
         <S.FieldBox>
           <S.Label>
             이메일
@@ -82,6 +92,7 @@ const RegisterPage = () => {
                     setIsEmailExist(true);
                   },
                   maxLength: 50,
+                  watch: true,
                 })}
                 placeholder="이메일을 입력해주세요."
               />
@@ -110,10 +121,10 @@ const RegisterPage = () => {
               {...register('password', {
                 pattern:
                   '(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,30}',
-                onChange: (e) => {
-                  setIsValidPasswordConfirm(
-                    values['passwordConfirm'] === e.target.value
-                  );
+                patternValidationMessage:
+                  '8에서 30자리 이하의 영어, 숫자, 특수문자로 입력해주세요.',
+                onChange: (e, inputContoller) => {
+                  inputContoller['passwordConfirm'].checkValidity();
                 },
                 minLength: 8,
                 maxLength: 30,
@@ -133,13 +144,16 @@ const RegisterPage = () => {
             <Input
               type="password"
               {...register('passwordConfirm', {
-                onChange: (e) => {
-                  setIsValidPasswordConfirm(
-                    values['password'] === e.target.value
-                  );
-                },
-                minLength: 8,
-                maxLength: 30,
+                customValidations: [
+                  {
+                    validate: (value, inputController) =>
+                      inputController['password'] &&
+                      inputController['passwordConfirm'] &&
+                      inputController['password'].element.value ===
+                        inputController['passwordConfirm'].element.value,
+                    validationMessage: '비밀번호가 다릅니다.',
+                  },
+                ],
                 required: true,
               })}
             />
@@ -151,10 +165,6 @@ const RegisterPage = () => {
             }
             message={errors['passwordConfirm']}
           />
-          <InputHint
-            isShow={!isValidPasswordConfirm}
-            message="비밀번호가 다릅니다."
-          />
         </S.FieldBox>
         <S.FieldBox>
           <S.Label>
@@ -164,6 +174,8 @@ const RegisterPage = () => {
               {...register('nickname', {
                 maxLength: 15,
                 pattern: '([a-zA-Z0-9가-힣]){1,15}',
+                patternValidationMessage:
+                  '15자 이하의 영어, 한글, 숫자 조합으로 입력해주세요.',
                 required: true,
               })}
               placeholder="15자 이하의 영어, 한글, 숫자 조합으로 입력해주세요."
