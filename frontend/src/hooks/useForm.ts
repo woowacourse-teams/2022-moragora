@@ -6,15 +6,26 @@ type Error = HTMLInputElement['validationMessage'];
 type Values = Record<NonNullable<Name>, Value>;
 type Errors = Record<NonNullable<Name>, Error>;
 type Validation = {
-  validate: (value: HTMLInputElement['value']) => boolean;
+  validate: (
+    value: HTMLInputElement['value'],
+    inputController: InputController
+  ) => boolean;
   validationMessage: HTMLInputElement['validationMessage'];
 };
 type InputAttributes = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
-  'name'
+  'name' | 'onChange' | 'onBlur'
 > &
   Partial<{
     watch: boolean;
+    onChange: (
+      event: React.ChangeEvent<HTMLInputElement>,
+      inputController: InputController
+    ) => ReturnType<React.ChangeEventHandler<HTMLInputElement>>;
+    onBlur: (
+      event: React.FocusEvent<HTMLInputElement>,
+      inputController: InputController
+    ) => ReturnType<React.FocusEventHandler<HTMLInputElement>>;
     patternValidationMessage: HTMLInputElement['validationMessage'];
     customValidations: Validation[];
   }>;
@@ -30,57 +41,52 @@ const useForm = () => {
   const [values, setValues] = useState<Values>({});
   const [errors, setErrors] = useState<Errors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const inputController = useRef<InputController>({});
+  const inputControllerRef = useRef<InputController>({});
   const inputElementList = useRef<HTMLInputElement[]>([]);
-
-  const validateInput = (target: HTMLInputElement) => {
-    const targetInputElement = inputController.current[target.name];
-
-    targetInputElement.checkValidity();
-
-    setErrors((prev) => ({
-      ...prev,
-      [target.name]: targetInputElement.element.validationMessage,
-    }));
-  };
 
   const handleChange =
     (
-      onChange?: React.ChangeEventHandler<HTMLInputElement>
+      inputController: InputController,
+      onChange: InputAttributes['onChange']
     ): React.ChangeEventHandler<HTMLInputElement> =>
     (e) => {
       const { currentTarget } = e;
-      const { name, value } = currentTarget;
 
-      validateInput(currentTarget);
+      inputController[currentTarget.name].checkValidity();
+
       setValues((prev) => ({
         ...prev,
-        [name]: value,
+        [currentTarget.name]: currentTarget.value,
       }));
-      onChange?.(e);
+      onChange?.(e, inputController);
     };
 
   const handleBlur =
     (
-      onBlur?: React.FocusEventHandler<HTMLInputElement>
+      inputController: InputController,
+      onBlur: InputAttributes['onBlur']
     ): React.FocusEventHandler<HTMLInputElement> =>
     (e) => {
       const { currentTarget } = e;
 
-      validateInput(currentTarget);
-      onBlur?.(e);
+      inputController[currentTarget.name].checkValidity();
+      onBlur?.(e, inputController);
     };
 
   const handleSubmit =
     (
-      onValid: React.FormEventHandler<HTMLFormElement>,
-      onError?: React.FormEventHandler<HTMLFormElement>
+      onValid:
+        | React.FormEventHandler<HTMLFormElement>
+        | ((event: React.FormEvent<HTMLFormElement>) => Promise<void>),
+      onError?:
+        | React.FormEventHandler<HTMLFormElement>
+        | ((event: React.FormEvent<HTMLFormElement>) => Promise<void>)
     ): React.FormEventHandler<HTMLFormElement> =>
-    (e) => {
+    async (e) => {
       e.preventDefault();
 
       inputElementList.current.forEach((element) => {
-        validateInput(element);
+        inputControllerRef.current[element.name].checkValidity();
       });
 
       const isValidateComplete =
@@ -93,14 +99,14 @@ const useForm = () => {
 
       try {
         if (isValidateComplete && isValid) {
-          onValid(e);
+          await onValid(e);
 
           return;
         }
 
         throw e;
       } catch (e) {
-        onError?.(e as React.FormEvent<HTMLFormElement>);
+        await onError?.(e as React.FormEvent<HTMLFormElement>);
       } finally {
         setIsSubmitting(false);
       }
@@ -122,7 +128,7 @@ const useForm = () => {
       customValidations: InputAttributes['customValidations']
     ): React.RefCallback<HTMLInputElement> =>
     (element) => {
-      if (!element || inputController.current[element.name]) {
+      if (!element || inputControllerRef.current[element.name]) {
         return;
       }
 
@@ -142,7 +148,10 @@ const useForm = () => {
         customValidations: NonNullable<InputAttributes['customValidations']>
       ) =>
         customValidations.every(({ validate, validationMessage }) => {
-          const customValidationValidity = validate(element.value);
+          const customValidationValidity = validate(
+            element.value,
+            inputControllerRef.current
+          );
 
           element.setCustomValidity(
             customValidationValidity ? '' : validationMessage
@@ -170,10 +179,15 @@ const useForm = () => {
           setInvalidClass();
         }
 
+        setErrors((prev) => ({
+          ...prev,
+          [element.name]: element.validationMessage,
+        }));
+
         return isValid;
       };
 
-      inputController.current[element.name] = {
+      inputControllerRef.current[element.name] = {
         element,
         checkValidity,
       };
@@ -205,13 +219,20 @@ const useForm = () => {
       name,
       defaultValue,
       ref: bindInputElementToRef(patternValidationMessage, customValidations),
-      onChange: handleChange(onChange),
-      onBlur: handleBlur(onBlur),
+      onChange: handleChange(inputControllerRef.current, onChange),
+      onBlur: handleBlur(inputControllerRef.current, onBlur),
       ...attributes,
     };
   };
 
-  return { values, errors, isSubmitting, onSubmit, register };
+  return {
+    values,
+    errors,
+    isSubmitting,
+    inputController: inputControllerRef.current,
+    onSubmit,
+    register,
+  };
 };
 
 export default useForm;
