@@ -104,6 +104,12 @@ const useForm = () => {
           return;
         }
 
+        const firstInvalidInput = inputElementList.current.find(
+          (element) => !element.validity.valid
+        );
+
+        firstInvalidInput?.focus();
+
         throw e;
       } catch (e) {
         await onError?.(e as React.FormEvent<HTMLFormElement>);

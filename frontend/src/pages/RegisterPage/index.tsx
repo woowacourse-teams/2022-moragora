@@ -66,20 +66,9 @@ const RegisterPage = () => {
     await registerMutate(formDataObject);
   };
 
-  const handleError: React.FormEventHandler<HTMLFormElement> = (e) => {
-    const invalidInputs = Array.from(e.currentTarget.elements).filter(
-      (element) => element instanceof HTMLInputElement
-    ) as HTMLInputElement[];
-    const firstInvalidInput = invalidInputs.find(
-      (element) => !element.validity.valid
-    );
-
-    firstInvalidInput?.focus();
-  };
-
   return (
     <S.Layout>
-      <S.Form id="register-form" {...onSubmit(handleSubmit, handleError)}>
+      <S.Form id="register-form" {...onSubmit(handleSubmit)}>
         <S.FieldBox>
           <S.Label>
             이메일
