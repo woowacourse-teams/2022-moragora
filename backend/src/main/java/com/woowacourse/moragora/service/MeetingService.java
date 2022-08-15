@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.EventResponse;
+import com.woowacourse.moragora.dto.MasterRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
@@ -13,6 +14,7 @@ import com.woowacourse.moragora.entity.MeetingAttendances;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.ParticipantAttendances;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
@@ -26,9 +28,11 @@ import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -198,5 +202,30 @@ public class MeetingService {
                 meeting, tardyCount, isLoginUserMaster, isCoffeeTime, isActive,
                 EventResponse.of(event, attendanceOpenTime, attendanceClosedTime)
         );
+    }
+
+    @Transactional
+    public void updateMaster(final Long meetingId, final MasterRequest request, final Long loginId) {
+        meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+
+        final Long participantId = request.getUserId();
+        validateIds(loginId, participantId);
+        userRepository.findById(participantId)
+                .orElseThrow(UserNotFoundException::new);
+
+        final Participant participant = participantRepository.findByMeetingIdAndUserId(meetingId, participantId)
+                .orElseThrow(ParticipantNotFoundException::new);
+        final Participant master = participantRepository.findByMeetingIdAndUserId(meetingId, loginId)
+                .orElseThrow(ParticipantNotFoundException::new);
+
+        participant.updateIsMaster(true);
+        master.updateIsMaster(false);
+    }
+
+    private void validateIds(final Long loginId, final Long participantId) {
+        if (Objects.equals(loginId, participantId)) {
+            throw new ClientRuntimeException("스스로에게 마스터 권한을 넘길 수 없습니다.", HttpStatus.BAD_REQUEST);
+        }
     }
 }
