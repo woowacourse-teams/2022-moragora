@@ -15,7 +15,7 @@ public interface EventRepository extends Repository<Event, Long> {
 
     List<Event> saveAll(final Iterable<Event> events);
 
-    List<Event> findByMeetingIdAndDateLessThanEqual(final Long meetingId, final LocalDate date);
+    long countByMeetingIdAndDateLessThanEqual(final Long meetingId, final LocalDate date);
 
     Optional<Event> findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(final Long meetingId, final LocalDate date);
 
@@ -23,8 +23,6 @@ public interface EventRepository extends Repository<Event, Long> {
 
     @Query("select e from Event e join fetch e.meeting m join fetch m.participants where e.id=:id")
     Optional<Event> findById(@Param("id") final Long id);
-
-    Long countByMeetingIdAndDateGreaterThanEqual(final Long meetingId, final LocalDate date);
 
     List<Event> findByMeetingIdAndDateIn(final Long meetingId, List<LocalDate> dates);
 

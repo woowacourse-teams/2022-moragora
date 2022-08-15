@@ -80,22 +80,16 @@ public class MeetingService {
                 .orElseThrow(ParticipantNotFoundException::new);
 
         final LocalDate today = serverTimeManager.getDate();
-        final List<Event> attendedEvents = eventRepository
-                .findByMeetingIdAndDateLessThanEqual(meetingId, today);
-        final MeetingAttendances meetingAttendances = getMeetingAttendances(meeting, attendedEvents);
+        final MeetingAttendances meetingAttendances = getMeetingAttendances(meeting, today);
 
-        final List<Participant> participants = meeting.getParticipants();
-        final List<ParticipantResponse> participantResponses = participants.stream()
-                .map(it -> generateParticipantResponse(it, meetingAttendances))
-                .collect(Collectors.toList());
-
+        final long attendedEventCount = eventRepository.countByMeetingIdAndDateLessThanEqual(meetingId, today);
         final Optional<Event> event = eventRepository.findByMeetingIdAndDate(meeting.getId(), today);
         final boolean isActive = event.isPresent() && serverTimeManager.isAttendanceOpen(event.get().getStartTime());
 
         return MeetingResponse.from(
-                meeting, attendedEvents.size(), participant.getIsMaster(),
+                meeting, attendedEventCount, participant.getIsMaster(),
                 meetingAttendances.isTardyStackFull(),
-                isActive, participantResponses
+                isActive, collectParticipantResponsesOf(meeting, meetingAttendances)
         );
     }
 
@@ -145,6 +139,14 @@ public class MeetingService {
         }
     }
 
+    private List<ParticipantResponse> collectParticipantResponsesOf(final Meeting meeting,
+                                                                    final MeetingAttendances meetingAttendances) {
+        final List<Participant> participants = meeting.getParticipants();
+        return participants.stream()
+                .map(it -> generateParticipantResponse(it, meetingAttendances))
+                .collect(Collectors.toList());
+    }
+
     private ParticipantResponse generateParticipantResponse(final Participant participant,
                                                             final MeetingAttendances meetingAttendances) {
         final ParticipantAttendances participantAttendances =
@@ -157,14 +159,9 @@ public class MeetingService {
         final Meeting meeting = participant.getMeeting();
         final boolean isLoginUserMaster = participant.getIsMaster();
 
-        final List<Event> attendedEvents = eventRepository
-                .findByMeetingIdAndDateLessThanEqual(meeting.getId(), today);
-        final MeetingAttendances meetingAttendances = getMeetingAttendances(meeting, attendedEvents);
+        final MeetingAttendances meetingAttendances = getMeetingAttendances(meeting, today);
         final boolean isCoffeeTime = meetingAttendances.isTardyStackFull();
-
-        final ParticipantAttendances participantAttendances = meetingAttendances
-                .extractAttendancesByParticipant(participant);
-        final int tardyCount = participantAttendances.countTardy();
+        final int tardyCount = countTardy(participant, meetingAttendances);
 
         final Optional<Event> upcomingEvent = eventRepository
                 .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today);
@@ -184,17 +181,20 @@ public class MeetingService {
         );
     }
 
-    private MeetingAttendances getMeetingAttendances(final Meeting meeting, final List<Event> attendedEvents) {
+    private MeetingAttendances getMeetingAttendances(final Meeting meeting, final LocalDate today) {
         final List<Long> participantIds = meeting.getParticipantIds();
-        final List<Long> attendedEventIds = attendedEvents.stream()
-                .map(Event::getId)
-                .collect(Collectors.toUnmodifiableList());
-        return findAttendancesByMeeting(participantIds, attendedEventIds);
+        return findAttendancesByMeeting(participantIds, today);
     }
 
-    private MeetingAttendances findAttendancesByMeeting(final List<Long> participantIds, final List<Long> attendedEventIds) {
+    private MeetingAttendances findAttendancesByMeeting(final List<Long> participantIds, final LocalDate today) {
         final List<Attendance> foundAttendances = attendanceRepository
-                .findByParticipantIdInAndEventIdIn(participantIds, attendedEventIds);
+                .findByParticipantIdInAndDateLessThanEqual(participantIds, today);
         return new MeetingAttendances(foundAttendances, participantIds.size());
+    }
+
+    private int countTardy(final Participant participant, final MeetingAttendances meetingAttendances) {
+        final ParticipantAttendances participantAttendances = meetingAttendances
+                .extractAttendancesByParticipant(participant);
+        return participantAttendances.countTardy();
     }
 }

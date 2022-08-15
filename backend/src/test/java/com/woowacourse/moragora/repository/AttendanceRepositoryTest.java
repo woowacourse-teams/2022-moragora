@@ -15,6 +15,7 @@ import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.DataSupport;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,9 +59,9 @@ class AttendanceRepositoryTest {
         assertThat(attendance.isPresent()).isTrue();
     }
 
-    @DisplayName("미팅 참가자들의 특정 날짜들의 출석 기록을 조회한다.")
+    @DisplayName("미팅 참가자들의 특정 날짜 이전의 출석 기록을 조회한다.")
     @Test
-    void findByParticipantIdInAndEventIdIn() {
+    void findByParticipantIdInAndDateLessThanEqual() {
         // given
         final User user1 = KUN.create();
         final User user2 = AZPI.create();
@@ -83,11 +84,9 @@ class AttendanceRepositoryTest {
                 .map(Participant::getId)
                 .collect(Collectors.toList());
 
-        final List<Long> eventIds = List.of(event1.getId(), event2.getId());
-
         // when
         final List<Attendance> attendances = attendanceRepository
-                .findByParticipantIdInAndEventIdIn(participantIds, eventIds);
+                .findByParticipantIdInAndDateLessThanEqual(participantIds, LocalDate.of(2022, 8, 2));
 
         // then
         assertThat(attendances).hasSize(2);

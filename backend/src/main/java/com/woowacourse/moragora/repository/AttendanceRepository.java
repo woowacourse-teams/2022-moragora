@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.repository;
 
 import com.woowacourse.moragora.entity.Attendance;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,7 +17,12 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
 
     Optional<Attendance> findByParticipantIdAndEventId(final Long participantId, final Long eventId);
 
-    List<Attendance> findByParticipantIdInAndEventIdIn(final List<Long> participantIds, final List<Long> eventIds);
+    @Query("select a from Attendance a join fetch a.event e "
+            + "where a.participant.id in :participantIds "
+            + "and e.date <= :date ")
+    List<Attendance> findByParticipantIdInAndDateLessThanEqual(
+            @Param("participantIds") final List<Long> participantIds,
+            @Param("date") final LocalDate date);
 
     List<Attendance> findByParticipantIdInAndEventId(final List<Long> participantIds, final Long eventId);
 
