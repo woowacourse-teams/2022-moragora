@@ -7,12 +7,16 @@ import static com.woowacourse.moragora.support.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.UserFixtures.SUN;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
+import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import io.restassured.response.ValidatableResponse;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,10 +39,21 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         final String token = signUpAndGetToken(user1);
         final Meeting meeting = MORAGORA.create();
         final Long meetingId = (long) saveMeeting(token, userIds, meeting);
+        final LocalTime entranceTime = LocalTime.now().minusHours(1);
+        final Event event = Event.builder()
+                .date(LocalDate.now())
+                .entranceTime(entranceTime)
+                .leaveTime(entranceTime.plusHours(1))
+                .meeting(meeting)
+                .build();
 
-        saveEvents(token, List.of(EVENT1.create(meeting)), meetingId);
+        given(serverTimeManager.isAfterAttendanceStartTime(any(LocalTime.class)))
+                .willReturn(false);
         given(serverTimeManager.getDate())
-                .willReturn(EVENT1.getDate());
+                .willReturn(LocalDate.now());
+        given(serverTimeManager.calculateClosingTime(any(LocalTime.class)))
+                .willReturn(entranceTime.plusHours(2));
+        saveEvents(token, List.of(event), meetingId);
 
         // when
         final ValidatableResponse response = get("/meetings/" + meetingId + "/attendances/today", token);
@@ -47,6 +62,39 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.OK.value())
                 .body("users.nickname", containsInAnyOrder(SUN.getNickname(), KUN.getNickname(), FORKY.getNickname()))
                 .body("users.attendanceStatus", containsInAnyOrder("NONE", "NONE", "NONE"));
+    }
+
+    @DisplayName("마감된 오늘의 출석부를 요청하면 NONE이었던 미팅 멤버들이 TARDY로 변경되고 상태코드 200을 반환한다.")
+    @Test
+    void showAttendanceAfterClosedTime() {
+        // given
+        final User user1 = SUN.create();
+        final User user2 = KUN.create();
+        final User user3 = FORKY.create();
+        final List<Long> userIds = saveUsers(List.of(user2, user3));
+        final String token = signUpAndGetToken(user1);
+        final Meeting meeting = MORAGORA.create();
+        final Long meetingId = (long) saveMeeting(token, userIds, meeting);
+        final LocalTime entranceTime = LocalTime.now().minusHours(1);
+        final Event event = Event.builder()
+                .date(LocalDate.now())
+                .entranceTime(entranceTime)
+                .leaveTime(LocalTime.now().plusHours(1))
+                .meeting(meeting)
+                .build();
+        given(serverTimeManager.getDate())
+                .willReturn(LocalDate.now());
+        given(serverTimeManager.calculateClosingTime(any(LocalTime.class)))
+                .willReturn(entranceTime);
+        saveEvents(token, List.of(event), meetingId);
+
+        // when
+        final ValidatableResponse response = get("/meetings/" + meetingId + "/attendances/today", token);
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("users.nickname", containsInAnyOrder(SUN.getNickname(), KUN.getNickname(), FORKY.getNickname()))
+                .body("users.attendanceStatus", containsInAnyOrder("TARDY", "TARDY", "TARDY"));
     }
 
     @DisplayName("오늘의 출석부를 요청할 때 오늘의 이벤트가 없다면 상태코드 400을 반환한다.")
@@ -61,9 +109,14 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         final Meeting meeting = MORAGORA.create();
         final Long meetingId = (long) saveMeeting(token, userIds, meeting);
 
-        saveEvents(token, List.of(EVENT1.create(meeting)), meetingId);
         given(serverTimeManager.getDate())
-                .willReturn(EVENT1.getDate().minusDays(1));
+                .willReturn(EVENT1.getDate());
+        given(serverTimeManager.calculateClosingTime(any(LocalTime.class)))
+                .willReturn(LocalTime.of(10, 30));
+        saveEvents(token, List.of(EVENT1.create(meeting)), meetingId);
+
+        given(serverTimeManager.getDate())
+                .willReturn(EVENT1.getDate().plusDays(1));
 
         // when
         final ValidatableResponse response = get("/meetings/" + meetingId + "/attendances/today", token);

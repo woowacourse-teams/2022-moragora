@@ -4,6 +4,7 @@ import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.AZPI;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.UserFixtures.SUN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.entity.Attendance;
@@ -23,7 +24,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 @Import(DataSupport.class)
-@DataJpaTest
+@DataJpaTest(showSql = false)
 class AttendanceRepositoryTest {
 
     @Autowired
@@ -116,5 +117,25 @@ class AttendanceRepositoryTest {
 
         // then
         assertThat(attendances).hasSize(1);
+    }
+
+    @DisplayName("출석부의 상태가 NONE인 경우, TARDY로 변경한다.")
+    @Test
+    void updateAttendanceToTardy() {
+        // given
+        final User user1 = SUN.create();
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final Participant participant = dataSupport.saveParticipant(user1, meeting);
+        final Event event = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Long attendanceId = dataSupport.saveAttendance(participant, event, Status.NONE).getId();
+
+        // when
+        attendanceRepository.updateAttendanceToTardy(attendanceId);
+        final Optional<Attendance> expected = attendanceRepository
+                .findByParticipantIdAndEventId(participant.getId(), event.getId());
+        assert (expected.isPresent());
+
+        // then
+        assertThat(expected.get().getStatus()).isEqualTo(Status.TARDY);
     }
 }

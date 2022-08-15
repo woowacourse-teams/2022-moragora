@@ -66,4 +66,8 @@ public class Event {
             throw new IllegalEntranceLeaveTimeException();
         }
     }
+
+    public boolean dateAfterOrEqualTo(final LocalDate date) {
+        return this.date.isAfter(date) || this.date.isEqual(date);
+    }
 }
