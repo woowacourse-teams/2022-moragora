@@ -47,10 +47,12 @@ public class EventService {
     public void save(final EventsRequest request, final Long meetingId) {
         final Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(MeetingNotFoundException::new);
-        final List<Event> newEvents = request.toEntities(meeting);
-        final Events events = new Events(eventRepository.findByMeetingId(meetingId));
+        final List<Event> insertedEvents = request.toEntities(meeting);
+        final List<Event> foundEvents = eventRepository.findByMeetingId(meetingId);
+        final Events events = new Events(foundEvents);
 
-        eventRepository.saveAll(events.saveAll(newEvents));
+        final List<Event> newEvents = events.updateAndExtractNewEvents(insertedEvents);
+        eventRepository.saveAll(newEvents);
         saveAllAttendances(meeting.getParticipants(), newEvents);
     }
 

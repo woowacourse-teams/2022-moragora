@@ -51,11 +51,11 @@ public class Meeting {
             return false;
         }
         final Meeting meeting = (Meeting) o;
-        return Objects.equals(id, meeting.id);
+        return Objects.equals(this.id, meeting.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(this.id);
     }
 }

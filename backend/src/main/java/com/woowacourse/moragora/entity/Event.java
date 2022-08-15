@@ -66,6 +66,7 @@ public class Event {
     }
 
     public void changeTime(final LocalTime startTime, final LocalTime endTime) {
+        validateEntranceLeaveTime(startTime, leaveTime);
         entranceTime = startTime;
         leaveTime = endTime;
     }
@@ -74,5 +75,16 @@ public class Event {
         if (entranceTime.isAfter(leaveTime)) {
             throw new IllegalEntranceLeaveTimeException();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "id=" + id +
+                ", date=" + date +
+                ", entranceTime=" + entranceTime +
+                ", leaveTime=" + leaveTime +
+                ", meeting=" + meeting +
+                '}';
     }
 }

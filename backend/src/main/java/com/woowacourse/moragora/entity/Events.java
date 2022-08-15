@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.entity;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.Getter;
@@ -14,24 +15,28 @@ public class Events {
         this.events = events;
     }
 
-    public List<Event> saveAll(final List<Event> newEvents) {
-        for (Event newEvent : newEvents) {
-            save(newEvent);
+    public List<Event> updateAndExtractNewEvents(final List<Event> insertedEvents) {
+        final ArrayList<Event> newEvents = new ArrayList<>();
+        for (Event insertedEvent : insertedEvents) {
+            save(insertedEvent, newEvents);
         }
-
-        return events;
+        System.out.println(newEvents.size());
+        return newEvents;
     }
 
-    public void save(final Event newEvent) {
-        final LocalDate date = newEvent.getDate();
-        final Meeting meeting = newEvent.getMeeting();
+    public void save(final Event insertedEvent, final List<Event> newEvents) {
+        final LocalDate date = insertedEvent.getDate();
+        final Meeting meeting = insertedEvent.getMeeting();
 
         final Optional<Event> sameEvent = events.stream()
                 .filter(event -> event.isSameDate(date) && event.isSameMeeting(meeting))
                 .findAny();
 
-        sameEvent.ifPresent(event -> event.changeTime(newEvent.getEntranceTime(), newEvent.getLeaveTime()));
+        if (sameEvent.isPresent()) {
+            sameEvent.get().changeTime(insertedEvent.getEntranceTime(), insertedEvent.getLeaveTime());
+            return;
+        }
 
-        events.add(newEvent);
+        newEvents.add(insertedEvent);
     }
 }

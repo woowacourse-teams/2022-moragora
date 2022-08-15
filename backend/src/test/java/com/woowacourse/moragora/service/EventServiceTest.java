@@ -14,12 +14,12 @@ import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import java.time.LocalTime;
 import java.util.List;
+import javax.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
@@ -112,7 +112,7 @@ class EventServiceTest {
                 ));
 
         // when, then
-        assertThatCode(() -> eventService.save(eventsRequest, meeting.getId()))
+        assertThatCode(() -> eventService.save(updateEventsRequest, meeting.getId()))
                 .doesNotThrowAnyException();
     }
 }
