@@ -83,6 +83,15 @@ public class AcceptanceTest {
                 .then().log().all();
     }
 
+    protected ValidatableResponse delete(final String uri, final String token) {
+        return RestAssured.given().log().all()
+                .auth().oauth2(token)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when().delete(uri)
+                .then().log().all();
+    }
+
     protected ValidatableResponse delete(final String uri, final Object requestBody, final String token) {
         return RestAssured.given().log().all()
                 .auth().oauth2(token)

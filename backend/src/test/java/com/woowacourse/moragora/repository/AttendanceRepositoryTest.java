@@ -117,4 +117,23 @@ class AttendanceRepositoryTest {
         // then
         assertThat(attendances).hasSize(1);
     }
+
+    @DisplayName("특정 참가자의 출석 데이터를 삭제한다.")
+    @Test
+    void deleteByParticipantId() {
+        // given
+        final User user = KUN.create();
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final Participant participant = dataSupport.saveParticipant(user, meeting);
+        final Event event = eventRepository.save(EVENT1.create(meeting));
+        dataSupport.saveAttendance(participant, event, Status.TARDY);
+
+        // when
+        attendanceRepository.deleteByParticipantId(participant.getId());
+        final List<Attendance> result = attendanceRepository.findByParticipantIdIn(List.of(participant.getId()));
+
+        // then
+        assertThat(result).hasSize(0);
+    }
+
 }

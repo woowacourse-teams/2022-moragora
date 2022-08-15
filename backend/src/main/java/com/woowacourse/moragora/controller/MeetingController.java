@@ -9,6 +9,7 @@ import com.woowacourse.moragora.service.MeetingService;
 import java.net.URI;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,5 +45,11 @@ public class MeetingController {
     public ResponseEntity<MyMeetingsResponse> findMy(@AuthenticationPrincipal final Long loginId) {
         final MyMeetingsResponse meetingsResponse = meetingService.findAllByUserId(loginId);
         return ResponseEntity.ok(meetingsResponse);
+    }
+
+    @DeleteMapping("/{id}/me")
+    public ResponseEntity<Void> deleteMeFrom(@PathVariable final Long id, @AuthenticationPrincipal Long loginId) {
+        meetingService.deleteParticipant(id, loginId);
+        return ResponseEntity.noContent().build();
     }
 }

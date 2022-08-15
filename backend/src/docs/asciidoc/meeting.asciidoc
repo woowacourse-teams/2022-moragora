@@ -56,3 +56,15 @@ include::{snippets}/meeting/find-my-meetings/http-response.adoc[]
 === Response fields
 
 include::{snippets}/meeting/find-my-meetings/response-fields.adoc[]
+
+[[deleteMeFrom]]
+== 미팅 나가기
+
+[[deleteMeFrom-success]]
+=== HTTP request
+
+include::{snippets}/meeting/delete-me/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/meeting/delete-me/http-response.adoc[]

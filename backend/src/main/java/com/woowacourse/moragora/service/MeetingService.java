@@ -13,6 +13,7 @@ import com.woowacourse.moragora.entity.MeetingAttendances;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.ParticipantAttendances;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -198,5 +200,25 @@ public class MeetingService {
                 meeting, tardyCount, isLoginUserMaster, isCoffeeTime, isActive,
                 EventResponse.of(event, attendanceOpenTime, attendanceClosedTime)
         );
+    }
+
+    @Transactional
+    public void deleteParticipant(final long meetingId, final long userId) {
+        meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        final Participant participant = participantRepository.findByMeetingIdAndUserId(meetingId, userId)
+                .orElseThrow(ParticipantNotFoundException::new);
+        validateMaster(participant);
+
+        attendanceRepository.deleteByParticipantId(participant.getId());
+        participantRepository.delete(participant);
+    }
+
+    private void validateMaster(final Participant participant) {
+        if (participant.getIsMaster()) {
+            throw new ClientRuntimeException("마스터는 모임을 나갈 수 없습니다.", HttpStatus.FORBIDDEN);
+        }
     }
 }

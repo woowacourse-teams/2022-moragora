@@ -6,8 +6,12 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -26,17 +30,18 @@ import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -370,5 +375,37 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.meetings[*].isCoffeeTime", contains(false)))
                 .andExpect(jsonPath("$.meetings[*].isActive", contains(true)))
                 .andExpect(jsonPath("$.meetings[*].upcomingEvent", contains(nullValue())));
+    }
+
+    @DisplayName("로그인한 유저가 참가중인 미팅에서 나간다.")
+    @Test
+    void deleteMeFrom() throws Exception {
+        // given
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performDelete("/meetings/1/me");
+
+        // then
+        verify(meetingService, times(1)).deleteParticipant(anyLong(), anyLong());
+        resultActions
+                .andExpect(status().isNoContent())
+                .andDo(document("meeting/delete-me", preprocessResponse(prettyPrint())));
+    }
+
+    @DisplayName("로그인한 유저가 자신이 마스터인 미팅에서 나가면 예외가 발생한다.")
+    @Test
+    void deleteMeFrom_throwsException_ifMaster() throws Exception {
+        // given
+        validateToken("1");
+        doThrow(new ClientRuntimeException("마스터는 모임을 나갈 수 없습니다.", HttpStatus.FORBIDDEN))
+                .when(meetingService).deleteParticipant(anyLong(), anyLong());
+
+        // when
+        final ResultActions resultActions = performDelete("/meetings/1/me");
+
+        // then
+        resultActions
+                .andExpect(status().isForbidden());
     }
 }

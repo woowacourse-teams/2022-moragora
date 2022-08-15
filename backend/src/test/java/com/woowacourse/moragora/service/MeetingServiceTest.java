@@ -8,9 +8,12 @@ import static com.woowacourse.moragora.support.MeetingFixtures.TEATIME;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.PHILLZ;
+import static com.woowacourse.moragora.support.UserFixtures.SUN;
 import static com.woowacourse.moragora.support.UserFixtures.WOODY;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.EventResponse;
@@ -24,7 +27,10 @@ import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
+import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
@@ -469,5 +475,71 @@ class MeetingServiceTest {
         // then
         assertThat(response).usingRecursiveComparison()
                 .isEqualTo(new MyMeetingsResponse(List.of(response1, response2)));
+    }
+
+    @DisplayName("모임의 참가자를 삭제한다.")
+    @Test
+    void deleteParticipant() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final User user = KUN.create();
+        dataSupport.saveParticipant(user, meeting, false);
+
+        // when, then
+        assertThatNoException()
+                .isThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()));
+
+    }
+
+    @DisplayName("존재하지 않는 모임의 참가자를 삭제하면 예외가 발생한다.")
+    @Test
+    void deleteParticipant_ifMeetingNotFound() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final User user = KUN.create();
+        dataSupport.saveParticipant(user, meeting, false);
+
+        // when, then
+        assertThatExceptionOfType(MeetingNotFoundException.class)
+                .isThrownBy(() -> meetingService.deleteParticipant(100L, user.getId()));
+    }
+
+    @DisplayName("존재하지 않는 유저를 모임에서 삭제하면 예외가 발생한다.")
+    @Test
+    void deleteParticipant_ifUserNotFound() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        // when, then
+        assertThatExceptionOfType(UserNotFoundException.class)
+                .isThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), 100L));
+    }
+
+    @DisplayName("모임에 참가하지 않는 유저를 삭제하면 예외가 발생한다.")
+    @Test
+    void deleteParticipant_ifParticipantNotFound() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        dataSupport.saveParticipant(KUN.create(), meeting, false);
+
+        final User user = dataSupport.saveUser(SUN.create());
+
+        // when, then
+        assertThatExceptionOfType(ParticipantNotFoundException.class)
+                .isThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()));
+    }
+
+    @DisplayName("모임의 마스터인 참가자를 삭제하면 예외가 발생한다.")
+    @Test
+    void deleteParticipant_ifMaster() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final User user = KUN.create();
+        dataSupport.saveParticipant(user, meeting, true);
+
+        // when, then
+        assertThatExceptionOfType(ClientRuntimeException.class)
+                .isThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()))
+                .withMessage("마스터는 모임을 나갈 수 없습니다.");
     }
 }

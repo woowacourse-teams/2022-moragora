@@ -142,4 +142,22 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.find{it.id == " + meetingId2 + "}.upcomingEvent", equalTo(null))
         ;
     }
+
+    @DisplayName("로그인한 유저가 자신이 속한 미팅에 대해 나가기를 요청하면 상태코드 204를 반환한다.")
+    @Test
+    void deleteMeFrom() {
+        // given
+        final User user = KUN.create();
+        final Long id = signUp(user);
+        final String token = login(user);
+
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(signUpAndGetToken(MASTER.create()), List.of(id), meeting);
+
+        // when
+        final ValidatableResponse response = delete("/meetings/" + meetingId + "/me", token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
 }

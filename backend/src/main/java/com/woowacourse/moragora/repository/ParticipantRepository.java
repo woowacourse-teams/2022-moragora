@@ -14,4 +14,6 @@ public interface ParticipantRepository extends Repository<Participant, Long> {
     Optional<Participant> findByMeetingIdAndUserId(final Long meetingId, final Long userId);
 
     List<Participant> findByUserId(final Long userId);
+
+    void delete(Participant participant);
 }
