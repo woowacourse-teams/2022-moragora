@@ -1,6 +1,6 @@
 package com.woowacourse.moragora.dto;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -11,7 +11,7 @@ import lombok.ToString;
 public class WithdrawalRequest {
     private static final String MISSING_REQUIRED_INPUT = "필수 입력 값이 누락됐습니다.";
 
-    @NotNull(message = MISSING_REQUIRED_INPUT)
+    @NotBlank(message = MISSING_REQUIRED_INPUT)
     private String password;
 
     public WithdrawalRequest(final String password) {
