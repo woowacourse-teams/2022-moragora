@@ -32,13 +32,13 @@ const MeetingDetailPage = () => {
   return (
     <S.Layout>
       <S.TabNav>
-        <S.Tab to={`coffee-stack`} ref={bindTabRef(`coffee-stack`)}>
+        <S.Tab to={'coffee-stack'} ref={bindTabRef('coffee-stack')}>
           커피스택
         </S.Tab>
-        <S.Tab to={`event-create`} ref={bindTabRef(`event-create`)}>
+        <S.Tab to={'event-create'} ref={bindTabRef('event-create')}>
           일정
         </S.Tab>
-        <S.Tab to={`config`} ref={bindTabRef(`config`)}>
+        <S.Tab to={'config'} ref={bindTabRef('config')}>
           설정
         </S.Tab>
         <S.Indicator tabPositions={tabPositionMap()}>
