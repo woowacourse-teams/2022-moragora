@@ -19,4 +19,6 @@ public interface UserRepository extends Repository<User, Long> {
 
     @Query("select u from User u where u.nickname like %:keyword% or u.email like %:keyword%")
     List<User> findByNicknameOrEmailLike(@Param("keyword") final String keyword);
+
+    void delete(final User user);
 }

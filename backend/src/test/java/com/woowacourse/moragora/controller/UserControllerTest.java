@@ -3,7 +3,11 @@ package com.woowacourse.moragora.controller;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -19,6 +23,8 @@ import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
+import com.woowacourse.moragora.dto.WithdrawalRequest;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.NoParameterException;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -27,6 +33,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -222,5 +229,42 @@ public class UserControllerTest extends ControllerTest {
                                 fieldWithPath("nickname").type(JsonFieldType.STRING).description("foo")
                         )
                 ));
+    }
+
+    @DisplayName("로그인한 회원을 탈퇴시킨다.")
+    @Test
+    void deleteMe() throws Exception {
+        // given
+        final WithdrawalRequest withdrawalRequest = new WithdrawalRequest("1234asdf!");
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performDelete("/users/me", withdrawalRequest);
+
+        // then
+        verify(userService, times(1)).delete(any(WithdrawalRequest.class), anyLong());
+        resultActions.andExpect(status().isNoContent())
+                .andDo(document("user/delete-me",
+                        preprocessResponse(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("password").type(JsonFieldType.STRING).description("1234asdf!")
+                        )
+                ));
+    }
+
+    @DisplayName("로그인한 회원이 마스터인 모임이 있으면 예외가 발생한다.")
+    @Test
+    void deleteMe_throwsException_ifMaster() throws Exception {
+        // given
+        final WithdrawalRequest withdrawalRequest = new WithdrawalRequest("1234asdf!");
+        validateToken("1");
+
+        doThrow(new ClientRuntimeException("마스터로 참여중인 모임이 있어 탈퇴할 수 없습니다.", HttpStatus.FORBIDDEN))
+                .when(userService).delete(any(WithdrawalRequest.class), anyLong());
+        // when
+        final ResultActions resultActions = performDelete("/users/me", withdrawalRequest);
+
+        // then
+        resultActions.andExpect(status().isForbidden());
     }
 }

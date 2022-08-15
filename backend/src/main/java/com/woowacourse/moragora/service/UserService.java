@@ -1,16 +1,24 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.auth.exception.AuthorizationFailureException;
 import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
+import com.woowacourse.moragora.dto.WithdrawalRequest;
+import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
+import com.woowacourse.moragora.entity.user.RawPassword;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
+import com.woowacourse.moragora.repository.AttendanceRepository;
+import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +27,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ParticipantRepository participantRepository;
+    private final AttendanceRepository attendanceRepository;
 
-    public UserService(final UserRepository userRepository) {
+    public UserService(final UserRepository userRepository,
+                       final ParticipantRepository participantRepository,
+                       final AttendanceRepository attendanceRepository) {
         this.userRepository = userRepository;
+        this.participantRepository = participantRepository;
+        this.attendanceRepository = attendanceRepository;
     }
 
     public Long create(final UserRequest userRequest) {
@@ -58,5 +72,38 @@ public class UserService {
         final User user = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
         return UserResponse.from(user);
+    }
+
+    @Transactional
+    public void delete(final WithdrawalRequest request, final Long id) {
+        final User user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+        validateOldPassword(user, request.getPassword());
+        final List<Participant> participants = participantRepository.findByUserId(id);
+        validateMaster(participants);
+
+        final List<Long> participantIds = participants.stream()
+                .map(Participant::getId)
+                .collect(Collectors.toUnmodifiableList());
+        attendanceRepository.deleteByParticipantIdIn(participantIds);
+        participantRepository.deleteByIdIn(participantIds);
+        userRepository.delete(user);
+    }
+
+    private void validateOldPassword(final User user, final String oldPassword) {
+        try {
+            user.checkPassword(new RawPassword(oldPassword));
+        } catch (AuthorizationFailureException e) {
+            // TODO: InvalidPasswordException으로 교체
+            throw new ClientRuntimeException("비밀번호가 올바르지 않습니다.", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void validateMaster(final List<Participant> participants) {
+        final boolean isMaster = participants.stream()
+                .anyMatch(Participant::getIsMaster);
+        if (isMaster) {
+            throw new ClientRuntimeException("마스터로 참여중인 모임이 있어 탈퇴할 수 없습니다.", HttpStatus.FORBIDDEN);
+        }
     }
 }

@@ -73,3 +73,18 @@ include::{snippets}/user/find-my-info/http-response.adoc[]
 
 include::{snippets}/user/find-my-info/response-fields.adoc[]
 
+[[deleteMe]]
+== 회원 탈퇴
+
+[[deleteMe-success]]
+=== HTTP request
+
+include::{snippets}/user/delete-me/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/user/delete-me/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/user/delete-me/request-fields.adoc[]

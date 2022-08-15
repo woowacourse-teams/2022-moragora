@@ -1,11 +1,15 @@
 package com.woowacourse.moragora.acceptance;
 
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 import com.woowacourse.moragora.dto.UserRequest;
+import com.woowacourse.moragora.dto.WithdrawalRequest;
+import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
 import io.restassured.response.ValidatableResponse;
 import java.util.List;
@@ -94,9 +98,11 @@ class UserAcceptanceTest extends AcceptanceTest {
     @DisplayName("로그인 한 상태에서 자신의 회원정보를 요청하면 회원정보와 상태코드 200을 반환받는다.")
     @Test
     void findMe() {
-        // given, when
+        // given
         final User user = MASTER.create();
         final Long id = signUp(user);
+
+        // when
         ValidatableResponse response = get("/users/me", login(user));
 
         // then
@@ -104,5 +110,57 @@ class UserAcceptanceTest extends AcceptanceTest {
                 .body("id", equalTo(id.intValue()))
                 .body("email", equalTo(user.getEmail()))
                 .body("nickname", equalTo(user.getNickname()));
+    }
+
+    @DisplayName("로그인 한 상태에서 회원 탈퇴를 요청하면 상태코드 204를 반환받는다.")
+    @Test
+    void deleteMe() {
+        // given
+        final User user = KUN.create();
+        final String token = signUpAndGetToken(user);
+        final WithdrawalRequest request = new WithdrawalRequest("1234asdf!");
+
+        // when
+        ValidatableResponse response = delete("/users/me", request, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("로그인 한 상태에서 잘못된 비밀번호로 회원 탈퇴를 요청하면 상태코드 400을 반환받는다.")
+    @Test
+    void deleteMe_ifWrongPassword() {
+        // given
+        final User user = KUN.create();
+        final String token = signUpAndGetToken(user);
+        final WithdrawalRequest request = new WithdrawalRequest("1234wrong!");
+
+        // when
+        ValidatableResponse response = delete("/users/me", request, token);
+
+        // then
+        response.statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @DisplayName("마스터인 모임이 있는 상태에서 회원 탈퇴를 요청하면 상태코드 403을 반환받는다.")
+    @Test
+    void deleteMe_ifMaster() {
+        // given
+        final User master = MASTER.create();
+        final String token = signUpAndGetToken(master);
+
+        final List<User> users = createUsers();
+        final List<Long> userIds = saveUsers(users);
+        final Meeting meeting = MORAGORA.create();
+        saveMeeting(token, userIds, meeting);
+
+        final WithdrawalRequest request = new WithdrawalRequest("1234asdf!");
+
+        // when
+        ValidatableResponse response = delete("/users/me", request, token);
+
+        // then
+        response.statusCode(HttpStatus.FORBIDDEN.value())
+                .body("message", equalTo("마스터로 참여중인 모임이 있어 탈퇴할 수 없습니다."));
     }
 }

@@ -1,16 +1,23 @@
 package com.woowacourse.moragora.service;
 
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
+import com.woowacourse.moragora.dto.WithdrawalRequest;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
+import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +34,9 @@ class UserServiceTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private DataSupport dataSupport;
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
@@ -139,5 +149,55 @@ class UserServiceTest {
         // given, when, then
         assertThatThrownBy(() -> userService.findById(0L))
                 .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @DisplayName("회원의 정보를 삭제한다.")
+    @Test
+    void delete() {
+        // given
+        final User user = dataSupport.saveUser(KUN.create());
+        final WithdrawalRequest request = new WithdrawalRequest("1234asdf!");
+
+        // when, then
+        assertThatNoException().isThrownBy(() -> userService.delete(request, user.getId()));
+    }
+
+    @DisplayName("존재하지 않는 회원을 탈퇴시키면 예외가 발생한다.")
+    @Test
+    void delete_throwsException_ifUserNotFound() {
+        // given
+        final WithdrawalRequest request = new WithdrawalRequest("1234asdf!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.delete(request, 100L))
+                .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @DisplayName("잘못된 비밀번호로 탈퇴하면 예외가 발생한다.")
+    @Test
+    void delete_throwsException_ifWrongPassword() {
+        // given
+        final User user = dataSupport.saveUser(KUN.create());
+        final WithdrawalRequest request = new WithdrawalRequest("1234wrong!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.delete(request, user.getId()))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("비밀번호가 올바르지 않습니다.");
+    }
+
+    @DisplayName("모임의 마스터인 회원이 탈퇴하면 예외가 발생한다.")
+    @Test
+    void delete_throwsException_ifMaster() {
+        // given
+        final User master = MASTER.create();
+        dataSupport.saveParticipant(master, MORAGORA.create(), true);
+
+        final WithdrawalRequest request = new WithdrawalRequest("1234asdf!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.delete(request, master.getId()))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("마스터로 참여중인 모임이 있어 탈퇴할 수 없습니다.");
     }
 }

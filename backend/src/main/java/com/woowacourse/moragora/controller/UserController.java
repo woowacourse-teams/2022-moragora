@@ -6,10 +6,12 @@ import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
+import com.woowacourse.moragora.dto.WithdrawalRequest;
 import com.woowacourse.moragora.service.UserService;
 import java.net.URI;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,5 +52,12 @@ public class UserController {
     public ResponseEntity<UserResponse> findMyInfo(@AuthenticationPrincipal final Long id) {
         UserResponse response = userService.findById(id);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMe(@RequestBody @Valid final WithdrawalRequest withdrawalRequest,
+                                         @AuthenticationPrincipal final Long id) {
+        userService.delete(withdrawalRequest, id);
+        return ResponseEntity.noContent().build();
     }
 }
