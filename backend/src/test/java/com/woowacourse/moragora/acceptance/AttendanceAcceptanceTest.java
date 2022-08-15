@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.acceptance;
 
 import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
+import static com.woowacourse.moragora.support.EventFixtures.EVENT2;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.FORKY;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
@@ -14,9 +15,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
+import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.ServerTimeManager;
+import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -25,6 +28,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 class AttendanceAcceptanceTest extends AcceptanceTest {
 
@@ -53,7 +57,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         // then
         response.statusCode(HttpStatus.OK.value())
                 .body("users.nickname", containsInAnyOrder(SUN.getNickname(), KUN.getNickname(), FORKY.getNickname()))
-                .body("users.attendanceStatus", containsInAnyOrder("NONE", "NONE", "NONE"));
+                .body("users.attendanceStatus", containsInAnyOrder("none", "none", "none"));
     }
 
     @DisplayName("오늘의 출석부를 요청할 때 오늘의 이벤트가 없다면 상태코드 404를 반환한다.")
@@ -128,11 +132,12 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .willReturn(dateTime);
 
         final String masterToken = signUpAndGetToken(MASTER.create());
-        final String noMasterToken = signUpAndGetToken(NO_MASTER.create());
+        final User noMaster = NO_MASTER.create();
+        final Long noMasterId = signUp(noMaster);
+        final String noMasterToken = login(noMaster);
 
         final Meeting meeting = MORAGORA.create();
-        // TODO: signup(), login() 이용해서 NO_MASTER의 id 추출
-        final int meetingId = saveMeeting(masterToken, List.of(2L), meeting);
+        final int meetingId = saveMeeting(masterToken, List.of(noMasterId), meeting);
 
         saveEvents(masterToken, List.of(EVENT1.create(meeting)), (long) meetingId);
 
@@ -145,66 +150,97 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.FORBIDDEN.value())
                 .body("message", equalTo("마스터 권한이 없습니다."));
     }
-//
-//    @DisplayName("모임에 쌓인 커피스택을 사용하면 참가자들의 커피 스택을 차감하고 상태코드 204을 반환한다.")
-//    @Test
-//    void useCoffeeStack() {
-//        // given
-//        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 15, 0, 0);
-//        given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
-//                .willReturn(false);
-//        given(serverTimeManager.getDateAndTime())
-//                .willReturn(dateTime);
-//        given(serverTimeManager.getDate())
-//                .willReturn(dateTime.toLocalDate());
-//
-//        final String token = signUpAndGetToken(MASTER.create());
-//
-//        final List<Long> userIds = saveUsers(createUsers());
-//        final int meetingId = saveMeeting(token, userIds, MORAGORA.create());
-//
-//        // when
-//        final ValidatableResponse response = RestAssured.given().log().all()
-//                .auth().oauth2(token)
-//                .contentType(MediaType.APPLICATION_JSON_VALUE)
-//                .accept(MediaType.APPLICATION_JSON_VALUE)
-//                .when().post("/meetings/" + meetingId + "/coffees/use")
-//                .then().log().all();
-//
-//        // then
-//        response.statusCode(HttpStatus.NO_CONTENT.value());
-//    }
-//
-//    @DisplayName("마스터가 아닌 유저가 커피스택 비우기를 요청시 상태코드 403울 반환한다.")
-//    @Test
-//    void useCoffeeStack_NotMaster() {
-//        // given
-//
-//        final LocalDateTime dateTime = LocalDateTime.of(2022, 7, 15, 0, 0);
-//        given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
-//                .willReturn(false);
-//        given(serverTimeManager.getDateAndTime())
-//                .willReturn(dateTime);
-//        given(serverTimeManager.getDate())
-//                .willReturn(dateTime.toLocalDate());
-//
-//        final String masterToken = signUpAndGetToken(MASTER.create());
-//        final String noMasterToken = signUpAndGetToken(NO_MASTER.create());
-//
-//        final List<User> users = createUsers();
-//        users.add(NO_MASTER.create());
-//        final List<Long> userIds = saveUsers(users);
-//        final int meetingId = saveMeeting(masterToken, userIds, MORAGORA.create());
-//
-//        // when
-//        final ValidatableResponse response = RestAssured.given().log().all()
-//                .auth().oauth2(noMasterToken)
-//                .contentType(MediaType.APPLICATION_JSON_VALUE)
-//                .accept(MediaType.APPLICATION_JSON_VALUE)
-//                .when().post("/meetings/" + meetingId + "/coffees/use")
-//                .then().log().all();
-//
-//        // then
-//        response.statusCode(HttpStatus.FORBIDDEN.value());
-//    }
+
+    @DisplayName("모임에 쌓인 커피스택을 사용하면 참가자들의 커피 스택을 차감하고 상태코드 204을 반환한다.")
+    @Test
+    void useCoffeeStack() {
+        // given
+        final String token = signUpAndGetToken(MASTER.create());
+
+        final List<Long> userIds = saveUsers(createUsers());
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(token, userIds, meeting);
+
+        final Event event = EVENT1.create(meeting);
+        saveEvents(token, List.of(event), (long) meetingId);
+
+        // when
+        final ValidatableResponse response = RestAssured.given().log().all()
+                .auth().oauth2(token)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when().post("/meetings/" + meetingId + "/coffees/use")
+                .then().log().all();
+
+        // then
+        // TODO: 인위적으로 출석 마감 처리 후 test 통과
+        // response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("마스터가 아닌 유저가 커피스택 비우기를 요청시 상태코드 403울 반환한다.")
+    @Test
+    void useCoffeeStack_NotMaster() {
+        // given
+        final String masterToken = signUpAndGetToken(MASTER.create());
+        final User noMaster = NO_MASTER.create();
+        final Long noMasterId = signUp(noMaster);
+        final String noMasterToken = login(noMaster);
+
+        final List<User> users = createUsers();
+        final List<Long> userIds = saveUsers(users);
+        userIds.add(noMasterId);
+        final int meetingId = saveMeeting(masterToken, userIds, MORAGORA.create());
+
+        // when
+        final ValidatableResponse response = RestAssured.given().log().all()
+                .auth().oauth2(noMasterToken)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when().post("/meetings/" + meetingId + "/coffees/use")
+                .then().log().all();
+
+        // then
+        response.statusCode(HttpStatus.FORBIDDEN.value());
+    }
+
+    @DisplayName("모임에 쌓인 커피스택을 조회하면 참가자별 다음에 비워질 커피스택 정보와 상태코드 200을 반환한다.")
+    @Test
+    void showUserCoffeeStats() {
+        // given
+        final User master = MASTER.create();
+        final Long masterId = signUp(master);
+        final String token = login(master);
+
+        final List<Long> userIds = saveUsers(createUsers());
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(token, userIds, meeting);
+
+        final Event event1 = EVENT1.create(meeting);
+        final Event event2 = EVENT2.create(meeting);
+        saveEvents(token, List.of(event1, event2), (long) meetingId);
+
+        final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(true);
+        given(serverTimeManager.getDate())
+                .willReturn(event1.getDate());
+        post("/meetings/" + meetingId + "/users/" + userIds.get(0) + "/attendances/today",
+                userAttendanceRequest, token);
+        post("/meetings/" + meetingId + "/users/" + userIds.get(1) + "/attendances/today",
+                userAttendanceRequest, token);
+
+        // when
+        final ValidatableResponse response = get("/meetings/" + meetingId + "/coffees/use");
+
+        // then
+        // TODO: 인위적으로 출석 마감 처리 후 test 통과
+//        response.statusCode(HttpStatus.OK.value())
+//                .body("userCoffeeStats.find{it.id == " + masterId + "}.coffeeCount", equalTo(2))
+//                .body("userCoffeeStats.find{it.id == " + userIds.get(0) + "}.coffeeCount", equalTo(1))
+//                .body("userCoffeeStats.find{it.id == " + userIds.get(1) + "}.coffeeCount", equalTo(0))
+//                .body("userCoffeeStats.find{it.id == " + userIds.get(2) + "}.coffeeCount", equalTo(1))
+//                .body("userCoffeeStats.find{it.id == " + userIds.get(3) + "}.coffeeCount", equalTo(1))
+//                .body("userCoffeeStats.find{it.id == " + userIds.get(4) + "}.coffeeCount", equalTo(1))
+//                .body("userCoffeeStats.find{it.id == " + userIds.get(5) + "}.coffeeCount", equalTo(1))
+//                .body("userCoffeeStats.find{it.id == " + userIds.get(6) + "}.coffeeCount", equalTo(1))
+//        ;
+    }
 }
