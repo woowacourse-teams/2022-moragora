@@ -1,13 +1,13 @@
 import { useContext } from 'react';
 import Router from 'router';
 import * as S from './App.styled';
+import AppLayout from 'components/layouts/AppLayout';
 import Header from 'components/layouts/Header';
 import Spinner from 'components/@shared/Spinner';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { CalendarProvider } from 'contexts/calendarContext';
 import useQuery from 'hooks/useQuery';
 import { getLoginUserDataApi } from 'apis/userApis';
-import AppLayout from 'components/layouts/AppLayout';
 
 const App = () => {
   const { login, accessToken } = useContext(userContext) as UserContextValues;
