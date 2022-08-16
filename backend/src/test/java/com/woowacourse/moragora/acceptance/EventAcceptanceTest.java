@@ -228,7 +228,7 @@ class EventAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("모든 이벤트를 조회한다.")
     @Test
-    void inquireByDuration_all() {
+    void showByDuration_all() {
         // given
         final User user1 = KUN.create();
         final User user2 = AZPI.create();
@@ -278,7 +278,7 @@ class EventAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("특정 날짜 이후의 일정을 조회한다.")
     @Test
-    void inquireByDuration_isGreaterThanEqualBegin() {
+    void showByDuration_isGreaterThanEqualBegin() {
         // given
         final User user1 = KUN.create();
         final User user2 = AZPI.create();
@@ -335,7 +335,7 @@ class EventAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("특정 날짜 이전의 일정을 조회한다.")
     @Test
-    void inquireByDuration_isLessThanEqualEnd() {
+    void showByDuration_isLessThanEqualEnd() {
         // given
         final User user1 = KUN.create();
         final User user2 = AZPI.create();
@@ -392,7 +392,7 @@ class EventAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("특정 기간의 일정을 조회한다.")
     @Test
-    void find_inDuration() {
+    void showByDuration_isGreaterThanEqualBeginIsLessThanEqualEnd() {
         // given
         final User user1 = KUN.create();
         final User user2 = AZPI.create();

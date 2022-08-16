@@ -155,7 +155,7 @@ class EventControllerTest extends ControllerTest {
 
     @DisplayName("전체 일정을 조회한다.")
     @Test
-    void find_all() throws Exception {
+    void showByDuration_all() throws Exception {
         // given
         final LocalTime entranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
@@ -180,7 +180,7 @@ class EventControllerTest extends ControllerTest {
                 )
         ));
         validateToken("1");
-        given(eventService.inquireByDuration(anyLong(), nullable(LocalDate.class), nullable(LocalDate.class)))
+        given(eventService.findByDuration(anyLong(), nullable(LocalDate.class), nullable(LocalDate.class)))
                 .willReturn(eventsResponse);
 
         // when
@@ -217,7 +217,7 @@ class EventControllerTest extends ControllerTest {
 
     @DisplayName("특정 날짜 이후의 일정을 조회한다.")
     @Test
-    void find_isGreaterThanEqualBegin() throws Exception {
+    void showByDuration_isGreaterThanEqualBegin() throws Exception {
         // given
         final LocalTime entranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
@@ -236,7 +236,7 @@ class EventControllerTest extends ControllerTest {
                 )
         ));
         validateToken("1");
-        given(eventService.inquireByDuration(anyLong(), nullable(LocalDate.class), nullable(LocalDate.class)))
+        given(eventService.findByDuration(anyLong(), nullable(LocalDate.class), nullable(LocalDate.class)))
                 .willReturn(eventsResponse);
 
         // when
@@ -273,7 +273,7 @@ class EventControllerTest extends ControllerTest {
 
     @DisplayName("특정 날짜 이전의 일정을 조회한다.")
     @Test
-    void find_isLessThanEqualEnd() throws Exception {
+    void showByDuration_isLessThanEqualEnd() throws Exception {
         // given
         final LocalTime entranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
@@ -292,7 +292,7 @@ class EventControllerTest extends ControllerTest {
                 )
         ));
         validateToken("1");
-        given(eventService.inquireByDuration(anyLong(), nullable(LocalDate.class), nullable(LocalDate.class)))
+        given(eventService.findByDuration(anyLong(), nullable(LocalDate.class), nullable(LocalDate.class)))
                 .willReturn(eventsResponse);
 
         // when
@@ -329,7 +329,7 @@ class EventControllerTest extends ControllerTest {
 
     @DisplayName("특정 기간의 일정을 조회한다.")
     @Test
-    void find_inDuration() throws Exception {
+    void showByDuration_isGreaterThanEqualBeginIsLessThanEqualEnd() throws Exception {
         // given
         final LocalTime entranceTime = LocalTime.of(10, 0);
         final LocalTime leaveTime = LocalTime.of(18, 0);
@@ -342,7 +342,7 @@ class EventControllerTest extends ControllerTest {
                 )
         ));
         validateToken("1");
-        given(eventService.inquireByDuration(anyLong(), nullable(LocalDate.class), nullable(LocalDate.class)))
+        given(eventService.findByDuration(anyLong(), nullable(LocalDate.class), nullable(LocalDate.class)))
                 .willReturn(eventsResponse);
 
         // when

@@ -15,8 +15,8 @@ import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.EventsResponse;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
+import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import com.woowacourse.moragora.support.ServerTimeManager;
@@ -162,7 +162,7 @@ class EventServiceTest {
 
     @DisplayName("모임 일정 전체를 조회한다.")
     @Test
-    void find_all() {
+    void findByDuration_all() {
         // given
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
 
@@ -189,7 +189,7 @@ class EventServiceTest {
         ));
 
         // when
-        final EventsResponse response = eventService.inquireByDuration(meeting.getId(), null, null);
+        final EventsResponse response = eventService.findByDuration(meeting.getId(), null, null);
 
         // then
         assertThat(response).usingRecursiveComparison()
@@ -198,7 +198,7 @@ class EventServiceTest {
 
     @DisplayName("특정 일정 이후의 일정을 조회한다.")
     @Test
-    void find_isGreaterThanEqualBegin() {
+    void findByDuration_isGreaterThanEqualBegin() {
         // given
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
 
@@ -226,7 +226,7 @@ class EventServiceTest {
         ));
 
         // when
-        final EventsResponse response = eventService.inquireByDuration(meeting.getId(), event2.getDate(), null);
+        final EventsResponse response = eventService.findByDuration(meeting.getId(), event2.getDate(), null);
 
         // then
         assertThat(response).usingRecursiveComparison()
@@ -235,7 +235,7 @@ class EventServiceTest {
 
     @DisplayName("특정 일정 이전의 일정을 조회한다.")
     @Test
-    void find_isLessThanEqualEnd() {
+    void findByDuration_isLessThanEqualEnd() {
         // given
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
 
@@ -263,7 +263,7 @@ class EventServiceTest {
         ));
 
         // when
-        final EventsResponse response = eventService.inquireByDuration(meeting.getId(), null, event2.getDate());
+        final EventsResponse response = eventService.findByDuration(meeting.getId(), null, event2.getDate());
 
         // then
         assertThat(response).usingRecursiveComparison()
@@ -272,7 +272,7 @@ class EventServiceTest {
 
     @DisplayName("특정 기간 안의 일정을 조회한다.")
     @Test
-    void find_inDuration() {
+    void findByDuration_inDuration() {
         // given
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
 
@@ -293,7 +293,7 @@ class EventServiceTest {
 
         // when
         final EventsResponse response = eventService
-                .inquireByDuration(meeting.getId(), event2.getDate(), event2.getDate());
+                .findByDuration(meeting.getId(), event2.getDate(), event2.getDate());
 
         // then
         assertThat(response).usingRecursiveComparison()

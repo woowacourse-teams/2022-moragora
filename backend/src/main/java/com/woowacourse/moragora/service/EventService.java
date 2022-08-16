@@ -101,7 +101,7 @@ public class EventService {
         return EventResponse.of(event, attendanceOpenTime, attendanceClosedTime);
     }
 
-    public EventsResponse inquireByDuration(final Long meetingId, final LocalDate begin, final LocalDate end) {
+    public EventsResponse findByDuration(final Long meetingId, final LocalDate begin, final LocalDate end) {
         List<Event> events = eventRepository.findByMeetingIdAndDuration(meetingId, begin, end);
         final List<EventResponse> eventResponses = events.stream()
                 .map(event -> new EventResponse(
