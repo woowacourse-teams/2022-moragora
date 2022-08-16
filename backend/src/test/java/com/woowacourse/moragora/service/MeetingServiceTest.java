@@ -12,8 +12,6 @@ import static com.woowacourse.moragora.support.UserFixtures.SUN;
 import static com.woowacourse.moragora.support.UserFixtures.WOODY;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.EventResponse;
@@ -486,9 +484,8 @@ class MeetingServiceTest {
         dataSupport.saveParticipant(user, meeting, false);
 
         // when, then
-        assertThatNoException()
-                .isThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()));
-
+        assertThatThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()))
+                .doesNotThrowAnyException();
     }
 
     @DisplayName("존재하지 않는 모임의 참가자를 삭제하면 예외가 발생한다.")
@@ -500,8 +497,8 @@ class MeetingServiceTest {
         dataSupport.saveParticipant(user, meeting, false);
 
         // when, then
-        assertThatExceptionOfType(MeetingNotFoundException.class)
-                .isThrownBy(() -> meetingService.deleteParticipant(100L, user.getId()));
+        assertThatThrownBy(() -> meetingService.deleteParticipant(100L, user.getId()))
+                .isInstanceOf(MeetingNotFoundException.class);
     }
 
     @DisplayName("존재하지 않는 유저를 모임에서 삭제하면 예외가 발생한다.")
@@ -511,8 +508,8 @@ class MeetingServiceTest {
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
 
         // when, then
-        assertThatExceptionOfType(UserNotFoundException.class)
-                .isThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), 100L));
+        assertThatThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), 100L))
+                .isInstanceOf(UserNotFoundException.class);
     }
 
     @DisplayName("모임에 참가하지 않는 유저를 삭제하면 예외가 발생한다.")
@@ -525,8 +522,8 @@ class MeetingServiceTest {
         final User user = dataSupport.saveUser(SUN.create());
 
         // when, then
-        assertThatExceptionOfType(ParticipantNotFoundException.class)
-                .isThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()));
+        assertThatThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()))
+                .isInstanceOf(ParticipantNotFoundException.class);
     }
 
     @DisplayName("모임의 마스터인 참가자를 삭제하면 예외가 발생한다.")
@@ -538,8 +535,8 @@ class MeetingServiceTest {
         dataSupport.saveParticipant(user, meeting, true);
 
         // when, then
-        assertThatExceptionOfType(ClientRuntimeException.class)
-                .isThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()))
-                .withMessage("마스터는 모임을 나갈 수 없습니다.");
+        assertThatThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("마스터는 모임을 나갈 수 없습니다.");
     }
 }

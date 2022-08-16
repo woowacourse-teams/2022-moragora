@@ -390,7 +390,7 @@ class MeetingControllerTest extends ControllerTest {
         verify(meetingService, times(1)).deleteParticipant(anyLong(), anyLong());
         resultActions
                 .andExpect(status().isNoContent())
-                .andDo(document("meeting/delete-me", preprocessResponse(prettyPrint())));
+                .andDo(document("meeting/delete-me"));
     }
 
     @DisplayName("로그인한 유저가 자신이 마스터인 미팅에서 나가면 예외가 발생한다.")
