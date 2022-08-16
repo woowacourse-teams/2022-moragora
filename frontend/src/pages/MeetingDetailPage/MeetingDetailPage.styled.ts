@@ -11,6 +11,15 @@ export const Layout = styled.div`
   overflow: scroll;
 `;
 
+export const TabNavBox = styled.div`
+  position: fixed;
+  width: 100%;
+  height: 3rem;
+  background-color: ${({ theme: { colors } }) => colors['surface']};
+  box-shadow: 0 0.1rem 0.1rem ${({ theme: { colors } }) => colors['background']};
+  z-index: 10;
+`;
+
 export const TabNav = styled.nav`
   position: relative;
   display: flex;
@@ -55,6 +64,7 @@ export const IndicatorBox = styled.div<{ tabPositions: TabPosition[] }>`
 
 export const MainBox = styled.div`
   display: flex;
+  padding-top: 3rem;
   flex-direction: column;
   flex: 1;
 `;
