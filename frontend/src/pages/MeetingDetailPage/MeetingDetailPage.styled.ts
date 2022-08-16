@@ -36,7 +36,7 @@ export const IndicatorBox = styled.div<{ tabPositions: TabPosition[] }>`
   display: flex;
   justify-content: center;
 
-  transition: all 250ms cubic-bezier(0, 0.5, 0.5, 1.1);
+  transition: all 300ms linear;
 
   ${({ tabPositions }) =>
     tabPositions.length > 0 &&
