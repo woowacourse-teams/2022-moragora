@@ -9,7 +9,7 @@ build/
 /logs/
 
 ### Submodule ###
-/src/main/resources/config/
+#/src/main/resources/config/
 
 ### STS ###
 .apt_generated
