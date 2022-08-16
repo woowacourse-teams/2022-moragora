@@ -20,9 +20,8 @@ import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import io.restassured.response.ValidatableResponse;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -58,7 +57,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .willReturn(false);
         given(serverTimeManager.getDate())
                 .willReturn(LocalDate.now());
-        given(serverTimeManager.calculateClosedTime(any(LocalTime.class)))
+        given(serverTimeManager.calculateAttendanceCloseTime(any(LocalTime.class)))
                 .willReturn(startTime.plusHours(2));
         saveEvents(token, List.of(event), meetingId);
 
@@ -82,17 +81,17 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         final String token = signUpAndGetToken(user1);
         final Meeting meeting = MORAGORA.create();
         final Long meetingId = (long) saveMeeting(token, userIds, meeting);
-        final LocalTime startTime = LocalTime.now().minusHours(1);
+        final LocalDateTime dateTime = LocalDate.now().atTime(10, 0);
         final Event event = Event.builder()
                 .date(LocalDate.now())
-                .startTime(startTime)
-                .endTime(LocalTime.now().plusHours(1))
+                .startTime(dateTime.toLocalTime())
+                .endTime(dateTime.toLocalTime().plusHours(8))
                 .meeting(meeting)
                 .build();
         given(serverTimeManager.getDate())
-                .willReturn(LocalDate.now());
-        given(serverTimeManager.calculateClosedTime(any(LocalTime.class)))
-                .willReturn(startTime);
+                .willReturn(dateTime.toLocalDate());
+        given(serverTimeManager.calculateAttendanceCloseTime(any(LocalTime.class)))
+                .willReturn(dateTime.toLocalTime().plusMinutes(5));
         saveEvents(token, List.of(event), meetingId);
 
         // when
@@ -120,7 +119,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
 
         given(serverTimeManager.getDate())
                 .willReturn(EVENT1.getDate());
-        given(serverTimeManager.calculateClosedTime(any(LocalTime.class)))
+        given(serverTimeManager.calculateAttendanceCloseTime(any(LocalTime.class)))
                 .willReturn(LocalTime.of(10, 30));
         saveEvents(token, List.of(EVENT1.create(meeting)), meetingId);
 
@@ -150,7 +149,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .willReturn(dateTime.toLocalDate());
         given(serverTimeManager.getDateAndTime())
                 .willReturn(dateTime);
-        given(serverTimeManager.calculateClosedTime(any(LocalTime.class)))
+        given(serverTimeManager.calculateAttendanceCloseTime(any(LocalTime.class)))
                 .willReturn(dateTime.toLocalTime().plusMinutes(30));
 
         final String token = signUpAndGetToken(MASTER.create());

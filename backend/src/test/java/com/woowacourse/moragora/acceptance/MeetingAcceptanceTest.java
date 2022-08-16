@@ -118,7 +118,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .willReturn(false);
         given(serverTimeManager.calculateOpenTime(event.getStartTime()))
                 .willReturn(LocalTime.of(9, 30));
-        given(serverTimeManager.calculateClosedTime(event.getStartTime()))
+        given(serverTimeManager.calculateAttendanceCloseTime(event.getStartTime()))
                 .willReturn(LocalTime.of(10, 5));
 
         saveEvents(token, List.of(event), (long) meetingId1);

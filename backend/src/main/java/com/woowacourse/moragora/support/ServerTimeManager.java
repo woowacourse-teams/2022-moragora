@@ -41,7 +41,7 @@ public class ServerTimeManager {
         return meetingStartTime.minusMinutes(ATTENDANCE_START_INTERVAL);
     }
 
-    public LocalTime calculateClosedTime(final LocalTime meetingStartTime) {
+    public LocalTime calculateAttendanceCloseTime(final LocalTime meetingStartTime) {
         return meetingStartTime.plusMinutes(ATTENDANCE_END_INTERVAL);
     }
 

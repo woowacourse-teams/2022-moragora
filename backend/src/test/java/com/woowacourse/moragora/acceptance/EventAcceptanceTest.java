@@ -5,12 +5,11 @@ import static com.woowacourse.moragora.support.EventFixtures.EVENT2;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.AZPI;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.NO_MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.auth.dto.LoginRequest;
@@ -22,7 +21,6 @@ import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import io.restassured.response.ValidatableResponse;
-import java.time.LocalDate;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -42,7 +40,7 @@ class EventAcceptanceTest extends AcceptanceTest {
         // given
         given(serverTimeManager.getDate())
                 .willReturn(LocalDate.of(2022, 7, 31));
-        given(serverTimeManager.calculateClosedTime(any(LocalTime.class)))
+        given(serverTimeManager.calculateAttendanceCloseTime(any(LocalTime.class)))
                 .willReturn(LocalTime.of(10, 5));
 
         final User user1 = KUN.create();
@@ -189,7 +187,7 @@ class EventAcceptanceTest extends AcceptanceTest {
                 .willReturn(LocalDate.of(2022, 7, 31));
         given(serverTimeManager.calculateOpenTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().minusMinutes(30));
-        given(serverTimeManager.calculateClosedTime(event1.getStartTime()))
+        given(serverTimeManager.calculateAttendanceCloseTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().plusMinutes(5));
 
         saveEvents(token, List.of(event1, event2), (long) meetingId);

@@ -8,15 +8,12 @@ import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
-import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.EventRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
-import java.time.LocalDate;
-import com.woowacourse.moragora.support.ServerTimeManager;
-import java.time.LocalTime;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -29,8 +26,6 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
@@ -96,7 +91,7 @@ public class EventService {
 
         final LocalTime entranceTime = event.getStartTime();
         final LocalTime attendanceOpenTime = serverTimeManager.calculateOpenTime(entranceTime);
-        final LocalTime attendanceClosedTime = serverTimeManager.calculateClosedTime(entranceTime);
+        final LocalTime attendanceClosedTime = serverTimeManager.calculateAttendanceCloseTime(entranceTime);
         return EventResponse.of(event, attendanceOpenTime, attendanceClosedTime);
     }
 
@@ -155,8 +150,8 @@ public class EventService {
     }
 
     private Instant calculateUpdateInstant(final Event event) {
-        final LocalTime entranceTime = event.getStartTime();
-        final LocalTime closingTime = serverTimeManager.calculateClosedTime(entranceTime);
+        final LocalTime startTime = event.getStartTime();
+        final LocalTime closingTime = serverTimeManager.calculateAttendanceCloseTime(startTime);
         return closingTime.atDate(event.getDate()).
                 atZone(ZoneId.systemDefault()).toInstant();
     }
