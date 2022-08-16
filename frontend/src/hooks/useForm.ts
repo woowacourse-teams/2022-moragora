@@ -46,31 +46,32 @@ const useForm = () => {
 
   const handleChange =
     (
-      inputController: InputController,
       onChange: InputAttributes['onChange']
     ): React.ChangeEventHandler<HTMLInputElement> =>
     (e) => {
       const { currentTarget } = e;
 
-      inputController[currentTarget.name].checkValidity();
+      inputControllerRef.current[currentTarget.name].checkValidity();
 
-      setValues((prev) => ({
-        ...prev,
-        [currentTarget.name]: currentTarget.value,
-      }));
-      onChange?.(e, inputController);
+      if (Object.prototype.hasOwnProperty.call(values, currentTarget.name)) {
+        setValues((prev) => ({
+          ...prev,
+          [currentTarget.name]: currentTarget.value,
+        }));
+      }
+
+      onChange?.(e, inputControllerRef.current);
     };
 
   const handleBlur =
     (
-      inputController: InputController,
       onBlur: InputAttributes['onBlur']
     ): React.FocusEventHandler<HTMLInputElement> =>
     (e) => {
       const { currentTarget } = e;
 
-      inputController[currentTarget.name].checkValidity();
-      onBlur?.(e, inputController);
+      inputControllerRef.current[currentTarget.name].checkValidity();
+      onBlur?.(e, inputControllerRef.current);
     };
 
   const handleSubmit =
@@ -225,8 +226,8 @@ const useForm = () => {
       name,
       defaultValue,
       ref: bindInputElementToRef(patternValidationMessage, customValidations),
-      onChange: handleChange(inputControllerRef.current, onChange),
-      onBlur: handleBlur(inputControllerRef.current, onBlur),
+      onChange: handleChange(onChange),
+      onBlur: handleBlur(onBlur),
       ...attributes,
     };
   };

@@ -112,8 +112,8 @@ const RegisterPage = () => {
                   '(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,30}',
                 patternValidationMessage:
                   '8에서 30자리 이하의 영어, 숫자, 특수문자로 입력해주세요.',
-                onChange: (e, inputContoller) => {
-                  inputContoller['passwordConfirm'].checkValidity();
+                onChange: (e, inputController) => {
+                  inputController['passwordConfirm'].checkValidity();
                 },
                 minLength: 8,
                 maxLength: 30,
