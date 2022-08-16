@@ -20,24 +20,24 @@ public class EventRequest {
 
     @NotNull(message = MISSING_REQUIRED_INPUT)
     @DateTimeFormat(pattern = "'T'HH:mm")
-    private LocalTime entranceTime;
+    private LocalTime meetingStartTime;
 
     @NotNull(message = MISSING_REQUIRED_INPUT)
     @DateTimeFormat(pattern = "'T'HH:mm")
-    private LocalTime leaveTime;
+    private LocalTime meetingEndTime;
 
     @NotNull(message = MISSING_REQUIRED_INPUT)
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
 
     @Builder
-    public EventRequest(final LocalTime entranceTime, final LocalTime leaveTime, final LocalDate date) {
-        this.entranceTime = entranceTime;
-        this.leaveTime = leaveTime;
+    public EventRequest(final LocalTime meetingStartTime, final LocalTime meetingEndTime, final LocalDate date) {
+        this.meetingStartTime = meetingStartTime;
+        this.meetingEndTime = meetingEndTime;
         this.date = date;
     }
 
     public Event toEntity(final Meeting meeting) {
-        return new Event(date, entranceTime, leaveTime, meeting);
+        return new Event(date, meetingStartTime, meetingEndTime, meeting);
     }
 }

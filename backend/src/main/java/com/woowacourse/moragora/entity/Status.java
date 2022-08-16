@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 public enum Status {
 
-    PRESENT, TARDY;
+    PRESENT, TARDY, NONE;
 
     @JsonCreator
     public static Status fromEnum(final String value) {

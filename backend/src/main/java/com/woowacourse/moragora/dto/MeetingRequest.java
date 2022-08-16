@@ -3,6 +3,7 @@ package com.woowacourse.moragora.dto;
 import com.woowacourse.moragora.entity.Meeting;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -22,6 +23,7 @@ public class MeetingRequest {
 
     private List<Long> userIds;
 
+    @Builder
     public MeetingRequest(final String name, final List<Long> userIds) {
         this.name = name;
         this.userIds = userIds;

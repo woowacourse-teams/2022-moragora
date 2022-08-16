@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.service;
 
+import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -7,8 +8,12 @@ import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
+import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
+import com.woowacourse.moragora.support.DatabaseCleanUp;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,14 +21,21 @@ import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@Transactional
 class UserServiceTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private DatabaseCleanUp databaseCleanUp;
+
+    @BeforeEach
+    void setUp() {
+        databaseCleanUp.afterPropertiesSet();
+        databaseCleanUp.execute();
+    }
 
     @DisplayName("새로운 회원을 생성한다.")
     @Test
@@ -80,7 +92,12 @@ class UserServiceTest {
     @Test
     void searchByKeyword() {
         // given
-        final String keyword = "foo";
+        final String keyword = "email";
+
+        final List<User> users = createUsers();
+        for (User user : users) {
+            userService.create(new UserRequest(user.getEmail(), "1234asdf!", user.getNickname()));
+        }
 
         // when
         final UsersResponse response = userService.searchByKeyword(keyword);

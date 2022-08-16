@@ -3,6 +3,9 @@ package com.woowacourse.auth.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -39,6 +42,8 @@ public class AuthControllerTest extends ControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("accessToken").value(accessToken))
                 .andDo(document("auth/login",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
                         requestFields(
                                 fieldWithPath("email").type(JsonFieldType.STRING).description(email),
                                 fieldWithPath("password").type(JsonFieldType.STRING).description(password)
@@ -68,6 +73,8 @@ public class AuthControllerTest extends ControllerTest {
         resultActions.andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("message").value(message))
                 .andDo(document("auth/login-fail",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
                         requestFields(
                                 fieldWithPath("email").type(JsonFieldType.STRING).description(email),
                                 fieldWithPath("password").type(JsonFieldType.STRING).description(password)

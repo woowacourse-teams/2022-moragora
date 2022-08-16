@@ -1,5 +1,7 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.moragora.dto.EventCancelRequest;
+import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
@@ -11,10 +13,10 @@ import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.EventRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
-import java.sql.Date;
-import java.time.Instant;
+import java.time.LocalDate;
+import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.LocalTime;
-import java.time.ZoneId;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,49 +37,65 @@ public class EventService {
     private final EventRepository eventRepository;
     private final MeetingRepository meetingRepository;
     private final AttendanceRepository attendanceRepository;
+    private final ServerTimeManager serverTimeManager;
 
     public EventService(final TaskScheduler taskScheduler,
                         final EventRepository eventRepository,
                         final MeetingRepository meetingRepository,
-                        final AttendanceRepository attendanceRepository) {
+                        final AttendanceRepository attendanceRepository,
+                        final ServerTimeManager serverTimeManager) {
         this.taskScheduler = taskScheduler;
         this.eventRepository = eventRepository;
         this.meetingRepository = meetingRepository;
         this.attendanceRepository = attendanceRepository;
+        this.serverTimeManager = serverTimeManager;
     }
 
     @Transactional
-    public List<Event> save(final EventsRequest request, final Long meetingId) {
+    public void save(final EventsRequest request, final Long meetingId) {
         final Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(MeetingNotFoundException::new);
         final List<Event> events = request.toEntities(meeting);
-        return eventRepository.saveAll(events);
+        eventRepository.saveAll(events);
+        saveAllAttendances(meeting.getParticipants(), events);
     }
 
-    @Transactional
-    public void saveSchedules(final List<Event> events) {
-        events.forEach(event -> {
-            ScheduledFuture<?> task = taskScheduler.schedule(
-                    () -> saveAttendances(event), Date.from(getInstant(event)));
-            scheduledTasks.put(event, task);
-        });
-    }
-
-    @Transactional
-    public void saveAttendances(final Event event) {
-        final Event foundEvent = eventRepository.findById(event.getId())
-                .orElseThrow(EventNotFoundException::new);
-        final Meeting meeting = foundEvent.getMeeting();
-        final List<Participant> participants = meeting.getParticipants();
-        final List<Attendance> attendances = participants.stream()
-                .map(participant -> new Attendance(Status.TARDY, false, participant, foundEvent))
+    private void saveAllAttendances(final List<Participant> participants, final List<Event> events) {
+        final List<Attendance> attendances = events.stream()
+                .map(event -> createAttendances(participants, event))
+                .flatMap(Collection::stream)
                 .collect(Collectors.toList());
+
         attendanceRepository.saveAll(attendances);
     }
 
-    private Instant getInstant(final Event event) {
-        final LocalTime localTime = event.getEntranceTime().minusMinutes(SCHEDULING_SUBTRACT_TIME);
-        return localTime.atDate(event.getDate()).
-                atZone(ZoneId.systemDefault()).toInstant();
+    private List<Attendance> createAttendances(List<Participant> participants, Event event) {
+        return participants.stream()
+                .map(participant -> new Attendance(Status.NONE, false, participant, event))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void cancel(final EventCancelRequest request, final Long meetingId) {
+        meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        final List<LocalDate> dates = request.getDates();
+        List<Event> events = eventRepository.findByMeetingIdAndDateIn(meetingId, dates);
+        final List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+        attendanceRepository.deleteByEventIdIn(eventIds);
+        eventRepository.deleteByIdIn(eventIds);
+    }
+
+    public EventResponse findUpcomingEvent(final Long meetingId) {
+        final Event event = eventRepository.findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(
+                        meetingId, serverTimeManager.getDate())
+                .orElseThrow(EventNotFoundException::new);
+
+        final LocalTime entranceTime = event.getStartTime();
+        final LocalTime attendanceOpenTime = serverTimeManager.calculateOpenTime(entranceTime);
+        final LocalTime attendanceClosedTime = serverTimeManager.calculateClosedTime(entranceTime);
+        return EventResponse.of(event, attendanceOpenTime, attendanceClosedTime);
     }
 }
