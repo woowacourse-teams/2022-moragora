@@ -144,7 +144,7 @@ public class MeetingService {
         final List<Participant> participants = meeting.getParticipants();
         return participants.stream()
                 .map(it -> generateParticipantResponse(it, meetingAttendances))
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
     }
 
     private ParticipantResponse generateParticipantResponse(final Participant participant,
@@ -161,7 +161,7 @@ public class MeetingService {
 
         final MeetingAttendances meetingAttendances = getMeetingAttendances(meeting, today);
         final boolean isCoffeeTime = meetingAttendances.isTardyStackFull();
-        final int tardyCount = countTardy(participant, meetingAttendances);
+        final int tardyCount = countTardyByParticipant(participant, meetingAttendances);
 
         final Optional<Event> upcomingEvent = eventRepository
                 .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today);
@@ -183,16 +183,12 @@ public class MeetingService {
 
     private MeetingAttendances getMeetingAttendances(final Meeting meeting, final LocalDate today) {
         final List<Long> participantIds = meeting.getParticipantIds();
-        return findAttendancesByMeeting(participantIds, today);
-    }
-
-    private MeetingAttendances findAttendancesByMeeting(final List<Long> participantIds, final LocalDate today) {
         final List<Attendance> foundAttendances = attendanceRepository
                 .findByParticipantIdInAndDateLessThanEqual(participantIds, today);
         return new MeetingAttendances(foundAttendances, participantIds.size());
     }
 
-    private int countTardy(final Participant participant, final MeetingAttendances meetingAttendances) {
+    private int countTardyByParticipant(final Participant participant, final MeetingAttendances meetingAttendances) {
         final ParticipantAttendances participantAttendances = meetingAttendances
                 .extractAttendancesByParticipant(participant);
         return participantAttendances.countTardy();

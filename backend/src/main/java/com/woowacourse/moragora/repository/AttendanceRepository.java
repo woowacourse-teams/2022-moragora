@@ -17,6 +17,7 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
 
     Optional<Attendance> findByParticipantIdAndEventId(final Long participantId, final Long eventId);
 
+    // TODO: participantIds 대신 meetingId를 통한 조회
     @Query("select a from Attendance a join fetch a.event e "
             + "where a.participant.id in :participantIds "
             + "and e.date <= :date ")
@@ -24,6 +25,7 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
             @Param("participantIds") final List<Long> participantIds,
             @Param("date") final LocalDate date);
 
+    // TODO: participantIds 대신 meetingId를 통한 조회
     List<Attendance> findByParticipantIdInAndEventId(final List<Long> participantIds, final Long eventId);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
