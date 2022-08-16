@@ -12,6 +12,7 @@ import static com.woowacourse.moragora.support.UserFixtures.SUN;
 import static com.woowacourse.moragora.support.UserFixtures.WOODY;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.EventResponse;
@@ -484,7 +485,7 @@ class MeetingServiceTest {
         dataSupport.saveParticipant(user, meeting, false);
 
         // when, then
-        assertThatThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()))
+        assertThatCode(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()))
                 .doesNotThrowAnyException();
     }
 
