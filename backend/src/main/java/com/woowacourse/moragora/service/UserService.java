@@ -1,6 +1,6 @@
 package com.woowacourse.moragora.service;
 
-import com.woowacourse.auth.exception.AuthorizationFailureException;
+import com.woowacourse.auth.exception.AuthenticationFailureException;
 import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.NicknameRequest;
 import com.woowacourse.moragora.dto.PasswordRequest;
@@ -82,23 +82,23 @@ public class UserService {
 
         final String oldPassword = request.getOldPassword();
         final String newPassword = request.getNewPassword();
-        validatePasswords(oldPassword, newPassword);
         validateOldPassword(user, oldPassword);
+        validateNewPasswordIsNotSame(oldPassword, newPassword);
 
         user.updatePassword(EncodedPassword.fromRawValue(newPassword));
-    }
-
-    private void validatePasswords(final String oldPassword, final String newPassword) {
-        if (Objects.equals(oldPassword, newPassword)) {
-            throw new ClientRuntimeException("새로운 비밀번호가 기존의 비밀번호와 일치합니다.", HttpStatus.BAD_REQUEST);
-        }
     }
 
     private void validateOldPassword(final User user, final String oldPassword) {
         try {
             user.checkPassword(new RawPassword(oldPassword));
-        } catch (AuthorizationFailureException e) {
+        } catch (AuthenticationFailureException e) {
             throw new InvalidPasswordException();
+        }
+    }
+
+    private void validateNewPasswordIsNotSame(final String oldPassword, final String newPassword) {
+        if (Objects.equals(oldPassword, newPassword)) {
+            throw new ClientRuntimeException("새로운 비밀번호가 기존의 비밀번호와 일치합니다.", HttpStatus.BAD_REQUEST);
         }
     }
 }

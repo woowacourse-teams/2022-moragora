@@ -1,6 +1,6 @@
 package com.woowacourse.moragora.entity.user;
 
-import com.woowacourse.auth.exception.AuthorizationFailureException;
+import com.woowacourse.auth.exception.AuthenticationFailureException;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -57,7 +57,7 @@ public class User {
 
     public void checkPassword(final RawPassword rawPassword) {
         if (!password.isSamePassword(rawPassword)) {
-            throw new AuthorizationFailureException();
+            throw new AuthenticationFailureException();
         }
     }
 
