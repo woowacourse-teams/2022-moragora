@@ -28,20 +28,20 @@ const PasswordUpdatePage = () => {
     <>
       <S.Layout>
         <S.Form
-          id="login-form"
+          id="password-update-form"
           {...onSubmit(handlePasswordSubmitValid, handlePasswordSubmitError)}
         >
           <S.FieldBox>
             <S.Label>
               현재 비밀번호
               <Input
-                type="email"
+                type="password"
                 {...register('prevPassword', { required: true })}
               />
             </S.Label>
             <InputHint
-              isShow={Boolean(errors['email']) && errors['email'] !== ''}
-              message={errors['email']}
+              isShow={!!errors['prevPassword']}
+              message={errors['prevPassword']}
             />
           </S.FieldBox>
           <S.FieldBox>
@@ -95,12 +95,15 @@ const PasswordUpdatePage = () => {
           </S.FieldBox>
         </S.Form>
         <S.ButtonBox>
-          <Button type="submit" form="register-form" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            form="password-update-form"
+            disabled={isSubmitting}
+          >
             비밀번호 변경
           </Button>
         </S.ButtonBox>
       </S.Layout>
-
       <Footer />
     </>
   );
