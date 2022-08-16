@@ -48,7 +48,7 @@ const UserConfigPage = () => {
         </S.ProfileBox>
         <S.MenuLinkBox>
           <MenuLink
-            to="#"
+            to=""
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -71,7 +71,7 @@ const UserConfigPage = () => {
             이메일 <S.EmailSpan>email@email.com</S.EmailSpan>
           </MenuLink>
           <MenuLink
-            to="#"
+            to="password"
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +93,7 @@ const UserConfigPage = () => {
             비밀번호 변경
           </MenuLink>
           <MenuLink
-            to="#"
+            to="unregister"
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"

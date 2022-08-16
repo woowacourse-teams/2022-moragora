@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Footer from 'components/layouts/Footer';
 import * as S from './SettingsPage.styled';
 import Button from 'components/@shared/Button';
@@ -45,7 +45,7 @@ const SettingsPage = () => {
         </S.ProfileBox>
         <S.ButtonBox>
           <MenuLink
-            to="config"
+            to="user-config"
             icon={
               <svg
                 xmlns="http://www.w3.org/2000/svg"
