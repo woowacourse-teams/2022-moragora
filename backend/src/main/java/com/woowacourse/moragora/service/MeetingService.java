@@ -139,20 +139,19 @@ public class MeetingService {
         }
     }
 
+    private MeetingAttendances getMeetingAttendances(final Meeting meeting, final LocalDate today) {
+        final List<Long> participantIds = meeting.getParticipantIds();
+        final List<Attendance> foundAttendances = attendanceRepository
+                .findByParticipantIdInAndDateLessThanEqual(participantIds, today);
+        return new MeetingAttendances(foundAttendances, participantIds.size());
+    }
+
     private List<ParticipantResponse> collectParticipantResponsesOf(final Meeting meeting,
                                                                     final MeetingAttendances meetingAttendances) {
         final List<Participant> participants = meeting.getParticipants();
         return participants.stream()
-                .map(it -> generateParticipantResponse(it, meetingAttendances))
+                .map(it -> ParticipantResponse.of(it, countTardyByParticipant(it, meetingAttendances)))
                 .collect(Collectors.toUnmodifiableList());
-    }
-
-    private ParticipantResponse generateParticipantResponse(final Participant participant,
-                                                            final MeetingAttendances meetingAttendances) {
-        final ParticipantAttendances participantAttendances =
-                meetingAttendances.extractAttendancesByParticipant(participant);
-
-        return ParticipantResponse.of(participant, participantAttendances.countTardy());
     }
 
     private MyMeetingResponse generateMyMeetingResponse(final Participant participant, final LocalDate today) {
@@ -179,13 +178,6 @@ public class MeetingService {
                 meeting, tardyCount, isLoginUserMaster, isCoffeeTime, isActive,
                 EventResponse.of(event, attendanceOpenTime, attendanceClosedTime)
         );
-    }
-
-    private MeetingAttendances getMeetingAttendances(final Meeting meeting, final LocalDate today) {
-        final List<Long> participantIds = meeting.getParticipantIds();
-        final List<Attendance> foundAttendances = attendanceRepository
-                .findByParticipantIdInAndDateLessThanEqual(participantIds, today);
-        return new MeetingAttendances(foundAttendances, participantIds.size());
     }
 
     private int countTardyByParticipant(final Participant participant, final MeetingAttendances meetingAttendances) {
