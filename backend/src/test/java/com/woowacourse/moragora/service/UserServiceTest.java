@@ -9,10 +9,10 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.EmailCheckResponse;
+import com.woowacourse.moragora.dto.UserDeleteRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
-import com.woowacourse.moragora.dto.WithdrawalRequest;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.NoParameterException;
@@ -156,7 +156,7 @@ class UserServiceTest {
     void delete() {
         // given
         final User user = dataSupport.saveUser(KUN.create());
-        final WithdrawalRequest request = new WithdrawalRequest("1234asdf!");
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
 
         // when, then
         assertThatNoException().isThrownBy(() -> userService.delete(request, user.getId()));
@@ -166,7 +166,7 @@ class UserServiceTest {
     @Test
     void delete_throwsException_ifUserNotFound() {
         // given
-        final WithdrawalRequest request = new WithdrawalRequest("1234asdf!");
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
 
         // when, then
         assertThatThrownBy(() -> userService.delete(request, 100L))
@@ -178,7 +178,7 @@ class UserServiceTest {
     void delete_throwsException_ifWrongPassword() {
         // given
         final User user = dataSupport.saveUser(KUN.create());
-        final WithdrawalRequest request = new WithdrawalRequest("1234wrong!");
+        final UserDeleteRequest request = new UserDeleteRequest("1234wrong!");
 
         // when, then
         assertThatThrownBy(() -> userService.delete(request, user.getId()))
@@ -193,7 +193,7 @@ class UserServiceTest {
         final User master = MASTER.create();
         dataSupport.saveParticipant(master, MORAGORA.create(), true);
 
-        final WithdrawalRequest request = new WithdrawalRequest("1234asdf!");
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
 
         // when, then
         assertThatThrownBy(() -> userService.delete(request, master.getId()))

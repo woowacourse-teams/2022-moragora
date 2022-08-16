@@ -3,10 +3,10 @@ package com.woowacourse.moragora.controller;
 import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
 import com.woowacourse.moragora.dto.EmailCheckResponse;
+import com.woowacourse.moragora.dto.UserDeleteRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
-import com.woowacourse.moragora.dto.WithdrawalRequest;
 import com.woowacourse.moragora.service.UserService;
 import java.net.URI;
 import javax.validation.Valid;
@@ -55,9 +55,9 @@ public class UserController {
     }
 
     @DeleteMapping("/me")
-    public ResponseEntity<Void> deleteMe(@RequestBody @Valid final WithdrawalRequest withdrawalRequest,
+    public ResponseEntity<Void> deleteMe(@RequestBody @Valid final UserDeleteRequest userDeleteRequest,
                                          @AuthenticationPrincipal final Long id) {
-        userService.delete(withdrawalRequest, id);
+        userService.delete(userDeleteRequest, id);
         return ResponseEntity.noContent().build();
     }
 }

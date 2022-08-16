@@ -7,8 +7,8 @@ import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
+import com.woowacourse.moragora.dto.UserDeleteRequest;
 import com.woowacourse.moragora.dto.UserRequest;
-import com.woowacourse.moragora.dto.WithdrawalRequest;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
 import io.restassured.response.ValidatableResponse;
@@ -118,7 +118,7 @@ class UserAcceptanceTest extends AcceptanceTest {
         // given
         final User user = KUN.create();
         final String token = signUpAndGetToken(user);
-        final WithdrawalRequest request = new WithdrawalRequest("1234asdf!");
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
 
         // when
         ValidatableResponse response = delete("/users/me", request, token);
@@ -133,7 +133,7 @@ class UserAcceptanceTest extends AcceptanceTest {
         // given
         final User user = KUN.create();
         final String token = signUpAndGetToken(user);
-        final WithdrawalRequest request = new WithdrawalRequest("1234wrong!");
+        final UserDeleteRequest request = new UserDeleteRequest("1234wrong!");
 
         // when
         ValidatableResponse response = delete("/users/me", request, token);
@@ -154,7 +154,7 @@ class UserAcceptanceTest extends AcceptanceTest {
         final Meeting meeting = MORAGORA.create();
         saveMeeting(token, userIds, meeting);
 
-        final WithdrawalRequest request = new WithdrawalRequest("1234asdf!");
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
 
         // when
         ValidatableResponse response = delete("/users/me", request, token);

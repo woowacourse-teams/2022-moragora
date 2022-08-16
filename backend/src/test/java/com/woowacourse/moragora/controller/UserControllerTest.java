@@ -20,10 +20,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.woowacourse.moragora.dto.EmailCheckResponse;
+import com.woowacourse.moragora.dto.UserDeleteRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
-import com.woowacourse.moragora.dto.WithdrawalRequest;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.NoParameterException;
 import java.util.List;
@@ -235,14 +235,14 @@ public class UserControllerTest extends ControllerTest {
     @Test
     void deleteMe() throws Exception {
         // given
-        final WithdrawalRequest withdrawalRequest = new WithdrawalRequest("1234asdf!");
+        final UserDeleteRequest userDeleteRequest = new UserDeleteRequest("1234asdf!");
         validateToken("1");
 
         // when
-        final ResultActions resultActions = performDelete("/users/me", withdrawalRequest);
+        final ResultActions resultActions = performDelete("/users/me", userDeleteRequest);
 
         // then
-        verify(userService, times(1)).delete(any(WithdrawalRequest.class), anyLong());
+        verify(userService, times(1)).delete(any(UserDeleteRequest.class), anyLong());
         resultActions.andExpect(status().isNoContent())
                 .andDo(document("user/delete-me",
                         preprocessResponse(prettyPrint()),
@@ -256,13 +256,13 @@ public class UserControllerTest extends ControllerTest {
     @Test
     void deleteMe_throwsException_ifMaster() throws Exception {
         // given
-        final WithdrawalRequest withdrawalRequest = new WithdrawalRequest("1234asdf!");
+        final UserDeleteRequest userDeleteRequest = new UserDeleteRequest("1234asdf!");
         validateToken("1");
 
         doThrow(new ClientRuntimeException("마스터로 참여중인 모임이 있어 탈퇴할 수 없습니다.", HttpStatus.FORBIDDEN))
-                .when(userService).delete(any(WithdrawalRequest.class), anyLong());
+                .when(userService).delete(any(UserDeleteRequest.class), anyLong());
         // when
-        final ResultActions resultActions = performDelete("/users/me", withdrawalRequest);
+        final ResultActions resultActions = performDelete("/users/me", userDeleteRequest);
 
         // then
         resultActions.andExpect(status().isForbidden());

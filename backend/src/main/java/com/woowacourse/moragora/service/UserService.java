@@ -2,10 +2,10 @@ package com.woowacourse.moragora.service;
 
 import com.woowacourse.auth.exception.AuthorizationFailureException;
 import com.woowacourse.moragora.dto.EmailCheckResponse;
+import com.woowacourse.moragora.dto.UserDeleteRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
-import com.woowacourse.moragora.dto.WithdrawalRequest;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.RawPassword;
@@ -75,7 +75,7 @@ public class UserService {
     }
 
     @Transactional
-    public void delete(final WithdrawalRequest request, final Long id) {
+    public void delete(final UserDeleteRequest request, final Long id) {
         final User user = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
         validateOldPassword(user, request.getPassword());
