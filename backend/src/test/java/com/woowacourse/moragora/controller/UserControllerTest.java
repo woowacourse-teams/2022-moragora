@@ -254,6 +254,21 @@ public class UserControllerTest extends ControllerTest {
                 ));
     }
 
+    @DisplayName("형식에 맞지 않는 닉네임으로 수정하면 예외가 발생한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"반_듯", "멋쟁이프론트개발자우리의자랑밧드", ""})
+    void changeMyNickname_throwsException_ifInvalidNickname(final String nickname) throws Exception {
+        // given
+        validateToken("1");
+        final NicknameRequest request = new NicknameRequest(nickname);
+
+        // when
+        final ResultActions resultActions = performPut("/users/me/nickname", request);
+
+        // then
+        resultActions.andExpect(status().isBadRequest());
+    }
+
     @DisplayName("로그인한 회원의 비밀번호를 수정한다.")
     @Test
     void changeMyPassword() throws Exception {
@@ -301,6 +316,22 @@ public class UserControllerTest extends ControllerTest {
                                         .description("새로운 비밀번호가 기존의 비밀번호와 일치합니다.")
                         )
                 ));
+    }
+
+    @DisplayName("형식에 맞지 않는 비밀번호로 비밀번호를 수정하면 예외가 발생한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"new1234", "12345678!", "newpass!", "newpw1!", "123456789a123456789a123456789a!"})
+    void changeMyPassword_throwsException_ifInvalidPassword(final String password) throws Exception {
+        // given
+        validateToken("1");
+        final String oldPassword = "1234asdf!";
+        final PasswordRequest request = new PasswordRequest(oldPassword, password);
+
+        // when
+        final ResultActions resultActions = performPut("/users/me/password", request);
+
+        // then
+        resultActions.andExpect(status().isBadRequest());
     }
 
     @DisplayName("기존 비밀번호를 틀리게 입력하고 비밀번호를 수정하면 예외가 발생한다.")

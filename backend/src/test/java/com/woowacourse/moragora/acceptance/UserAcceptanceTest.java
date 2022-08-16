@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 
 @DisplayName("회원 관련 기능")
@@ -125,22 +123,6 @@ class UserAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.NO_CONTENT.value());
     }
 
-    @DisplayName("로그인 한 상태에서 잘못된 형식의 닉네임으로 닉네임 수정을 요청하면 상태코드 400을 반환한다.")
-    @ParameterizedTest
-    @ValueSource(strings = {"반_듯", "멋쟁이프론트개발자우리의자랑밧드", ""})
-    void changeMyNickname_ifInvalidFormat(final String nickname) {
-        // given
-        final String token = signUpAndGetToken(BATD.create());
-        final NicknameRequest request = new NicknameRequest(nickname);
-
-        // when
-        final ValidatableResponse response = put("/users/me/nickname", request, token);
-
-        // then
-        response.statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("message", equalTo("입력 형식이 올바르지 않습니다."));
-    }
-
     @DisplayName("로그인 한 상태에서 비밀번호 수정을 요청하면 비밀번호를 수정한 후 상태코드 204을 반환한다.")
     @Test
     void changeMyPassword() {
@@ -153,22 +135,6 @@ class UserAcceptanceTest extends AcceptanceTest {
 
         // then
         response.statusCode(HttpStatus.NO_CONTENT.value());
-    }
-
-    @DisplayName("로그인 한 상태에서 잘못된 형식의 비밀번호로 비밀번호 수정을 요청하면 상태코드 400을 반환한다.")
-    @ParameterizedTest
-    @ValueSource(strings = {"new1234", "12345678!", "newpass!", "newpw1!", "123456789a123456789a123456789a!"})
-    void changeMyPassword_ifInvalidFormat(final String newPassword) {
-        // given
-        final String token = signUpAndGetToken(BATD.create());
-        final PasswordRequest request = new PasswordRequest("1234asdf!", newPassword);
-
-        // when
-        final ValidatableResponse response = put("/users/me/password", request, token);
-
-        // then
-        response.statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("message", equalTo("입력 형식이 올바르지 않습니다."));
     }
 
     @DisplayName("로그인 한 상태에서 기존 비밀번호를 틀리게 입력하고 비밀번호 수정을 요청하면 상태코드 400을 반환한다.")

@@ -55,6 +55,21 @@ public class User {
         this(null, email, password, nickname);
     }
 
+    public void checkPassword(final RawPassword rawPassword) {
+        if (!password.isSamePassword(rawPassword)) {
+            throw new AuthorizationFailureException();
+        }
+    }
+
+    public void updateNickname(final String nickname) {
+        validateNickname(nickname);
+        this.nickname = nickname;
+    }
+
+    public void updatePassword(final EncodedPassword newPassword) {
+        this.password = newPassword;
+    }
+
     private void validateEmail(final String email) {
         final Matcher matcher = PATTERN_EMAIL.matcher(email);
         if (!matcher.matches()) {
@@ -67,20 +82,6 @@ public class User {
         if (!matcher.matches()) {
             throw new InvalidFormatException();
         }
-    }
-
-    public void checkPassword(final RawPassword rawPassword) {
-        if (!password.isSamePassword(rawPassword)) {
-            throw new AuthorizationFailureException();
-        }
-    }
-
-    public void updateNickname(final String nickname) {
-        this.nickname = nickname;
-    }
-
-    public void updatePassword(final EncodedPassword newPassword) {
-        this.password = newPassword;
     }
 
     @Override

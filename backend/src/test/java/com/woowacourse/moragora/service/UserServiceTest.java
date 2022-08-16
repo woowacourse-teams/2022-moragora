@@ -14,6 +14,7 @@ import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.InvalidFormatException;
 import com.woowacourse.moragora.exception.NoParameterException;
 import com.woowacourse.moragora.exception.user.InvalidPasswordException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
@@ -162,6 +163,19 @@ class UserServiceTest {
         assertThatNoException().isThrownBy(() -> userService.updateNickname(request, user.getId()));
     }
 
+    @DisplayName("회원의 닉네임을 형식에 맞지 않게 변경하면 예외가 발생한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"smart쿤!", "smartboykun12345", "smart kun"})
+    void updateNickname_throwsException_ifInvalidNickname(final String nickname) {
+        // given
+        final User user = dataSupport.saveUser(BATD.create());
+        final NicknameRequest request = new NicknameRequest(nickname);
+
+        // when, then
+        assertThatThrownBy(() -> userService.updateNickname(request, user.getId()))
+                .isInstanceOf(InvalidFormatException.class);
+    }
+
     @DisplayName("존재하지 않는 회원의 닉네임을 변경하면 예외가 발생한다.")
     @Test
     void updateNickname_throwsException_ifUserNotFound() {
@@ -182,6 +196,19 @@ class UserServiceTest {
 
         // when, then
         assertThatNoException().isThrownBy(() -> userService.updatePassword(request, user.getId()));
+    }
+
+    @DisplayName("회원의 비밀번호를 형식에 맞지 않게 변경하면 예외가 발생한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"password", "password!", "password1", "12345678!", "password!!123456789012345678901"})
+    void updatePassword_throwsException_ifInvalidPassword(final String password) {
+        // given
+        final User user = dataSupport.saveUser(BATD.create());
+        final PasswordRequest request = new PasswordRequest("1234asdf!", password);
+
+        // when, then
+        assertThatThrownBy(() -> userService.updatePassword(request, user.getId()))
+                .isInstanceOf(InvalidFormatException.class);
     }
 
     @DisplayName("존재하지 않는 회원의 비밀번호를 변경하면 예외가 발생한다.")
