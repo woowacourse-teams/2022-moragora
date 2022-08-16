@@ -19,7 +19,7 @@ export const TabNav = styled.nav`
   font-weight: 600;
 `;
 
-export const Tab = styled(NavLink)`
+export const TabNavLink = styled(NavLink)`
   text-decoration: none;
   color: ${({ theme: { colors } }) => colors['subtle-light']};
   z-index: 1;
@@ -29,7 +29,7 @@ export const Tab = styled(NavLink)`
   }
 `;
 
-export const Indicator = styled.div<{ tabPositions: TabPosition[] }>`
+export const IndicatorBox = styled.div<{ tabPositions: TabPosition[] }>`
   position: absolute;
   bottom: -0.6rem;
 
@@ -41,24 +41,24 @@ export const Indicator = styled.div<{ tabPositions: TabPosition[] }>`
   ${({ tabPositions }) =>
     tabPositions.length > 0 &&
     css`
-      ${Tab}:nth-child(1).active ~ & {
+      ${TabNavLink}:nth-child(1).active ~ & {
         left: ${tabPositions[0].left}px;
         width: ${tabPositions[0].width}px;
       }
 
-      ${Tab}:nth-child(2).active ~ & {
+      ${TabNavLink}:nth-child(2).active ~ & {
         left: ${tabPositions[1].left}px;
         width: ${tabPositions[1].width}px;
       }
 
-      ${Tab}:nth-child(3).active ~ & {
+      ${TabNavLink}:nth-child(3).active ~ & {
         left: ${tabPositions[2].left}px;
         width: ${tabPositions[2].width}px;
       }
     `};
 `;
 
-export const Main = styled.div`
+export const MainBox = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;

@@ -32,16 +32,16 @@ const MeetingDetailPage = () => {
   return (
     <S.Layout>
       <S.TabNav>
-        <S.Tab to={'coffee-stack'} ref={bindTabRef('coffee-stack')}>
+        <S.TabNavLink to={'coffee-stack'} ref={bindTabRef('coffee-stack')}>
           커피스택
-        </S.Tab>
-        <S.Tab to={'event-create'} ref={bindTabRef('event-create')}>
+        </S.TabNavLink>
+        <S.TabNavLink to={'event-create'} ref={bindTabRef('event-create')}>
           일정
-        </S.Tab>
-        <S.Tab to={'config'} ref={bindTabRef('config')}>
+        </S.TabNavLink>
+        <S.TabNavLink to={'config'} ref={bindTabRef('config')}>
           설정
-        </S.Tab>
-        <S.Indicator tabPositions={tabPositionMap()}>
+        </S.TabNavLink>
+        <S.IndicatorBox tabPositions={tabPositionMap()}>
           <svg
             width="18"
             height="5"
@@ -54,11 +54,11 @@ const MeetingDetailPage = () => {
               fill="inherit"
             />
           </svg>
-        </S.Indicator>
+        </S.IndicatorBox>
       </S.TabNav>
-      <S.Main>
+      <S.MainBox>
         <Outlet />
-      </S.Main>
+      </S.MainBox>
     </S.Layout>
   );
 };
