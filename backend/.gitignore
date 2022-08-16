@@ -5,8 +5,11 @@ build/
 !**/src/main/**
 !**/src/test/**
 
-# log
+### Log ###
 /logs/
+
+### Submodule ###
+/src/main/resources/config/
 
 ### STS ###
 .apt_generated
