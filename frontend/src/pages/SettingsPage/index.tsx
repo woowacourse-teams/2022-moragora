@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Footer from 'components/layouts/Footer';
 import * as S from './SettingsPage.styled';
@@ -7,17 +7,32 @@ import ModalPortal from 'components/ModalPortal';
 import ModalWindow from 'components/@shared/ModalWindow';
 import { userContext } from 'contexts/userContext';
 import Avatar from 'components/@shared/Avatar';
-import EditIconSVG from 'assets/Edit.svg';
-import { css } from '@emotion/react';
+import NicknameInput from 'components/NicknameInput';
+import useForm from 'hooks/useForm';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
   const userState = useContext(userContext);
   const [isModalOpened, setIsModalOpened] = useState(false);
+  const { values, onSubmit, register, isSubmitting } = useForm();
+
+  const handleNicknameValid: React.FormEventHandler<HTMLFormElement> = ({
+    currentTarget,
+  }) => {
+    const formData = new FormData(currentTarget);
+    const formDataObject = Object.fromEntries(formData.entries());
+
+    console.log(formDataObject);
+  };
+
+  const handleNicknameError = () => {
+    alert('error');
+  };
 
   const handleOpen = () => {
     setIsModalOpened(true);
   };
+
   const handleClose = () => {
     setIsModalOpened(false);
   };
@@ -41,19 +56,24 @@ const SettingsPage = () => {
       <S.Layout>
         <S.ProfileBox>
           <Avatar />
-          <div
-            css={css`
-              position: relative;
-              right: -0.6rem;
-              display: flex;
-              gap: 0.2rem;
-            `}
-          >
-            <S.NicknameInput
-              placeholder={userState?.user?.nickname || 'unknown'}
+          <form {...onSubmit(handleNicknameValid, handleNicknameError)}>
+            <NicknameInput
+              type="text"
+              {...register('nickname', {
+                defaultValue: 'unknown',
+                onBlur: ({ target }) => {
+                  target.form?.requestSubmit();
+                },
+                minLength: 1,
+                maxLength: 15,
+                pattern: '^([a-zA-Z0-9가-힣]){1,15}$',
+                required: true,
+                watch: true,
+              })}
+              nickname={values['nickname'] as string}
+              disabled={isSubmitting}
             />
-            <S.EditIconImg css={css``} src={EditIconSVG} />
-          </div>
+          </form>
         </S.ProfileBox>
         <S.LogoutButtonBox>
           <Button onClick={() => handleOpen()}>로그아웃</Button>

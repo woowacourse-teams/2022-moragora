@@ -16,44 +16,6 @@ export const ProfileBox = styled.div`
   align-items: center;
 `;
 
-export const EditIconImg = styled.img``;
-
-export const NicknameInput = styled.input`
-  padding: 0.2rem 0.3rem;
-  width: fit-content;
-
-  font-weight: 700;
-
-  text-align: center;
-
-  border: none;
-  outline: none;
-
-  ::placeholder {
-    text-align: center;
-  }
-
-  :focus {
-    box-sizing: border-box;
-    border: none;
-    border-bottom: 1px solid;
-
-    ${EditIconImg} {
-      opacity: 0;
-    }
-
-    ::placeholder {
-      outline: none;
-      opacity: 0;
-    }
-  }
-`;
-
-export const Image = styled.img`
-  width: 10rem;
-  height: 10rem;
-`;
-
 export const AvatarBox = styled.div`
   border: 4px solid ${({ theme: { colors } }) => colors['subtle-light']};
   border-radius: 50%;
