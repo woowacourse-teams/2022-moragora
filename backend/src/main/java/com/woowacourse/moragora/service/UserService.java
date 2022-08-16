@@ -62,12 +62,6 @@ public class UserService {
         return new UsersResponse(responses);
     }
 
-    private void validateKeyword(final String keyword) {
-        if (keyword.isEmpty()) {
-            throw new NoParameterException();
-        }
-    }
-
     public UserResponse findById(final Long id) {
         final User user = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
@@ -80,7 +74,7 @@ public class UserService {
                 .orElseThrow(UserNotFoundException::new);
         validateOldPassword(user, request.getPassword());
         final List<Participant> participants = participantRepository.findByUserId(id);
-        validateMaster(participants);
+        validateHasMasterRole(participants);
 
         final List<Long> participantIds = participants.stream()
                 .map(Participant::getId)
@@ -88,6 +82,12 @@ public class UserService {
         attendanceRepository.deleteByParticipantIdIn(participantIds);
         participantRepository.deleteByIdIn(participantIds);
         userRepository.delete(user);
+    }
+
+    private void validateKeyword(final String keyword) {
+        if (keyword.isEmpty()) {
+            throw new NoParameterException();
+        }
     }
 
     private void validateOldPassword(final User user, final String oldPassword) {
@@ -99,7 +99,7 @@ public class UserService {
         }
     }
 
-    private void validateMaster(final List<Participant> participants) {
+    private void validateHasMasterRole(final List<Participant> participants) {
         final boolean isMaster = participants.stream()
                 .anyMatch(Participant::getIsMaster);
         if (isMaster) {

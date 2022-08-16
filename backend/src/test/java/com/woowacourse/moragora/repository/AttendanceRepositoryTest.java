@@ -7,7 +7,6 @@ import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.AZPI;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
@@ -162,15 +161,10 @@ class AttendanceRepositoryTest {
 
         // when
         attendanceRepository.deleteByParticipantIdIn(List.of(participant1.getId()));
-        final List<Attendance> attendanceByParticipant1 = attendanceRepository
-                .findByParticipantIdIn(List.of(participant1.getId()));
-        final List<Attendance> attendanceByParticipant2 = attendanceRepository
-                .findByParticipantIdIn(List.of(participant2.getId()));
+        final List<Attendance> result = attendanceRepository
+                .findByParticipantIdIn(List.of(participant1.getId(), participant2.getId()));
 
         // then
-        assertAll(
-                () -> assertThat(attendanceByParticipant1).hasSize(0),
-                () -> assertThat(attendanceByParticipant2).hasSize(1)
-        );
+        assertThat(result).hasSize(1);
     }
 }
