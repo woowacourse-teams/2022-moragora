@@ -14,6 +14,7 @@ export const NicknameInput = styled.input`
 
   border: none;
   outline: none;
+  background-color: transparent;
 
   ::placeholder {
     text-align: center;
