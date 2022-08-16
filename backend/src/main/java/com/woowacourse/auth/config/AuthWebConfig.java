@@ -34,7 +34,7 @@ public class AuthWebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(final InterceptorRegistry registry) {
         interceptors.forEach(interceptor -> registry.addInterceptor(interceptor)
-                .excludePathPatterns("/docs/*.html")
+                .excludePathPatterns("/docs/**")
                 .addPathPatterns("/**"));
     }
 
