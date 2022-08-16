@@ -29,7 +29,6 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v2
 
-      - run : cd backend
       - name: gradlew permission change
         run: sudo chmod 755 gradlew
 
