@@ -47,9 +47,10 @@ public class MeetingController {
         return ResponseEntity.ok(meetingsResponse);
     }
 
-    @DeleteMapping("/{id}/me")
-    public ResponseEntity<Void> deleteMeFrom(@PathVariable final Long id, @AuthenticationPrincipal Long loginId) {
-        meetingService.deleteParticipant(id, loginId);
+    @DeleteMapping("/{meetingId}/me")
+    public ResponseEntity<Void> deleteMeFrom(@PathVariable final Long meetingId,
+                                             @AuthenticationPrincipal Long loginId) {
+        meetingService.deleteParticipant(meetingId, loginId);
         return ResponseEntity.noContent().build();
     }
 }
