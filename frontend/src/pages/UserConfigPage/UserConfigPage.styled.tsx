@@ -21,16 +21,13 @@ export const AvatarBox = styled.div`
   border-radius: 50%;
 `;
 
-export const NicknameParagraph = styled.p`
-  padding: 0.2rem 0.3rem;
-
-  font-weight: 700;
-  text-align: center;
-`;
-
-export const ButtonBox = styled.div`
+export const MenuLinkBox = styled.div`
   padding: 0 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.75rem;
+`;
+
+export const EmailSpan = styled.span`
+  color: ${({ theme: { colors } }) => colors['subtle-light']};
 `;
