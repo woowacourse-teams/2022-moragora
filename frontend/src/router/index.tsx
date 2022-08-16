@@ -33,8 +33,8 @@ const Router = () => {
               children: [
                 { path: '', element: <Navigate to="coffee-stack" replace /> },
                 { path: 'coffee-stack', element: <MeetingPage /> },
-                { path: 'event-create', element: <EventCreatePage /> },
-                { path: 'config', element: <div>config</div> },
+                { path: 'event', element: <EventCreatePage /> },
+                { path: 'meeting-config', element: <div>config</div> },
                 { path: '*', element: <NotFoundPage /> },
               ],
             },

@@ -35,10 +35,10 @@ const MeetingDetailPage = () => {
         <S.TabNavLink to={'coffee-stack'} ref={bindTabRef('coffee-stack')}>
           커피스택
         </S.TabNavLink>
-        <S.TabNavLink to={'event-create'} ref={bindTabRef('event-create')}>
+        <S.TabNavLink to={'event'} ref={bindTabRef('event-create')}>
           일정
         </S.TabNavLink>
-        <S.TabNavLink to={'config'} ref={bindTabRef('config')}>
+        <S.TabNavLink to={'meeting-config'} ref={bindTabRef('config')}>
           설정
         </S.TabNavLink>
         <S.IndicatorBox tabPositions={tabPositionMap()}>
