@@ -21,7 +21,7 @@ export const FieldBox = styled.div`
   gap: 0.75rem;
 `;
 
-export const Label = styled.div`
+export const Label = styled.label`
   width: 100%;
   display: flex;
   flex-direction: column;
