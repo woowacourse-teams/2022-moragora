@@ -1,4 +1,3 @@
-import { css } from '@emotion/react';
 import styled from '@emotion/styled';
 import { NavLink } from 'react-router-dom';
 
@@ -29,6 +28,19 @@ export const TabNavLink = styled(NavLink)`
   }
 `;
 
+const setTabPosition = (tabPositions: TabPosition[]) => {
+  let styles: Record<string, { left: string; width: string }> = {};
+
+  tabPositions.forEach((position, index) => {
+    styles[`${TabNavLink}:nth-of-type(${index + 1}).active ~ &`] = {
+      left: `${position.left / 16}rem`,
+      width: `${position.width / 16}rem`,
+    };
+  });
+
+  return styles;
+};
+
 export const IndicatorBox = styled.div<{ tabPositions: TabPosition[] }>`
   position: absolute;
   bottom: -0.6rem;
@@ -38,24 +50,7 @@ export const IndicatorBox = styled.div<{ tabPositions: TabPosition[] }>`
 
   transition: all 300ms linear;
 
-  ${({ tabPositions }) =>
-    tabPositions.length > 0 &&
-    css`
-      ${TabNavLink}:nth-child(1).active ~ & {
-        left: ${tabPositions[0].left}px;
-        width: ${tabPositions[0].width}px;
-      }
-
-      ${TabNavLink}:nth-child(2).active ~ & {
-        left: ${tabPositions[1].left}px;
-        width: ${tabPositions[1].width}px;
-      }
-
-      ${TabNavLink}:nth-child(3).active ~ & {
-        left: ${tabPositions[2].left}px;
-        width: ${tabPositions[2].width}px;
-      }
-    `};
+  ${({ tabPositions }) => setTabPosition(tabPositions)}
 `;
 
 export const MainBox = styled.div`
