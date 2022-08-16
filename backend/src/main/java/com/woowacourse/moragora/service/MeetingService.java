@@ -111,6 +111,20 @@ public class MeetingService {
         return new MyMeetingsResponse(myMeetingResponses);
     }
 
+    @Transactional
+    public void deleteParticipant(final long meetingId, final long userId) {
+        meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        final Participant participant = participantRepository.findByMeetingIdAndUserId(meetingId, userId)
+                .orElseThrow(ParticipantNotFoundException::new);
+        validateMaster(participant);
+
+        attendanceRepository.deleteByParticipantId(participant.getId());
+        participantRepository.delete(participant);
+    }
+
     private MeetingAttendances getMeetingAttendances(final Participant participant) {
         final Meeting meeting = participant.getMeeting();
         final List<Long> participantIds = meeting.getParticipantIds();
@@ -200,20 +214,6 @@ public class MeetingService {
                 meeting, tardyCount, isLoginUserMaster, isCoffeeTime, isActive,
                 EventResponse.of(event, attendanceOpenTime, attendanceClosedTime)
         );
-    }
-
-    @Transactional
-    public void deleteParticipant(final long meetingId, final long userId) {
-        meetingRepository.findById(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
-        userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-        final Participant participant = participantRepository.findByMeetingIdAndUserId(meetingId, userId)
-                .orElseThrow(ParticipantNotFoundException::new);
-        validateMaster(participant);
-
-        attendanceRepository.deleteByParticipantId(participant.getId());
-        participantRepository.delete(participant);
     }
 
     private void validateMaster(final Participant participant) {
