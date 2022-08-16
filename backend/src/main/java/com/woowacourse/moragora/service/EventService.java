@@ -34,9 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class EventService {
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     private final Map<Attendance, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
     private final TaskScheduler taskScheduler;
     private final EventRepository eventRepository;
@@ -63,15 +60,22 @@ public class EventService {
     public void save(final EventsRequest request, final Long meetingId) {
         final Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(MeetingNotFoundException::new);
-        final List<Event> events = request.toEntities(meeting).stream()
-                .filter(event -> event.dateAfterOrEqualTo(serverTimeManager.getDate()))
-                .collect(Collectors.toList());
+        final List<Event> events = request.toEntities(meeting);
+        validateEventDateNotPast(events);
         validateDuplicatedEventDate(events);
         validateAttendanceStartTimeIsAfterNow(events);
 
         eventRepository.saveAll(events);
         final List<Attendance> attendances = saveAllAttendances(meeting.getParticipants(), events);
         scheduleAttendancesUpdate(attendances);
+    }
+
+    private void validateEventDateNotPast(final List<Event> events) {
+        final boolean exists = events.stream()
+                .anyMatch(event -> event.dateBefore(serverTimeManager.getDate()));
+        if (exists) {
+            throw new ClientRuntimeException("오늘 이전의 이벤트를 생성할 수 없습니다.", HttpStatus.BAD_REQUEST);
+        }
     }
 
     private void validateDuplicatedEventDate(final List<Event> events) {

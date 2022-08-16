@@ -61,13 +61,13 @@ public class Event {
         return this.date.isEqual(date);
     }
 
+    public boolean dateBefore(final LocalDate date) {
+        return this.date.isBefore(date);
+    }
+
     private void validateEntranceLeaveTime(final LocalTime entranceTime, final LocalTime leaveTime) {
         if (entranceTime.isAfter(leaveTime)) {
             throw new IllegalEntranceLeaveTimeException();
         }
-    }
-
-    public boolean dateAfterOrEqualTo(final LocalDate date) {
-        return this.date.isAfter(date) || this.date.isEqual(date);
     }
 }

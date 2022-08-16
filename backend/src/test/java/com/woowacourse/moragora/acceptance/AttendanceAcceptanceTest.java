@@ -5,6 +5,7 @@ import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.FORKY;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.UserFixtures.SUN;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
@@ -92,9 +93,11 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         final ValidatableResponse response = get("/meetings/" + meetingId + "/attendances/today", token);
 
         // then
-        response.statusCode(HttpStatus.OK.value())
-                .body("users.nickname", containsInAnyOrder(SUN.getNickname(), KUN.getNickname(), FORKY.getNickname()))
-                .body("users.attendanceStatus", containsInAnyOrder("TARDY", "TARDY", "TARDY"));
+        await().untilAsserted(() ->
+                response.statusCode(HttpStatus.OK.value())
+                        .body("users.nickname",
+                                containsInAnyOrder(SUN.getNickname(), KUN.getNickname(), FORKY.getNickname()))
+                        .body("users.attendanceStatus", containsInAnyOrder("TARDY", "TARDY", "TARDY")));
     }
 
     @DisplayName("오늘의 출석부를 요청할 때 오늘의 이벤트가 없다면 상태코드 400을 반환한다.")
