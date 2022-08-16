@@ -1,6 +1,5 @@
 package com.woowacourse.moragora.entity;
 
-import com.woowacourse.moragora.exception.meeting.AttendanceNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
@@ -14,13 +13,6 @@ public class ParticipantAttendances {
     public ParticipantAttendances(final List<Attendance> values) {
         validateSingleParticipant(values);
         this.values = values;
-    }
-
-    public Attendance extractAttendanceByDate(final LocalDate date) {
-        return values.stream()
-                .filter(it -> it.isSameDate(date))
-                .findAny()
-                .orElseThrow(AttendanceNotFoundException::new);
     }
 
     public int countTardy(final boolean isAttendanceClosed, final LocalDate today) {

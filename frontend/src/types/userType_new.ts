@@ -32,6 +32,15 @@ export type GetLoginUserDataResponseBody = Pick<
   'id' | 'nickname' | 'email'
 >;
 
+export type UserUpdateNicknameRequestBody = Pick<User, 'nickname'>;
+
+export type UserUpdatePasswordRequestBody = {
+  oldPassword: User['password'];
+  newPassword: User['password'];
+};
+
+export type UserDeleteRequestBody = Pick<User, 'password'>;
+
 export type UserCoffeeStatsResponseBody = {
   userCoffeeStats: (Pick<User, 'id' | 'nickname'> & {
     coffeeCount: number;

@@ -4,18 +4,24 @@ import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.FORKY;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.UserFixtures.MASTER;
+import static com.woowacourse.moragora.support.UserFixtures.NO_MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.SUN;
+import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
+import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import io.restassured.response.ValidatableResponse;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -40,11 +46,11 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         final String token = signUpAndGetToken(user1);
         final Meeting meeting = MORAGORA.create();
         final Long meetingId = (long) saveMeeting(token, userIds, meeting);
-        final LocalTime entranceTime = LocalTime.now().minusHours(1);
+        final LocalTime startTime = LocalTime.now().minusHours(1);
         final Event event = Event.builder()
                 .date(LocalDate.now())
-                .entranceTime(entranceTime)
-                .leaveTime(entranceTime.plusHours(1))
+                .startTime(startTime)
+                .endTime(startTime.plusHours(1))
                 .meeting(meeting)
                 .build();
 
@@ -52,8 +58,8 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .willReturn(false);
         given(serverTimeManager.getDate())
                 .willReturn(LocalDate.now());
-        given(serverTimeManager.calculateClosingTime(any(LocalTime.class)))
-                .willReturn(entranceTime.plusHours(2));
+        given(serverTimeManager.calculateClosedTime(any(LocalTime.class)))
+                .willReturn(startTime.plusHours(2));
         saveEvents(token, List.of(event), meetingId);
 
         // when
@@ -76,17 +82,17 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         final String token = signUpAndGetToken(user1);
         final Meeting meeting = MORAGORA.create();
         final Long meetingId = (long) saveMeeting(token, userIds, meeting);
-        final LocalTime entranceTime = LocalTime.now().minusHours(1);
+        final LocalTime startTime = LocalTime.now().minusHours(1);
         final Event event = Event.builder()
                 .date(LocalDate.now())
-                .entranceTime(entranceTime)
-                .leaveTime(LocalTime.now().plusHours(1))
+                .startTime(startTime)
+                .endTime(LocalTime.now().plusHours(1))
                 .meeting(meeting)
                 .build();
         given(serverTimeManager.getDate())
                 .willReturn(LocalDate.now());
-        given(serverTimeManager.calculateClosingTime(any(LocalTime.class)))
-                .willReturn(entranceTime);
+        given(serverTimeManager.calculateClosedTime(any(LocalTime.class)))
+                .willReturn(startTime);
         saveEvents(token, List.of(event), meetingId);
 
         // when
@@ -114,7 +120,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
 
         given(serverTimeManager.getDate())
                 .willReturn(EVENT1.getDate());
-        given(serverTimeManager.calculateClosingTime(any(LocalTime.class)))
+        given(serverTimeManager.calculateClosedTime(any(LocalTime.class)))
                 .willReturn(LocalTime.of(10, 30));
         saveEvents(token, List.of(EVENT1.create(meeting)), meetingId);
 
@@ -130,64 +136,72 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
 
     }
 
-//    @DisplayName("미팅 참가자의 출석을 업데이트하면 상태코드 204을 반환한다.")
-//    @Test
-//    void updateAttendance() {
-//        // given
-//        final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
-//
-//        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 1);
-//
-//        given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
-//                .willReturn(false);
-//        given(serverTimeManager.getDate())
-//                .willReturn(dateTime.toLocalDate());
-//        given(serverTimeManager.getDateAndTime())
-//                .willReturn(dateTime);
-//
-//        final String token = signUpAndGetToken(MASTER.create());
-//
-//        final List<Long> userIds = saveUsers(createUsers());
-//        final int meetingId = saveMeeting(token, userIds, MORAGORA.create());
-//
-//        // when
-//        final ValidatableResponse response = put("/meetings/" + meetingId + "/users/" + userIds.get(0),
-//                userAttendanceRequest, token);
-//
-//        // then
-//        response.statusCode(HttpStatus.NO_CONTENT.value());
-//    }
-//
-//    @DisplayName("마스터가 아닌 참가자가 미팅 참가자의 출석을 업데이트하면 상태코드 403을 반환한다.")
-//    @Test
-//    void updateAttendance_NotMaster() {
-//        final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(Status.PRESENT);
-//
-//        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 1);
-//
-//        given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
-//                .willReturn(false);
-//        given(serverTimeManager.getDate())
-//                .willReturn(dateTime.toLocalDate());
-//        given(serverTimeManager.getDateAndTime())
-//                .willReturn(dateTime);
-//
-//        final String masterToken = signUpAndGetToken(MASTER.create());
-//        final String noMasterToken = signUpAndGetToken(NO_MASTER.create());
-//
-//        final List<User> users = createUsers();
-//        users.add(NO_MASTER.create());
-//        final List<Long> userIds = saveUsers(users);
-//        final int meetingId = saveMeeting(masterToken, userIds, MORAGORA.create());
-//
-//        // when
-//        final ValidatableResponse response = put("/meetings/" + meetingId + "/users/" + userIds.get(0),
-//                userAttendanceRequest, noMasterToken);
-//
-//        // then
-//        response.statusCode(HttpStatus.FORBIDDEN.value())
-//                .body("message", equalTo("마스터 권한이 없습니다."));
-//    }
+    @DisplayName("미팅 참가자의 출석을 업데이트하면 상태코드 204을 반환한다.")
+    @Test
+    void updateAttendance() {
+        // given
+        final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(true);
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 1);
+
+        given(serverTimeManager.isAttendanceOpen(any(LocalTime.class)))
+                .willReturn(true);
+        given(serverTimeManager.getDate())
+                .willReturn(dateTime.toLocalDate());
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime);
+        given(serverTimeManager.calculateClosedTime(any(LocalTime.class)))
+                .willReturn(dateTime.toLocalTime().plusMinutes(30));
+
+        final String token = signUpAndGetToken(MASTER.create());
+
+        final List<Long> userIds = saveUsers(createUsers());
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(token, userIds, meeting);
+
+        saveEvents(token, List.of(EVENT1.create(meeting)), (long) meetingId);
+
+        // when
+        final ValidatableResponse response = post(
+                "/meetings/" + meetingId + "/users/" + userIds.get(0) + "/attendances/today",
+                userAttendanceRequest, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("마스터가 아닌 참가자가 미팅 참가자의 출석을 업데이트하면 상태코드 403을 반환한다.")
+    @Test
+    void updateAttendance_NotMaster() {
+        final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(true);
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 1);
+
+        given(serverTimeManager.isAttendanceClosed(any(LocalTime.class)))
+                .willReturn(false);
+        given(serverTimeManager.getDate())
+                .willReturn(dateTime.toLocalDate());
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime);
+
+        final String masterToken = signUpAndGetToken(MASTER.create());
+        final String noMasterToken = signUpAndGetToken(NO_MASTER.create());
+
+        final Meeting meeting = MORAGORA.create();
+        // TODO: signup(), login() 이용해서 NO_MASTER의 id 추출
+        final int meetingId = saveMeeting(masterToken, List.of(2L), meeting);
+
+        saveEvents(masterToken, List.of(EVENT1.create(meeting)), (long) meetingId);
+
+        // when
+        final ValidatableResponse response = post(
+                "/meetings/" + meetingId + "/users/" + 1 + "/attendances/today",
+                userAttendanceRequest, noMasterToken);
+
+        // then
+        response.statusCode(HttpStatus.FORBIDDEN.value())
+                .body("message", equalTo("마스터 권한이 없습니다."));
+    }
 //
 //    @DisplayName("모임에 쌓인 커피스택을 사용하면 참가자들의 커피 스택을 차감하고 상태코드 204을 반환한다.")
 //    @Test

@@ -1,16 +1,22 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.moragora.dto.EventCancelRequest;
+import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.EventRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
+import java.time.LocalDate;
+import com.woowacourse.moragora.support.ServerTimeManager;
+import java.time.LocalTime;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -70,6 +76,30 @@ public class EventService {
         scheduleAttendancesUpdate(attendances);
     }
 
+    @Transactional
+    public void cancel(final EventCancelRequest request, final Long meetingId) {
+        meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        final List<LocalDate> dates = request.getDates();
+        List<Event> events = eventRepository.findByMeetingIdAndDateIn(meetingId, dates);
+        final List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+        attendanceRepository.deleteByEventIdIn(eventIds);
+        eventRepository.deleteByIdIn(eventIds);
+    }
+
+    public EventResponse findUpcomingEvent(final Long meetingId) {
+        final Event event = eventRepository.findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(
+                        meetingId, serverTimeManager.getDate())
+                .orElseThrow(EventNotFoundException::new);
+
+        final LocalTime entranceTime = event.getStartTime();
+        final LocalTime attendanceOpenTime = serverTimeManager.calculateOpenTime(entranceTime);
+        final LocalTime attendanceClosedTime = serverTimeManager.calculateClosedTime(entranceTime);
+        return EventResponse.of(event, attendanceOpenTime, attendanceClosedTime);
+    }
+
     private void validateEventDateNotPast(final List<Event> events) {
         final boolean exists = events.stream()
                 .anyMatch(event -> event.dateBefore(serverTimeManager.getDate()));
@@ -92,8 +122,9 @@ public class EventService {
         final Optional<Event> event = events.stream()
                 .filter(it -> it.isSameDate(serverTimeManager.getDate()))
                 .findAny();
+
         event.ifPresent(it -> {
-            if (serverTimeManager.isAfterAttendanceStartTime(it.getEntranceTime())) {
+            if (serverTimeManager.isAfterAttendanceStartTime(it.getStartTime())) {
                 throw new ClientRuntimeException("출석 시간 전에 일정을 생성할 수 없습니다.", HttpStatus.BAD_REQUEST);
             }
         });
@@ -124,8 +155,8 @@ public class EventService {
     }
 
     private Instant calculateUpdateInstant(final Event event) {
-        final LocalTime entranceTime = event.getEntranceTime();
-        final LocalTime closingTime = serverTimeManager.calculateClosingTime(entranceTime);
+        final LocalTime entranceTime = event.getStartTime();
+        final LocalTime closingTime = serverTimeManager.calculateClosedTime(entranceTime);
         return closingTime.atDate(event.getDate()).
                 atZone(ZoneId.systemDefault()).toInstant();
     }
