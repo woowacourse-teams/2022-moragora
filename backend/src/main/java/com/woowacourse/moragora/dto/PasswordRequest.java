@@ -7,10 +7,11 @@ import lombok.ToString;
 
 @NoArgsConstructor
 @Getter
-@ToString
+@ToString(exclude = {"oldPassword", "newPassword"})
 public class PasswordRequest {
 
     private String oldPassword;
+
     @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,30}$",
             message = "입력 형식이 올바르지 않습니다.")
     private String newPassword;
