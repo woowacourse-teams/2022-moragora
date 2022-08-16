@@ -219,7 +219,7 @@ public class UserControllerTest extends ControllerTest {
         final ResultActions resultActions = performGet("/users/me");
 
         // then
-        resultActions
+        resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("id").value(id))
                 .andExpect(jsonPath("email").value(email))
                 .andExpect(jsonPath("nickname").value(nickname))
@@ -231,6 +231,17 @@ public class UserControllerTest extends ControllerTest {
                                 fieldWithPath("nickname").type(JsonFieldType.STRING).description("foo")
                         )
                 ));
+    }
+
+    @DisplayName("로그인하지 않은 상태에서 회원의 정보를 조회하면 예외가 발생한다.")
+    @Test
+    void findMe_ifNotLoggedIn() throws Exception {
+        // given, when
+        final ResultActions resultActions = performGet("/users/me");
+
+        // then
+        resultActions.andExpect(status().isUnauthorized())
+                .andDo(document("user/find-my-info-unauthorized"));
     }
 
     @DisplayName("로그인한 회원의 닉네임을 수정한다.")

@@ -10,7 +10,6 @@ import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
 import useQuerySelectItems from 'hooks/useQuerySelectItems';
 import { UserQueryWithKeywordResponse } from 'types/userType';
-import { dateToFormattedString } from 'utils/timeUtil';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { createMeetingApi } from 'apis/meetingApis';
 
@@ -19,7 +18,7 @@ const MAX_SELECTED_USER_COUNT = 30;
 const MeetingCreatePage = () => {
   const navigate = useNavigate();
   const { accessToken } = useContext(userContext) as UserContextValues;
-  const { values, errors, isSubmitting, onSubmit, register } = useForm();
+  const { errors, isSubmitting, onSubmit, register } = useForm();
   const {
     queryResult,
     selectedItems,
@@ -31,7 +30,6 @@ const MeetingCreatePage = () => {
     wait: 150,
     maxSelectCount: MAX_SELECTED_USER_COUNT,
   });
-  // const currentDate = new Date();
   const isParticipantSelected = selectedItems.length > 0;
 
   const meetingCreateMutation = useMutation(createMeetingApi, {
@@ -86,111 +84,6 @@ const MeetingCreatePage = () => {
               message={errors['name']}
             />
           </S.FieldBox>
-          {/* <S.FieldGroupBox>
-            <S.FieldBox>
-              <S.Label>
-                시작 날짜
-                <Input
-                  type="date"
-                  {...register('startDate', {
-                    onClick: (e) => {
-                      const target = e.target as HTMLInputElement & {
-                        showPicker: () => void;
-                      };
-
-                      target.showPicker();
-                    },
-                    min: dateToFormattedString(currentDate),
-                    required: true,
-                  })}
-                />
-              </S.Label>
-              <InputHint
-                isShow={
-                  Boolean(errors['startDate']) && errors['startDate'] !== ''
-                }
-                message={errors['startDate']}
-              />
-            </S.FieldBox>
-            <S.FieldBox>
-              <S.Label>
-                마감 날짜
-                <Input
-                  type="date"
-                  {...register('endDate', {
-                    onClick: (e) => {
-                      const target = e.target as HTMLInputElement & {
-                        showPicker: () => void;
-                      };
-
-                      target.showPicker();
-                    },
-                    min: values['startDate']
-                      ? values['startDate']
-                      : dateToFormattedString(currentDate),
-                    required: true,
-                  })}
-                  disabled={errors['startDate'] !== ''}
-                />
-              </S.Label>
-              <InputHint
-                isShow={Boolean(errors['endDate']) && errors['endDate'] !== ''}
-                message={errors['endDate']}
-              />
-            </S.FieldBox>
-          </S.FieldGroupBox>
-          <S.FieldGroupBox>
-            <S.FieldBox>
-              <S.Label>
-                시작 시간
-                <Input
-                  type="time"
-                  {...register('entranceTime', {
-                    onClick: (e) => {
-                      const target = e.target as HTMLInputElement & {
-                        showPicker: () => void;
-                      };
-
-                      target.showPicker();
-                    },
-                    required: true,
-                  })}
-                />
-              </S.Label>
-              <InputHint
-                isShow={
-                  Boolean(errors['entranceTime']) &&
-                  errors['entranceTime'] !== ''
-                }
-                message={errors['entranceTime']}
-              />
-            </S.FieldBox>
-            <S.FieldBox>
-              <S.Label>
-                마감 시간
-                <Input
-                  type="time"
-                  {...register('leaveTime', {
-                    onClick: (e) => {
-                      const target = e.target as HTMLInputElement & {
-                        showPicker: () => void;
-                      };
-
-                      target.showPicker();
-                    },
-                    required: true,
-                  })}
-                  disabled={errors['entranceTime'] !== ''}
-                />
-              </S.Label>
-              <InputHint
-                isShow={
-                  Boolean(errors['leaveTime']) && errors['leaveTime'] !== ''
-                }
-                message={errors['leaveTime']}
-              />
-            </S.FieldBox>
-          </S.FieldGroupBox> */}
           <S.FieldBox>
             <S.Label>
               <S.AddMemberParagraph>

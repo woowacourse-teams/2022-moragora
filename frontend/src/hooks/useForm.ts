@@ -1,59 +1,93 @@
 import React, { useRef, useState } from 'react';
 
-type Values = Record<HTMLInputElement['name'], HTMLInputElement['value']>;
-type Errors = Record<HTMLInputElement['name'], string>;
+type Name = React.InputHTMLAttributes<HTMLInputElement>['name'];
+type Value = React.InputHTMLAttributes<HTMLInputElement>['value'];
+type Error = HTMLInputElement['validationMessage'];
+type Values = Record<NonNullable<Name>, Value>;
+type Errors = Record<NonNullable<Name>, Error>;
+type Validation = {
+  validate: (
+    value: HTMLInputElement['value'],
+    inputController: InputController
+  ) => boolean;
+  validationMessage: HTMLInputElement['validationMessage'];
+};
+type InputAttributes = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'name' | 'onChange' | 'onBlur'
+> &
+  Partial<{
+    watch: boolean;
+    onChange: (
+      event: React.ChangeEvent<HTMLInputElement>,
+      inputController: InputController
+    ) => ReturnType<React.ChangeEventHandler<HTMLInputElement>>;
+    onBlur: (
+      event: React.FocusEvent<HTMLInputElement>,
+      inputController: InputController
+    ) => ReturnType<React.FocusEventHandler<HTMLInputElement>>;
+    patternValidationMessage: HTMLInputElement['validationMessage'];
+    customValidations: Validation[];
+  }>;
+type InputController = Record<
+  NonNullable<Name>,
+  {
+    element: HTMLInputElement;
+    checkValidity: HTMLInputElement['checkValidity'];
+  }
+>;
 
 const useForm = () => {
   const [values, setValues] = useState<Values>({});
   const [errors, setErrors] = useState<Errors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const inputControllerRef = useRef<InputController>({});
   const inputElementList = useRef<HTMLInputElement[]>([]);
-
-  const validate = (target: HTMLInputElement) => {
-    target.checkValidity();
-
-    setErrors((prev) => ({
-      ...prev,
-      [target.name]: target.validationMessage,
-    }));
-  };
 
   const handleChange =
     (
-      onChange?: React.ChangeEventHandler<HTMLInputElement>
+      onChange: InputAttributes['onChange']
     ): React.ChangeEventHandler<HTMLInputElement> =>
     (e) => {
-      const { target } = e;
-      const { name, value } = target;
+      const { currentTarget } = e;
 
-      validate(target);
+      inputControllerRef.current[currentTarget.name].checkValidity();
 
-      setValues((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-
-      if (onChange) {
-        onChange(e);
+      if (Object.prototype.hasOwnProperty.call(values, currentTarget.name)) {
+        setValues((prev) => ({
+          ...prev,
+          [currentTarget.name]: currentTarget.value,
+        }));
       }
+
+      onChange?.(e, inputControllerRef.current);
     };
 
-  const handleBlur: React.FormEventHandler<HTMLInputElement> = (e) => {
-    const { target } = e;
+  const handleBlur =
+    (
+      onBlur: InputAttributes['onBlur']
+    ): React.FocusEventHandler<HTMLInputElement> =>
+    (e) => {
+      const { currentTarget } = e;
 
-    validate(target as HTMLInputElement);
-  };
+      inputControllerRef.current[currentTarget.name].checkValidity();
+      onBlur?.(e, inputControllerRef.current);
+    };
 
   const handleSubmit =
     (
-      onValid: React.FormEventHandler<HTMLFormElement>,
-      onError?: React.FormEventHandler<HTMLFormElement>
+      onValid:
+        | React.FormEventHandler<HTMLFormElement>
+        | ((event: React.FormEvent<HTMLFormElement>) => Promise<void>),
+      onError?:
+        | React.FormEventHandler<HTMLFormElement>
+        | ((event: React.FormEvent<HTMLFormElement>) => Promise<void>)
     ): React.FormEventHandler<HTMLFormElement> =>
-    (e) => {
+    async (e) => {
       e.preventDefault();
 
       inputElementList.current.forEach((element) => {
-        validate(element);
+        inputControllerRef.current[element.name].checkValidity();
       });
 
       const isValidateComplete =
@@ -66,14 +100,20 @@ const useForm = () => {
 
       try {
         if (isValidateComplete && isValid) {
-          onValid(e);
+          await onValid(e);
 
           return;
-        } else if (onError) {
-          onError(e);
         }
+
+        const firstInvalidInput = inputElementList.current.find(
+          (element) => !element.validity.valid
+        );
+
+        firstInvalidInput?.focus();
+
+        throw e;
       } catch (e) {
-        console.error(e);
+        await onError?.(e as React.FormEvent<HTMLFormElement>);
       } finally {
         setIsSubmitting(false);
       }
@@ -89,31 +129,117 @@ const useForm = () => {
     };
   };
 
-  const bindInputElementToRef: React.RefCallback<HTMLInputElement> = (
-    element
-  ) => {
-    if (element && !inputElementList.current.includes(element)) {
+  const bindInputElementToRef =
+    (
+      patternValidationMessage: InputAttributes['patternValidationMessage'],
+      customValidations: InputAttributes['customValidations']
+    ): React.RefCallback<HTMLInputElement> =>
+    (element) => {
+      if (!element || inputControllerRef.current[element.name]) {
+        return;
+      }
+
       inputElementList.current.push(element);
-    }
-  };
+
+      const setValidClass = () => {
+        element.classList.add('valid');
+        element.classList.remove('invalid');
+      };
+
+      const setInvalidClass = () => {
+        element.classList.add('invalid');
+        element.classList.remove('valid');
+      };
+
+      const checkCustomValidity = (
+        customValidations: NonNullable<InputAttributes['customValidations']>
+      ) =>
+        customValidations.every(({ validate, validationMessage }) => {
+          const customValidationValidity = validate(
+            element.value,
+            inputControllerRef.current
+          );
+
+          element.setCustomValidity(
+            customValidationValidity ? '' : validationMessage
+          );
+
+          return customValidationValidity;
+        });
+
+      const checkValidity = () => {
+        element.setCustomValidity('');
+
+        let isValid = element.checkValidity();
+
+        if (element.validity.patternMismatch && patternValidationMessage) {
+          element.setCustomValidity(patternValidationMessage);
+        }
+
+        if (isValid && customValidations) {
+          isValid = checkCustomValidity(customValidations);
+        }
+
+        if (isValid) {
+          setValidClass();
+        } else {
+          setInvalidClass();
+        }
+
+        setErrors((prev) => ({
+          ...prev,
+          [element.name]: element.validationMessage,
+        }));
+
+        return isValid;
+      };
+
+      inputControllerRef.current[element.name] = {
+        element,
+        checkValidity,
+      };
+    };
 
   const register = (
     name: HTMLInputElement['name'],
     {
+      watch,
+      defaultValue,
       onChange,
+      onBlur,
+      patternValidationMessage,
+      customValidations,
       ...attributes
-    }: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'name'>
+    }: InputAttributes
   ) => {
+    const shouldWatch =
+      watch && !Object.prototype.hasOwnProperty.call(values, name);
+
+    if (shouldWatch) {
+      setValues((prev) => ({
+        ...prev,
+        [name]: defaultValue ?? '',
+      }));
+    }
+
     return {
       name,
-      ...attributes,
-      ref: bindInputElementToRef,
+      defaultValue,
+      ref: bindInputElementToRef(patternValidationMessage, customValidations),
       onChange: handleChange(onChange),
-      onBlur: handleBlur,
+      onBlur: handleBlur(onBlur),
+      ...attributes,
     };
   };
 
-  return { values, errors, isSubmitting, onSubmit, register };
+  return {
+    values,
+    errors,
+    isSubmitting,
+    inputController: inputControllerRef.current,
+    onSubmit,
+    register,
+  };
 };
 
 export default useForm;
