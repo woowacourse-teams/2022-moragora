@@ -5,7 +5,7 @@ import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import DivideLine from 'components/@shared/DivideLine';
 import ReloadButton from 'components/@shared/ReloadButton';
-import UserItem from 'components/UserItem';
+import CoffeeStackItem from 'components/CoffeeStackItem';
 import ModalPortal from 'components/ModalPortal';
 import CoffeeStackModal from 'components/CoffeeStackModal';
 import CoffeeStackProgress from 'components/CoffeeStackProgress';
@@ -24,6 +24,7 @@ const MeetingPage = () => {
   const { accessToken } = useContext(userContext) as UserContextValues;
   const [isModalOpened, setIsModalOpened] = useState(false);
   const [totalTardyCount, setTotalTardyCount] = useState<number>(0);
+
   const meetingQuery = useQuery(['meeting'], getMeetingData(id, accessToken), {
     onSuccess: (data) => {
       const totalTardyCount = data.body.users.reduce(
@@ -34,7 +35,7 @@ const MeetingPage = () => {
     },
   });
 
-  const { mutate } = useMutation(postEmptyCoffeeStackApi, {
+  const emptyCoffeeStackMutation = useMutation(postEmptyCoffeeStackApi, {
     onSuccess: () => {
       alert('커피 비우기에 성공했습니다.');
       meetingQuery.refetch();
@@ -52,9 +53,7 @@ const MeetingPage = () => {
   };
 
   const handleConfirm = () => {
-    if (id && accessToken) {
-      mutate({ id, accessToken });
-    }
+    emptyCoffeeStackMutation.mutate({ id, accessToken });
   };
 
   if (meetingQuery.isLoading) {
@@ -101,7 +100,7 @@ const MeetingPage = () => {
           <h1>{meetingQuery.data.body.name}</h1>
         </S.TitleSection>
         <DivideLine />
-        {!meetingQuery.data.body.hasUpcomingEvent &&
+        {/* {!meetingQuery.data.body.hasUpcomingEvent &&
           meetingQuery.data.body.isMaster && (
             <>
               <S.EmptyStateBox>
@@ -115,10 +114,9 @@ const MeetingPage = () => {
               </S.EmptyStateBox>
               <DivideLine />
             </>
-          )}
+          )} */}
         <S.MeetingDetailBox>
           <S.MeetingStatusSection>
-            <S.SectionTitle>출결상황</S.SectionTitle>
             <S.ProgressBox>
               <CoffeeStackProgress
                 percent={
@@ -126,7 +124,7 @@ const MeetingPage = () => {
                 }
               />
               <S.StackDetailBox>
-                {meetingQuery.data.body.isMaster &&
+                {meetingQuery.data.body.isLoginUserMaster &&
                 meetingQuery.data.body.isCoffeeTime ? (
                   <S.EmptyButton
                     variant="confirm"
@@ -146,22 +144,20 @@ const MeetingPage = () => {
           </S.MeetingStatusSection>
           <S.UserListSection>
             <S.UserListSectionHeader>
-              <S.SectionTitle>출결</S.SectionTitle>
+              <S.SectionTitle>커피 스택 현황</S.SectionTitle>
               <p>
-                총 출석일: <span>{meetingQuery.data.body.attendanceCount}</span>
+                총 출석일:{' '}
+                <span>{meetingQuery.data.body.attendanceEventCount}</span>
               </p>
             </S.UserListSectionHeader>
             <S.UserListBox>
               <S.UserList>
                 {meetingQuery.data.body.users.map((user) => (
-                  <UserItem
+                  <CoffeeStackItem
                     key={user.id}
-                    meetingId={id}
-                    user={user}
-                    disabled={
-                      !meetingQuery.data?.body.isMaster ||
-                      !meetingQuery.data.body.isActive
-                    }
+                    name={user.nickname}
+                    tardyCount={user.tardyCount}
+                    isMaster={user.isMaster}
                   />
                 ))}
               </S.UserList>
