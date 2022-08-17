@@ -82,13 +82,13 @@ public class UserService {
 
         final String oldPassword = request.getOldPassword();
         final String newPassword = request.getNewPassword();
-        validateOldPassword(user, oldPassword);
+        validateOldPasswordIsCorrect(user, oldPassword);
         validateNewPasswordIsNotSame(oldPassword, newPassword);
 
         user.updatePassword(EncodedPassword.fromRawValue(newPassword));
     }
 
-    private void validateOldPassword(final User user, final String oldPassword) {
+    private void validateOldPasswordIsCorrect(final User user, final String oldPassword) {
         try {
             user.checkPassword(new RawPassword(oldPassword));
         } catch (AuthenticationFailureException e) {
