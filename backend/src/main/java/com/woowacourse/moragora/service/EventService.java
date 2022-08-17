@@ -104,14 +104,9 @@ public class EventService {
     public EventsResponse findByDuration(final Long meetingId, final LocalDate begin, final LocalDate end) {
         List<Event> events = eventRepository.findByMeetingIdAndDuration(meetingId, begin, end);
         final List<EventResponse> eventResponses = events.stream()
-                .map(event -> new EventResponse(
-                        event.getId(),
-                        serverTimeManager.calculateOpeningTime(event.getStartTime()),
-                        serverTimeManager.calculateClosingTime(event.getStartTime()),
-                        event.getStartTime(),
-                        event.getEndTime(),
-                        event.getDate()
-                ))
+                .map(event -> EventResponse.of(event, serverTimeManager.calculateOpeningTime(event.getStartTime()),
+                        serverTimeManager.calculateClosingTime(event.getStartTime()))
+                )
                 .collect(Collectors.toList());
 
         return new EventsResponse(eventResponses);

@@ -168,24 +168,14 @@ class EventServiceTest {
 
         final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
         final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        EventResponse.of(event1, event1.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                event1.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL));
 
         final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
-                new EventResponse(
-                        event1.getId(),
-                        event1.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                        event1.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL),
-                        event1.getStartTime(),
-                        event1.getEndTime(),
-                        event1.getDate()
-                ),
-                new EventResponse(
-                        event2.getId(),
-                        event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL),
-                        event2.getStartTime(),
-                        event2.getEndTime(),
-                        event2.getDate()
-                )
+                EventResponse.of(event1, event1.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event1.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL)),
+                EventResponse.of(event2, event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL))
         ));
 
         // when
@@ -207,22 +197,10 @@ class EventServiceTest {
         final Event event3 = dataSupport.saveEvent(EVENT3.create(meeting));
 
         final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
-                new EventResponse(
-                        event2.getId(),
-                        event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL),
-                        event2.getStartTime(),
-                        event2.getEndTime(),
-                        event2.getDate()
-                ),
-                new EventResponse(
-                        event3.getId(),
-                        event3.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                        event3.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL),
-                        event3.getStartTime(),
-                        event3.getEndTime(),
-                        event3.getDate()
-                )
+                EventResponse.of(event2, event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL)),
+                EventResponse.of(event3, event3.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event3.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL))
         ));
 
         // when
@@ -244,22 +222,10 @@ class EventServiceTest {
         dataSupport.saveEvent(EVENT3.create(meeting));
 
         final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
-                new EventResponse(
-                        event1.getId(),
-                        event1.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                        event1.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL),
-                        event1.getStartTime(),
-                        event1.getEndTime(),
-                        event1.getDate()
-                ),
-                new EventResponse(
-                        event2.getId(),
-                        event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL),
-                        event2.getStartTime(),
-                        event2.getEndTime(),
-                        event2.getDate()
-                )
+                EventResponse.of(event1, event1.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event1.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL)),
+                EventResponse.of(event2, event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL))
         ));
 
         // when
@@ -281,14 +247,8 @@ class EventServiceTest {
         dataSupport.saveEvent(EVENT3.create(meeting));
 
         final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
-                new EventResponse(
-                        event2.getId(),
-                        event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL),
-                        event2.getStartTime(),
-                        event2.getEndTime(),
-                        event2.getDate()
-                )
+                EventResponse.of(event2, event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL))
         ));
 
         // when
