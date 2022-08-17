@@ -5,7 +5,7 @@ build/
 !**/src/main/**
 !**/src/test/**
 
-### Log ###
+#### Log ####
 /logs/
 
 ### Submodule ###

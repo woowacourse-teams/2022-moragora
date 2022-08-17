@@ -1,0 +1,16 @@
+constant.env: dev-yaml
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://13.125.75.15:8080/checkmate-db
+    url: jdbc:mysql://192.168.1.44:8080/checkmate-db
+    username: checkmate-user
+    password: check1324
+  jpa:
+    hibernate:
+      ddl-auto: create # ddl-auto
+
+security.jwt.token:
+  secret-key: C7wByAI0jABcazMJaizbRWoVSgeTuo7OVUBX36i8UPw=.utTOIzNQWjXUfW0ej1a5ZBCelG2UMRwGnuJ3/28eGTI=.bxlOlXAS6smCIxfU7MCbDy0D5Deuv4CHPaRKHMk5s6s=
+  expire-length: 3600000
