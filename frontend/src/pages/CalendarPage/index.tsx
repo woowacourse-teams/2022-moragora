@@ -25,10 +25,10 @@ import {
 import { getMeetingData } from 'apis/meetingApis';
 import Spinner from 'components/@shared/Spinner';
 import { QueryState } from 'types/queryType';
+import ErrorIcon from 'components/@shared/ErrorIcon';
 
 const CalendarPage = () => {
   const { id: meetingId } = useParams();
-  const navigate = useNavigate();
   const user = useContext(userContext) as UserContextValues;
 
   if (!meetingId) {
@@ -45,21 +45,22 @@ const CalendarPage = () => {
   const eventsQuery = useQuery(
     ['events'],
     getEventsApi(meetingId, user.accessToken),
-    {}
-  );
-
-  const { mutate } = useMutation(
-    createEventsApi(meetingId, user?.accessToken),
     {
-      onSuccess: () => {
-        alert('일정을 생성했습니다.');
-        navigate('/');
-      },
       onError: (error) => {
         alert(error.message);
       },
     }
   );
+
+  const { mutate } = useMutation(createEventsApi(meetingId, user.accessToken), {
+    onSuccess: () => {
+      eventsQuery.refetch();
+      alert('일정을 생성했습니다.');
+    },
+    onError: (error) => {
+      alert(error.message);
+    },
+  });
 
   const {
     events,
@@ -96,6 +97,18 @@ const CalendarPage = () => {
         <S.Layout>
           <S.SpinnerBox>
             <Spinner />
+          </S.SpinnerBox>
+        </S.Layout>
+      </>
+    );
+  }
+
+  if (eventsQuery.isError) {
+    return (
+      <>
+        <S.Layout>
+          <S.SpinnerBox>
+            <ErrorIcon />
           </S.SpinnerBox>
         </S.Layout>
       </>
