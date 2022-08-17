@@ -9,6 +9,7 @@ import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,6 +104,7 @@ public class EventService {
     }
 
     public EventsResponse findByDuration(final Long meetingId, final LocalDate begin, final LocalDate end) {
+        validateBeginIsGreaterThanEqualEnd(begin, end);
         List<Event> events = eventRepository.findByMeetingIdAndDuration(meetingId, begin, end);
         final List<EventResponse> eventResponses = events.stream()
                 .map(event -> EventResponse.of(event, serverTimeManager.calculateOpeningTime(event.getStartTime()),
@@ -110,5 +113,15 @@ public class EventService {
                 .collect(Collectors.toList());
 
         return new EventsResponse(eventResponses);
+    }
+
+    private void validateBeginIsGreaterThanEqualEnd(final LocalDate begin, final LocalDate end) {
+        if (begin == null || end == null) {
+            return;
+        }
+        
+        if (begin.isAfter(end)) {
+            throw new ClientRuntimeException("기간의 입력이 잘못되었습니다.", HttpStatus.BAD_REQUEST);
+        }
     }
 }

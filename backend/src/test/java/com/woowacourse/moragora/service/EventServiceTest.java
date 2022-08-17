@@ -15,6 +15,7 @@ import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.EventsResponse;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
@@ -168,8 +169,6 @@ class EventServiceTest {
 
         final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
         final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
-        EventResponse.of(event1, event1.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
-                event1.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL));
 
         final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
                 EventResponse.of(event1, event1.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
@@ -258,5 +257,20 @@ class EventServiceTest {
         // then
         assertThat(response).usingRecursiveComparison()
                 .isEqualTo(expectedEventsResponse);
+    }
+
+    @DisplayName("기간별 일정 조회시 조회하고자 하는 기간의 시작일이 종료일보다 늦는 경우 예외를 반환한다.")
+    @Test
+    void findByDuration_throwsExceptionIfBeginIsGreaterThanEnd() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+
+        // when, then
+        assertThatThrownBy(() -> eventService.findByDuration(meeting.getId(), event2.getDate(), event1.getDate()))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("기간의 입력이 잘못되었습니다.");
     }
 }
