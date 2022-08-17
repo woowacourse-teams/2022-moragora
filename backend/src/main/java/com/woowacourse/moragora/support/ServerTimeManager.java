@@ -33,12 +33,12 @@ public class ServerTimeManager {
         return dateTime.isAfter(closingTime);
     }
 
-    public LocalTime calculateOpenTime(final LocalTime meetingStartTime) {
-        return meetingStartTime.minusMinutes(ATTENDANCE_START_INTERVAL);
+    public LocalTime calculateClosingTime(final LocalTime meetingStartTime) {
+        return meetingStartTime.plusMinutes(ATTENDANCE_END_INTERVAL);
     }
 
-    public LocalTime calculateClosedTime(final LocalTime meetingStartTime) {
-        return meetingStartTime.plusMinutes(ATTENDANCE_END_INTERVAL);
+    public LocalTime calculateOpeningTime(final LocalTime meetingStartTime) {
+        return meetingStartTime.minusMinutes(ATTENDANCE_START_INTERVAL);
     }
 
     public void refresh(final LocalDateTime localDateTime) {

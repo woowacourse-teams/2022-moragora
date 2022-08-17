@@ -20,14 +20,28 @@ public class EventResponse {
     private final String meetingEndTime;
     private final LocalDate date;
 
-    public EventResponse(final Long id, final String attendanceOpenTime, final String attendanceClosedTime,
-                         final String meetingStartTime, final String meetingEndTime, final LocalDate date) {
+    private EventResponse(final Long id,
+                          final String attendanceOpenTime,
+                          final String attendanceClosedTime,
+                          final String meetingStartTime,
+                          final String meetingEndTime,
+                          final LocalDate date) {
         this.id = id;
         this.attendanceOpenTime = attendanceOpenTime;
         this.attendanceClosedTime = attendanceClosedTime;
         this.meetingStartTime = meetingStartTime;
         this.meetingEndTime = meetingEndTime;
         this.date = date;
+    }
+
+    public EventResponse(final Long id,
+                         final LocalTime attendanceOpenTime,
+                         final LocalTime attendanceClosedTime,
+                         final LocalTime meetingStartTime,
+                         final LocalTime meetingEndTime,
+                         final LocalDate date) {
+        this(id, attendanceOpenTime.format(TIME_FORMATTER), attendanceClosedTime.format(TIME_FORMATTER),
+                meetingStartTime.format(TIME_FORMATTER), meetingEndTime.format(TIME_FORMATTER), date);
     }
 
     public static EventResponse of(final Event event,
