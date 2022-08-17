@@ -114,7 +114,7 @@ const CoffeeStackPage = () => {
               <S.SectionTitle>커피 스택 현황</S.SectionTitle>
               <p>
                 총 출석일:{' '}
-                <span>{meetingQuery.data?.body.attendanceEventCount}</span>
+                <span>{meetingQuery.data?.body.attendedEventCount}</span>
               </p>
             </S.UserListSectionHeader>
             <S.UserListBox>

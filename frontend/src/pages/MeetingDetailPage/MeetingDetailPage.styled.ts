@@ -48,6 +48,8 @@ export const TabNavLink = styled(NavLink)`
   color: ${({ theme: { colors } }) => colors['subtle-light']};
   z-index: 1;
 
+  transition: all 300ms ease-out;
+
   &.active {
     color: ${({ theme: { colors } }) => colors['black']};
   }
@@ -73,7 +75,7 @@ export const IndicatorBox = styled.div<{ tabPositions: TabPosition[] }>`
   display: flex;
   justify-content: center;
 
-  transition: all 300ms linear;
+  transition: all 300ms ease-out;
 
   ${({ tabPositions }) => setTabPosition(tabPositions)}
 `;
