@@ -2,8 +2,8 @@ import React from 'react';
 import * as S from './CoffeeStackItem.styled';
 import CoffeeIconSVG from 'assets/coffee.svg';
 import CrownIconSVG from 'assets/crown.svg';
-import { Participant } from 'types/userType_new';
-import { Meeting } from 'types/meetingType_new';
+import { Participant } from 'types/userType';
+import { Meeting } from 'types/meetingType';
 
 type CoffeeStackItemProps = {
   name: Participant['nickname'] | Meeting['name'];

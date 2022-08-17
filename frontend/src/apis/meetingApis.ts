@@ -1,5 +1,7 @@
-import { MeetingListResponseBody } from 'types/meetingType';
-import { MeetingResponseBody } from 'types/meetingType_new';
+import {
+  MeetingListResponseBody,
+  MeetingResponseBody,
+} from 'types/meetingType';
 import { User } from 'types/userType';
 import request from 'utils/request';
 
