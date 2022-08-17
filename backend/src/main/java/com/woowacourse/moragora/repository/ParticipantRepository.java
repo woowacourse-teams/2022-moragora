@@ -15,5 +15,5 @@ public interface ParticipantRepository extends Repository<Participant, Long> {
 
     List<Participant> findByUserId(final Long userId);
 
-    void delete(Participant participant);
+    void delete(final Participant participant);
 }
