@@ -50,7 +50,7 @@ export const SectionTitle = styled.h2`
 
 export const ProgressBox = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: flex-end;
 `;
 
@@ -69,7 +69,6 @@ export const EmptyButton = styled(DialogButton)`
 `;
 
 export const StackDetailBox = styled.div`
-  flex-basis: 23%;
   padding-bottom: 1rem;
 `;
 
