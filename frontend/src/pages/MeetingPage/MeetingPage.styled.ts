@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 export const Layout = styled.div`
   display: flex;
   flex-direction: column;
-  flex: 1;
   overflow: hidden;
 `;
 
@@ -31,8 +30,9 @@ export const TitleSection = styled.section`
 `;
 
 export const MeetingDetailBox = styled.div`
-  overflow-x: hidden;
-  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 `;
 
 export const MeetingStatusSection = styled.section`
@@ -84,6 +84,12 @@ export const UserListSection = styled.section`
   flex-direction: column;
   flex: 1;
   width: 100%;
+  overflow-y: hidden;
+`;
+
+export const UserListBox = styled.div`
+  display: flex;
+  overflow-y: hidden;
 `;
 
 export const UserList = styled.ul`
@@ -100,17 +106,6 @@ export const UserList = styled.ul`
 `;
 
 export const Paragraph = styled.p``;
-
-export const UserDataBox = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-`;
-
-export const UserListBox = styled.div`
-  display: flex;
-  overflow: hidden;
-`;
 
 export const EmptyStateBox = styled.div`
   padding: 1.25rem;
