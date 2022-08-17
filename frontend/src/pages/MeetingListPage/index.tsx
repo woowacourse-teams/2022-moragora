@@ -51,7 +51,8 @@ const MeetingListPage = () => {
   useEffect(() => {
     const closingMeeting = sortedMeetings.find(
       (meeting) =>
-        meeting.isActive && meeting.closingTime === currentLocaleTimeString
+        meeting.isActive &&
+        meeting.upcomingEvent?.attendanceClosedTime === currentLocaleTimeString
     );
 
     if (closingMeeting) {

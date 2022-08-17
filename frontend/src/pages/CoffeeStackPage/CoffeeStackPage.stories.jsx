@@ -1,11 +1,11 @@
 import { rest } from 'msw';
-import MeetingPage from '.';
+import CoffeeStackPage from '.';
 import Header from 'components/layouts/Header';
 import AppLayout from 'components/layouts/AppLayout';
 
 export default {
-  title: 'Pages/MeetingPage',
-  component: MeetingPage,
+  title: 'Pages/CoffeeStackPage',
+  component: CoffeeStackPage,
   parameters: {
     reactRouter: {
       routePath: '/meeting/:id',
@@ -18,7 +18,7 @@ const Template = (args) => {
   return (
     <AppLayout>
       <Header />
-      <MeetingPage {...args} />
+      <CoffeeStackPage {...args} />
       <div id="root-modal" />
     </AppLayout>
   );

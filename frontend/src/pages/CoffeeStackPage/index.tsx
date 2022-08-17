@@ -1,12 +1,11 @@
 import { useContext, useState } from 'react';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
-import * as S from './MeetingPage.styled';
-import Footer from 'components/layouts/Footer';
+import { Navigate, useParams } from 'react-router-dom';
+import * as S from './CoffeeStackPage.styled';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import DivideLine from 'components/@shared/DivideLine';
 import ReloadButton from 'components/@shared/ReloadButton';
-import UserItem from 'components/UserItem';
+import CoffeeStackItem from 'components/CoffeeStackItem';
 import ModalPortal from 'components/ModalPortal';
 import CoffeeStackModal from 'components/CoffeeStackModal';
 import CoffeeStackProgress from 'components/CoffeeStackProgress';
@@ -14,10 +13,11 @@ import { userContext, UserContextValues } from 'contexts/userContext';
 import { postEmptyCoffeeStackApi, getMeetingData } from 'apis/meetingApis';
 import useMutation from 'hooks/useMutation';
 import useQuery from 'hooks/useQuery';
+import { getUpcomingEventApi } from 'apis/eventApis';
+import { NOT_FOUND_STATUS_CODE } from 'consts';
 
-const MeetingPage = () => {
+const CoffeeStackPage = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
 
   if (!id) {
     return <Navigate to={'/error'} />;
@@ -26,9 +26,11 @@ const MeetingPage = () => {
   const { accessToken } = useContext(userContext) as UserContextValues;
   const [isModalOpened, setIsModalOpened] = useState(false);
   const [totalTardyCount, setTotalTardyCount] = useState<number>(0);
+  const [upcomingEventNotExist, setUpcomingEventNotExist] = useState(false);
+
   const meetingQuery = useQuery(['meeting'], getMeetingData(id, accessToken), {
-    onSuccess: (data) => {
-      const totalTardyCount = data.body.users.reduce(
+    onSuccess: ({ body: { users } }) => {
+      const totalTardyCount = users.reduce(
         (total, user) => total + user.tardyCount,
         0
       );
@@ -36,7 +38,20 @@ const MeetingPage = () => {
     },
   });
 
-  const { mutate } = useMutation(postEmptyCoffeeStackApi, {
+  const upcomingEventQuery = useQuery(
+    ['upcomingEvent'],
+    getUpcomingEventApi(id, accessToken),
+    {
+      enabled: meetingQuery.isSuccess,
+      onError: (error) => {
+        setUpcomingEventNotExist(
+          parseInt(error.message.split(':')[0]) === NOT_FOUND_STATUS_CODE
+        );
+      },
+    }
+  );
+
+  const emptyCoffeeStackMutation = useMutation(postEmptyCoffeeStackApi, {
     onSuccess: () => {
       alert('커피 비우기에 성공했습니다.');
       meetingQuery.refetch();
@@ -54,12 +69,10 @@ const MeetingPage = () => {
   };
 
   const handleConfirm = () => {
-    if (id && accessToken) {
-      mutate({ id, accessToken });
-    }
+    emptyCoffeeStackMutation.mutate({ id, accessToken });
   };
 
-  if (meetingQuery.isLoading) {
+  if (meetingQuery.isLoading || upcomingEventQuery.isLoading) {
     return (
       <>
         <S.Layout>
@@ -67,12 +80,11 @@ const MeetingPage = () => {
             <Spinner />
           </S.SpinnerBox>
         </S.Layout>
-        <Footer />
       </>
     );
   }
 
-  if (meetingQuery.isError || !id || !meetingQuery.data?.body) {
+  if (!id || meetingQuery.isError || !meetingQuery.data?.body) {
     return (
       <>
         <S.Layout>
@@ -85,7 +97,6 @@ const MeetingPage = () => {
             />
           </S.ErrorBox>
         </S.Layout>
-        <Footer />
       </>
     );
   }
@@ -101,28 +112,26 @@ const MeetingPage = () => {
         </ModalPortal>
       )}
       <S.Layout>
+        {upcomingEventNotExist && meetingQuery.data.body.isLoginUserMaster && (
+          <>
+            <S.EmptyStateBox>
+              <S.EmptyStateTitle>다가오는 일정이 없습니다.</S.EmptyStateTitle>
+              <S.EmptyStateParagraph>
+                다음 일정을 설정하세요.
+              </S.EmptyStateParagraph>
+              <S.EventCreateLink to={`/meeting/${id}/event`}>
+                일정 설정하기
+              </S.EventCreateLink>
+            </S.EmptyStateBox>
+            <DivideLine />
+          </>
+        )}
         <S.TitleSection>
           <h1>{meetingQuery.data.body.name}</h1>
         </S.TitleSection>
         <DivideLine />
-        {!meetingQuery.data.body.hasUpcomingEvent &&
-          meetingQuery.data.body.isMaster && (
-            <>
-              <S.EmptyStateBox>
-                <S.EmptyStateTitle>다가오는 일정이 없습니다.</S.EmptyStateTitle>
-                <S.EmptyStateParagraph>
-                  다음 일정을 설정하세요.
-                </S.EmptyStateParagraph>
-                <S.EventCreateLink to={`/meeting/${id}/config`}>
-                  일정 설정하기
-                </S.EventCreateLink>
-              </S.EmptyStateBox>
-              <DivideLine />
-            </>
-          )}
         <S.MeetingDetailBox>
           <S.MeetingStatusSection>
-            <S.SectionTitle>출결상황</S.SectionTitle>
             <S.ProgressBox>
               <CoffeeStackProgress
                 percent={
@@ -130,7 +139,7 @@ const MeetingPage = () => {
                 }
               />
               <S.StackDetailBox>
-                {meetingQuery.data.body.isMaster &&
+                {meetingQuery.data.body.isLoginUserMaster &&
                 meetingQuery.data.body.isCoffeeTime ? (
                   <S.EmptyButton
                     variant="confirm"
@@ -150,22 +159,20 @@ const MeetingPage = () => {
           </S.MeetingStatusSection>
           <S.UserListSection>
             <S.UserListSectionHeader>
-              <S.SectionTitle>출결</S.SectionTitle>
+              <S.SectionTitle>커피 스택 현황</S.SectionTitle>
               <p>
-                총 출석일: <span>{meetingQuery.data.body.attendanceCount}</span>
+                총 출석일:{' '}
+                <span>{meetingQuery.data.body.attendanceEventCount}</span>
               </p>
             </S.UserListSectionHeader>
             <S.UserListBox>
               <S.UserList>
                 {meetingQuery.data.body.users.map((user) => (
-                  <UserItem
+                  <CoffeeStackItem
                     key={user.id}
-                    meetingId={id}
-                    user={user}
-                    disabled={
-                      !meetingQuery.data?.body.isMaster ||
-                      !meetingQuery.data.body.isActive
-                    }
+                    name={user.nickname}
+                    tardyCount={user.tardyCount}
+                    isMaster={user.isMaster}
                   />
                 ))}
               </S.UserList>
@@ -173,9 +180,8 @@ const MeetingPage = () => {
           </S.UserListSection>
         </S.MeetingDetailBox>
       </S.Layout>
-      <Footer />
     </>
   );
 };
 
-export default MeetingPage;
+export default CoffeeStackPage;
