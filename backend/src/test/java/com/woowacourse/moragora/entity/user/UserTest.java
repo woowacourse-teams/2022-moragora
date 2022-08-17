@@ -37,7 +37,10 @@ class UserTest {
 
     @DisplayName("유효하지 않은 닉네임로 회원을 생성하면 예외가 발생한다.")
     @ParameterizedTest
-    @ValueSource(strings = {"smart쿤!", "smartboykun12345", "smart kun"})
+    @ValueSource(strings = {
+            "imsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboy1",
+            "imsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboy123"
+    })
     void createUser_throwsException_IfInvalidNickname(final String nickname) {
         // given
         final EncodedPassword encodedPassword = EncodedPassword.fromRawValue("asdfqer1!");

@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.entity;
 
+import static com.woowacourse.moragora.entity.Provider.CHECKMATE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.entity.user.EncodedPassword;
@@ -58,9 +59,9 @@ class MeetingAttendancesTest {
     void countUsableAttendancesPerUsers() {
         // given
         final EncodedPassword encodedPassword = EncodedPassword.fromRawValue("qwer1234!");
-        final User user1 = new User(1L, "sun@gmail.com", encodedPassword, "sun");
-        final User user2 = new User(2L, "kun@gmail.com", encodedPassword, "kun");
-        final User user3 = new User(3L, "forky@gmail.com", encodedPassword, "forky");
+        final User user1 = new User(1L, "sun@gmail.com", encodedPassword, "sun", CHECKMATE);
+        final User user2 = new User(2L, "kun@gmail.com", encodedPassword, "kun", CHECKMATE);
+        final User user3 = new User(3L, "forky@gmail.com", encodedPassword, "forky", CHECKMATE);
 
         final LocalDateTime now = LocalDateTime.now();
         final LocalDate endDate = now.toLocalDate();
