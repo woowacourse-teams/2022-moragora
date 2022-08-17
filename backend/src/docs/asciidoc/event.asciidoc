@@ -25,6 +25,7 @@ include::{snippets}/event/add/http-response.adoc[]
 
 include::{snippets}/event/add/request-fields.adoc[]
 
+
 [[cancel]]
 == 삭제
 
@@ -64,3 +65,67 @@ include::{snippets}/event/find-upcoming/response-fields.adoc[]
 include::{snippets}/event/find-upcoming-not-found/http-response.adoc[]
 
 
+
+[[find-all]]
+== 모든 일정 조회
+
+[[find-all]]
+=== HTTP request
+
+include::{snippets}/event/find-all/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/event/find-all/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/event/find-all/response-fields.adoc[]
+
+[[find-isGreaterThanEqualBegin]]
+== 특정 날짜 이후의 일정 조회
+
+[[find-isGreaterThanEqualBegin]]
+=== HTTP request
+
+include::{snippets}/event/find-isGreaterThanEqualBegin/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/event/find-isGreaterThanEqualBegin/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/event/find-isGreaterThanEqualBegin/response-fields.adoc[]
+
+[[find-isLessThanEqualEnd]]
+== 특정 날짜 이전의 일정 조회
+
+[[find-isLessThanEqualEnd]]
+=== HTTP request
+
+include::{snippets}/event/find-isLessThanEqualEnd/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/event/find-isLessThanEqualEnd/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/event/find-isLessThanEqualEnd/response-fields.adoc[]
+
+[[find-inDuration]]
+== 특정 기간의 일정 조회
+
+[[find-inDuration]]
+=== HTTP request
+
+include::{snippets}/event/find-inDuration/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/event/find-inDuration/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/event/find-inDuration/response-fields.adoc[]

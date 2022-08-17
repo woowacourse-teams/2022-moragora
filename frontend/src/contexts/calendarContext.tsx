@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useRef, useState } from 'react';
-import { MeetingEvent } from 'types/eventType';
+import { EventCreateRequestBody, MeetingEvent } from 'types/eventType';
 import { mergeArrays } from 'utils/common';
 import {
   dateToFormattedString,
@@ -24,7 +24,7 @@ export const CalendarContext = createContext<{
   clearDateCellControlRef: () => void;
   highlightDateCellsHaveSameEntranceAndLeaveTime: (date: Date) => void;
   removeHighlightFromDateCells: () => void;
-  addEvents: (events: MeetingEvent[]) => void;
+  updateEvents: (events: EventCreateRequestBody['events']) => void;
   removeEvents: (dates: Date[]) => void;
   clearEvents: () => void;
   setShouldApplyBeginEndDates: (flag: boolean) => void;
@@ -44,7 +44,7 @@ export const CalendarContext = createContext<{
   clearDateCellControlRef: () => {},
   highlightDateCellsHaveSameEntranceAndLeaveTime: () => {},
   removeHighlightFromDateCells: () => {},
-  addEvents: () => {},
+  updateEvents: () => {},
   removeEvents: () => {},
   clearEvents: () => {},
   setShouldApplyBeginEndDates: () => {},
@@ -61,7 +61,7 @@ export const CalendarProvider: React.FC<
   );
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [shouldApplyBeginEndDates, setShouldApplyBeginEndDates] =
-    useState(true);
+    useState(false);
   const [beginDate, setBeginDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [events, setEvents] = useState<MeetingEvent[]>([]);
@@ -93,8 +93,8 @@ export const CalendarProvider: React.FC<
       const shouldHighlight =
         hoveredEvent &&
         currentEvent &&
-        hoveredEvent.entranceTime === currentEvent.entranceTime &&
-        hoveredEvent.leaveTime === currentEvent.leaveTime;
+        hoveredEvent.meetingStartTime === currentEvent.meetingStartTime &&
+        hoveredEvent.meetingEndTime === currentEvent.meetingEndTime;
 
       if (shouldHighlight) {
         element.classList.add('highlight');
@@ -174,7 +174,7 @@ export const CalendarProvider: React.FC<
     });
   };
 
-  const addEvents = (newEvents: MeetingEvent[]) => {
+  const updateEvents = (newEvents: EventCreateRequestBody['events']) => {
     setEvents((prevEvents) => mergeArrays(prevEvents, newEvents, 'date'));
   };
 
@@ -207,7 +207,7 @@ export const CalendarProvider: React.FC<
     clearDateCellControlRef,
     highlightDateCellsHaveSameEntranceAndLeaveTime,
     removeHighlightFromDateCells,
-    addEvents,
+    updateEvents,
     removeEvents,
     clearEvents,
     setShouldApplyBeginEndDates,

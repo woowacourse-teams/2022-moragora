@@ -36,6 +36,7 @@ import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeExcept
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -291,8 +292,8 @@ class MeetingControllerTest extends ControllerTest {
         final MyMeetingResponse myMeetingResponse =
                 new MyMeetingResponse(1L, "모임1", 1, true, false, false,
                         new EventResponse(1L,
-                                "09:30", "10:05",
-                                "10:00", "18:00",
+                                LocalTime.of(9, 30), LocalTime.of(10, 5),
+                                LocalTime.of(10, 0), LocalTime.of(18, 0),
                                 LocalDate.of(2022, 8, 1)
                         )
                 );

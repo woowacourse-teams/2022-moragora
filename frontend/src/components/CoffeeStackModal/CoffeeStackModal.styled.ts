@@ -22,7 +22,7 @@ export const StatsBox = styled.div`
   overflow: scroll;
 `;
 
-export const Header = styled.h1`
+export const Header = styled.h2`
   font-size: 1.5rem;
 `;
 

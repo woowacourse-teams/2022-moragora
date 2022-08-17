@@ -12,6 +12,7 @@ import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
@@ -77,5 +78,9 @@ public class DataSupport {
 
     public Event saveEvent(final Event event) {
         return eventRepository.save(event);
+    }
+
+    public Optional<Attendance> findAttendanceByParticipantAndEvent(final Participant participant, final Event event) {
+        return attendanceRepository.findByParticipantIdAndEventId(participant.getId(), event.getId());
     }
 }

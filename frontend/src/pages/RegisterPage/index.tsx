@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import * as S from './RegisterPage.styled';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
+import Button from 'components/@shared/Button';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import useForm from 'hooks/useForm';
 import useQuery from 'hooks/useQuery';
@@ -15,11 +16,10 @@ const RegisterPage = () => {
   const { login } = useContext(userContext) as UserContextValues;
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
   const [isEmailExist, setIsEmailExist] = useState(true);
-  const [isValidPasswordConfirm, setIsValidPasswordConfirm] = useState(true);
 
   const { refetch: checkEmailRefetch } = useQuery(
     ['checkEmail'],
-    checkEmailApi(values['email']),
+    checkEmailApi(values['email'] as string),
     {
       enabled: false,
       onSuccess: ({ body: { isExist } }) => {
@@ -53,8 +53,8 @@ const RegisterPage = () => {
   };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    if (!isValidPasswordConfirm || isEmailExist) {
-      return;
+    if (isEmailExist) {
+      throw e;
     }
 
     const target = e.target as HTMLFormElement;
@@ -64,7 +64,7 @@ const RegisterPage = () => {
       formData.entries()
     ) as UserRegisterRequestBody;
 
-    registerMutate(formDataObject);
+    await registerMutate(formDataObject);
   };
 
   return (
@@ -82,6 +82,7 @@ const RegisterPage = () => {
                     setIsEmailExist(true);
                   },
                   maxLength: 50,
+                  watch: true,
                 })}
                 placeholder="이메일을 입력해주세요."
               />
@@ -110,10 +111,10 @@ const RegisterPage = () => {
               {...register('password', {
                 pattern:
                   '(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,30}',
-                onChange: (e) => {
-                  setIsValidPasswordConfirm(
-                    values['passwordConfirm'] === e.target.value
-                  );
+                patternValidationMessage:
+                  '8에서 30자리 이하의 영어, 숫자, 특수문자로 입력해주세요.',
+                onChange: (e, inputController) => {
+                  inputController['passwordConfirm'].checkValidity();
                 },
                 minLength: 8,
                 maxLength: 30,
@@ -133,13 +134,16 @@ const RegisterPage = () => {
             <Input
               type="password"
               {...register('passwordConfirm', {
-                onChange: (e) => {
-                  setIsValidPasswordConfirm(
-                    values['password'] === e.target.value
-                  );
-                },
-                minLength: 8,
-                maxLength: 30,
+                customValidations: [
+                  {
+                    validate: (value, inputController) =>
+                      inputController['password'] &&
+                      inputController['passwordConfirm'] &&
+                      inputController['password'].element.value ===
+                        inputController['passwordConfirm'].element.value,
+                    validationMessage: '비밀번호가 다릅니다.',
+                  },
+                ],
                 required: true,
               })}
             />
@@ -151,10 +155,6 @@ const RegisterPage = () => {
             }
             message={errors['passwordConfirm']}
           />
-          <InputHint
-            isShow={!isValidPasswordConfirm}
-            message="비밀번호가 다릅니다."
-          />
         </S.FieldBox>
         <S.FieldBox>
           <S.Label>
@@ -164,6 +164,8 @@ const RegisterPage = () => {
               {...register('nickname', {
                 maxLength: 15,
                 pattern: '([a-zA-Z0-9가-힣]){1,15}',
+                patternValidationMessage:
+                  '15자 이하의 영어, 한글, 숫자 조합으로 입력해주세요.',
                 required: true,
               })}
               placeholder="15자 이하의 영어, 한글, 숫자 조합으로 입력해주세요."
@@ -176,13 +178,9 @@ const RegisterPage = () => {
         </S.FieldBox>
       </S.Form>
       <S.ButtonBox>
-        <S.RegisterButton
-          type="submit"
-          form="register-form"
-          disabled={isSubmitting}
-        >
+        <Button type="submit" form="register-form" disabled={isSubmitting}>
           회원가입
-        </S.RegisterButton>
+        </Button>
         <S.LoginHintParagraph>
           이미 가입된 계정이 있으신가요?
           <S.LoginLink to="/login">로그인</S.LoginLink>

@@ -2,6 +2,7 @@ package com.woowacourse.moragora.service;
 
 import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.EventFixtures.EVENT2;
+import static com.woowacourse.moragora.support.EventFixtures.EVENT3;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -11,13 +12,16 @@ import com.woowacourse.moragora.dto.EventCancelRequest;
 import com.woowacourse.moragora.dto.EventRequest;
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
+import com.woowacourse.moragora.dto.EventsResponse;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
+import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import com.woowacourse.moragora.support.ServerTimeManager;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -32,6 +36,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class EventServiceTest {
 
+    private static final int ATTENDANCE_END_INTERVAL = 5;
+    private static final int ATTENDANCE_START_INTERVAL = 30;
+
     @Autowired
     private EventService eventService;
 
@@ -39,10 +46,10 @@ class EventServiceTest {
     private DataSupport dataSupport;
 
     @Autowired
-    private DatabaseCleanUp databaseCleanUp;
+    private ServerTimeManager serverTimeManager;
 
     @Autowired
-    private ServerTimeManager serverTimeManager;
+    private DatabaseCleanUp databaseCleanUp;
 
     @BeforeEach
     void setUp() {
@@ -54,11 +61,47 @@ class EventServiceTest {
     @Test
     void save() {
         // given
-        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final LocalDate date = LocalDate.of(2022, 8, 1);
+        final LocalTime time = LocalTime.of(10, 0);
+        final LocalDateTime now = LocalDateTime.of(date, time);
+        serverTimeManager.refresh(now);
 
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final Event event1 = new Event(date, time.plusHours(1), time.plusHours(2), meeting);
+        final Event event2 = new Event(date.plusDays(1), time.plusHours(1), time.plusHours(2), meeting);
+        final EventsRequest eventsRequest = new EventsRequest(
+                List.of(
+                        EventRequest.builder()
+                                .meetingStartTime(event1.getStartTime())
+                                .meetingEndTime(event1.getEndTime())
+                                .date(event1.getDate())
+                                .build(),
+                        EventRequest.builder()
+                                .meetingStartTime(event2.getStartTime())
+                                .meetingEndTime(event2.getEndTime())
+                                .date(event2.getDate())
+                                .build()
+                )
+        );
+
+        // when, then
+        assertThatCode(() -> eventService.save(eventsRequest, meeting.getId()))
+                .doesNotThrowAnyException();
+    }
+
+
+    @DisplayName("오늘 이전의 이벤트를 생성하면 예외가 발생한다.")
+    @Test
+    void save_throwsException_ifEventDateNotPast() {
+        // given
+        final LocalDate date = LocalDate.of(2022, 8, 2);
+        final LocalTime time = LocalTime.of(10, 0);
+        final LocalDateTime now = LocalDateTime.of(date, time);
+        serverTimeManager.refresh(now);
+
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
         final Event event1 = EVENT1.create(meeting);
         final Event event2 = EVENT2.create(meeting);
-
         final EventsRequest eventsRequest = new EventsRequest(
                 List.of(
                         EventRequest.builder()
@@ -75,9 +118,68 @@ class EventServiceTest {
                 ));
 
         // when, then
-        assertThatCode(() -> eventService.save(eventsRequest, meeting.getId()))
-                .doesNotThrowAnyException();
+        assertThatThrownBy(() -> eventService.save(eventsRequest, meeting.getId()))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("오늘 이전의 이벤트를 생성할 수 없습니다.");
     }
+
+    @DisplayName("같은 날에 복수의 이벤트가 존재하면 예외가 발생한다.")
+    @Test
+    void save_throwsException_ifDuplicatedEventDate() {
+        // given
+        final LocalDate date = LocalDate.of(2022, 8, 1);
+        final LocalTime time = LocalTime.of(10, 0);
+        final LocalDateTime now = LocalDateTime.of(date, time);
+        serverTimeManager.refresh(now);
+
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final Event event = EVENT1.create(meeting);
+        final EventsRequest eventsRequest = new EventsRequest(
+                List.of(
+                        EventRequest.builder()
+                                .meetingStartTime(event.getStartTime())
+                                .meetingEndTime(event.getEndTime())
+                                .date(event.getDate())
+                                .build(),
+                        EventRequest.builder()
+                                .meetingStartTime(event.getStartTime())
+                                .meetingEndTime(event.getEndTime())
+                                .date(event.getDate())
+                                .build()
+                )
+        );
+
+        // when, then
+        assertThatThrownBy(() -> eventService.save(eventsRequest, meeting.getId()))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("하루에 복수의 일정을 생성할 수 없습니다.");
+    }
+
+    @DisplayName("오늘의 이벤트 생성 시, 이벤트 시작 시간이 출석 시작 시간보다 이후일 경우 예외가 발생한다.")
+    @Test
+    void save_throwsException_ifTodayEventStartTimeIsAfterAttendanceStartTime() {
+        // given
+        final LocalDate date = LocalDate.of(2022, 8, 1);
+        final LocalTime time = LocalTime.of(9, 30, 1);
+        final LocalDateTime now = LocalDateTime.of(date, time);
+        serverTimeManager.refresh(now);
+
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final Event event = EVENT1.create(meeting);
+        final EventsRequest eventsRequest = new EventsRequest(List.of(
+                EventRequest.builder()
+                        .meetingStartTime(event.getStartTime())
+                        .meetingEndTime(event.getEndTime())
+                        .date(event.getDate())
+                        .build()
+        ));
+
+        // when, then
+        assertThatThrownBy(() -> eventService.save(eventsRequest, meeting.getId()))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("출석 시간 전에 일정을 생성할 수 없습니다.");
+    }
+
 
     @DisplayName("모임 일정들을 삭제한다.")
     @Test
@@ -153,5 +255,118 @@ class EventServiceTest {
         // when, then
         assertThatThrownBy(() -> eventService.findUpcomingEvent(meeting.getId()))
                 .isInstanceOf(EventNotFoundException.class);
+    }
+
+    @DisplayName("모임 일정 전체를 조회한다.")
+    @Test
+    void findByDuration_all() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+
+        final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
+                EventResponse.of(event1, event1.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event1.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL)),
+                EventResponse.of(event2, event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL))
+        ));
+
+        // when
+        final EventsResponse response = eventService.findByDuration(meeting.getId(), null, null);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .isEqualTo(expectedEventsResponse);
+    }
+
+    @DisplayName("특정 일정 이후의 일정을 조회한다.")
+    @Test
+    void findByDuration_isGreaterThanEqualBegin() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        final Event event3 = dataSupport.saveEvent(EVENT3.create(meeting));
+
+        final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
+                EventResponse.of(event2, event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL)),
+                EventResponse.of(event3, event3.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event3.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL))
+        ));
+
+        // when
+        final EventsResponse response = eventService.findByDuration(meeting.getId(), event2.getDate(), null);
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .isEqualTo(expectedEventsResponse);
+    }
+
+    @DisplayName("특정 일정 이전의 일정을 조회한다.")
+    @Test
+    void findByDuration_isLessThanEqualEnd() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        dataSupport.saveEvent(EVENT3.create(meeting));
+
+        final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
+                EventResponse.of(event1, event1.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event1.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL)),
+                EventResponse.of(event2, event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL))
+        ));
+
+        // when
+        final EventsResponse response = eventService.findByDuration(meeting.getId(), null, event2.getDate());
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .isEqualTo(expectedEventsResponse);
+    }
+
+    @DisplayName("특정 기간 안의 일정을 조회한다.")
+    @Test
+    void findByDuration_inDuration() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        dataSupport.saveEvent(EVENT3.create(meeting));
+
+        final EventsResponse expectedEventsResponse = new EventsResponse(List.of(
+                EventResponse.of(event2, event2.getStartTime().minusMinutes(ATTENDANCE_START_INTERVAL),
+                        event2.getStartTime().plusMinutes(ATTENDANCE_END_INTERVAL))
+        ));
+
+        // when
+        final EventsResponse response = eventService
+                .findByDuration(meeting.getId(), event2.getDate(), event2.getDate());
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .isEqualTo(expectedEventsResponse);
+    }
+
+    @DisplayName("기간별 일정 조회시 조회하고자 하는 기간의 시작일이 종료일보다 늦는 경우 예외를 반환한다.")
+    @Test
+    void findByDuration_throwsExceptionIfBeginIsGreaterThanEnd() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+
+        // when, then
+        assertThatThrownBy(() -> eventService.findByDuration(meeting.getId(), event2.getDate(), event1.getDate()))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("기간의 입력이 잘못되었습니다.");
     }
 }

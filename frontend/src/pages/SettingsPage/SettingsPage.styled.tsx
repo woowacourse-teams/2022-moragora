@@ -16,20 +16,21 @@ export const ProfileBox = styled.div`
   align-items: center;
 `;
 
-export const NicknameParagraph = styled.p`
-  font-weight: 700;
-`;
-
-export const Image = styled.img`
-  width: 10rem;
-  height: 10rem;
-`;
-
 export const AvatarBox = styled.div`
   border: 4px solid ${({ theme: { colors } }) => colors['subtle-light']};
   border-radius: 50%;
 `;
 
-export const LogoutButtonBox = styled.div`
-  padding: 0 2rem;
+export const NicknameParagraph = styled.p`
+  padding: 0.2rem 0.3rem;
+
+  font-weight: 700;
+  text-align: center;
+`;
+
+export const ButtonBox = styled.div`
+  padding: 0 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 `;
