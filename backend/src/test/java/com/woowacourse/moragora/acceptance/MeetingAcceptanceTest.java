@@ -1,20 +1,27 @@
 package com.woowacourse.moragora.acceptance;
 
+import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
+import static com.woowacourse.moragora.support.MeetingFixtures.F12;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static com.woowacourse.moragora.support.UserFixtures.getEmailsIncludingMaster;
 import static com.woowacourse.moragora.support.UserFixtures.getNicknamesIncludingMaster;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.dto.MeetingRequest;
+import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
@@ -86,39 +93,53 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("users.nickname", equalTo(getNicknamesIncludingMaster()))
                 .body("users.email", equalTo(getEmailsIncludingMaster()));
     }
-//
-//    @DisplayName("사용자가 자신이 속한 모든 모임을 조회하면 모임 정보와 상태코드 200을 반환한다.")
-//    @Test
-//    void findMy() {
-//        // given
-//        final String token = signUpAndGetToken(MASTER.create());
-//        final Meeting meeting1 = MORAGORA.create();
-//        final Meeting meeting2 = F12.create();
-//
-//        final User user = KUN.create();
-//        final List<Long> ids = saveUsers(List.of(user));
-//
-//        final int meetingId1 = saveMeeting(token, ids, meeting1);
-//        final int meetingId2 = saveMeeting(token, ids, meeting2);
-//
-//        given(serverTimeManager.isAttendanceTime(LocalTime.of(10, 0)))
-//                .willReturn(false);
-//        given(serverTimeManager.isAttendanceTime(LocalTime.of(9, 0)))
-//                .willReturn(true);
-//        given(serverTimeManager.isOverClosingTime(any(LocalTime.class)))
-//                .willReturn(true);
-//        given(serverTimeManager.calculateClosingTime(LocalTime.of(10, 0)))
-//                .willReturn(LocalTime.of(10, 5));
-//        given(serverTimeManager.calculateClosingTime(LocalTime.of(9, 0)))
-//                .willReturn(LocalTime.of(9, 5));
-//
-//        // when
-//        final ValidatableResponse response = get("/meetings/me", token);
-//
-//        // then
-//        response.statusCode(HttpStatus.OK.value())
-//                .body("meetings.id", containsInAnyOrder(meetingId1, meetingId2))
-//                .body("meetings.name", containsInAnyOrder(meeting1.getName(), meeting2.getName()))
-//                .body("meetings.tardyCount", containsInAnyOrder(0, 0));
-//    }
+
+    @DisplayName("사용자가 자신이 속한 모든 모임을 조회하면 모임 정보와 상태코드 200을 반환한다.")
+    @Test
+    void findMy() {
+        // given
+        final String token = signUpAndGetToken(MASTER.create());
+        final Meeting meeting1 = MORAGORA.create();
+        final Meeting meeting2 = F12.create();
+
+        final User user = KUN.create();
+        final List<Long> ids = saveUsers(List.of(user));
+
+        final int meetingId1 = saveMeeting(token, ids, meeting1);
+        final int meetingId2 = saveMeeting(token, ids, meeting2);
+
+        final Event event = EVENT1.create(meeting1);
+        saveEvents(token, List.of(event), (long) meetingId1);
+
+        given(serverTimeManager.getDate())
+                .willReturn(event.getDate());
+        given(serverTimeManager.isAttendanceOpen(LocalTime.of(10, 0)))
+                .willReturn(true);
+        given(serverTimeManager.isAttendanceClosed(any(LocalTime.class)))
+                .willReturn(false);
+        given(serverTimeManager.calculateOpeningTime(event.getStartTime()))
+                .willReturn(LocalTime.of(9, 30));
+        given(serverTimeManager.calculateClosingTime(event.getStartTime()))
+                .willReturn(LocalTime.of(10, 5));
+
+        // when
+        final ValidatableResponse response = get("/meetings/me", token);
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("meetings.id", containsInAnyOrder(meetingId1, meetingId2))
+                .body("meetings.name", containsInAnyOrder(meeting1.getName(), meeting2.getName()))
+                .body("meetings.tardyCount", containsInAnyOrder(0, 0))
+                .body("meetings.isLoginUserMaster", containsInAnyOrder(true, true))
+                .body("meetings.isCoffeeTime", containsInAnyOrder(false, false))
+                .body("meetings.isActive", containsInAnyOrder(true, false))
+                .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.id", equalTo(1))
+                .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.attendanceOpenTime", equalTo("09:30"))
+                .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.attendanceClosedTime", equalTo("10:05"))
+                .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.meetingStartTime", equalTo("10:00"))
+                .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.meetingEndTime", equalTo("18:00"))
+                .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.date", equalTo("2022-08-01"))
+                .body("meetings.find{it.id == " + meetingId2 + "}.upcomingEvent", equalTo(null))
+        ;
+    }
 }

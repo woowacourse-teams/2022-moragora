@@ -26,3 +26,53 @@ include::{snippets}/attendance/show/http-response.adoc[]
 include::{snippets}/attendance/show/response-fields.adoc[]
 
 
+[[mark-attendance]]
+== 출석 체크하기
+
+[[mark-attendance]]
+=== HTTP request
+
+include::{snippets}/attendance/mark-attendance/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/attendance/mark-attendance/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/attendance/mark-attendance/request-fields.adoc[]
+
+
+[[usable-coffee]]
+== 사용할 커피스택 조회하기
+
+[[mark-attendance]]
+=== HTTP request
+
+include::{snippets}/attendance/usable-coffee/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/attendance/usable-coffee/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/attendance/usable-coffee/response-fields.adoc[]
+
+
+
+[[use-coffee]]
+== 커피스택 비우기
+
+[[use-coffee]]
+=== HTTP request
+
+include::{snippets}/attendance/use-coffee/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/attendance/use-coffee/http-response.adoc[]
+
+
+
+

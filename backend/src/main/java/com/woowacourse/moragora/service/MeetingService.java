@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
@@ -83,8 +84,8 @@ public class MeetingService {
 
         final LocalDate today = serverTimeManager.getDate();
         final Optional<Event> event = eventRepository.findByMeetingIdAndDate(meeting.getId(), today);
-        final boolean isActive = event.isPresent() && serverTimeManager.isAttendanceTime(event.get().getEntranceTime());
-        final boolean isOver = event.isPresent() && serverTimeManager.isOverClosingTime(event.get().getEntranceTime());
+        final boolean isActive = event.isPresent() && serverTimeManager.isAttendanceOpen(event.get().getStartTime());
+        final boolean isOver = event.isPresent() && serverTimeManager.isAttendanceClosed(event.get().getStartTime());
 
         final MeetingAttendances meetingAttendances = findAttendancesByMeeting(meeting.getParticipantIds());
         final List<ParticipantResponse> participantResponses = participants.stream()
@@ -171,28 +172,31 @@ public class MeetingService {
         final Meeting meeting = participant.getMeeting();
         final ParticipantAttendances participantAttendances = meetingAttendances
                 .extractAttendancesByParticipant(participant);
+        final boolean isLoginUserMaster = participant.getIsMaster();
 
         final LocalDate today = serverTimeManager.getDate();
-        final boolean hasUpcomingEvent =
-                eventRepository.countByMeetingIdAndDateGreaterThanEqual(meeting.getId(), today) > 0;
-        final Event event = eventRepository
-                .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
-                .orElse(null);
-        final boolean hasEventToday = hasUpcomingEvent && event.isSameDate(today);
-        final boolean isActive = hasEventToday && serverTimeManager.isAttendanceTime(event.getEntranceTime());
-        final boolean isOver = !hasEventToday || serverTimeManager.isOverClosingTime(event.getEntranceTime());
+        final Optional<Event> upcomingEvent = eventRepository
+                .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today);
+        final boolean isActive =
+                upcomingEvent.isPresent() && serverTimeManager.isAttendanceOpen(upcomingEvent.get().getStartTime());
 
+        final boolean isOver =
+                upcomingEvent.isPresent() && serverTimeManager.isAttendanceClosed(upcomingEvent.get().getStartTime());
+        final boolean isCoffeeTime = meetingAttendances.isTardyStackFull(isOver, today);
         final int tardyCount = participantAttendances.countTardy(isOver, today);
-        if (hasUpcomingEvent) {
-            final LocalTime entranceTime = event.getEntranceTime();
-            final LocalTime closingTime = serverTimeManager.calculateClosingTime(entranceTime);
+
+        if (upcomingEvent.isEmpty()) {
             return MyMeetingResponse.of(
-                    meeting, isActive, closingTime, tardyCount, event,
-                    participant.getIsMaster(), meetingAttendances.isTardyStackFull(isOver, today)
+                    meeting, tardyCount, isLoginUserMaster, isCoffeeTime, isActive, null
             );
         }
-        return MyMeetingResponse.whenHasNoUpcomingEventOf(
-                meeting, isActive, tardyCount,
-                participant.getIsMaster(), meetingAttendances.isTardyStackFull(isOver, today));
+        final Event event = upcomingEvent.get();
+        final LocalTime entranceTime = event.getStartTime();
+        final LocalTime attendanceOpenTime = serverTimeManager.calculateOpeningTime(entranceTime);
+        final LocalTime attendanceClosedTime = serverTimeManager.calculateClosingTime(entranceTime);
+        return MyMeetingResponse.of(
+                meeting, tardyCount, isLoginUserMaster, isCoffeeTime, isActive,
+                EventResponse.of(event, attendanceOpenTime, attendanceClosedTime)
+        );
     }
 }

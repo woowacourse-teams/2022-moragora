@@ -33,7 +33,7 @@ public class Events {
                 .findAny();
 
         if (sameEvent.isPresent()) {
-            sameEvent.get().changeTime(insertedEvent.getEntranceTime(), insertedEvent.getLeaveTime());
+            sameEvent.get().changeTime(insertedEvent.getStartTime(), insertedEvent.getEndTime());
             return;
         }
 

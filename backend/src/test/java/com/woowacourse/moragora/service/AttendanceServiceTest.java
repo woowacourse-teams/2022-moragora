@@ -26,8 +26,9 @@ import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
-import com.woowacourse.moragora.exception.meeting.ClosingTimeExcessException;
+import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
+import com.woowacourse.moragora.exception.meeting.NotCheckInTimeException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
@@ -37,6 +38,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,8 +73,6 @@ class AttendanceServiceTest {
     @Test
     void updateAttendance() {
         // given
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
-
         final User user = KUN.create();
         final Meeting meeting = MORAGORA.create();
         final Participant participant = dataSupport.saveParticipant(user, meeting, false);
@@ -79,7 +80,9 @@ class AttendanceServiceTest {
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 1);
         serverTimeManager.refresh(dateTime);
-        final Attendance attendance = dataSupport.saveAttendance(participant, event, Status.TARDY);
+        dataSupport.saveAttendance(participant, event, Status.TARDY);
+
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
 
         // when, then
         assertThatCode(() -> attendanceService.updateAttendance(meeting.getId(), user.getId(), request))
@@ -90,9 +93,10 @@ class AttendanceServiceTest {
     @Test
     void updateAttendance_throwsException_ifMeetingNotFound() {
         // given
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
         final User user = KUN.create();
         final Long meetingId = 99L;
+
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
 
         // when, then
         assertThatThrownBy(() -> attendanceService.updateAttendance(meetingId, user.getId(), request))
@@ -111,31 +115,52 @@ class AttendanceServiceTest {
         dataSupport.saveParticipant(user1, meeting, true);
         dataSupport.saveParticipant(user2, meeting);
 
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
 
         // when, then
         assertThatThrownBy(() -> attendanceService.updateAttendance(meeting.getId(), user3.getId(), request))
                 .isInstanceOf(ParticipantNotFoundException.class);
     }
 
-    @DisplayName("사용자 출석 제출 시간이 마감 시간을 초과할 경우 예외가 발생한다.")
+    @DisplayName("사용자의 출석 여부를 변경하려고 할 때, 당일 일정이 존재하지 않는다면 예외가 발생한다.")
     @Test
-    void updateAttendance_throwsException_ifDeadlineTimeExcess() {
+    void updateAttendance_throwsException_ifEventNotFound() {
         // given
-        final UserAttendanceRequest request = new UserAttendanceRequest(Status.PRESENT);
-
         final User user = KUN.create();
         final Meeting meeting = MORAGORA.create();
         final Participant participant = dataSupport.saveParticipant(user, meeting, false);
         dataSupport.saveEvent(EVENT1.create(meeting));
 
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 6);
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 2, 10, 0);
         serverTimeManager.refresh(dateTime);
+
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
 
         // when, then
         assertThatThrownBy(() -> attendanceService.updateAttendance(participant.getUser().getId(),
                 participant.getMeeting().getId(), request))
-                .isInstanceOf(ClosingTimeExcessException.class);
+                .isInstanceOf(EventNotFoundException.class);
+    }
+
+    @DisplayName("출석 제출 시간이 출석부 활성화 시간이 아닐 경우 예외가 발생한다.")
+    @ParameterizedTest
+    @CsvSource({"9,29", "10,6"})
+    void updateAttendance_throwsException_ifDeadlineTimeExcess(int hour, int minute) {
+        // given
+        final User user = KUN.create();
+        final Meeting meeting = MORAGORA.create();
+        final Participant participant = dataSupport.saveParticipant(user, meeting, false);
+        dataSupport.saveEvent(EVENT1.create(meeting));
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, hour, minute);
+        serverTimeManager.refresh(dateTime);
+
+        final UserAttendanceRequest request = new UserAttendanceRequest(true);
+
+        // when, then
+        assertThatThrownBy(() -> attendanceService.updateAttendance(participant.getUser().getId(),
+                participant.getMeeting().getId(), request))
+                .isInstanceOf(NotCheckInTimeException.class);
     }
 
     @DisplayName("유저별 다음에 사용될 커피스택을 조회한다.")
@@ -198,8 +223,8 @@ class AttendanceServiceTest {
         serverTimeManager.refresh(dateTime);
 
         final EventRequest eventRequest = EventRequest.builder()
-                .entranceTime(event.getEntranceTime())
-                .leaveTime(event.getLeaveTime())
+                .meetingStartTime(event.getStartTime())
+                .meetingEndTime(event.getEndTime())
                 .date(event.getDate()).build();
 
         eventService.save(new EventsRequest(List.of(eventRequest)), meeting.getId());
@@ -238,7 +263,7 @@ class AttendanceServiceTest {
         final User user = KUN.create();
         final Participant participant = dataSupport.saveParticipant(user, meeting);
         final Event event = dataSupport.saveEvent(EVENT1.create(meeting));
-        final Attendance attendance = dataSupport.saveAttendance(participant, event, Status.NONE);
+        dataSupport.saveAttendance(participant, event, Status.NONE);
 
         // when, then
         assertThatCode(() -> attendanceService.findTodayAttendancesByMeeting(meeting.getId()))

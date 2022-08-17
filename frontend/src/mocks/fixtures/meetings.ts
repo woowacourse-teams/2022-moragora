@@ -1,12 +1,14 @@
-import { Meeting } from 'types/meetingType_new';
+import { Meeting } from 'types/meetingType';
+import { User } from 'types/userType';
 
-const meetings: Meeting[] = [
+const meetings: (Meeting & { masterId: User['id'] })[] = [
   {
     id: 1,
     name: '리액트 사랑방',
     isActive: false,
     userIds: [1, 2, 3, 4, 5],
     attendanceEventCount: 10,
+    masterId: 1,
   },
   {
     id: 2,
@@ -14,6 +16,7 @@ const meetings: Meeting[] = [
     isActive: false,
     userIds: [1, 2, 3, 4, 5, 6],
     attendanceEventCount: 10,
+    masterId: 2,
   },
   {
     id: 3,
@@ -21,6 +24,7 @@ const meetings: Meeting[] = [
     isActive: false,
     userIds: [1, 3, 4, 5, 6, 7],
     attendanceEventCount: 10,
+    masterId: 3,
   },
   {
     id: 4,
@@ -28,6 +32,7 @@ const meetings: Meeting[] = [
     isActive: false,
     userIds: [1, 4, 5, 6, 7, 8],
     attendanceEventCount: 10,
+    masterId: 4,
   },
   {
     id: 5,
@@ -35,6 +40,7 @@ const meetings: Meeting[] = [
     isActive: false,
     userIds: [1, 5, 6, 7, 8, 9],
     attendanceEventCount: 10,
+    masterId: 5,
   },
   {
     id: 6,
@@ -42,6 +48,7 @@ const meetings: Meeting[] = [
     isActive: false,
     userIds: [1, 6, 7, 8, 9, 10],
     attendanceEventCount: 10,
+    masterId: 1,
   },
   {
     id: 7,
@@ -49,6 +56,7 @@ const meetings: Meeting[] = [
     isActive: false,
     userIds: [1, 7, 8, 9, 10, 11],
     attendanceEventCount: 10,
+    masterId: 2,
   },
   {
     id: 8,
@@ -56,6 +64,7 @@ const meetings: Meeting[] = [
     isActive: false,
     userIds: [1, 8, 9, 10, 11, 12],
     attendanceEventCount: 10,
+    masterId: 3,
   },
 ];
 

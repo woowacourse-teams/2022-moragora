@@ -20,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class EventRepositoryTest {
 
+    private static final LocalTime MEETING_START_TIME = LocalTime.of(10, 0);
+    private static final LocalTime MEETING_END_TIME = LocalTime.of(18, 0);
+
     @Autowired
     private EventRepository eventRepository;
 
@@ -36,8 +39,7 @@ public class EventRepositoryTest {
 
         final Event event = new Event(
                 LocalDate.of(2022, 8, 8),
-                LocalTime.of(10, 0),
-                LocalTime.of(18, 0),
+                MEETING_START_TIME, MEETING_END_TIME,
                 savedMeeting);
 
         // when
@@ -53,13 +55,10 @@ public class EventRepositoryTest {
         // given
         final Meeting meeting = new Meeting("모임1");
 
-        final LocalTime entranceTime = LocalTime.of(10, 0);
-        final LocalTime leaveTime = LocalTime.of(18, 0);
-
         final Meeting savedMeeting = meetingRepository.save(meeting);
-        final Event event1 = new Event(LocalDate.of(2022, 8, 3), entranceTime, leaveTime, savedMeeting);
-        final Event event2 = new Event(LocalDate.of(2022, 8, 4), entranceTime, leaveTime, savedMeeting);
-        final Event event3 = new Event(LocalDate.of(2022, 8, 5), entranceTime, leaveTime, savedMeeting);
+        final Event event1 = new Event(LocalDate.of(2022, 8, 3), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
+        final Event event2 = new Event(LocalDate.of(2022, 8, 4), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
+        final Event event3 = new Event(LocalDate.of(2022, 8, 5), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);
@@ -82,18 +81,16 @@ public class EventRepositoryTest {
     void findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(final int month, final int day,
                                                                 final int expectedMonth, final int expectedDay) {
         // given
-        final LocalTime enteranceTime = LocalTime.of(10, 0);
-        final LocalTime leaveTime = LocalTime.of(18, 0);
         final Meeting meeting = new Meeting("모임1");
 
         final Meeting savedMeeting = meetingRepository.save(meeting);
 
         final Event event1 = new Event(
-                LocalDate.of(2022, 8, 3), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 3), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
         final Event event2 = new Event(
-                LocalDate.of(2022, 8, 4), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 4), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
         final Event event3 = new Event(
-                LocalDate.of(2022, 8, 5), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 5), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);
@@ -112,18 +109,16 @@ public class EventRepositoryTest {
     @Test
     void findByMeetingIdAndDate() {
         // given
-        final LocalTime enteranceTime = LocalTime.of(10, 0);
-        final LocalTime leaveTime = LocalTime.of(18, 0);
         final Meeting meeting = new Meeting("모임1");
 
         final Meeting savedMeeting = meetingRepository.save(meeting);
 
         final Event event1 = new Event(
-                LocalDate.of(2022, 8, 3), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 3), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
         final Event event2 = new Event(
-                LocalDate.of(2022, 8, 4), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 4), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
         final Event event3 = new Event(
-                LocalDate.of(2022, 8, 5), enteranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 5), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);
@@ -137,35 +132,105 @@ public class EventRepositoryTest {
         assertThat(event.get()).isEqualTo(event2);
     }
 
-    @DisplayName("특정 날짜 부터의 일정 개수를 조회한다")
-    @ParameterizedTest
-    @CsvSource(value = {
-            "8, 4, 2",
-            "8, 5, 1",
-            "8, 6, 0"
-    })
-    void countByDateGreaterThanEqual(final int month, final int day, final Long expected) {
+    @DisplayName("모든 일정을 조회한다.")
+    @Test
+    void findByMeetingIdAndDuration_all() {
         // given
-        final LocalTime entranceTime = LocalTime.of(10, 0);
-        final LocalTime leaveTime = LocalTime.of(18, 0);
         final Meeting meeting = new Meeting("모임1");
         final Meeting savedMeeting = meetingRepository.save(meeting);
 
         final Event event1 = new Event(
-                LocalDate.of(2022, 8, 3), entranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 3), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
         final Event event2 = new Event(
-                LocalDate.of(2022, 8, 4), entranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 4), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
         final Event event3 = new Event(
-                LocalDate.of(2022, 8, 5), entranceTime, leaveTime, savedMeeting);
+                LocalDate.of(2022, 8, 5), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
         eventRepository.save(event1);
         eventRepository.save(event2);
         eventRepository.save(event3);
 
-        final LocalDate today = LocalDate.of(2022, month, day);
         // when
-        final Long actual = eventRepository.countByMeetingIdAndDateGreaterThanEqual(savedMeeting.getId(), today);
-
+        final List<Event> events = eventRepository
+                .findByMeetingIdAndDuration(meeting.getId(), null, null);
         // then
-        assertThat(actual).isEqualTo(expected);
+        assertThat(events).hasSize(3);
+    }
+
+    @DisplayName("특정 기간 이후의 일정을 조회한다.")
+    @Test
+    void findByMeetingIdAndDuration_isGreaterThanEqualBegin() {
+        // given
+        final Meeting meeting = new Meeting("모임1");
+        final Meeting savedMeeting = meetingRepository.save(meeting);
+
+        final Event event1 = new Event(
+                LocalDate.of(2022, 8, 3), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
+        final Event event2 = new Event(
+                LocalDate.of(2022, 8, 4), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
+        final Event event3 = new Event(
+                LocalDate.of(2022, 8, 5), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
+        eventRepository.save(event1);
+        eventRepository.save(event2);
+        eventRepository.save(event3);
+
+        final LocalDate begin = LocalDate.of(2022, 8, 4);
+        // when
+        final List<Event> events = eventRepository
+                .findByMeetingIdAndDuration(meeting.getId(), begin, null);
+        // then
+        assertThat(events).hasSize(2);
+    }
+
+    @DisplayName("특정 기간 이전의 일정을 조회한다.")
+    @Test
+    void findByMeetingIdAndDuration_isLessThanEqualEnd() {
+        // given
+        final Meeting meeting = new Meeting("모임1");
+        final Meeting savedMeeting = meetingRepository.save(meeting);
+
+        final Event event1 = new Event(
+                LocalDate.of(2022, 8, 3), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
+        final Event event2 = new Event(
+                LocalDate.of(2022, 8, 4), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
+        final Event event3 = new Event(
+                LocalDate.of(2022, 8, 5), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
+        eventRepository.save(event1);
+        eventRepository.save(event2);
+        eventRepository.save(event3);
+
+        final LocalDate end = LocalDate.of(2022, 8, 4);
+
+        // when
+        final List<Event> events = eventRepository
+                .findByMeetingIdAndDuration(meeting.getId(), null, end);
+        // then
+        assertThat(events).hasSize(2);
+    }
+
+    @DisplayName("특정 기간 이내의 일정을 조회한다.")
+    @Test
+    void findByMeetingIdAndDuration_isGreaterThanEqualBeginIsLessThanEqualEnd() {
+        // given
+        final Meeting meeting = new Meeting("모임1");
+        final Meeting savedMeeting = meetingRepository.save(meeting);
+
+        final Event event1 = new Event(
+                LocalDate.of(2022, 8, 3), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
+        final Event event2 = new Event(
+                LocalDate.of(2022, 8, 4), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
+        final Event event3 = new Event(
+                LocalDate.of(2022, 8, 5), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
+        eventRepository.save(event1);
+        eventRepository.save(event2);
+        eventRepository.save(event3);
+
+        final LocalDate begin = LocalDate.of(2022, 8, 4);
+        final LocalDate end = LocalDate.of(2022, 8, 4);
+
+        // when
+        final List<Event> events = eventRepository
+                .findByMeetingIdAndDuration(meeting.getId(), begin, end);
+        // then
+        assertThat(events).hasSize(1);
     }
 }
