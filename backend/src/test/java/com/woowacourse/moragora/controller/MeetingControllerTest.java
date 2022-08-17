@@ -6,8 +6,11 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -20,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.woowacourse.moragora.dto.EventResponse;
+import com.woowacourse.moragora.dto.MeetingNameRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
@@ -370,5 +374,43 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.meetings[*].isCoffeeTime", contains(false)))
                 .andExpect(jsonPath("$.meetings[*].isActive", contains(true)))
                 .andExpect(jsonPath("$.meetings[*].upcomingEvent", contains(nullValue())));
+    }
+
+    @DisplayName("미팅의 이름을 변경한다.")
+    @Test
+    void changeName() throws Exception {
+        // given
+        final MeetingNameRequest meetingNameRequest = new MeetingNameRequest("체크메이트");
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPut("/meetings/1", meetingNameRequest);
+
+        // then
+        verify(meetingService, times(1)).updateName(any(MeetingNameRequest.class), anyLong());
+        resultActions.andExpect(status().isNoContent())
+                .andDo(document("meeting/change-name",
+                        preprocessRequest(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("name").type(JsonFieldType.STRING).description("체크메이트")
+                        )
+                ));
+    }
+
+    @DisplayName("미팅의 이름을 50자를 초과하는 이름으로 변경한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"012345678901234567890123456789012345678901234567891",
+            "영일이삼사오육칠팔구영일이삼사오육칠팔구영일이삼사오육칠팔구영일이삼사오육칠팔구영일이삼사오육칠팔구영",
+            "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghija"})
+    void changeName_throwsException_ifTooLong(final String name) throws Exception {
+        // given
+        final MeetingNameRequest meetingNameRequest = new MeetingNameRequest(name);
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPut("/meetings/1", meetingNameRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest());
     }
 }

@@ -14,6 +14,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
+import com.woowacourse.moragora.dto.MeetingNameRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
@@ -143,5 +144,26 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.meetingEndTime", equalTo("18:00"))
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.date", equalTo("2022-08-01"))
                 .body("meetings.find{it.id == " + meetingId2 + "}.upcomingEvent", equalTo(null));
+    }
+
+    @DisplayName("마스터가 미팅 이름을 수정하면 상태코드 204를 반환한다.")
+    @Test
+    void changeName() {
+        // given
+        final User master = MASTER.create();
+        final String token = signUpAndGetToken(master);
+
+        final List<User> users = createUsers();
+        final List<Long> userIds = saveUsers(users);
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(token, userIds, meeting);
+
+        final MeetingNameRequest meetingNameRequest = new MeetingNameRequest("체크메이트");
+
+        // when
+        final ValidatableResponse response = put("meetings/" + meetingId, meetingNameRequest, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
     }
 }
