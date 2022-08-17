@@ -1,9 +1,47 @@
+import { useContext, useRef, useState } from 'react';
+import { Navigate, Outlet, useParams } from 'react-router-dom';
 import Footer from 'components/layouts/Footer';
-import { useRef } from 'react';
-import { Outlet } from 'react-router-dom';
 import * as S from './MeetingDetailPage.styled';
+import useQuery from 'hooks/useQuery';
+import { getUpcomingEventApi } from 'apis/eventApis';
+import { getMeetingData } from 'apis/meetingApis';
+import { userContext, UserContextValues } from 'contexts/userContext';
+import { NOT_FOUND_STATUS_CODE } from 'consts';
 
 const MeetingDetailPage = () => {
+  const { id } = useParams();
+
+  if (!id) {
+    return <Navigate to={'/error'} />;
+  }
+
+  const { accessToken } = useContext(userContext) as UserContextValues;
+  const [totalTardyCount, setTotalTardyCount] = useState(0);
+  const [upcomingEventNotExist, setUpcomingEventNotExist] = useState(false);
+
+  const meetingQuery = useQuery(['meeting'], getMeetingData(id, accessToken), {
+    onSuccess: ({ body: { users } }) => {
+      const totalTardyCount = users.reduce(
+        (total, user) => total + user.tardyCount,
+        0
+      );
+      setTotalTardyCount(totalTardyCount);
+    },
+  });
+
+  const upcomingEventQuery = useQuery(
+    ['upcomingEvent'],
+    getUpcomingEventApi(id, accessToken),
+    {
+      enabled: meetingQuery.isSuccess,
+      onError: (error) => {
+        setUpcomingEventNotExist(
+          parseInt(error.message.split(':')[0]) === NOT_FOUND_STATUS_CODE
+        );
+      },
+    }
+  );
+
   const tabsRef = useRef<Record<string, HTMLElement | undefined>>({});
   const bindTabRef =
     (key: string): React.RefCallback<HTMLAnchorElement> =>
@@ -38,10 +76,10 @@ const MeetingDetailPage = () => {
             <S.TabNavLink to={'coffee-stack'} ref={bindTabRef('coffee-stack')}>
               커피스택
             </S.TabNavLink>
-            <S.TabNavLink to={'event'} ref={bindTabRef('event-create')}>
+            <S.TabNavLink to={'calendar'} ref={bindTabRef('calendar')}>
               일정
             </S.TabNavLink>
-            <S.TabNavLink to={'meeting-config'} ref={bindTabRef('config')}>
+            <S.TabNavLink to={'config'} ref={bindTabRef('config')}>
               설정
             </S.TabNavLink>
             <S.IndicatorBox tabPositions={tabPositionMap()}>
@@ -61,7 +99,14 @@ const MeetingDetailPage = () => {
           </S.TabNav>
         </S.TabNavBox>
         <S.MainBox>
-          <Outlet />
+          <Outlet
+            context={{
+              meetingQuery,
+              upcomingEventQuery,
+              totalTardyCount,
+              upcomingEventNotExist,
+            }}
+          />
         </S.MainBox>
       </S.Layout>
       <Footer />
