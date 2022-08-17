@@ -1,24 +1,18 @@
 import { rest } from 'msw';
-import MeetingPage from '.';
+import PasswordUpdatePage from '.';
 import Header from 'components/layouts/Header';
 import AppLayout from 'components/layouts/AppLayout';
 
 export default {
-  title: 'Pages/MeetingPage',
-  component: MeetingPage,
-  parameters: {
-    reactRouter: {
-      routePath: '/meeting/:id',
-      routeParams: { id: '1' },
-    },
-  },
+  title: 'Pages/PasswordUpdatePage',
+  component: PasswordUpdatePage,
 };
 
 const Template = (args) => {
   return (
     <AppLayout>
       <Header />
-      <MeetingPage {...args} />
+      <PasswordUpdatePage {...args} />
       <div id="root-modal" />
     </AppLayout>
   );

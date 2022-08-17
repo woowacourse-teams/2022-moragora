@@ -1,7 +1,9 @@
 package com.woowacourse.moragora.service;
 
-import com.woowacourse.auth.exception.AuthorizationFailureException;
+import com.woowacourse.auth.exception.AuthenticationFailureException;
 import com.woowacourse.moragora.dto.EmailCheckResponse;
+import com.woowacourse.moragora.dto.NicknameRequest;
+import com.woowacourse.moragora.dto.PasswordRequest;
 import com.woowacourse.moragora.dto.UserDeleteRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
@@ -12,11 +14,13 @@ import com.woowacourse.moragora.entity.user.RawPassword;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.NoParameterException;
+import com.woowacourse.moragora.exception.user.InvalidPasswordException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -69,10 +73,30 @@ public class UserService {
     }
 
     @Transactional
+    public void updateNickname(final NicknameRequest request, final Long id) {
+        final User user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+        user.updateNickname(request.getNickname());
+    }
+
+    @Transactional
+    public void updatePassword(final PasswordRequest request, final Long id) {
+        final User user = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+
+        final String oldPassword = request.getOldPassword();
+        final String newPassword = request.getNewPassword();
+        validateOldPasswordIsCorrect(user, oldPassword);
+        validateNewPasswordIsNotSame(oldPassword, newPassword);
+
+        user.updatePassword(EncodedPassword.fromRawValue(newPassword));
+    }
+
+    @Transactional
     public void delete(final UserDeleteRequest request, final Long id) {
         final User user = userRepository.findById(id)
                 .orElseThrow(UserNotFoundException::new);
-        validateOldPassword(user, request.getPassword());
+        validateOldPasswordIsCorrect(user, request.getPassword());
         final List<Participant> participants = participantRepository.findByUserId(id);
         validateHasMasterRole(participants);
 
@@ -84,18 +108,23 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    private void validateKeyword(final String keyword) {
-        if (keyword.isEmpty()) {
-            throw new NoParameterException();
+    private void validateOldPasswordIsCorrect(final User user, final String oldPassword) {
+        try {
+            user.checkPassword(new RawPassword(oldPassword));
+        } catch (AuthenticationFailureException e) {
+            throw new InvalidPasswordException();
         }
     }
 
-    private void validateOldPassword(final User user, final String oldPassword) {
-        try {
-            user.checkPassword(new RawPassword(oldPassword));
-        } catch (AuthorizationFailureException e) {
-            // TODO: InvalidPasswordException으로 교체
-            throw new ClientRuntimeException("비밀번호가 올바르지 않습니다.", HttpStatus.BAD_REQUEST);
+    private void validateNewPasswordIsNotSame(final String oldPassword, final String newPassword) {
+        if (Objects.equals(oldPassword, newPassword)) {
+            throw new ClientRuntimeException("새로운 비밀번호가 기존의 비밀번호와 일치합니다.", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void validateKeyword(final String keyword) {
+        if (keyword.isEmpty()) {
+            throw new NoParameterException();
         }
     }
 

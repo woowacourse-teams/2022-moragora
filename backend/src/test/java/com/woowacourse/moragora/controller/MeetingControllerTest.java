@@ -285,8 +285,8 @@ class MeetingControllerTest extends ControllerTest {
         final MyMeetingResponse myMeetingResponse =
                 new MyMeetingResponse(1L, "모임1", 1, true, false, false,
                         new EventResponse(1L,
-                                "09:30", "10:05",
-                                "10:00", "18:00",
+                                LocalTime.of(9, 30), LocalTime.of(10, 5),
+                                LocalTime.of(10, 0), LocalTime.of(18, 0),
                                 LocalDate.of(2022, 8, 1)
                         )
                 );

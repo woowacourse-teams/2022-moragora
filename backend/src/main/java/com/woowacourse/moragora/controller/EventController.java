@@ -6,8 +6,11 @@ import com.woowacourse.auth.support.MasterAuthorization;
 import com.woowacourse.moragora.dto.EventCancelRequest;
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
+import com.woowacourse.moragora.dto.EventsResponse;
 import com.woowacourse.moragora.service.EventService;
+import java.time.LocalDate;
 import javax.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -51,5 +55,15 @@ public class EventController {
                                                            @AuthenticationPrincipal final Long loginId) {
         final EventResponse eventResponse = eventService.findUpcomingEvent(meetingId);
         return ResponseEntity.ok(eventResponse);
+    }
+
+    @GetMapping
+    public ResponseEntity<EventsResponse> showByDuration(@PathVariable final Long meetingId,
+                                                         @DateTimeFormat(pattern = "yyyy-MM-dd")
+                                                         @RequestParam(value = "begin", required = false) final LocalDate begin,
+                                                         @DateTimeFormat(pattern = "yyyy-MM-dd")
+                                                         @RequestParam(value = "end", required = false) final LocalDate end) {
+        EventsResponse eventsResponse = eventService.findByDuration(meetingId, begin, end);
+        return ResponseEntity.ok(eventsResponse);
     }
 }

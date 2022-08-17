@@ -10,14 +10,14 @@ const request =
     const res = await fetch(`${baseUrl}${url}`, options);
 
     if (!res.ok) {
-      const body = (await res.json()) as ErrorBody;
+      const body = (await res.json().catch(() => ({}))) as ErrorBody;
 
       throw new Error(`${res.status}: ${body.message}`);
     }
 
     const body = (await res.json().catch(() => ({}))) as SuccessBody;
 
-    return { headers: res.headers, body };
+    return { headers: res.headers, status: res.status, body };
   };
 
 export default request(process.env.API_SERVER_HOST ?? '');

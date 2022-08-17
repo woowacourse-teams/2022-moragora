@@ -1,12 +1,15 @@
 package com.woowacourse.moragora.acceptance;
 
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.UserFixtures.BATD;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
+import com.woowacourse.moragora.dto.NicknameRequest;
+import com.woowacourse.moragora.dto.PasswordRequest;
 import com.woowacourse.moragora.dto.UserDeleteRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.entity.Meeting;
@@ -110,6 +113,64 @@ class UserAcceptanceTest extends AcceptanceTest {
                 .body("id", equalTo(id.intValue()))
                 .body("email", equalTo(user.getEmail()))
                 .body("nickname", equalTo(user.getNickname()));
+    }
+
+    @DisplayName("로그인 한 상태에서 닉네임 수정을 요청하면 닉네임을 수정한 후 상태코드 204을 반환한다.")
+    @Test
+    void changeMyNickname() {
+        // given
+        final String token = signUpAndGetToken(BATD.create());
+        final NicknameRequest request = new NicknameRequest("반듯");
+
+        // when
+        final ValidatableResponse response = put("/users/me/nickname", request, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("로그인 한 상태에서 비밀번호 수정을 요청하면 비밀번호를 수정한 후 상태코드 204을 반환한다.")
+    @Test
+    void changeMyPassword() {
+        // given
+        final String token = signUpAndGetToken(BATD.create());
+        final PasswordRequest request = new PasswordRequest("1234asdf!", "new1234!");
+
+        // when
+        final ValidatableResponse response = put("/users/me/password", request, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("로그인 한 상태에서 기존 비밀번호를 틀리게 입력하고 비밀번호 수정을 요청하면 상태코드 400을 반환한다.")
+    @Test
+    void changeMyPassword_ifWrongOldPassword() {
+        // given
+        final String token = signUpAndGetToken(BATD.create());
+        final PasswordRequest request = new PasswordRequest("1234wrong!", "new1234!");
+
+        // when
+        final ValidatableResponse response = put("/users/me/password", request, token);
+
+        // then
+        response.statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("message", equalTo("비밀번호가 올바르지 않습니다."));
+    }
+
+    @DisplayName("로그인 한 상태에서 기존 비밀번호와 새 비밀번호를 동일하게 입력하고 비밀번호 수정을 요청하면 상태코드 400을 반환한다.")
+    @Test
+    void changeMyPassword_ifSamePassword() {
+        // given
+        final String token = signUpAndGetToken(BATD.create());
+        final PasswordRequest request = new PasswordRequest("1234asdf!", "1234asdf!");
+
+        // when
+        final ValidatableResponse response = put("/users/me/password", request, token);
+
+        // then
+        response.statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("message", equalTo("새로운 비밀번호가 기존의 비밀번호와 일치합니다."));
     }
 
     @DisplayName("로그인 한 상태에서 회원 탈퇴를 요청하면 상태코드 204를 반환받는다.")

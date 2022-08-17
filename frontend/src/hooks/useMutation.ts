@@ -30,11 +30,11 @@ const useMutation = <TData = any, TVariables extends Variables = Variables>(
       setStatus(MUTATION_STATUS.LOADING);
       await onMutate?.(variables);
 
-      const data = await mutationFn(variables);
+      const mutateData = await mutationFn(variables);
 
-      setData(data);
+      setData(mutateData);
       setStatus(MUTATION_STATUS.SUCCESS);
-      await onSuccess?.(data, variables);
+      await onSuccess?.(mutateData, variables);
     } catch (error) {
       setStatus(MUTATION_STATUS.ERROR);
 

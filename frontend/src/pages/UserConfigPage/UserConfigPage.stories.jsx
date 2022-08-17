@@ -1,33 +1,24 @@
 import { rest } from 'msw';
-import EventCreatePage from '.';
+import UserConfigPage from '.';
 import Header from 'components/layouts/Header';
-import { CalendarProvider } from 'contexts/calendarContext';
 import AppLayout from 'components/layouts/AppLayout';
 
 export default {
-  title: 'Pages/EventCreatePage',
-  component: EventCreatePage,
-  parameters: {
-    reactRouter: {
-      routePath: '/meeting/:id/config',
-      routeParams: { id: '1' },
-    },
-  },
+  title: 'Pages/UserConfigPage',
+  component: UserConfigPage,
 };
 
 const Template = (args) => {
   return (
     <AppLayout>
       <Header />
-      <CalendarProvider initialDate={new Date()}>
-        <EventCreatePage {...args} />
-      </CalendarProvider>
+      <UserConfigPage {...args} />
+      <div id="root-modal" />
     </AppLayout>
   );
 };
 
 export const Default = Template.bind({});
-Default.parameters = {};
 
 export const Failure = Template.bind({});
 Failure.parameters = {

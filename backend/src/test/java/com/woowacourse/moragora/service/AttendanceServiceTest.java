@@ -16,8 +16,6 @@ import com.woowacourse.moragora.dto.AttendanceResponse;
 import com.woowacourse.moragora.dto.AttendancesResponse;
 import com.woowacourse.moragora.dto.CoffeeStatResponse;
 import com.woowacourse.moragora.dto.CoffeeStatsResponse;
-import com.woowacourse.moragora.dto.EventRequest;
-import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.UserAttendanceRequest;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
@@ -215,19 +213,10 @@ class AttendanceServiceTest {
         final Meeting meeting = MORAGORA.create();
         final User user = KUN.create();
         final Participant participant = dataSupport.saveParticipant(user, meeting);
-        final Event event = dataSupport.saveEvent(EVENT1.create(meeting));
-
-        dataSupport.saveAttendance(participant, event, Status.TARDY);
-
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 2, 10, 0);
-        serverTimeManager.refresh(dateTime);
-
-        final EventRequest eventRequest = EventRequest.builder()
-                .meetingStartTime(event.getStartTime())
-                .meetingEndTime(event.getEndTime())
-                .date(event.getDate()).build();
-
-        eventService.save(new EventsRequest(List.of(eventRequest)), meeting.getId());
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        dataSupport.saveAttendance(participant, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant, event2, Status.TARDY);
 
         // when, then
         assertThatCode(() -> attendanceService.disableUsedTardy(meeting.getId()))

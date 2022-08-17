@@ -8,7 +8,23 @@ export const Layout = styled.div`
   flex-direction: column;
   flex: 1;
   gap: 2rem;
-  overflow: scroll;
+  overflow-y: hidden;
+`;
+
+export const SpinnerBox = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const ErrorBox = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
 `;
 
 export const TabNavBox = styled.div`
@@ -64,7 +80,7 @@ export const IndicatorBox = styled.div<{ tabPositions: TabPosition[] }>`
 
 export const MainBox = styled.div`
   display: flex;
-  padding-top: 3rem;
-  flex-direction: column;
   flex: 1;
+  padding-top: 3rem;
+  overflow-y: scroll;
 `;
