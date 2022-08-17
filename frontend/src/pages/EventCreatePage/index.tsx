@@ -85,7 +85,7 @@ const EventCreatePage = () => {
     return <NotFoundPage />;
   }
 
-  if (!meetingQuery.data.body.isMaster) {
+  if (!meetingQuery.data.body.isLoginUserMaster) {
     return <Navigate to="/" />;
   }
 
@@ -175,7 +175,6 @@ const EventCreatePage = () => {
           </Button>
         </S.ButtonBox>
       </S.Layout>
-      <Footer />
     </>
   );
 };

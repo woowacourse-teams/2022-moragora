@@ -7,6 +7,7 @@ export const Layout = styled.div`
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.4);
+  z-index: 49;
 `;
 
 export const ModalBackgroundBox = styled.div`

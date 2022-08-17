@@ -1,7 +1,7 @@
 import { Navigate, useRoutes } from 'react-router-dom';
 import MeetingCreatePage from 'pages/MeetingCreatePage';
 import MeetingListPage from 'pages/MeetingListPage';
-import MeetingPage from 'pages/MeetingPage';
+import CoffeeStackPage from 'pages/CoffeeStackPage';
 import RegisterPage from 'pages/RegisterPage';
 import LoginPage from 'pages/LoginPage';
 import Auth from './Auth';
@@ -9,6 +9,9 @@ import SettingsPage from 'pages/SettingsPage';
 import NotFoundPage from 'pages/NotFoundPage';
 import EventCreatePage from 'pages/EventCreatePage';
 import MeetingDetailPage from 'pages/MeetingDetailPage';
+import UserConfigPage from 'pages/UserConfigPage';
+import PasswordUpdatePage from 'pages/PasswordUpdatePage';
+import UnregisterPage from 'pages/UnregisterPage';
 
 const Router = () => {
   return useRoutes([
@@ -32,7 +35,7 @@ const Router = () => {
               element: <MeetingDetailPage />,
               children: [
                 { path: '', element: <Navigate to="coffee-stack" replace /> },
-                { path: 'coffee-stack', element: <MeetingPage /> },
+                { path: 'coffee-stack', element: <CoffeeStackPage /> },
                 { path: 'event', element: <EventCreatePage /> },
                 { path: 'meeting-config', element: <div>config</div> },
                 { path: '*', element: <NotFoundPage /> },
@@ -44,10 +47,21 @@ const Router = () => {
         },
         {
           path: 'settings',
-          element: <SettingsPage />,
+          children: [
+            { path: '', element: <SettingsPage /> },
+            {
+              path: 'user-config',
+              children: [
+                { path: '', element: <UserConfigPage /> },
+                { path: 'password', element: <PasswordUpdatePage /> },
+                { path: 'unregister', element: <UnregisterPage /> },
+              ],
+            },
+          ],
         },
       ],
     },
+
     { path: '*', element: <NotFoundPage /> },
   ]);
 };

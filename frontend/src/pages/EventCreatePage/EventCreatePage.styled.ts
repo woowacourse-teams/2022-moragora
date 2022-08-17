@@ -4,7 +4,7 @@ export const Layout = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow: hidden;
+  overflow: scroll;
   gap: 1.5rem;
 `;
 
@@ -38,7 +38,7 @@ export const FieldBox = styled.div`
   gap: 1rem;
 `;
 
-export const Label = styled.div`
+export const Label = styled.label`
   width: 100%;
   display: flex;
   flex-direction: column;

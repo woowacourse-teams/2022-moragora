@@ -192,8 +192,8 @@ public class MeetingService {
         }
         final Event event = upcomingEvent.get();
         final LocalTime entranceTime = event.getStartTime();
-        final LocalTime attendanceOpenTime = serverTimeManager.calculateOpeningTime(entranceTime);
-        final LocalTime attendanceClosedTime = serverTimeManager.calculateClosingTime(entranceTime);
+        final LocalTime attendanceOpenTime = serverTimeManager.calculateOpenTime(entranceTime);
+        final LocalTime attendanceClosedTime = serverTimeManager.calculateAttendanceCloseTime(entranceTime);
         return MyMeetingResponse.of(
                 meeting, tardyCount, isLoginUserMaster, isCoffeeTime, isActive,
                 EventResponse.of(event, attendanceOpenTime, attendanceClosedTime)

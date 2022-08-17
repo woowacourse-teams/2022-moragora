@@ -5,7 +5,7 @@ const StyledButton = styled.button`
   background-color: ${({ theme: { colors } }) => colors['primary']};
   color: ${({ theme: { colors } }) => colors['white']};
   padding: 0.75rem 0;
-  border-radius: 1.5rem;
+  border-radius: 1rem;
 
   :hover {
     background-color: ${({ theme: { colors } }) => colors['primary-subtle']};

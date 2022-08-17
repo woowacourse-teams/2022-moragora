@@ -71,20 +71,13 @@ public class Event {
         this.endTime = endTime;
     }
 
+    public boolean isDateBefore(final LocalDate date) {
+        return this.date.isBefore(date);
+    }
+
     private void validateEntranceLeaveTime(final LocalTime entranceTime, final LocalTime leaveTime) {
         if (entranceTime.isAfter(leaveTime)) {
             throw new IllegalEntranceLeaveTimeException();
         }
-    }
-
-    @Override
-    public String toString() {
-        return "Event{" +
-                "id=" + id +
-                ", date=" + date +
-                ", entranceTime=" + startTime +
-                ", leaveTime=" + endTime +
-                ", meeting=" + meeting +
-                '}';
     }
 }
