@@ -1,10 +1,9 @@
 package com.woowacourse.moragora.service;
 
 import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
-import static com.woowacourse.moragora.support.MeetingFixtures.*;
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.SUN;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
@@ -14,7 +13,6 @@ import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
-import com.woowacourse.moragora.support.MeetingFixtures;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

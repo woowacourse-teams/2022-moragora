@@ -331,7 +331,7 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("meetings[].upcomingEvent.attendanceOpenTime").type(JsonFieldType.STRING)
                                         .description("09:30"),
                                 fieldWithPath("meetings[].upcomingEvent.attendanceClosedTime").type(
-                                        JsonFieldType.STRING)
+                                                JsonFieldType.STRING)
                                         .description("10:05"),
                                 fieldWithPath("meetings[].upcomingEvent.meetingStartTime").type(JsonFieldType.STRING)
                                         .description("10:00"),
