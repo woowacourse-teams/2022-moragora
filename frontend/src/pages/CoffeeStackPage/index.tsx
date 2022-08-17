@@ -159,18 +159,14 @@ const CoffeeStackPage = () => {
             </S.UserListSectionHeader>
             <S.UserListBox>
               <S.UserList>
-                {meetingQuery.data.body.users.map((user) => {
-                  console.log(user);
-
-                  return (
-                    <CoffeeStackItem
-                      key={user.id}
-                      name={user.nickname}
-                      tardyCount={user.tardyCount}
-                      isMaster={user.isMaster}
-                    />
-                  );
-                })}
+                {meetingQuery.data.body.users.map((user) => (
+                  <CoffeeStackItem
+                    key={user.id}
+                    name={user.nickname}
+                    tardyCount={user.tardyCount}
+                    isMaster={user.isMaster}
+                  />
+                ))}
               </S.UserList>
             </S.UserListBox>
           </S.UserListSection>

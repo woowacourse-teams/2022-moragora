@@ -40,8 +40,6 @@ const Calendar: React.FC<CalendarProps> = ({ savedEvents, readOnly }) => {
     return <S.Layout>상위 요소에 CalendarProvider가 없습니다.</S.Layout>;
   }
 
-  console.log(readOnly);
-
   return (
     <S.Layout>
       <S.YearMonthBox>
