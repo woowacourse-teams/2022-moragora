@@ -8,7 +8,6 @@ import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static com.woowacourse.moragora.support.UserFixtures.getEmailsIncludingMaster;
 import static com.woowacourse.moragora.support.UserFixtures.getNicknamesIncludingMaster;
-import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -128,7 +127,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         final ValidatableResponse response = get("/meetings/me", token);
 
         // then
-        await().untilAsserted(() -> response.statusCode(HttpStatus.OK.value())
+        response.statusCode(HttpStatus.OK.value())
                 .body("meetings.id", containsInAnyOrder(meetingId1, meetingId2))
                 .body("meetings.name", containsInAnyOrder(meeting1.getName(), meeting2.getName()))
                 .body("meetings.tardyCount", containsInAnyOrder(1, 0))
@@ -142,6 +141,6 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.meetingEndTime", equalTo("18:00"))
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.date", equalTo("2022-08-01"))
                 .body("meetings.find{it.id == " + meetingId2 + "}.upcomingEvent", equalTo(null))
-        );
+        ;
     }
 }
