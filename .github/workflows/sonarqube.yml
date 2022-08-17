@@ -1,22 +1,27 @@
-name: checkmate-sonarqube
+# Workflow 의 이름 설정
+name: 백엔드 코드 정적 분석
 
 on:
-  pull_request:
+  pull_request:  # main, feat, develop 브랜치에  PR event 가 일어났을때
     branches:
       - main
       - dev
     types: [opened, synchronize]
+    paths: 'backend/**'
 
 defaults:
   run:
-    working-directory: ./backend/
+    working-directory: backend
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source code
-        uses: actions/checkout@v2
+      - name: get repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.SUBMODULE_TOKEN }}
+          submodules: recursive
 
   analysis:
     runs-on: ubuntu-latest
@@ -25,9 +30,13 @@ jobs:
       SONARQUBE_URL: ${{ secrets.SONAR_HOST_URL }}
       SONARQUBE_TOKEN : ${{ secrets.SONAR_TOKEN }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
+
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.SUBMODULE_TOKEN }}
+          submodules: recursive
 
       - name: gradlew permission change
         run: sudo chmod 755 gradlew
@@ -38,6 +47,7 @@ jobs:
           -Dsonar.projectKey=${{ env.SONARQUBE_PROJECT_KEY }}
           -Dsonar.projectName=${{ env.SONARQUBE_PROJECT_KEY }}-${{ env.PR_NUMBER }}
           -Dsonar.login=${{ env.SONARQUBE_TOKEN }}
+
       - name: Comment Sonarqube URL
         uses: actions/github-script@v4
         with:
