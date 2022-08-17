@@ -13,7 +13,6 @@ const CheckMeetingItem: React.FC<
   React.PropsWithChildren<CheckMeetingItemProps>
 > = ({ onClick, meeting, clicked, children }) => {
   const handleClick = () => {
-    console.log(meeting);
     onClick(meeting);
   };
 

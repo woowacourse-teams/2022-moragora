@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import * as S from './CheckInPage.styled';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { getMeetingListApi } from 'apis/meetingApis';
@@ -9,7 +9,7 @@ import ErrorIcon from 'components/@shared/ErrorIcon';
 import ReloadButton from 'components/@shared/ReloadButton';
 import useQuery from 'hooks/useQuery';
 import { MeetingListResponseBody } from 'types/meetingType';
-import CheckMeetingItem from 'components/CheckMeetingItem/indext';
+import CheckMeetingItem from 'components/CheckMeetingItem';
 import { getAttendancesApi } from 'apis/userApis';
 import { css } from '@emotion/react';
 
