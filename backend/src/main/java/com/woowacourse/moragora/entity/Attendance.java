@@ -1,6 +1,6 @@
 package com.woowacourse.moragora.entity;
 
-import java.time.LocalDate;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -69,7 +69,20 @@ public class Attendance {
         return !disabled;
     }
 
-    public boolean isSameDate(final LocalDate date) {
-        return event.isSameDate(date);
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Attendance)) {
+            return false;
+        }
+        final Attendance that = (Attendance) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

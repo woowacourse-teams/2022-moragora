@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.repository;
 
 import com.woowacourse.moragora.entity.Attendance;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.Modifying;
@@ -29,4 +30,8 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("delete from Attendance a where a.event.id in :eventIds")
     void deleteByEventIdIn(@Param("eventIds") final List<Long> eventIds);
+
+    @Query("select a from Attendance a where a.participant.meeting.id = :meetingId and a.event.date in :eventDates")
+    List<Attendance> findByMeetingIdAndDateIn(@Param("meetingId") final Long meetingId,
+                                              @Param("eventDates") final List<LocalDate> eventDates);
 }

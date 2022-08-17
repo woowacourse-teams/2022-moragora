@@ -65,6 +65,10 @@ public class EventService {
                 .orElseThrow(MeetingNotFoundException::new);
         final List<Event> insertedEvents = request.toEntities(meeting);
 
+        final List<LocalDate> eventDates = insertedEvents.stream()
+                .map(Event::getDate)
+                .collect(Collectors.toList());
+
         validateEventDateNotPast(insertedEvents);
         validateDuplicatedEventDate(insertedEvents);
         validateAttendanceStartTimeIsAfterNow(insertedEvents);
@@ -74,9 +78,40 @@ public class EventService {
 
         final List<Event> newEvents = events.updateAndExtractNewEvents(insertedEvents);
         eventRepository.saveAll(newEvents);
-        final List<Attendance> attendances = saveAllAttendances(meeting.getParticipants(), newEvents);
+        saveAllAttendances(meeting.getParticipants(), newEvents);
+        final List<Attendance> attendances = attendanceRepository.findByMeetingIdAndDateIn(meetingId, eventDates);
         scheduleAttendancesUpdate(attendances);
     }
+//
+//    @Transactional
+//    public void save2(final EventsRequest request, final Long meetingId) {
+//        final Meeting meeting = meetingRepository.findById(meetingId)
+//                .orElseThrow(MeetingNotFoundException::new);
+//        final List<Event> events = request.toEntities(meeting);
+//
+//        validateEventDateNotPast(events);
+//        validateDuplicatedEventDate(events);
+//        validateAttendanceStartTimeIsAfterNow(events);
+//
+//        final List<LocalDate> eventDates = events.stream()
+//                .map(Event::getDate)
+//                .collect(Collectors.toList());
+//
+//        final List<Event> eventsToUpdate = eventRepository.findByMeetingIdAndDateIn(meetingId, eventDates);
+//        final List<Event> eventsToSave = events.stream()
+//                .filter(event -> notContain(eventsToUpdate, event.getDate()))
+//                .collect(Collectors.toList());
+//
+//        eventRepository.saveAll(eventsToSave);
+//        saveAllAttendances(meeting.getParticipants(), eventsToSave);
+//        scheduleAttendancesUpdate(attendances);
+//    }
+//
+//    private boolean notContain(final List<Event> foundEvents, final LocalDate date) {
+//        return foundEvents.stream()
+//                .map(Event::getDate)
+//                .noneMatch(it -> it.equals(date));
+//    }
 
     @Transactional
     public void cancel(final EventCancelRequest request, final Long meetingId) {
@@ -95,7 +130,7 @@ public class EventService {
 
     public EventResponse findUpcomingEvent(final Long meetingId) {
         final Event event = eventRepository.findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(
-                        meetingId, serverTimeManager.getDate())
+                meetingId, serverTimeManager.getDate())
                 .orElseThrow(EventNotFoundException::new);
 
         final LocalTime entranceTime = event.getStartTime();

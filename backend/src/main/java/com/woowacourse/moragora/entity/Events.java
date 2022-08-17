@@ -20,7 +20,6 @@ public class Events {
         for (Event insertedEvent : insertedEvents) {
             save(insertedEvent, newEvents);
         }
-        System.out.println(newEvents.size());
         return newEvents;
     }
 
