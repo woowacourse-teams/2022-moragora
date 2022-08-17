@@ -1,10 +1,5 @@
 import { useContext } from 'react';
-import {
-  Navigate,
-  useNavigate,
-  useOutletContext,
-  useParams,
-} from 'react-router-dom';
+import { Navigate, useOutletContext, useParams } from 'react-router-dom';
 import { css } from '@emotion/react';
 import * as S from './CalendarPage.styled';
 import Button from 'components/@shared/Button';

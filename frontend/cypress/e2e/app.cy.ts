@@ -85,7 +85,7 @@ describe('모임', () => {
       member: ['user1', 'user2'],
     };
 
-    it('성공 시 일정 설정 페이지로 이동한다.', () => {
+    it('성공 시 생성된 모임 페이지로 이동한다.', () => {
       cy.get('a[class*="-RegisterLink"]').should('exist').click();
       cy.get('input[name="email"]').type(newUser.email);
       cy.get('button[class*="-EmailCheckButton"]').click();
@@ -100,7 +100,7 @@ describe('모임', () => {
       cy.get('input[name="searchMember"]').type(newMeeting.member[1]);
       cy.get('ul[class*="-QueryResultList"] > li').first().click();
       cy.get('button[class*="-MeetingCreateButton"]').click();
-      cy.url().should('include', '/config');
+      cy.url().should('include', 'meeting/8/coffee-stack');
     });
   });
 });

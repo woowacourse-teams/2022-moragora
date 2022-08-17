@@ -6,7 +6,7 @@ export type Meeting = {
   name: string;
   isActive: boolean;
   userIds: number[];
-  attendanceEventCount: number;
+  attendedEventCount: number;
 };
 
 export type MeetingWithTardyCount = {
@@ -40,7 +40,7 @@ export type MeetingListResponseBody = {
 export type MeetingResponseBody = {
   id: number;
   name: string;
-  attendanceEventCount: number;
+  attendedEventCount: number;
   isActive: boolean;
   isLoginUserMaster: boolean;
   isCoffeeTime: boolean;
@@ -49,4 +49,8 @@ export type MeetingResponseBody = {
 
 export type MeetingMasterAssignRequestBody = {
   userId: User['id'];
+};
+
+export type MeetingNameUpdateRequestBody = {
+  name: Meeting['name'];
 };

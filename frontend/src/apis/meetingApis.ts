@@ -1,5 +1,8 @@
 import {
+  Meeting,
   MeetingListResponseBody,
+  MeetingMasterAssignRequestBody,
+  MeetingNameUpdateRequestBody,
   MeetingResponseBody,
 } from 'types/meetingType';
 import { User } from 'types/userType';
@@ -83,3 +86,47 @@ export const postEmptyCoffeeStackApi = ({
     },
   });
 };
+
+export const updateMeetingNameApi =
+  (meetingId: string, accessToken: User['accessToken']) =>
+  (payload: MeetingNameUpdateRequestBody) =>
+    request(`/meetings/${meetingId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+export const assignMasterApi =
+  (meetingId: number, accessToken: User['accessToken']) =>
+  (payload: MeetingMasterAssignRequestBody) =>
+    request(`/meetings/${meetingId}/me`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+export const deleteMeetingApi =
+  (meetingId: string, accessToken: User['accessToken']) => () =>
+    request<{}>(`/meetings/${meetingId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+export const leaveMeetingApi =
+  (meetingId: string, accessToken: User['accessToken']) => () =>
+    request<{}>(`/meetings/${meetingId}/me`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
