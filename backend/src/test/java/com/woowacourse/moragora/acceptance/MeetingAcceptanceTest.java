@@ -8,6 +8,7 @@ import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static com.woowacourse.moragora.support.UserFixtures.getEmailsIncludingMaster;
 import static com.woowacourse.moragora.support.UserFixtures.getNicknamesIncludingMaster;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -109,7 +110,6 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         final int meetingId2 = saveMeeting(token, ids, meeting2);
 
         final Event event = EVENT1.create(meeting1);
-        saveEvents(token, List.of(event), (long) meetingId1);
 
         given(serverTimeManager.getDate())
                 .willReturn(event.getDate());
@@ -117,21 +117,23 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .willReturn(true);
         given(serverTimeManager.isAttendanceClosed(any(LocalTime.class)))
                 .willReturn(false);
-        given(serverTimeManager.calculateOpeningTime(event.getStartTime()))
+        given(serverTimeManager.calculateOpenTime(event.getStartTime()))
                 .willReturn(LocalTime.of(9, 30));
-        given(serverTimeManager.calculateClosingTime(event.getStartTime()))
+        given(serverTimeManager.calculateAttendanceCloseTime(event.getStartTime()))
                 .willReturn(LocalTime.of(10, 5));
+
+        saveEvents(token, List.of(event), (long) meetingId1);
 
         // when
         final ValidatableResponse response = get("/meetings/me", token);
 
         // then
-        response.statusCode(HttpStatus.OK.value())
+        await().untilAsserted(() -> response.statusCode(HttpStatus.OK.value())
                 .body("meetings.id", containsInAnyOrder(meetingId1, meetingId2))
                 .body("meetings.name", containsInAnyOrder(meeting1.getName(), meeting2.getName()))
-                .body("meetings.tardyCount", containsInAnyOrder(0, 0))
+                .body("meetings.tardyCount", containsInAnyOrder(1, 0))
                 .body("meetings.isLoginUserMaster", containsInAnyOrder(true, true))
-                .body("meetings.isCoffeeTime", containsInAnyOrder(false, false))
+                .body("meetings.isCoffeeTime", containsInAnyOrder(true, false))
                 .body("meetings.isActive", containsInAnyOrder(true, false))
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.id", equalTo(1))
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.attendanceOpenTime", equalTo("09:30"))
@@ -140,6 +142,6 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.meetingEndTime", equalTo("18:00"))
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.date", equalTo("2022-08-01"))
                 .body("meetings.find{it.id == " + meetingId2 + "}.upcomingEvent", equalTo(null))
-        ;
+        );
     }
 }

@@ -11,6 +11,7 @@ import static com.woowacourse.moragora.support.UserFixtures.NO_MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.auth.dto.LoginRequest;
@@ -23,6 +24,7 @@ import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,6 +40,11 @@ class EventAcceptanceTest extends AcceptanceTest {
     @Test
     void add() {
         // given
+        given(serverTimeManager.getDate())
+                .willReturn(LocalDate.of(2022, 7, 31));
+        given(serverTimeManager.calculateAttendanceCloseTime(any(LocalTime.class)))
+                .willReturn(LocalTime.of(10, 5));
+
         final User user1 = KUN.create();
         final User user2 = AZPI.create();
         final List<Long> userIds = saveUsers(List.of(user2));
@@ -165,7 +172,7 @@ class EventAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("모임의 가장 가까운 일정을 요청하면 일정 상세 정보와 상태코드 200을 반환한다.")
     @Test
-    void show_upcoming_event() {
+    void showUpcomingEvent() {
         // given
         final User user1 = KUN.create();
         final User user2 = AZPI.create();
@@ -177,14 +184,15 @@ class EventAcceptanceTest extends AcceptanceTest {
 
         final Event event1 = EVENT1.create(meeting);
         final Event event2 = EVENT2.create(meeting);
-        saveEvents(token, List.of(event1, event2), (long) meetingId);
 
         given(serverTimeManager.getDate())
                 .willReturn(LocalDate.of(2022, 7, 31));
-        given(serverTimeManager.calculateOpeningTime(event1.getStartTime()))
+        given(serverTimeManager.calculateOpenTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().minusMinutes(30));
-        given(serverTimeManager.calculateClosingTime(event1.getStartTime()))
+        given(serverTimeManager.calculateAttendanceCloseTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().plusMinutes(5));
+
+        saveEvents(token, List.of(event1, event2), (long) meetingId);
 
         // when
         final ValidatableResponse response = get("/meetings/" + meetingId + "/events/upcoming", token);
@@ -254,12 +262,14 @@ class EventAcceptanceTest extends AcceptanceTest {
                                 event2.getDate()
                         )
                 ));
-        post("/meetings/" + meetingId + "/events", eventsRequest, token);
-
-        given(serverTimeManager.calculateOpeningTime(event1.getStartTime()))
+        given(serverTimeManager.getDate())
+                .willReturn(event1.getDate());
+        given(serverTimeManager.calculateOpenTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().minusMinutes(30));
-        given(serverTimeManager.calculateClosingTime(event1.getStartTime()))
+        given(serverTimeManager.calculateAttendanceCloseTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().plusMinutes(5));
+
+        post("/meetings/" + meetingId + "/events", eventsRequest, token);
         // when
         final ValidatableResponse response = get("/meetings/" + meetingId + "/events", token);
 
@@ -310,12 +320,14 @@ class EventAcceptanceTest extends AcceptanceTest {
                                 event3.getDate()
                         )
                 ));
-        post("/meetings/" + meetingId + "/events", eventsRequest, token);
-
-        given(serverTimeManager.calculateOpeningTime(event1.getStartTime()))
+        given(serverTimeManager.getDate())
+                .willReturn(event1.getDate());
+        given(serverTimeManager.calculateOpenTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().minusMinutes(30));
-        given(serverTimeManager.calculateClosingTime(event1.getStartTime()))
+        given(serverTimeManager.calculateAttendanceCloseTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().plusMinutes(5));
+
+        post("/meetings/" + meetingId + "/events", eventsRequest, token);
 
         // when
         final ValidatableResponse response = get("/meetings/" + meetingId + "/events?begin=" + event2.getDate(), token);
@@ -367,13 +379,14 @@ class EventAcceptanceTest extends AcceptanceTest {
                                 event3.getDate()
                         )
                 ));
-        post("/meetings/" + meetingId + "/events", eventsRequest, token);
-
-        given(serverTimeManager.calculateOpeningTime(event1.getStartTime()))
+        given(serverTimeManager.getDate())
+                .willReturn(event1.getDate());
+        given(serverTimeManager.calculateOpenTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().minusMinutes(30));
-        given(serverTimeManager.calculateClosingTime(event1.getStartTime()))
+        given(serverTimeManager.calculateAttendanceCloseTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().plusMinutes(5));
 
+        post("/meetings/" + meetingId + "/events", eventsRequest, token);
         // when
         final ValidatableResponse response = get("/meetings/" + meetingId + "/events?end=" + event2.getDate(), token);
 
@@ -424,12 +437,15 @@ class EventAcceptanceTest extends AcceptanceTest {
                                 event3.getDate()
                         )
                 ));
-        post("/meetings/" + meetingId + "/events", eventsRequest, token);
 
-        given(serverTimeManager.calculateOpeningTime(event1.getStartTime()))
+        given(serverTimeManager.getDate())
+                .willReturn(event1.getDate());
+        given(serverTimeManager.calculateOpenTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().minusMinutes(30));
-        given(serverTimeManager.calculateClosingTime(event1.getStartTime()))
+        given(serverTimeManager.calculateAttendanceCloseTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().plusMinutes(5));
+
+        post("/meetings/" + meetingId + "/events", eventsRequest, token);
 
         // when
         final ValidatableResponse response = get(

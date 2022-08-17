@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -22,12 +23,14 @@ import com.woowacourse.moragora.dto.EventRequest;
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.EventsResponse;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -370,5 +373,90 @@ class EventControllerTest extends ControllerTest {
                                         .description("18:00"),
                                 fieldWithPath("events[].date").type(JsonFieldType.STRING).description("2022-08-02")
                         )));
+    }
+
+    @DisplayName("이벤트 등록 시 오늘 이전의 이벤트를 등록하면 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifPastEvent() throws Exception {
+        // given
+        doThrow(new ClientRuntimeException("기간의 입력이 잘못되었습니다.", HttpStatus.BAD_REQUEST))
+                .when(eventService).save(any(EventsRequest.class), anyLong());
+        final EventsRequest eventsRequest = new EventsRequest(
+                List.of(
+                        new EventRequest(
+                                LocalTime.of(10, 0),
+                                LocalTime.of(18, 0),
+                                LocalDate.of(2022, 8, 3)
+                        ),
+                        new EventRequest(
+                                LocalTime.of(10, 0),
+                                LocalTime.of(18, 0),
+                                LocalDate.of(2022, 8, 4)
+                        )
+                ));
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/1/events", eventsRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+
+    @DisplayName("이벤트 등록 시 하루에 복수의 이벤트를 등록하면 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifEventDateDuplicated() throws Exception {
+        // given
+        doThrow(new ClientRuntimeException("하루에 복수의 일정을 생성할 수 없습니다.", HttpStatus.BAD_REQUEST))
+                .when(eventService).save(any(EventsRequest.class), anyLong());
+        final EventsRequest eventsRequest = new EventsRequest(
+                List.of(
+                        new EventRequest(
+                                LocalTime.of(10, 0),
+                                LocalTime.of(18, 0),
+                                LocalDate.of(2022, 8, 3)
+                        ),
+                        new EventRequest(
+                                LocalTime.of(10, 0),
+                                LocalTime.of(18, 0),
+                                LocalDate.of(2022, 8, 4)
+                        )
+                ));
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/1/events", eventsRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("이벤트 등록 시 하루에 복수의 이벤트를 등록하면 예외가 발생한다.")
+    @Test
+    void add_throwsException_ifAttendanceStartTimeIsAfterNow() throws Exception {
+        // given
+        doThrow(new ClientRuntimeException("출석 시간 전에 일정을 생성할 수 없습니다.", HttpStatus.BAD_REQUEST))
+                .when(eventService).save(any(EventsRequest.class), anyLong());
+        final EventsRequest eventsRequest = new EventsRequest(
+                List.of(
+                        new EventRequest(
+                                LocalTime.of(10, 0),
+                                LocalTime.of(18, 0),
+                                LocalDate.of(2022, 8, 3)
+                        ),
+                        new EventRequest(
+                                LocalTime.of(10, 0),
+                                LocalTime.of(18, 0),
+                                LocalDate.of(2022, 8, 4)
+                        )
+                ));
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/1/events", eventsRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest());
     }
 }

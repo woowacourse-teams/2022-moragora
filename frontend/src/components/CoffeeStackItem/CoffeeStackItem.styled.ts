@@ -9,7 +9,12 @@ export const Layout = styled.div`
   background-color: ${({ theme: { colors } }) => colors['white']};
 `;
 
-export const Box = styled.div`
+export const NameBox = styled.div`
+  display: flex;
+  gap: 1rem;
+`;
+
+export const CoffeeStackBox = styled.div`
   display: flex;
   flex-wrap: wrap;
 `;

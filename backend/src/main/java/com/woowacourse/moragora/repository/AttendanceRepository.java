@@ -13,7 +13,7 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
 
     Attendance save(final Attendance attendance);
 
-    void saveAll(final Iterable<Attendance> attendances);
+    List<Attendance> saveAll(final Iterable<Attendance> attendances);
 
     Optional<Attendance> findByParticipantIdAndEventId(final Long participantId, final Long eventId);
 
@@ -24,6 +24,12 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
     List<Attendance> findByParticipantIdInAndDateLessThanEqual(
             @Param("participantIds") final List<Long> participantIds,
             @Param("date") final LocalDate date);
+
+    List<Attendance> findByEventIdIn(final List<Long> eventIds);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("update Attendance a set a.status='TARDY' where a.id = :id and a.status = 'NONE'")
+    void updateAttendanceToTardy(@Param("id") final Long id);
 
     // TODO: participantIds 대신 meetingId를 통한 조회
     List<Attendance> findByParticipantIdInAndEventId(final List<Long> participantIds, final Long eventId);

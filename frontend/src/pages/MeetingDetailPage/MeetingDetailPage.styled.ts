@@ -8,7 +8,7 @@ export const Layout = styled.div`
   flex-direction: column;
   flex: 1;
   gap: 2rem;
-  overflow: scroll;
+  overflow-y: hidden;
 `;
 
 export const TabNavBox = styled.div`
@@ -64,7 +64,7 @@ export const IndicatorBox = styled.div<{ tabPositions: TabPosition[] }>`
 
 export const MainBox = styled.div`
   display: flex;
-  padding-top: 3rem;
-  flex-direction: column;
   flex: 1;
+  padding-top: 3rem;
+  overflow-y: scroll;
 `;
