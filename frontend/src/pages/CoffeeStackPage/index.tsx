@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
-import * as S from './MeetingPage.styled';
+import * as S from './CoffeeStackPage.styled';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import DivideLine from 'components/@shared/DivideLine';
@@ -14,7 +14,7 @@ import { postEmptyCoffeeStackApi, getMeetingData } from 'apis/meetingApis';
 import useMutation from 'hooks/useMutation';
 import useQuery from 'hooks/useQuery';
 
-const MeetingPage = () => {
+const CoffeeStackPage = () => {
   const { id } = useParams();
 
   if (!id) {
@@ -169,4 +169,4 @@ const MeetingPage = () => {
   );
 };
 
-export default MeetingPage;
+export default CoffeeStackPage;

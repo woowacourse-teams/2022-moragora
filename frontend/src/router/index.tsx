@@ -1,7 +1,7 @@
 import { Navigate, useRoutes } from 'react-router-dom';
 import MeetingCreatePage from 'pages/MeetingCreatePage';
 import MeetingListPage from 'pages/MeetingListPage';
-import MeetingPage from 'pages/MeetingPage';
+import CoffeeStackPage from 'pages/CoffeeStackPage';
 import RegisterPage from 'pages/RegisterPage';
 import LoginPage from 'pages/LoginPage';
 import Auth from './Auth';
@@ -35,7 +35,7 @@ const Router = () => {
               element: <MeetingDetailPage />,
               children: [
                 { path: '', element: <Navigate to="coffee-stack" replace /> },
-                { path: 'coffee-stack', element: <MeetingPage /> },
+                { path: 'coffee-stack', element: <CoffeeStackPage /> },
                 { path: 'event', element: <EventCreatePage /> },
                 { path: 'meeting-config', element: <div>config</div> },
                 { path: '*', element: <NotFoundPage /> },
