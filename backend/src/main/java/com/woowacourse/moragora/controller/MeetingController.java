@@ -54,7 +54,7 @@ public class MeetingController {
     public ResponseEntity<Void> passMaster(@PathVariable final Long meetingId,
                                            @RequestBody final MasterRequest masterRequest,
                                            @AuthenticationPrincipal final Long loginId) {
-        meetingService.updateMaster(meetingId, masterRequest, loginId);
+        meetingService.assignMaster(meetingId, masterRequest, loginId);
         return ResponseEntity.noContent().build();
     }
 }

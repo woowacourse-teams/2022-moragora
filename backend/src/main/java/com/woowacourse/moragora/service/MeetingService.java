@@ -113,6 +113,27 @@ public class MeetingService {
         return new MyMeetingsResponse(myMeetingResponses);
     }
 
+    @Transactional
+    public void assignMaster(final Long meetingId, final MasterRequest request, final Long loginId) {
+        meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+
+        final Long assignedUserId = request.getUserId();
+        userRepository.findById(assignedUserId)
+                .orElseThrow(UserNotFoundException::new);
+        validateAssignee(loginId, assignedUserId);
+
+        final Participant assignedParticipant = participantRepository
+                .findByMeetingIdAndUserId(meetingId, assignedUserId)
+                .orElseThrow(ParticipantNotFoundException::new);
+        final Participant masterParticipant = participantRepository
+                .findByMeetingIdAndUserId(meetingId, loginId)
+                .orElseThrow(ParticipantNotFoundException::new);
+
+        assignedParticipant.updateIsMaster(true);
+        masterParticipant.updateIsMaster(false);
+    }
+
     private MeetingAttendances getMeetingAttendances(final Participant participant) {
         final Meeting meeting = participant.getMeeting();
         final List<Long> participantIds = meeting.getParticipantIds();
@@ -204,26 +225,7 @@ public class MeetingService {
         );
     }
 
-    @Transactional
-    public void updateMaster(final Long meetingId, final MasterRequest request, final Long loginId) {
-        meetingRepository.findById(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
-
-        final Long participantId = request.getUserId();
-        validateIds(loginId, participantId);
-        userRepository.findById(participantId)
-                .orElseThrow(UserNotFoundException::new);
-
-        final Participant participant = participantRepository.findByMeetingIdAndUserId(meetingId, participantId)
-                .orElseThrow(ParticipantNotFoundException::new);
-        final Participant master = participantRepository.findByMeetingIdAndUserId(meetingId, loginId)
-                .orElseThrow(ParticipantNotFoundException::new);
-
-        participant.updateIsMaster(true);
-        master.updateIsMaster(false);
-    }
-
-    private void validateIds(final Long loginId, final Long participantId) {
+    private void validateAssignee(final Long loginId, final Long participantId) {
         if (Objects.equals(loginId, participantId)) {
             throw new ClientRuntimeException("스스로에게 마스터 권한을 넘길 수 없습니다.", HttpStatus.BAD_REQUEST);
         }

@@ -491,7 +491,7 @@ class MeetingServiceTest {
 
         // when, then
         assertThatNoException()
-                .isThrownBy(() -> meetingService.updateMaster(meeting.getId(), masterRequest, master.getId()));
+                .isThrownBy(() -> meetingService.assignMaster(meeting.getId(), masterRequest, master.getId()));
     }
 
     @DisplayName("미팅의 마스터를 존재하지 않는 회원으로 수정하면 예외가 발생한다.")
@@ -506,7 +506,7 @@ class MeetingServiceTest {
 
         // when, then
         assertThatExceptionOfType(UserNotFoundException.class)
-                .isThrownBy(() -> meetingService.updateMaster(meeting.getId(), masterRequest, master.getId()));
+                .isThrownBy(() -> meetingService.assignMaster(meeting.getId(), masterRequest, master.getId()));
     }
 
     @DisplayName("존재하지 않는 미팅의 마스터를 수정하면 예외가 발생한다.")
@@ -520,7 +520,7 @@ class MeetingServiceTest {
 
         // when, then
         assertThatExceptionOfType(MeetingNotFoundException.class)
-                .isThrownBy(() -> meetingService.updateMaster(100L, masterRequest, master.getId()));
+                .isThrownBy(() -> meetingService.assignMaster(100L, masterRequest, master.getId()));
     }
 
     @DisplayName("미팅의 마스터를 참가하지 않는 회원으로 수정하면 예외가 발생한다.")
@@ -536,7 +536,7 @@ class MeetingServiceTest {
 
         // when, then
         assertThatExceptionOfType(ParticipantNotFoundException.class)
-                .isThrownBy(() -> meetingService.updateMaster(meeting.getId(), masterRequest, master.getId()));
+                .isThrownBy(() -> meetingService.assignMaster(meeting.getId(), masterRequest, master.getId()));
     }
 
     @DisplayName("미팅의 마스터를 자신으로 수정하면 예외가 발생한다.")
@@ -551,7 +551,7 @@ class MeetingServiceTest {
 
         // when, then
         assertThatExceptionOfType(ClientRuntimeException.class)
-                .isThrownBy(() -> meetingService.updateMaster(meeting.getId(), masterRequest, master.getId()))
+                .isThrownBy(() -> meetingService.assignMaster(meeting.getId(), masterRequest, master.getId()))
                 .withMessage("스스로에게 마스터 권한을 넘길 수 없습니다.");
     }
 }

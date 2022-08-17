@@ -389,7 +389,7 @@ class MeetingControllerTest extends ControllerTest {
         final ResultActions resultActions = performPut("/meetings/1/master", request);
 
         // then
-        verify(meetingService, times(1)).updateMaster(anyLong(), any(MasterRequest.class), anyLong());
+        verify(meetingService, times(1)).assignMaster(anyLong(), any(MasterRequest.class), anyLong());
         resultActions.andExpect(status().isNoContent())
                 .andDo(document("meeting/pass-master", preprocessResponse(prettyPrint()),
                         requestFields(
@@ -405,7 +405,7 @@ class MeetingControllerTest extends ControllerTest {
         final MasterRequest request = new MasterRequest(1L);
         validateToken("1");
         doThrow(new ClientRuntimeException("스스로에게 마스터 권한을 넘길 수 없습니다.", HttpStatus.BAD_REQUEST))
-                .when(meetingService).updateMaster(anyLong(), any(MasterRequest.class), anyLong());
+                .when(meetingService).assignMaster(anyLong(), any(MasterRequest.class), anyLong());
 
         // when
         final ResultActions resultActions = performPut("/meetings/1/master", request);
