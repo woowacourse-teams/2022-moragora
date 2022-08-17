@@ -24,7 +24,7 @@ export const createEventsApi =
       body: JSON.stringify({ events }),
     });
 
-export const getUpcomingEvent =
+export const getUpcomingEventApi =
   (meetingId: string, accessToken?: User['accessToken']) => () =>
     request<MeetingEvent>(`/meetings/${meetingId}/events/upcoming`, {
       method: 'GET',

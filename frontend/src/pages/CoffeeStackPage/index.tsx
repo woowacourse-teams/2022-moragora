@@ -13,7 +13,7 @@ import { userContext, UserContextValues } from 'contexts/userContext';
 import { postEmptyCoffeeStackApi, getMeetingData } from 'apis/meetingApis';
 import useMutation from 'hooks/useMutation';
 import useQuery from 'hooks/useQuery';
-import { getUpcomingEvent } from 'apis/eventApis';
+import { getUpcomingEventApi } from 'apis/eventApis';
 import { NOT_FOUND_STATUS_CODE } from 'consts';
 
 const CoffeeStackPage = () => {
@@ -40,7 +40,7 @@ const CoffeeStackPage = () => {
 
   const upcomingEventQuery = useQuery(
     ['upcomingEvent'],
-    getUpcomingEvent(id, accessToken),
+    getUpcomingEventApi(id, accessToken),
     {
       enabled: meetingQuery.isSuccess,
       onError: (error) => {
