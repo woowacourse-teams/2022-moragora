@@ -262,12 +262,14 @@ class EventAcceptanceTest extends AcceptanceTest {
                                 event2.getDate()
                         )
                 ));
-        post("/meetings/" + meetingId + "/events", eventsRequest, token);
-
+        given(serverTimeManager.getDate())
+                .willReturn(event1.getDate());
         given(serverTimeManager.calculateOpenTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().minusMinutes(30));
         given(serverTimeManager.calculateAttendanceCloseTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().plusMinutes(5));
+
+        post("/meetings/" + meetingId + "/events", eventsRequest, token);
         // when
         final ValidatableResponse response = get("/meetings/" + meetingId + "/events", token);
 
@@ -318,12 +320,14 @@ class EventAcceptanceTest extends AcceptanceTest {
                                 event3.getDate()
                         )
                 ));
-        post("/meetings/" + meetingId + "/events", eventsRequest, token);
-
+        given(serverTimeManager.getDate())
+                .willReturn(event1.getDate());
         given(serverTimeManager.calculateOpenTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().minusMinutes(30));
         given(serverTimeManager.calculateAttendanceCloseTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().plusMinutes(5));
+
+        post("/meetings/" + meetingId + "/events", eventsRequest, token);
 
         // when
         final ValidatableResponse response = get("/meetings/" + meetingId + "/events?begin=" + event2.getDate(), token);
@@ -375,13 +379,14 @@ class EventAcceptanceTest extends AcceptanceTest {
                                 event3.getDate()
                         )
                 ));
-        post("/meetings/" + meetingId + "/events", eventsRequest, token);
-
+        given(serverTimeManager.getDate())
+                .willReturn(event1.getDate());
         given(serverTimeManager.calculateOpenTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().minusMinutes(30));
         given(serverTimeManager.calculateAttendanceCloseTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().plusMinutes(5));
 
+        post("/meetings/" + meetingId + "/events", eventsRequest, token);
         // when
         final ValidatableResponse response = get("/meetings/" + meetingId + "/events?end=" + event2.getDate(), token);
 
@@ -432,12 +437,15 @@ class EventAcceptanceTest extends AcceptanceTest {
                                 event3.getDate()
                         )
                 ));
-        post("/meetings/" + meetingId + "/events", eventsRequest, token);
 
+        given(serverTimeManager.getDate())
+                .willReturn(event1.getDate());
         given(serverTimeManager.calculateOpenTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().minusMinutes(30));
         given(serverTimeManager.calculateAttendanceCloseTime(event1.getStartTime()))
                 .willReturn(event1.getStartTime().plusMinutes(5));
+
+        post("/meetings/" + meetingId + "/events", eventsRequest, token);
 
         // when
         final ValidatableResponse response = get(

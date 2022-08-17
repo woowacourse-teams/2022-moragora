@@ -18,7 +18,6 @@ import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Collection;
@@ -88,7 +87,7 @@ public class EventService {
 
     public EventResponse findUpcomingEvent(final Long meetingId) {
         final Event event = eventRepository.findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(
-                meetingId, serverTimeManager.getDate())
+                        meetingId, serverTimeManager.getDate())
                 .orElseThrow(EventNotFoundException::new);
 
         final LocalTime entranceTime = event.getStartTime();
@@ -101,8 +100,8 @@ public class EventService {
         validateBeginIsGreaterThanEqualEnd(begin, end);
         List<Event> events = eventRepository.findByMeetingIdAndDuration(meetingId, begin, end);
         final List<EventResponse> eventResponses = events.stream()
-                .map(event -> EventResponse.of(event, serverTimeManager.calculateOpeningTime(event.getStartTime()),
-                        serverTimeManager.calculateClosingTime(event.getStartTime()))
+                .map(event -> EventResponse.of(event, serverTimeManager.calculateOpenTime(event.getStartTime()),
+                        serverTimeManager.calculateAttendanceCloseTime(event.getStartTime()))
                 )
                 .collect(Collectors.toList());
 
