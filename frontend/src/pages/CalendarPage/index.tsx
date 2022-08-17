@@ -24,29 +24,24 @@ import {
 } from 'apis/eventApis';
 import { getMeetingData } from 'apis/meetingApis';
 import Spinner from 'components/@shared/Spinner';
+import { QueryState } from 'types/queryType';
 
 const CalendarPage = () => {
   const { id: meetingId } = useParams();
   const navigate = useNavigate();
+  const user = useContext(userContext) as UserContextValues;
 
   if (!meetingId) {
     return <Navigate to="/error" />;
   }
 
   const { meetingQuery } = useOutletContext<{
-    meetingQuery: ReturnType<
-      typeof useQuery<Awaited<ReturnType<ReturnType<typeof getMeetingData>>>>
-    >;
-    upcomingEventQuery: ReturnType<
-      typeof useQuery<
-        Awaited<ReturnType<ReturnType<typeof getUpcomingEventApi>>>
-      >
-    >;
+    meetingQuery: QueryState<typeof getMeetingData>;
+    upcomingEventQuery: QueryState<typeof getUpcomingEventApi>;
     totalTardyCount: number;
     upcomingEventNotExist: boolean;
   }>();
 
-  const user = useContext(userContext) as UserContextValues;
   const eventsQuery = useQuery(
     ['events'],
     getEventsApi(meetingId, user.accessToken),

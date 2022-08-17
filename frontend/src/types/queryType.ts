@@ -1,3 +1,5 @@
+import useQuery from 'hooks/useQuery';
+
 export type Variables = Record<string, any> | null;
 
 export type QueryClient = {
@@ -32,3 +34,7 @@ export type MutationOptions<TData, TVariables> = {
   onMutate: (variables: TVariables) => Promise<void> | void;
   retry: number;
 };
+
+export type QueryState<T> = ReturnType<
+  typeof useQuery<Awaited<ReturnType<ReturnType<T>>>>
+>;

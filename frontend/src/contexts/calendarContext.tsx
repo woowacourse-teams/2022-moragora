@@ -61,7 +61,7 @@ export const CalendarProvider: React.FC<
   );
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [shouldApplyBeginEndDates, setShouldApplyBeginEndDates] =
-    useState(true);
+    useState(false);
   const [beginDate, setBeginDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [events, setEvents] = useState<MeetingEvent[]>([]);
