@@ -52,8 +52,8 @@ const EventCreatePage = () => {
     addEvents(
       selectedDates.map((date) => ({
         date: dateToFormattedString(date),
-        entranceTime: values['entranceTime'],
-        leaveTime: values['leaveTime'],
+        entranceTime: values['entranceTime'] as string,
+        leaveTime: values['leaveTime'] as string,
       }))
     );
     clearSelectedDates();
@@ -110,13 +110,15 @@ const EventCreatePage = () => {
                   type="time"
                   {...register('entranceTime', {
                     onClick: (e) => {
-                      const target = e.target as HTMLInputElement & {
-                        showPicker: () => void;
-                      };
+                      const currentTarget =
+                        e.currentTarget as HTMLInputElement & {
+                          showPicker: () => void;
+                        };
 
-                      target.showPicker();
+                      currentTarget.showPicker();
                     },
                     required: true,
+                    watch: true,
                   })}
                 />
               </S.Label>
@@ -128,13 +130,15 @@ const EventCreatePage = () => {
                   type="time"
                   {...register('leaveTime', {
                     onClick: (e) => {
-                      const target = e.target as HTMLInputElement & {
-                        showPicker: () => void;
-                      };
+                      const currentTarget =
+                        e.currentTarget as HTMLInputElement & {
+                          showPicker: () => void;
+                        };
 
-                      target.showPicker();
+                      currentTarget.showPicker();
                     },
                     required: true,
+                    watch: true,
                   })}
                   disabled={errors['entranceTime'] !== ''}
                 />
