@@ -285,8 +285,8 @@ class MeetingControllerTest extends ControllerTest {
         final MyMeetingResponse myMeetingResponse =
                 new MyMeetingResponse(1L, "모임1", 1, true, false, false,
                         new EventResponse(1L,
-                                "09:30", "10:05",
-                                "10:00", "18:00",
+                                LocalTime.of(9, 30), LocalTime.of(10, 5),
+                                LocalTime.of(10, 0), LocalTime.of(18, 0),
                                 LocalDate.of(2022, 8, 1)
                         )
                 );
@@ -331,7 +331,7 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("meetings[].upcomingEvent.attendanceOpenTime").type(JsonFieldType.STRING)
                                         .description("09:30"),
                                 fieldWithPath("meetings[].upcomingEvent.attendanceClosedTime").type(
-                                                JsonFieldType.STRING)
+                                        JsonFieldType.STRING)
                                         .description("10:05"),
                                 fieldWithPath("meetings[].upcomingEvent.meetingStartTime").type(JsonFieldType.STRING)
                                         .description("10:00"),

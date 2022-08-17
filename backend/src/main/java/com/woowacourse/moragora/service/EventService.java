@@ -3,18 +3,20 @@ package com.woowacourse.moragora.service;
 import com.woowacourse.moragora.dto.EventCancelRequest;
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
+import com.woowacourse.moragora.dto.EventsResponse;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.EventRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
-import java.time.LocalDate;
 import com.woowacourse.moragora.support.ServerTimeManager;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Collection;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +41,7 @@ public class EventService {
     private final MeetingRepository meetingRepository;
     private final AttendanceRepository attendanceRepository;
     private final ServerTimeManager serverTimeManager;
+
 
     public EventService(final TaskScheduler taskScheduler,
                         final EventRepository eventRepository,
@@ -90,12 +94,34 @@ public class EventService {
 
     public EventResponse findUpcomingEvent(final Long meetingId) {
         final Event event = eventRepository.findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(
-                        meetingId, serverTimeManager.getDate())
+                meetingId, serverTimeManager.getDate())
                 .orElseThrow(EventNotFoundException::new);
 
         final LocalTime entranceTime = event.getStartTime();
-        final LocalTime attendanceOpenTime = serverTimeManager.calculateOpenTime(entranceTime);
-        final LocalTime attendanceClosedTime = serverTimeManager.calculateClosedTime(entranceTime);
+        final LocalTime attendanceOpenTime = serverTimeManager.calculateOpeningTime(entranceTime);
+        final LocalTime attendanceClosedTime = serverTimeManager.calculateClosingTime(entranceTime);
         return EventResponse.of(event, attendanceOpenTime, attendanceClosedTime);
+    }
+
+    public EventsResponse findByDuration(final Long meetingId, final LocalDate begin, final LocalDate end) {
+        validateBeginIsGreaterThanEqualEnd(begin, end);
+        List<Event> events = eventRepository.findByMeetingIdAndDuration(meetingId, begin, end);
+        final List<EventResponse> eventResponses = events.stream()
+                .map(event -> EventResponse.of(event, serverTimeManager.calculateOpeningTime(event.getStartTime()),
+                        serverTimeManager.calculateClosingTime(event.getStartTime()))
+                )
+                .collect(Collectors.toList());
+
+        return new EventsResponse(eventResponses);
+    }
+
+    private void validateBeginIsGreaterThanEqualEnd(final LocalDate begin, final LocalDate end) {
+        if (begin == null || end == null) {
+            return;
+        }
+        
+        if (begin.isAfter(end)) {
+            throw new ClientRuntimeException("기간의 입력이 잘못되었습니다.", HttpStatus.BAD_REQUEST);
+        }
     }
 }
