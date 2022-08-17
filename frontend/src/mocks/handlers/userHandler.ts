@@ -269,7 +269,13 @@ export default [
       }
 
       if (meetings.some(({ masterId }) => masterId === users[userIndex].id)) {
-        return res(ctx.status(403), ctx.delay(DELAY));
+        return res(
+          ctx.status(403),
+          ctx.json({
+            message: '마스터로 참여중인 모임이 있어 탈퇴할 수 없습니다.',
+          }),
+          ctx.delay(DELAY)
+        );
       }
 
       users.splice(userIndex, 1);

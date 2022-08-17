@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import * as S from './RegisterPage.styled';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
+import Button from 'components/@shared/Button';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import useForm from 'hooks/useForm';
 import useQuery from 'hooks/useQuery';
@@ -177,13 +178,9 @@ const RegisterPage = () => {
         </S.FieldBox>
       </S.Form>
       <S.ButtonBox>
-        <S.RegisterButton
-          type="submit"
-          form="register-form"
-          disabled={isSubmitting}
-        >
+        <Button type="submit" form="register-form" disabled={isSubmitting}>
           회원가입
-        </S.RegisterButton>
+        </Button>
         <S.LoginHintParagraph>
           이미 가입된 계정이 있으신가요?
           <S.LoginLink to="/login">로그인</S.LoginLink>

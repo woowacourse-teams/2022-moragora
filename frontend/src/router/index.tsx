@@ -9,6 +9,9 @@ import SettingsPage from 'pages/SettingsPage';
 import NotFoundPage from 'pages/NotFoundPage';
 import EventCreatePage from 'pages/EventCreatePage';
 import MeetingDetailPage from 'pages/MeetingDetailPage';
+import UserConfigPage from 'pages/UserConfigPage';
+import PasswordUpdatePage from 'pages/PasswordUpdatePage';
+import UnregisterPage from 'pages/UnregisterPage';
 
 const Router = () => {
   return useRoutes([
@@ -44,10 +47,21 @@ const Router = () => {
         },
         {
           path: 'settings',
-          element: <SettingsPage />,
+          children: [
+            { path: '', element: <SettingsPage /> },
+            {
+              path: 'user-config',
+              children: [
+                { path: '', element: <UserConfigPage /> },
+                { path: 'password', element: <PasswordUpdatePage /> },
+                { path: 'unregister', element: <UnregisterPage /> },
+              ],
+            },
+          ],
         },
       ],
     },
+
     { path: '*', element: <NotFoundPage /> },
   ]);
 };
