@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import Footer from 'components/layouts/Footer';
 import * as S from './SettingsPage.styled';
 import Button from 'components/@shared/Button';
@@ -11,8 +11,13 @@ import MenuLink from 'components/@shared/MenuLink';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
+  const user = useContext(userContext);
   const userState = useContext(userContext);
   const [isModalOpened, setIsModalOpened] = useState(false);
+
+  if (!user?.accessToken) {
+    return <Navigate to="/" />;
+  }
 
   const handleOpen = () => {
     setIsModalOpened(true);
@@ -41,7 +46,9 @@ const SettingsPage = () => {
       <S.Layout>
         <S.ProfileBox>
           <Avatar />
-          <S.NicknameParagraph>unknown</S.NicknameParagraph>
+          <S.NicknameParagraph>
+            {user.user?.nickname ?? 'unknown'}
+          </S.NicknameParagraph>
         </S.ProfileBox>
         <S.ButtonBox>
           <MenuLink

@@ -1,25 +1,54 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import * as S from './UserConfigPage.styled';
 import Footer from 'components/layouts/Footer';
 import Avatar from 'components/@shared/Avatar';
 import MenuLink from 'components/@shared/MenuLink';
 import NicknameInput from 'components/NicknameInput';
-import useForm from 'hooks/useForm';
+import { userContext } from 'contexts/userContext';
+import { Navigate } from 'react-router-dom';
+import useMutation from 'hooks/useMutation';
+import { updateNicknameApi } from 'apis/userApis';
 
 const UserConfigPage = () => {
-  const { values, onSubmit, register, isSubmitting } = useForm();
+  const user = useContext(userContext);
 
-  const handleNicknameValid: React.FormEventHandler<HTMLFormElement> = ({
-    currentTarget,
-  }) => {
+  if (!user?.accessToken) {
+    return <Navigate to="/" />;
+  }
+
+  const [nickname, setNickname] = useState(user.user?.nickname ?? 'unknown');
+  const nicknameUpdateMutation = useMutation(
+    updateNicknameApi(user.accessToken),
+    {
+      onMutate: ({ nickname }) => {
+        setNickname(nickname);
+      },
+      onError: () => {
+        console.log(user.user?.nickname);
+        setNickname(user.user?.nickname ?? 'unknown');
+        alert('닉네임 변경 중 에러가 발생했습니다.');
+      },
+      onSuccess: () => {
+        alert('닉네임이 변경되었습니다.');
+      },
+    }
+  );
+
+  const handleNicknameValid: React.FormEventHandler<HTMLFormElement> = async (
+    e
+  ) => {
+    e.preventDefault();
+    const { currentTarget } = e;
     const formData = new FormData(currentTarget);
-    const formDataObject = Object.fromEntries(formData.entries());
+    const formDataObject = Object.fromEntries(formData.entries()) as {
+      nickname: string;
+    };
 
-    console.log(formDataObject);
-  };
+    if (formDataObject.nickname === user.user?.nickname) {
+      return;
+    }
 
-  const handleNicknameError = () => {
-    alert('error');
+    await nicknameUpdateMutation.mutate(formDataObject);
   };
 
   return (
@@ -27,22 +56,21 @@ const UserConfigPage = () => {
       <S.Layout>
         <S.ProfileBox>
           <Avatar />
-          <form {...onSubmit(handleNicknameValid, handleNicknameError)}>
+          <form onSubmit={handleNicknameValid}>
             <NicknameInput
               type="text"
-              {...register('nickname', {
-                defaultValue: 'unknown',
-                onBlur: ({ target }) => {
-                  target.form?.requestSubmit();
-                },
-                minLength: 1,
-                maxLength: 15,
-                pattern: '^([a-zA-Z0-9가-힣]){1,15}$',
-                required: true,
-                watch: true,
-              })}
-              nickname={values['nickname'] as string}
-              disabled={isSubmitting}
+              name="nickname"
+              value={nickname}
+              onChange={({ currentTarget }) => {
+                setNickname(currentTarget.value);
+              }}
+              onBlur={({ currentTarget }) => {
+                currentTarget.form?.requestSubmit();
+              }}
+              maxLength={15}
+              pattern="^([a-zA-Z0-9가-힣]){1,15}$"
+              required
+              nickname={nickname}
             />
           </form>
         </S.ProfileBox>
@@ -68,7 +96,7 @@ const UserConfigPage = () => {
             }
             disabled
           >
-            이메일 <S.EmailSpan>email@email.com</S.EmailSpan>
+            이메일 <S.EmailSpan>{user.user?.email ?? 'unknown'}</S.EmailSpan>
           </MenuLink>
           <MenuLink
             to="password"
