@@ -122,7 +122,7 @@ public class EventService {
 
     private void validateEventDateNotPast(final List<Event> events) {
         final boolean exists = events.stream()
-                .anyMatch(event -> event.dateBefore(serverTimeManager.getDate()));
+                .anyMatch(event -> event.isDateBefore(serverTimeManager.getDate()));
         if (exists) {
             throw new ClientRuntimeException("오늘 이전의 이벤트를 생성할 수 없습니다.", HttpStatus.BAD_REQUEST);
         }

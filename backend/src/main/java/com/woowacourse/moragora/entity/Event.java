@@ -61,7 +61,7 @@ public class Event {
         return this.date.isEqual(date);
     }
 
-    public boolean dateBefore(final LocalDate date) {
+    public boolean isDateBefore(final LocalDate date) {
         return this.date.isBefore(date);
     }
 
