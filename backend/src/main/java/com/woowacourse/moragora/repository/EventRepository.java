@@ -29,4 +29,12 @@ public interface EventRepository extends Repository<Event, Long> {
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("delete from Event e where e.id in :ids")
     void deleteByIdIn(@Param("ids") final List<Long> ids);
+
+    @Query("select e from Event e join fetch e.meeting m"
+            + " where m.id = :meetingId"
+            + " and (:begin is null or e.date >= :begin)"
+            + " and (:end is null or e.date <= :end)")
+    List<Event> findByMeetingIdAndDuration(@Param("meetingId") final Long meetingId,
+                                           @Param("begin") final LocalDate begin,
+                                           @Param("end") final LocalDate end);
 }

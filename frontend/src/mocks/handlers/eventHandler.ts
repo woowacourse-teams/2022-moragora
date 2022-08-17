@@ -3,7 +3,11 @@ import users from 'mocks/fixtures/users';
 import events from 'mocks/fixtures/events';
 import { DELAY } from 'mocks/configs';
 import { extractIdFromHeader } from 'mocks/utils';
-import { MeetingEvent } from 'types/eventType';
+import {
+  EventListResponseBody,
+  EventResposeBody,
+  MeetingEvent,
+} from 'types/eventType';
 
 type PostEventsRequestBody = {
   events: Omit<MeetingEvent, 'id' | 'meetingId'>[];
@@ -124,7 +128,7 @@ export default [
       }
 
       const { meetingId } = req.params;
-      const matchedEvents = tempEvents.filter(
+      const matchedEvents: EventListResponseBody = tempEvents.filter(
         (event) => event.meetingId === Number(meetingId)
       );
 
@@ -133,6 +137,40 @@ export default [
         ctx.json({ events: matchedEvents }),
         ctx.delay(DELAY)
       );
+    }
+  ),
+
+  rest.get(
+    `${process.env.API_SERVER_HOST}/meetings/:meetingId/events/upcoming`,
+    (req, res, ctx) => {
+      const token = extractIdFromHeader(req);
+
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      const user = users.find(({ id }) => id === token.id);
+
+      if (!user) {
+        return res(
+          ctx.status(404),
+          ctx.json({ message: '유저가 존재하지 않습니다.' })
+        );
+      }
+
+      const { meetingId } = req.params;
+      const upcomingEvent: EventResposeBody | undefined = tempEvents.find(
+        (event) => event.meetingId === Number(meetingId)
+      );
+
+      if (!upcomingEvent) {
+        return res(ctx.status(404), ctx.delay(DELAY));
+      }
+
+      return res(ctx.status(200), ctx.json(upcomingEvent), ctx.delay(DELAY));
     }
   ),
 ];

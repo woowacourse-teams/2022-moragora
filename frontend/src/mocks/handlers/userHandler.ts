@@ -11,8 +11,8 @@ import {
   UserDeleteRequestBody,
   UserUpdateNicknameRequestBody,
   UserUpdatePasswordRequestBody,
-} from 'types/userType_new';
-import meetings from 'mocks/fixtures/meetings_new';
+} from 'types/userType';
+import meetings from 'mocks/fixtures/meetings';
 
 export default [
   rest.post<UserRegisterRequestBody>(

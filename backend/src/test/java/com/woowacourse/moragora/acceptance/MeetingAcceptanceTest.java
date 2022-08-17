@@ -117,9 +117,9 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .willReturn(true);
         given(serverTimeManager.isAttendanceClosed(any(LocalTime.class)))
                 .willReturn(false);
-        given(serverTimeManager.calculateOpenTime(event.getStartTime()))
+        given(serverTimeManager.calculateOpeningTime(event.getStartTime()))
                 .willReturn(LocalTime.of(9, 30));
-        given(serverTimeManager.calculateClosedTime(event.getStartTime()))
+        given(serverTimeManager.calculateClosingTime(event.getStartTime()))
                 .willReturn(LocalTime.of(10, 5));
 
         // when
