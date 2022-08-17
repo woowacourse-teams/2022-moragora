@@ -1,14 +1,7 @@
-import {
-  MeetingListResponseBody,
-  MeetingResponseBody,
-} from 'types/meetingType';
+import { MeetingListResponseBody } from 'types/meetingType';
+import { MeetingResponseBody } from 'types/meetingType_new';
 import { User } from 'types/userType';
 import request from 'utils/request';
-
-type EmptyCoffeeStackRequestBody = {
-  id: string;
-  accessToken: User['accessToken'];
-};
 
 export const createMeetingApi = async ({
   accessToken,
@@ -72,7 +65,10 @@ export const getMeetingListApi =
 export const postEmptyCoffeeStackApi = ({
   id,
   accessToken,
-}: EmptyCoffeeStackRequestBody) => {
+}: {
+  id: string;
+  accessToken: User['accessToken'];
+}) => {
   if (!accessToken) {
     throw new Error('커피 비우기 요청 중 에러가 발생했습니다.');
   }
