@@ -81,8 +81,10 @@ public class EventService {
         final List<Long> eventIds = events.stream()
                 .map(Event::getId)
                 .collect(Collectors.toList());
+        final List<Attendance> attendances = attendanceRepository.findByEventIdIn(eventIds);
         attendanceRepository.deleteByEventIdIn(eventIds);
         eventRepository.deleteByIdIn(eventIds);
+        attendances.forEach(scheduledTasks::remove);
     }
 
     public EventResponse findUpcomingEvent(final Long meetingId) {

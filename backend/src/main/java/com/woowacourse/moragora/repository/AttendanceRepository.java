@@ -18,9 +18,12 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
 
     List<Attendance> findByParticipantIdIn(final List<Long> participantIds);
 
+    List<Attendance> findByEventIdIn(final List<Long> eventIds);
+
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("update Attendance a set a.status='TARDY' where a.id = :id and a.status = 'NONE'")
     void updateAttendanceToTardy(@Param("id") final Long id);
+
     List<Attendance> findByParticipantIdInAndEventId(final List<Long> participantIds, final Long eventId);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)

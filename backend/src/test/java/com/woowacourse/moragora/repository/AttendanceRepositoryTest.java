@@ -138,4 +138,30 @@ class AttendanceRepositoryTest {
         // then
         assertThat(expected.get().getStatus()).isEqualTo(Status.TARDY);
     }
+
+
+    @DisplayName("이벤트로 사용자 출석정보 목록을 조회한다.")
+    @Test
+    void findByEventIdIn() {
+        // given
+        final User user1 = KUN.create();
+        final User user2 = AZPI.create();
+
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        final Participant participant1 = dataSupport.saveParticipant(user1, meeting);
+        final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
+
+        final Event event = EVENT1.create(meeting);
+        final Event savedEvent = eventRepository.save(event);
+
+        attendanceRepository.save(new Attendance(Status.TARDY, true, participant1, savedEvent));
+        attendanceRepository.save(new Attendance(Status.TARDY, true, participant2, savedEvent));
+
+        // when
+        final List<Attendance> attendances = attendanceRepository.findByEventIdIn(List.of(savedEvent.getId()));
+
+        // then
+        assertThat(attendances).hasSize(2);
+    }
 }
