@@ -4,14 +4,10 @@ import events from 'mocks/fixtures/events';
 import { DELAY } from 'mocks/configs';
 import { extractIdFromHeader } from 'mocks/utils';
 import {
+  EventCreateRequestBody,
   EventListResponseBody,
   EventResposeBody,
-  MeetingEvent,
 } from 'types/eventType';
-
-type PostEventsRequestBody = {
-  events: Omit<MeetingEvent, 'id' | 'meetingId'>[];
-};
 
 type DeleteEventsRequestBody = {
   eventIds: number[];
@@ -25,7 +21,7 @@ type MeetingPathParams = {
 let tempEvents = [...events];
 
 export default [
-  rest.post<PostEventsRequestBody, Pick<MeetingPathParams, 'meetingId'>>(
+  rest.post<EventCreateRequestBody, Pick<MeetingPathParams, 'meetingId'>>(
     `${process.env.API_SERVER_HOST}/meetings/:meetingId/events`,
     (req, res, ctx) => {
       const token = extractIdFromHeader(req);
@@ -54,13 +50,19 @@ export default [
           (newEvent) => event.date === newEvent.date
         );
 
-        return matchedEventIndex
-          ? {
-              id: event.id,
-              meetingId: Number(meetingId),
-              ...newEvents.splice(matchedEventIndex, 1)[0],
-            }
-          : event;
+        if (matchedEventIndex) {
+          const newEvent = newEvents.splice(matchedEventIndex, 1)[0];
+
+          return {
+            id: event.id,
+            meetingId: Number(meetingId),
+            ...newEvent,
+            attendanceOpenTime: newEvent.meetingStartTime,
+            attendanceClosedTime: newEvent.meetingEndTime,
+          };
+        }
+
+        return event;
       });
 
       const eventsLength = tempEvents.length;
@@ -70,6 +72,8 @@ export default [
           ...event,
           meetingId: Number(meetingId),
           id: index + eventsLength,
+          attendanceOpenTime: event.meetingStartTime,
+          attendanceClosedTime: event.meetingEndTime,
         }))
       );
 

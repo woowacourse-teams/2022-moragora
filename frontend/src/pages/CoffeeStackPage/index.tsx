@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useOutletContext, useParams } from 'react-router-dom';
 import * as S from './CoffeeStackPage.styled';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
@@ -10,11 +10,10 @@ import ModalPortal from 'components/ModalPortal';
 import CoffeeStackModal from 'components/CoffeeStackModal';
 import CoffeeStackProgress from 'components/CoffeeStackProgress';
 import { userContext, UserContextValues } from 'contexts/userContext';
-import { postEmptyCoffeeStackApi, getMeetingData } from 'apis/meetingApis';
+import { getMeetingData, postEmptyCoffeeStackApi } from 'apis/meetingApis';
 import useMutation from 'hooks/useMutation';
 import useQuery from 'hooks/useQuery';
 import { getUpcomingEventApi } from 'apis/eventApis';
-import { NOT_FOUND_STATUS_CODE } from 'consts';
 
 const CoffeeStackPage = () => {
   const { id } = useParams();
@@ -25,31 +24,24 @@ const CoffeeStackPage = () => {
 
   const { accessToken } = useContext(userContext) as UserContextValues;
   const [isModalOpened, setIsModalOpened] = useState(false);
-  const [totalTardyCount, setTotalTardyCount] = useState<number>(0);
-  const [upcomingEventNotExist, setUpcomingEventNotExist] = useState(false);
 
-  const meetingQuery = useQuery(['meeting'], getMeetingData(id, accessToken), {
-    onSuccess: ({ body: { users } }) => {
-      const totalTardyCount = users.reduce(
-        (total, user) => total + user.tardyCount,
-        0
-      );
-      setTotalTardyCount(totalTardyCount);
-    },
-  });
-
-  const upcomingEventQuery = useQuery(
-    ['upcomingEvent'],
-    getUpcomingEventApi(id, accessToken),
-    {
-      enabled: meetingQuery.isSuccess,
-      onError: (error) => {
-        setUpcomingEventNotExist(
-          parseInt(error.message.split(':')[0]) === NOT_FOUND_STATUS_CODE
-        );
-      },
-    }
-  );
+  const {
+    meetingQuery,
+    upcomingEventQuery,
+    totalTardyCount,
+    upcomingEventNotExist,
+  } = useOutletContext<{
+    meetingQuery: ReturnType<
+      typeof useQuery<Awaited<ReturnType<ReturnType<typeof getMeetingData>>>>
+    >;
+    upcomingEventQuery: ReturnType<
+      typeof useQuery<
+        Awaited<ReturnType<ReturnType<typeof getUpcomingEventApi>>>
+      >
+    >;
+    totalTardyCount: number;
+    upcomingEventNotExist: boolean;
+  }>();
 
   const emptyCoffeeStackMutation = useMutation(postEmptyCoffeeStackApi, {
     onSuccess: () => {
@@ -119,7 +111,7 @@ const CoffeeStackPage = () => {
               <S.EmptyStateParagraph>
                 다음 일정을 설정하세요.
               </S.EmptyStateParagraph>
-              <S.EventCreateLink to={`/meeting/${id}/event`}>
+              <S.EventCreateLink to={`/meeting/${id}/calendar`}>
                 일정 설정하기
               </S.EventCreateLink>
             </S.EmptyStateBox>
@@ -167,14 +159,18 @@ const CoffeeStackPage = () => {
             </S.UserListSectionHeader>
             <S.UserListBox>
               <S.UserList>
-                {meetingQuery.data.body.users.map((user) => (
-                  <CoffeeStackItem
-                    key={user.id}
-                    name={user.nickname}
-                    tardyCount={user.tardyCount}
-                    isMaster={user.isMaster}
-                  />
-                ))}
+                {meetingQuery.data.body.users.map((user) => {
+                  console.log(user);
+
+                  return (
+                    <CoffeeStackItem
+                      key={user.id}
+                      name={user.nickname}
+                      tardyCount={user.tardyCount}
+                      isMaster={user.isMaster}
+                    />
+                  );
+                })}
               </S.UserList>
             </S.UserListBox>
           </S.UserListSection>
