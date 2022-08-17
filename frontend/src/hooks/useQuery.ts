@@ -55,20 +55,20 @@ const useQuery = <TData = any>(
     try {
       setStatus(QUERY_STATUS.LOADING);
 
-      const data = await queryData();
+      const refetchData = await queryData();
 
-      setData(data);
+      setData(refetchData);
       setStatus(QUERY_STATUS.SUCCESS);
-      await onSuccess?.(data);
-    } catch (error) {
+      await onSuccess?.(refetchData);
+    } catch (refetchError) {
       setStatus(QUERY_STATUS.ERROR);
 
-      if (!(error instanceof Error)) {
+      if (!(refetchError instanceof Error)) {
         return;
       }
 
-      setError(error);
-      await onError?.(error);
+      setError(refetchError);
+      await onError?.(refetchError);
 
       const shouldRetry = retryCountRef.current < retry;
 

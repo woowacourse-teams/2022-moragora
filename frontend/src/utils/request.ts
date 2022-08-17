@@ -17,7 +17,7 @@ const request =
 
     const body = (await res.json().catch(() => ({}))) as SuccessBody;
 
-    return { headers: res.headers, body };
+    return { headers: res.headers, status: res.status, body };
   };
 
 export default request(process.env.API_SERVER_HOST ?? '');
