@@ -49,28 +49,6 @@ public class EventRepositoryTest {
         assertThat(savedEvent.getId()).isNotNull();
     }
 
-    @DisplayName("특정 날짜와 그 전의 모임 일정을 모두 조회한다.")
-    @Test
-    void findByMeetingIdAndDateLessThanEqual() {
-        // given
-        final Meeting meeting = new Meeting("모임1");
-
-        final Meeting savedMeeting = meetingRepository.save(meeting);
-        final Event event1 = new Event(LocalDate.of(2022, 8, 3), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
-        final Event event2 = new Event(LocalDate.of(2022, 8, 4), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
-        final Event event3 = new Event(LocalDate.of(2022, 8, 5), MEETING_START_TIME, MEETING_END_TIME, savedMeeting);
-        eventRepository.save(event1);
-        eventRepository.save(event2);
-        eventRepository.save(event3);
-
-        // when
-        final List<Event> events = eventRepository.findByMeetingIdAndDateLessThanEqual(
-                savedMeeting.getId(), LocalDate.of(2022, 8, 4));
-
-        // then
-        assertThat(events).containsExactlyInAnyOrder(event1, event2);
-    }
-
     @DisplayName("특정 날짜에 가장 가까운 모임 일정을 조회한다.")
     @ParameterizedTest
     @CsvSource(value = {

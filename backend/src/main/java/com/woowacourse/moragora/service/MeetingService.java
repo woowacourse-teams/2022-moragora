@@ -92,7 +92,7 @@ public class MeetingService {
                 .map(it -> generateParticipantResponse(today, meetingAttendances, isOver, it))
                 .collect(Collectors.toList());
 
-        final List<Event> attendedEvents = eventRepository.findByMeetingIdAndDateLessThanEqual(meetingId, today);
+        final List<Event> attendedEvents = eventRepository.findByMeetingIdAndDuration(meetingId, null, today);
         return MeetingResponse.from(
                 meeting, attendedEvents.size(), participant.getIsMaster(),
                 meetingAttendances.isTardyStackFull(isOver, today),
