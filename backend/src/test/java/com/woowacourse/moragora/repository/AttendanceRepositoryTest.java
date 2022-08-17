@@ -1,9 +1,12 @@
 package com.woowacourse.moragora.repository;
 
 import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
+import static com.woowacourse.moragora.support.EventFixtures.EVENT2;
+import static com.woowacourse.moragora.support.EventFixtures.EVENT3;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.AZPI;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.UserFixtures.SUN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
@@ -16,7 +19,6 @@ import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.DataSupport;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +26,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 @Import(DataSupport.class)
-@DataJpaTest
+@DataJpaTest(showSql = false)
 class AttendanceRepositoryTest {
 
     @Autowired
@@ -50,9 +52,9 @@ class AttendanceRepositoryTest {
         assertThat(attendance.isPresent()).isTrue();
     }
 
-    @DisplayName("미팅 참가자들의 출석정보 목록을 조회한다.")
+    @DisplayName("미팅 참가자들의 특정 날짜 이전의 출석 기록을 조회한다.")
     @Test
-    void findByParticipantIdIn() {
+    void findByParticipantIdInAndDateLessThanEqual() {
         // given
         final User user1 = KUN.create();
         final User user2 = AZPI.create();
@@ -60,20 +62,25 @@ class AttendanceRepositoryTest {
 
         final Participant participant1 = dataSupport.saveParticipant(user1, meeting);
         final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
-        final Event event = dataSupport.saveEvent(EVENT1.create(meeting));
-        dataSupport.saveAttendance(participant1, event, Status.TARDY);
-        dataSupport.saveAttendance(participant2, event, Status.TARDY);
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        final Event event3 = dataSupport.saveEvent(EVENT3.create(meeting));
 
-        final List<Participant> participants = List.of(participant1, participant2);
-        final List<Long> participantIds = participants.stream()
-                .map(Participant::getId)
-                .collect(Collectors.toList());
+        dataSupport.saveAttendance(participant1, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant2, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant1, event2, Status.TARDY);
+        dataSupport.saveAttendance(participant2, event2, Status.TARDY);
+        dataSupport.saveAttendance(participant1, event3, Status.TARDY);
+        dataSupport.saveAttendance(participant2, event3, Status.TARDY);
 
         // when
-        final List<Attendance> attendances = attendanceRepository.findByParticipantIdIn(participantIds);
+        final List<Attendance> attendances = attendanceRepository.findByParticipantIdInAndDateLessThanEqual(
+                List.of(participant1.getId(), participant2.getId()),
+                event2.getDate()
+        );
 
         // then
-        assertThat(attendances).hasSize(2);
+        assertThat(attendances).hasSize(4);
     }
 
     @DisplayName("미팅 참가자들의 해당 날짜 출석정보 목록을 조회한다.")
@@ -86,21 +93,65 @@ class AttendanceRepositoryTest {
 
         final Participant participant1 = dataSupport.saveParticipant(user1, meeting);
         final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
-        final Event event = dataSupport.saveEvent(EVENT1.create(meeting));
-        final Attendance attendance = dataSupport.saveAttendance(participant1, event, Status.TARDY);
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT1.create(meeting));
 
-        final List<Participant> participants = List.of(participant1, participant2);
-
-        final List<Long> participantIds = participants.stream()
-                .map(Participant::getId)
-                .collect(Collectors.toList());
+        dataSupport.saveAttendance(participant1, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant2, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant1, event2, Status.TARDY);
+        dataSupport.saveAttendance(participant2, event2, Status.TARDY);
 
         // when
-        final List<Attendance> attendances =
-                attendanceRepository.findByParticipantIdInAndEventId(participantIds, attendance.getEvent().getId());
+        final List<Attendance> attendances = attendanceRepository.findByParticipantIdInAndEventId(
+                List.of(participant1.getId(), participant2.getId()),
+                event1.getId()
+        );
 
         // then
-        assertThat(attendances).hasSize(1);
+        assertThat(attendances).hasSize(2);
+    }
+
+    @DisplayName("출석부의 상태가 NONE인 경우, TARDY로 변경한다.")
+    @Test
+    void updateAttendanceToTardy() {
+        // given
+        final User user1 = SUN.create();
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final Participant participant = dataSupport.saveParticipant(user1, meeting);
+        final Event event = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Long attendanceId = dataSupport.saveAttendance(participant, event, Status.NONE).getId();
+
+        // when
+        attendanceRepository.updateAttendanceToTardy(attendanceId);
+        final Optional<Attendance> expected = attendanceRepository
+                .findByParticipantIdAndEventId(participant.getId(), event.getId());
+        assert (expected.isPresent());
+
+        // then
+        assertThat(expected.get().getStatus()).isEqualTo(Status.TARDY);
+    }
+
+
+    @DisplayName("이벤트로 사용자 출석정보 목록을 조회한다.")
+    @Test
+    void findByEventIdIn() {
+        // given
+        final User user1 = KUN.create();
+        final User user2 = AZPI.create();
+
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final Participant participant1 = dataSupport.saveParticipant(user1, meeting);
+        final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
+        final Event event = dataSupport.saveEvent(EVENT1.create(meeting));
+
+        dataSupport.saveAttendance(participant1, event, Status.TARDY);
+        dataSupport.saveAttendance(participant2, event, Status.TARDY);
+
+        // when
+        final List<Attendance> attendances = attendanceRepository.findByEventIdIn(List.of(event.getId()));
+
+        // then
+        assertThat(attendances).hasSize(2);
     }
 
     @DisplayName("특정 참가자의 출석 데이터를 삭제한다.")
@@ -115,10 +166,11 @@ class AttendanceRepositoryTest {
 
         // when
         attendanceRepository.deleteByParticipantId(participant.getId());
-        final List<Attendance> result = attendanceRepository.findByParticipantIdIn(List.of(participant.getId()));
+        final Optional<Attendance> result = attendanceRepository
+                .findByParticipantIdAndEventId(participant.getId(), event.getId());
 
         // then
-        assertThat(result).hasSize(0);
+        assertThat(result).isEmpty();
     }
 
     @DisplayName("해당 참가자의 출석 데이터가 존재하지 않을 경우에 삭제해도 예외가 발생하지 않는다.")
@@ -127,9 +179,7 @@ class AttendanceRepositoryTest {
         // given
         final User user = KUN.create();
         final Meeting meeting = MORAGORA.create();
-        // 왜 되는지 알겠음 ~ save는 persist or merge라서 당연히 됨~
         final Participant participant = dataSupport.saveParticipant(user, meeting);
-        dataSupport.saveEvent(EVENT1.create(meeting));
 
         // when, then
         assertThatCode(() -> attendanceRepository.deleteByParticipantId(participant.getId()))

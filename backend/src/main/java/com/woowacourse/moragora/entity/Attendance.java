@@ -61,6 +61,10 @@ public class Attendance {
         return this.status == Status.TARDY;
     }
 
+    public boolean isNone() {
+        return this.status == Status.NONE;
+    }
+
     public boolean isEnabled() {
         return !disabled;
     }

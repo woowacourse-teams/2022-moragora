@@ -31,8 +31,9 @@ export const TitleSection = styled.section`
 `;
 
 export const MeetingDetailBox = styled.div`
-  overflow-x: hidden;
-  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 `;
 
 export const MeetingStatusSection = styled.section`
@@ -49,7 +50,7 @@ export const SectionTitle = styled.h2`
 
 export const ProgressBox = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: flex-end;
 `;
 
@@ -68,7 +69,6 @@ export const EmptyButton = styled(DialogButton)`
 `;
 
 export const StackDetailBox = styled.div`
-  flex-basis: 23%;
   padding-bottom: 1rem;
 `;
 
@@ -84,6 +84,12 @@ export const UserListSection = styled.section`
   flex-direction: column;
   flex: 1;
   width: 100%;
+  overflow-y: hidden;
+`;
+
+export const UserListBox = styled.div`
+  display: flex;
+  overflow-y: hidden;
 `;
 
 export const UserList = styled.ul`
@@ -100,17 +106,6 @@ export const UserList = styled.ul`
 `;
 
 export const Paragraph = styled.p``;
-
-export const UserDataBox = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-`;
-
-export const UserListBox = styled.div`
-  display: flex;
-  overflow: hidden;
-`;
 
 export const EmptyStateBox = styled.div`
   padding: 1.25rem;

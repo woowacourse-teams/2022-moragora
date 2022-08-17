@@ -25,19 +25,19 @@ const AdvancedConfiguration = () => {
                 type="date"
                 {...register('startDate', {
                   onClick: (e) => {
-                    const target = e.target as HTMLInputElement & {
-                      showPicker: () => void;
-                    };
+                    const currentTarget =
+                      e.currentTarget as HTMLInputElement & {
+                        showPicker: () => void;
+                      };
 
-                    target.showPicker();
+                    currentTarget.showPicker();
                   },
-                  onChange: (e) => {
-                    const target = e.target as HTMLInputElement;
-
-                    setBeginDate(new Date(Date.parse(target.value)));
+                  onChange: ({ currentTarget }) => {
+                    setBeginDate(new Date(Date.parse(currentTarget.value)));
                   },
                   min: dateToFormattedString(initialDate),
                   required: true,
+                  watch: true,
                 })}
               />
             </S.Label>
@@ -49,19 +49,18 @@ const AdvancedConfiguration = () => {
                 type="date"
                 {...register('endDate', {
                   onClick: (e) => {
-                    const target = e.target as HTMLInputElement & {
-                      showPicker: () => void;
-                    };
+                    const currentTarget =
+                      e.currentTarget as HTMLInputElement & {
+                        showPicker: () => void;
+                      };
 
-                    target.showPicker();
+                    currentTarget.showPicker();
                   },
-                  onChange: (e) => {
-                    const target = e.target as HTMLInputElement;
-
-                    setEndDate(new Date(Date.parse(target.value)));
+                  onChange: ({ currentTarget }) => {
+                    setEndDate(new Date(Date.parse(currentTarget.value)));
                   },
                   min: values['startDate']
-                    ? values['startDate']
+                    ? (values['startDate'] as string)
                     : dateToFormattedString(initialDate),
                   required: true,
                 })}

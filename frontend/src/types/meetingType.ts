@@ -1,11 +1,12 @@
-import { Participant } from './userType';
+import { MeetingEvent } from './eventType';
+import { Participant, User } from './userType';
 
 export type Meeting = {
   id: number;
   name: string;
   isActive: boolean;
   userIds: number[];
-  attendanceCount: number;
+  attendedEventCount: number;
 };
 
 export type MeetingWithTardyCount = {
@@ -20,29 +21,36 @@ export type MeetingCreateRequestBody = {
   userIds: number[];
 };
 
+export type MeetingUpdateRequestBody = {
+  name: string;
+};
+
 export type MeetingListResponseBody = {
   meetings: {
     id: number;
     name: string;
     isActive: boolean;
-    entranceTime: string;
-    closingTime: string;
     tardyCount: number;
-    isMaster: boolean;
+    isLoginUserMaster: boolean;
     isCoffeeTime: boolean;
-    hasUpcomingEvent: boolean;
+    upcomingEvent: MeetingEvent | null;
   }[];
 };
 
 export type MeetingResponseBody = {
   id: number;
   name: string;
-  attendanceCount: number;
-  entranceTime: string;
-  leaveTime: string;
+  attendedEventCount: number;
   isActive: boolean;
-  isMaster: boolean;
+  isLoginUserMaster: boolean;
   isCoffeeTime: boolean;
-  hasUpcomingEvent: boolean;
-  users: Participant[];
+  users: (Participant & { isMaster: boolean })[];
+};
+
+export type MeetingMasterAssignRequestBody = {
+  userId: User['id'];
+};
+
+export type MeetingNameUpdateRequestBody = {
+  name: Meeting['name'];
 };

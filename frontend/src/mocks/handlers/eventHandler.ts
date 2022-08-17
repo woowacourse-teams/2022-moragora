@@ -3,11 +3,11 @@ import users from 'mocks/fixtures/users';
 import events from 'mocks/fixtures/events';
 import { DELAY } from 'mocks/configs';
 import { extractIdFromHeader } from 'mocks/utils';
-import { MeetingEvent } from 'types/eventType';
-
-type PostEventsRequestBody = {
-  events: Omit<MeetingEvent, 'id' | 'meetingId'>[];
-};
+import {
+  EventCreateRequestBody,
+  EventListResponseBody,
+  EventResposeBody,
+} from 'types/eventType';
 
 type DeleteEventsRequestBody = {
   eventIds: number[];
@@ -21,7 +21,7 @@ type MeetingPathParams = {
 let tempEvents = [...events];
 
 export default [
-  rest.post<PostEventsRequestBody, Pick<MeetingPathParams, 'meetingId'>>(
+  rest.post<EventCreateRequestBody, Pick<MeetingPathParams, 'meetingId'>>(
     `${process.env.API_SERVER_HOST}/meetings/:meetingId/events`,
     (req, res, ctx) => {
       const token = extractIdFromHeader(req);
@@ -50,13 +50,19 @@ export default [
           (newEvent) => event.date === newEvent.date
         );
 
-        return matchedEventIndex
-          ? {
-              id: event.id,
-              meetingId: Number(meetingId),
-              ...newEvents.splice(matchedEventIndex, 1)[0],
-            }
-          : event;
+        if (matchedEventIndex) {
+          const newEvent = newEvents.splice(matchedEventIndex, 1)[0];
+
+          return {
+            id: event.id,
+            meetingId: Number(meetingId),
+            ...newEvent,
+            attendanceOpenTime: newEvent.meetingStartTime,
+            attendanceClosedTime: newEvent.meetingEndTime,
+          };
+        }
+
+        return event;
       });
 
       const eventsLength = tempEvents.length;
@@ -66,6 +72,8 @@ export default [
           ...event,
           meetingId: Number(meetingId),
           id: index + eventsLength,
+          attendanceOpenTime: event.meetingStartTime,
+          attendanceClosedTime: event.meetingEndTime,
         }))
       );
 
@@ -124,7 +132,7 @@ export default [
       }
 
       const { meetingId } = req.params;
-      const matchedEvents = tempEvents.filter(
+      const matchedEvents: EventListResponseBody = tempEvents.filter(
         (event) => event.meetingId === Number(meetingId)
       );
 
@@ -133,6 +141,31 @@ export default [
         ctx.json({ events: matchedEvents }),
         ctx.delay(DELAY)
       );
+    }
+  ),
+
+  rest.get(
+    `${process.env.API_SERVER_HOST}/meetings/:meetingId/events/upcoming`,
+    (req, res, ctx) => {
+      const token = extractIdFromHeader(req);
+
+      if (!token.isValidToken) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      const { meetingId } = req.params;
+      const upcomingEvent: EventResposeBody | undefined = tempEvents.find(
+        (event) => event.meetingId === Number(meetingId)
+      );
+
+      if (!upcomingEvent) {
+        return res(ctx.status(404), ctx.delay(DELAY));
+      }
+
+      return res(ctx.status(200), ctx.json(upcomingEvent), ctx.delay(DELAY));
     }
   ),
 ];

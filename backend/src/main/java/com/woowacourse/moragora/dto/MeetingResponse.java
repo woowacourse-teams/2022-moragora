@@ -39,7 +39,7 @@ public class MeetingResponse {
     }
 
     public static MeetingResponse from(final Meeting meeting,
-                                       final int attendedEventCount,
+                                       final long attendedEventCount,
                                        final boolean isLoginUserMaster,
                                        final boolean isCoffeeTime,
                                        final boolean isActive,

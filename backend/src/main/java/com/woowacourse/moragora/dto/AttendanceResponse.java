@@ -15,7 +15,7 @@ public class AttendanceResponse {
     public AttendanceResponse(final Long id, final String nickname, final String attendanceStatus) {
         this.id = id;
         this.nickname = nickname;
-        this.attendanceStatus = attendanceStatus;
+        this.attendanceStatus = attendanceStatus.toLowerCase();
     }
 
     public static AttendanceResponse from(final Attendance attendance) {

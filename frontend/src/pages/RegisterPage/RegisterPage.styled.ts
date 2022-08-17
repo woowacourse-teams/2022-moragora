@@ -25,7 +25,7 @@ export const FieldBox = styled.div`
   gap: 0.75rem;
 `;
 
-export const Label = styled.div`
+export const Label = styled.label`
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -47,14 +47,11 @@ export const EmailCheckButton = styled(DialogButton)`
 `;
 
 export const ButtonBox = styled.div`
+  padding: 0 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   align-items: center;
-`;
-
-export const RegisterButton = styled(Button)`
-  width: 382px;
 `;
 
 export const LoginHintParagraph = styled.p``;
