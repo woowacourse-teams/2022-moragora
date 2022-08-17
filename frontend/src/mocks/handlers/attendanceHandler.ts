@@ -1,10 +1,10 @@
 import { DefaultBodyType, rest } from 'msw';
 import users from 'mocks/fixtures/users';
-import meetings from 'mocks/fixtures/meetings_new';
+import meetings from 'mocks/fixtures/meetings';
 import { DELAY } from 'mocks/configs';
 import { extractIdFromHeader } from 'mocks/utils';
-import { Attendance } from 'types/attendanceType_new';
-import { User } from 'types/userType_new';
+import { Attendance } from 'types/attendanceType';
+import { User } from 'types/userType';
 
 type MeetingPathParams = {
   meetingId: string;

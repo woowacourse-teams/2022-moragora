@@ -31,7 +31,7 @@ const LoginPage = () => {
       formData.entries()
     ) as UserLoginRequestBody;
 
-    loginMutate(formDataObject);
+    await loginMutate(formDataObject);
   };
 
   return (

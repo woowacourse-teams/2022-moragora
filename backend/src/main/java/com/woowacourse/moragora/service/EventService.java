@@ -3,6 +3,7 @@ package com.woowacourse.moragora.service;
 import com.woowacourse.moragora.dto.EventCancelRequest;
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.EventsRequest;
+import com.woowacourse.moragora.dto.EventsResponse;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
@@ -16,6 +17,7 @@ import com.woowacourse.moragora.repository.EventRepository;
 import com.woowacourse.moragora.repository.MeetingRepository;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -86,13 +88,35 @@ public class EventService {
 
     public EventResponse findUpcomingEvent(final Long meetingId) {
         final Event event = eventRepository.findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(
-                        meetingId, serverTimeManager.getDate())
+                meetingId, serverTimeManager.getDate())
                 .orElseThrow(EventNotFoundException::new);
 
         final LocalTime entranceTime = event.getStartTime();
         final LocalTime attendanceOpenTime = serverTimeManager.calculateOpenTime(entranceTime);
         final LocalTime attendanceClosedTime = serverTimeManager.calculateAttendanceCloseTime(entranceTime);
         return EventResponse.of(event, attendanceOpenTime, attendanceClosedTime);
+    }
+
+    public EventsResponse findByDuration(final Long meetingId, final LocalDate begin, final LocalDate end) {
+        validateBeginIsGreaterThanEqualEnd(begin, end);
+        List<Event> events = eventRepository.findByMeetingIdAndDuration(meetingId, begin, end);
+        final List<EventResponse> eventResponses = events.stream()
+                .map(event -> EventResponse.of(event, serverTimeManager.calculateOpeningTime(event.getStartTime()),
+                        serverTimeManager.calculateClosingTime(event.getStartTime()))
+                )
+                .collect(Collectors.toList());
+
+        return new EventsResponse(eventResponses);
+    }
+
+    private void validateBeginIsGreaterThanEqualEnd(final LocalDate begin, final LocalDate end) {
+        if (begin == null || end == null) {
+            return;
+        }
+
+        if (begin.isAfter(end)) {
+            throw new ClientRuntimeException("기간의 입력이 잘못되었습니다.", HttpStatus.BAD_REQUEST);
+        }
     }
 
     private void validateEventDateNotPast(final List<Event> events) {
