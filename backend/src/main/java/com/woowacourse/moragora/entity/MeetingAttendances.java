@@ -28,7 +28,8 @@ public class MeetingAttendances {
     public int countTardy() {
         return (int) values.stream()
                 .filter(Attendance::isEnabled)
-                .filter(Attendance::isTardy).count();
+                .filter(Attendance::isTardy)
+                .count();
     }
 
     public boolean isTardyStackFull() {
