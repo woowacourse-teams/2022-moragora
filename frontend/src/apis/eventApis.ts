@@ -11,6 +11,7 @@ export const getEventsApi =
         Authorization: `Bearer ${accessToken}`,
       },
     });
+
 export const createEventsApi =
   (meetingId: string, accessToken?: User['accessToken']) =>
   (events: MeetingEvent[]) =>
@@ -21,4 +22,14 @@ export const createEventsApi =
         Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({ events }),
+    });
+
+export const getUpcomingEvent =
+  (meetingId: string, accessToken?: User['accessToken']) => () =>
+    request<MeetingEvent>(`/meetings/${meetingId}/events/upcoming`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
     });

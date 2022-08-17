@@ -13,6 +13,8 @@ import { userContext, UserContextValues } from 'contexts/userContext';
 import { postEmptyCoffeeStackApi, getMeetingData } from 'apis/meetingApis';
 import useMutation from 'hooks/useMutation';
 import useQuery from 'hooks/useQuery';
+import { getUpcomingEvent } from 'apis/eventApis';
+import { NOT_FOUND_STATUS_CODE } from 'consts';
 
 const CoffeeStackPage = () => {
   const { id } = useParams();
@@ -24,16 +26,30 @@ const CoffeeStackPage = () => {
   const { accessToken } = useContext(userContext) as UserContextValues;
   const [isModalOpened, setIsModalOpened] = useState(false);
   const [totalTardyCount, setTotalTardyCount] = useState<number>(0);
+  const [upcomingEventNotExist, setUpcomingEventNotExist] = useState(false);
 
   const meetingQuery = useQuery(['meeting'], getMeetingData(id, accessToken), {
-    onSuccess: (data) => {
-      const totalTardyCount = data.body.users.reduce(
+    onSuccess: ({ body: { users } }) => {
+      const totalTardyCount = users.reduce(
         (total, user) => total + user.tardyCount,
         0
       );
       setTotalTardyCount(totalTardyCount);
     },
   });
+
+  const upcomingEventQuery = useQuery(
+    ['upcomingEvent'],
+    getUpcomingEvent(id, accessToken),
+    {
+      enabled: meetingQuery.isSuccess,
+      onError: (error) => {
+        setUpcomingEventNotExist(
+          parseInt(error.message.split(':')[0]) === NOT_FOUND_STATUS_CODE
+        );
+      },
+    }
+  );
 
   const emptyCoffeeStackMutation = useMutation(postEmptyCoffeeStackApi, {
     onSuccess: () => {
@@ -56,7 +72,7 @@ const CoffeeStackPage = () => {
     emptyCoffeeStackMutation.mutate({ id, accessToken });
   };
 
-  if (meetingQuery.isLoading) {
+  if (meetingQuery.isLoading || upcomingEventQuery.isLoading) {
     return (
       <>
         <S.Layout>
@@ -68,7 +84,7 @@ const CoffeeStackPage = () => {
     );
   }
 
-  if (meetingQuery.isError || !id || !meetingQuery.data?.body) {
+  if (!id || meetingQuery.isError || !meetingQuery.data?.body) {
     return (
       <>
         <S.Layout>
@@ -96,25 +112,24 @@ const CoffeeStackPage = () => {
         </ModalPortal>
       )}
       <S.Layout>
+        {upcomingEventNotExist && meetingQuery.data.body.isLoginUserMaster && (
+          <>
+            <S.EmptyStateBox>
+              <S.EmptyStateTitle>다가오는 일정이 없습니다.</S.EmptyStateTitle>
+              <S.EmptyStateParagraph>
+                다음 일정을 설정하세요.
+              </S.EmptyStateParagraph>
+              <S.EventCreateLink to={`/meeting/${id}/event`}>
+                일정 설정하기
+              </S.EventCreateLink>
+            </S.EmptyStateBox>
+            <DivideLine />
+          </>
+        )}
         <S.TitleSection>
           <h1>{meetingQuery.data.body.name}</h1>
         </S.TitleSection>
         <DivideLine />
-        {/* {!meetingQuery.data.body.hasUpcomingEvent &&
-          meetingQuery.data.body.isMaster && (
-            <>
-              <S.EmptyStateBox>
-                <S.EmptyStateTitle>다가오는 일정이 없습니다.</S.EmptyStateTitle>
-                <S.EmptyStateParagraph>
-                  다음 일정을 설정하세요.
-                </S.EmptyStateParagraph>
-                <S.EventCreateLink to={`/meeting/${id}/config`}>
-                  일정 설정하기
-                </S.EventCreateLink>
-              </S.EmptyStateBox>
-              <DivideLine />
-            </>
-          )} */}
         <S.MeetingDetailBox>
           <S.MeetingStatusSection>
             <S.ProgressBox>

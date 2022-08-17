@@ -152,15 +152,6 @@ export default [
         );
       }
 
-      const user = users.find(({ id }) => id === token.id);
-
-      if (!user) {
-        return res(
-          ctx.status(404),
-          ctx.json({ message: '유저가 존재하지 않습니다.' })
-        );
-      }
-
       const { meetingId } = req.params;
       const upcomingEvent: EventResposeBody | undefined = tempEvents.find(
         (event) => event.meetingId === Number(meetingId)
