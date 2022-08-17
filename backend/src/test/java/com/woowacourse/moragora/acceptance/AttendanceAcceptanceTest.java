@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -73,40 +74,41 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .body("users.attendanceStatus", containsInAnyOrder("none", "none", "none"));
     }
 
-//    @DisplayName("마감된 오늘의 출석부를 요청하면 NONE이었던 미팅 멤버들이 TARDY로 변경되고 상태코드 200을 반환한다.")
-//    @Test
-//    void showAttendanceAfterClosedTime() {
-//        // given
-//        final User user1 = SUN.create();
-//        final User user2 = KUN.create();
-//        final User user3 = FORKY.create();
-//        final List<Long> userIds = saveUsers(List.of(user2, user3));
-//        final String token = signUpAndGetToken(user1);
-//        final Meeting meeting = MORAGORA.create();
-//        final Long meetingId = (long) saveMeeting(token, userIds, meeting);
-//        final LocalDateTime dateTime = LocalDate.now().atTime(10, 0);
-//        final Event event = Event.builder()
-//                .date(dateTime.toLocalDate())
-//                .startTime(dateTime.toLocalTime())
-//                .endTime(dateTime.toLocalTime().plusHours(8))
-//                .meeting(meeting)
-//                .build();
-//        given(serverTimeManager.getDate())
-//                .willReturn(dateTime.toLocalDate());
-//        given(serverTimeManager.calculateAttendanceCloseTime(any(LocalTime.class)))
-//                .willReturn(dateTime.toLocalTime().plusMinutes(5));
-//        saveEvents(token, List.of(event), meetingId);
-//
-//        // when
-//        final ValidatableResponse response = get("/meetings/" + meetingId + "/attendances/today", token);
-//
-//        // then
-//        await().untilAsserted(() ->
-//                response.statusCode(HttpStatus.OK.value())
-//                        .body("users.nickname",
-//                                containsInAnyOrder(SUN.getNickname(), KUN.getNickname(), FORKY.getNickname()))
-//                        .body("users.attendanceStatus", containsInAnyOrder("tardy", "tardy", "tardy")));
-//    }
+    @Disabled
+    @DisplayName("마감된 오늘의 출석부를 요청하면 NONE이었던 미팅 멤버들이 TARDY로 변경되고 상태코드 200을 반환한다.")
+    @Test
+    void showAttendanceAfterClosedTime() {
+        // given
+        final User user1 = SUN.create();
+        final User user2 = KUN.create();
+        final User user3 = FORKY.create();
+        final List<Long> userIds = saveUsers(List.of(user2, user3));
+        final String token = signUpAndGetToken(user1);
+        final Meeting meeting = MORAGORA.create();
+        final Long meetingId = (long) saveMeeting(token, userIds, meeting);
+        final LocalDateTime dateTime = LocalDate.now().atTime(10, 0);
+        final Event event = Event.builder()
+                .date(dateTime.toLocalDate())
+                .startTime(dateTime.toLocalTime())
+                .endTime(dateTime.toLocalTime().plusHours(8))
+                .meeting(meeting)
+                .build();
+        given(serverTimeManager.getDate())
+                .willReturn(dateTime.toLocalDate());
+        given(serverTimeManager.calculateAttendanceCloseTime(any(LocalTime.class)))
+                .willReturn(dateTime.toLocalTime().plusMinutes(5));
+        saveEvents(token, List.of(event), meetingId);
+
+        // when
+        final ValidatableResponse response = get("/meetings/" + meetingId + "/attendances/today", token);
+
+        // then
+        await().untilAsserted(() ->
+                response.statusCode(HttpStatus.OK.value())
+                        .body("users.nickname",
+                                containsInAnyOrder(SUN.getNickname(), KUN.getNickname(), FORKY.getNickname()))
+                        .body("users.attendanceStatus", containsInAnyOrder("tardy", "tardy", "tardy")));
+    }
 
     @DisplayName("오늘의 출석부를 요청할 때 오늘의 이벤트가 없다면 상태코드 404를 반환한다.")
     @Test
