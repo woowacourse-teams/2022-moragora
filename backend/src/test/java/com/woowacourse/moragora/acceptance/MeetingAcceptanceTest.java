@@ -109,7 +109,6 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         final int meetingId2 = saveMeeting(token, ids, meeting2);
 
         final Event event = EVENT1.create(meeting1);
-        saveEvents(token, List.of(event), (long) meetingId1);
 
         given(serverTimeManager.getDate())
                 .willReturn(event.getDate());
@@ -117,10 +116,12 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .willReturn(true);
         given(serverTimeManager.isAttendanceClosed(any(LocalTime.class)))
                 .willReturn(false);
-        given(serverTimeManager.calculateOpeningTime(event.getStartTime()))
+        given(serverTimeManager.calculateOpenTime(event.getStartTime()))
                 .willReturn(LocalTime.of(9, 30));
-        given(serverTimeManager.calculateClosingTime(event.getStartTime()))
+        given(serverTimeManager.calculateAttendanceCloseTime(event.getStartTime()))
                 .willReturn(LocalTime.of(10, 5));
+
+        saveEvents(token, List.of(event), (long) meetingId1);
 
         // when
         final ValidatableResponse response = get("/meetings/me", token);
