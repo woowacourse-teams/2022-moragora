@@ -8,8 +8,14 @@ import DivideLine from 'components/@shared/DivideLine';
 import Toggle from 'components/@shared/Toggle';
 import { CalendarContext } from 'contexts/calendarContext';
 import { dateToFormattedString } from 'utils/timeUtil';
+import { MeetingEvent } from 'types/eventType';
 
-const Calendar = () => {
+type CalendarProps = {
+  savedEvents?: MeetingEvent[];
+  readOnly?: boolean;
+};
+
+const Calendar: React.FC<CalendarProps> = ({ savedEvents, readOnly }) => {
   const {
     events,
     dates,
@@ -34,6 +40,8 @@ const Calendar = () => {
     return <S.Layout>상위 요소에 CalendarProvider가 없습니다.</S.Layout>;
   }
 
+  console.log(readOnly);
+
   return (
     <S.Layout>
       <S.YearMonthBox>
@@ -44,24 +52,28 @@ const Calendar = () => {
         <MonthControlBox />
       </S.YearMonthBox>
       <DivideLine />
-      <button
-        type="button"
-        onClick={() => {
-          clearSelectedDates();
-        }}
-      >
-        선택 해제
-      </button>
-      <Toggle
-        defaultChecked={shouldApplyBeginEndDates}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          setShouldApplyBeginEndDates(e.target.checked);
-        }}
-      >
-        요일 적용 기간 설정
-      </Toggle>
-      <AdvancedConfiguration />
-      <DivideLine />
+      {readOnly || (
+        <>
+          <button
+            type="button"
+            onClick={() => {
+              clearSelectedDates();
+            }}
+          >
+            선택 해제
+          </button>
+          <Toggle
+            defaultChecked={shouldApplyBeginEndDates}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setShouldApplyBeginEndDates(e.target.checked);
+            }}
+          >
+            요일 적용 기간 설정
+          </Toggle>
+          <AdvancedConfiguration />
+          <DivideLine />
+        </>
+      )}
       <S.CalendarBox>
         <WeekCell day={0}>일</WeekCell>
         <WeekCell day={1}>월</WeekCell>
@@ -78,9 +90,15 @@ const Calendar = () => {
             ref={bindDateCellControlRef(date)}
             key={dates[0].getDay() + date.getDate()}
             date={date}
-            event={events.find(
-              (event) => event.date === dateToFormattedString(date)
-            )}
+            event={
+              events.find(
+                (event) => event.date === dateToFormattedString(date)
+              ) ||
+              savedEvents?.find(
+                (event) => event.date === dateToFormattedString(date)
+              )
+            }
+            readOnly={readOnly}
           />
         ))}
       </S.CalendarBox>

@@ -8,10 +8,11 @@ type DateCellProps = {
   date?: Date;
   event?: MeetingEvent;
   disabled?: boolean;
+  readOnly?: boolean;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 const DateCell = forwardRef<HTMLDivElement, DateCellProps>(
-  ({ date, event, disabled, ...props }, ref) => {
+  ({ date, event, disabled, readOnly, ...props }, ref) => {
     const {
       initialDate,
       selectedDates,
@@ -36,6 +37,10 @@ const DateCell = forwardRef<HTMLDivElement, DateCellProps>(
       date.getTime() < initialDate?.getTime();
 
     const handleClick: React.MouseEventHandler<HTMLDivElement> = () => {
+      if (readOnly) {
+        return;
+      }
+
       isSelected ? unselectDate(date) : selectDate(date);
     };
 
