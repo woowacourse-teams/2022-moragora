@@ -11,6 +11,22 @@ export const Layout = styled.div`
   overflow-y: hidden;
 `;
 
+export const SpinnerBox = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const ErrorBox = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+`;
+
 export const TabNavBox = styled.div`
   position: fixed;
   width: 100%;

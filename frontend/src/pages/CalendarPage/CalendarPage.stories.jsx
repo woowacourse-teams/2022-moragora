@@ -1,15 +1,16 @@
 import { rest } from 'msw';
-import EventCreatePage from '.';
+import CalendarPage from '.';
 import Header from 'components/layouts/Header';
 import { CalendarProvider } from 'contexts/calendarContext';
 import AppLayout from 'components/layouts/AppLayout';
+import Footer from 'components/layouts/Footer';
 
 export default {
-  title: 'Pages/EventCreatePage',
-  component: EventCreatePage,
+  title: 'Pages/CalendarPage',
+  component: CalendarPage,
   parameters: {
     reactRouter: {
-      routePath: '/meeting/:id/config',
+      routePath: '/meeting/:id/calendar',
       routeParams: { id: '1' },
     },
   },
@@ -20,8 +21,9 @@ const Template = (args) => {
     <AppLayout>
       <Header />
       <CalendarProvider initialDate={new Date()}>
-        <EventCreatePage {...args} />
+        <CalendarPage {...args} />
       </CalendarProvider>
+      <Footer />
     </AppLayout>
   );
 };

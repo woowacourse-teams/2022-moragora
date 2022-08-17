@@ -12,7 +12,7 @@ export type MeetingItemProps = {
 const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
   let meetingStatusMessage = '';
 
-  if (meeting.hasUpcomingEvent) {
+  if (meeting.upcomingEvent) {
     meetingStatusMessage = meeting.isActive
       ? '체크인하세요!'
       : '출결 준비 중입니다.';
@@ -26,7 +26,7 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
         <S.Box>
           <S.MeetingBox>
             <S.IconBox>
-              {meeting.isMaster ? (
+              {meeting.isLoginUserMaster ? (
                 <img src={crownIcon} alt="crown-icon" width={24} />
               ) : (
                 <S.IconSVG
@@ -98,8 +98,8 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
             </S.IconBox>
             <S.MeetingNameSpan>{meeting.name}</S.MeetingNameSpan>
             <S.MeetingTimeSpan>
-              {meeting.hasUpcomingEvent &&
-                `${meeting.entranceTime} ~ ${meeting.closingTime}`}
+              {meeting.upcomingEvent &&
+                `${meeting.upcomingEvent.meetingStartTime} ~ ${meeting.upcomingEvent.meetingEndTime}`}
             </S.MeetingTimeSpan>
           </S.MeetingBox>
           <S.MeetingStatusSpan>{meetingStatusMessage}</S.MeetingStatusSpan>

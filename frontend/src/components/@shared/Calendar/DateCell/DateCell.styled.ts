@@ -46,7 +46,7 @@ export const Layout = styled.div<{
   :hover {
     ::after {
       content: ${({ event }) =>
-        event ? `'${event.entranceTime} - ${event.leaveTime}'` : ''};
+        event ? `'${event.meetingStartTime} - ${event.meetingEndTime}'` : ''};
       position: absolute;
       bottom: -1.5rem;
       padding: 0.25rem;

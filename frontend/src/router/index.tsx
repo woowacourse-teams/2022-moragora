@@ -12,6 +12,7 @@ import MeetingDetailPage from 'pages/MeetingDetailPage';
 import UserConfigPage from 'pages/UserConfigPage';
 import PasswordUpdatePage from 'pages/PasswordUpdatePage';
 import UnregisterPage from 'pages/UnregisterPage';
+import CalendarPage from 'pages/CalendarPage';
 
 const Router = () => {
   return useRoutes([
@@ -36,12 +37,11 @@ const Router = () => {
               children: [
                 { path: '', element: <Navigate to="coffee-stack" replace /> },
                 { path: 'coffee-stack', element: <CoffeeStackPage /> },
-                { path: 'event', element: <EventCreatePage /> },
-                { path: 'meeting-config', element: <div>config</div> },
+                { path: 'calendar', element: <CalendarPage /> },
+                { path: 'config', element: <div>config</div> },
                 { path: '*', element: <NotFoundPage /> },
               ],
             },
-            { path: ':id/config', element: <EventCreatePage /> },
             { path: 'create', element: <MeetingCreatePage /> },
           ],
         },
