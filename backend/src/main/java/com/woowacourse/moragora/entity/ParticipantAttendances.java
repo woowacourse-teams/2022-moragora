@@ -16,7 +16,8 @@ public class ParticipantAttendances {
     public int countTardy() {
         return (int) values.stream()
                 .filter(Attendance::isEnabled)
-                .filter(Attendance::isTardy).count();
+                .filter(Attendance::isTardy)
+                .count();
     }
 
     private void validateSingleParticipant(final List<Attendance> value) {

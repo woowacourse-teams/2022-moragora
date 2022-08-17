@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.auth.dto.LoginRequest;
 import com.woowacourse.auth.dto.LoginResponse;
-import com.woowacourse.auth.exception.AuthorizationFailureException;
+import com.woowacourse.auth.exception.AuthenticationFailureException;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
@@ -73,7 +73,7 @@ public class AuthServiceTest {
 
         // when, then
         assertThatThrownBy(() -> authService.createToken(loginRequest))
-                .isInstanceOf(AuthorizationFailureException.class);
+                .isInstanceOf(AuthenticationFailureException.class);
     }
 
     @DisplayName("잘못된 비밀번호로 로그인 시도시 예외가 발생한다.")
@@ -89,7 +89,7 @@ public class AuthServiceTest {
 
         // when, then
         assertThatThrownBy(() -> authService.createToken(loginRequest))
-                .isInstanceOf(AuthorizationFailureException.class);
+                .isInstanceOf(AuthenticationFailureException.class);
     }
 
     @DisplayName("해당 유저가 해당 미팅의 마스터인지 체크한다.")

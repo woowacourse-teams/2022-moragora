@@ -48,7 +48,7 @@ class AuthAcceptanceTest extends AcceptanceTest {
         final ValidatableResponse response = post("/login", loginRequest);
 
         // then
-        response.statusCode(HttpStatus.UNAUTHORIZED.value())
+        response.statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("message", equalTo("이메일이나 비밀번호가 틀렸습니다."));
     }
 }
