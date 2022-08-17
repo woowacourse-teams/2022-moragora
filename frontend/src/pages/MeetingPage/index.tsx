@@ -1,7 +1,6 @@
 import { useContext, useState } from 'react';
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import * as S from './MeetingPage.styled';
-import Footer from 'components/layouts/Footer';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import DivideLine from 'components/@shared/DivideLine';
@@ -17,7 +16,6 @@ import useQuery from 'hooks/useQuery';
 
 const MeetingPage = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
 
   if (!id) {
     return <Navigate to={'/error'} />;
@@ -67,7 +65,6 @@ const MeetingPage = () => {
             <Spinner />
           </S.SpinnerBox>
         </S.Layout>
-        <Footer />
       </>
     );
   }
@@ -85,7 +82,6 @@ const MeetingPage = () => {
             />
           </S.ErrorBox>
         </S.Layout>
-        <Footer />
       </>
     );
   }
@@ -173,7 +169,6 @@ const MeetingPage = () => {
           </S.UserListSection>
         </S.MeetingDetailBox>
       </S.Layout>
-      <Footer />
     </>
   );
 };
