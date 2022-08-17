@@ -10,7 +10,7 @@ export default {
   component: CalendarPage,
   parameters: {
     reactRouter: {
-      routePath: '/meeting/:id/events',
+      routePath: '/meeting/:id/calendar',
       routeParams: { id: '1' },
     },
   },
