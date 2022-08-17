@@ -1,5 +1,5 @@
-import { Meeting } from 'types/meetingType_new';
-import { User } from 'types/userType_new';
+import { Meeting } from 'types/meetingType';
+import { User } from 'types/userType';
 
 const meetings: (Meeting & { masterId: User['id'] })[] = [
   {
