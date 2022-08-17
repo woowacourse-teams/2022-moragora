@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 export const Layout = styled.div`
   display: flex;
   flex-direction: column;
+  flex: 1;
   overflow: hidden;
 `;
 

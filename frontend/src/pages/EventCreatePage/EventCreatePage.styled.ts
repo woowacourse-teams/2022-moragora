@@ -4,7 +4,7 @@ export const Layout = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow: hidden;
+  overflow: scroll;
   gap: 1.5rem;
 `;
 

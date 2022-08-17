@@ -64,7 +64,6 @@ export const IndicatorBox = styled.div<{ tabPositions: TabPosition[] }>`
 
 export const MainBox = styled.div`
   display: flex;
-  flex-direction: column;
   flex: 1;
   padding-top: 3rem;
   overflow-y: scroll;

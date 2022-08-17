@@ -8,13 +8,13 @@ import { Meeting } from 'types/meetingType_new';
 type CoffeeStackItemProps = {
   name: Participant['nickname'] | Meeting['name'];
   tardyCount: Participant['tardyCount'];
-  isMaster: boolean;
+  isMaster?: boolean;
 };
 
 const CoffeeStackItem: React.FC<CoffeeStackItemProps> = ({
   name,
   tardyCount,
-  isMaster = false,
+  isMaster,
 }) => {
   return (
     <S.Layout>
