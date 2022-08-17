@@ -1,11 +1,11 @@
 import React, { useContext, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import * as S from './UserConfigPage.styled';
 import Footer from 'components/layouts/Footer';
 import Avatar from 'components/@shared/Avatar';
 import MenuLink from 'components/@shared/MenuLink';
 import NicknameInput from 'components/NicknameInput';
 import { userContext } from 'contexts/userContext';
-import { Navigate } from 'react-router-dom';
 import useMutation from 'hooks/useMutation';
 import { updateNicknameApi } from 'apis/userApis';
 
@@ -23,10 +23,9 @@ const UserConfigPage = () => {
       onMutate: ({ nickname }) => {
         setNickname(nickname);
       },
-      onError: () => {
-        console.log(user.user?.nickname);
+      onError: (e) => {
         setNickname(user.user?.nickname ?? 'unknown');
-        alert('닉네임 변경 중 에러가 발생했습니다.');
+        alert(e);
       },
       onSuccess: () => {
         alert('닉네임이 변경되었습니다.');

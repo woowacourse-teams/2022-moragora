@@ -1,21 +1,48 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { Navigate } from 'react-router-dom';
 import * as S from './PasswordUpdatePage.styled';
 import Footer from 'components/layouts/Footer';
 import useForm from 'hooks/useForm';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
 import Button from 'components/@shared/Button';
+import useMutation from 'hooks/useMutation';
+import { updatePasswordApi } from 'apis/userApis';
+import { userContext } from 'contexts/userContext';
+import { UserUpdatePasswordRequestBody } from 'types/userType';
 
 const PasswordUpdatePage = () => {
+  const user = useContext(userContext);
+
+  if (!user?.accessToken) {
+    return <Navigate to="/" />;
+  }
+
   const { errors, onSubmit, register, isSubmitting } = useForm();
+  const passwordUpdateMutation = useMutation(
+    updatePasswordApi(user.accessToken),
+    {
+      onSuccess: () => {
+        alert('비밀번호가 변경되었습니다.');
+      },
+      onError: (e) => {
+        alert(e);
+      },
+    }
+  );
 
   const handlePasswordSubmitValid: React.FormEventHandler<HTMLFormElement> = ({
     currentTarget,
   }) => {
     const formData = new FormData(currentTarget);
-    const formDataObject = Object.fromEntries(formData.entries());
 
-    console.log(formDataObject);
+    formData.delete('newPasswordConfirm');
+
+    const formDataObject = Object.fromEntries(
+      formData.entries()
+    ) as UserUpdatePasswordRequestBody;
+
+    passwordUpdateMutation.mutate(formDataObject);
   };
 
   const handlePasswordSubmitError: React.FormEventHandler<
@@ -36,12 +63,12 @@ const PasswordUpdatePage = () => {
               현재 비밀번호
               <Input
                 type="password"
-                {...register('prevPassword', { required: true })}
+                {...register('oldPassword', { required: true })}
               />
             </S.Label>
             <InputHint
-              isShow={!!errors['prevPassword']}
-              message={errors['prevPassword']}
+              isShow={!!errors['oldPassword']}
+              message={errors['oldPassword']}
             />
           </S.FieldBox>
           <S.FieldBox>
