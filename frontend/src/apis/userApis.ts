@@ -2,11 +2,12 @@ import {
   GetLoginUserDataResponseBody,
   Participant,
   User,
-  UserAttendanceCheckRequestBody,
   UserCoffeeStatsResponseBody,
   UserLoginRequestBody,
   UserLoginResponseBody,
   UserRegisterRequestBody,
+  UserUpdateNicknameRequestBody,
+  UserUpdatePasswordRequestBody,
 } from 'types/userType';
 import request from '../utils/request';
 
@@ -14,7 +15,7 @@ type PutUserAttendanceApiParameter = {
   meetingId: string;
   userId: Participant['id'];
   accessToken: User['accessToken'];
-  attendanceStatus: UserAttendanceCheckRequestBody['attendanceStatus'];
+  attendanceStatus: Participant['attendanceStatus'];
 };
 
 export const checkEmailApi = (email: User['email']) => () =>
@@ -90,7 +91,7 @@ export const putUserAttendanceApi = async ({
 export const getLoginUserDataApi =
   (accessToken: User['accessToken']) => async () => {
     if (!accessToken) {
-      throw new Error('내 정보를 가져오는 중 발생했습니다.');
+      throw new Error('내 정보를 가져오는 중 에러가 발생했습니다.');
     }
 
     return request<GetLoginUserDataResponseBody>('/users/me', {
@@ -114,5 +115,52 @@ export const getUserCoffeeStatsApi =
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
       },
+    });
+  };
+
+export const updateNicknameApi =
+  (accessToken: User['accessToken']) =>
+  async (payload: UserUpdateNicknameRequestBody) => {
+    if (!accessToken) {
+      throw new Error('닉네임 변경 중 에러가 발생했습니다.');
+    }
+
+    return request('/users/me/nickname', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+  };
+
+export const updatePasswordApi =
+  (accessToken: User['accessToken']) =>
+  async (payload: UserUpdatePasswordRequestBody) => {
+    if (!accessToken) {
+      throw new Error('비밀번호 변경 중 에러가 발생했습니다.');
+    }
+
+    return request('/users/me/password', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+  };
+
+export const unregisterApi =
+  (accessToken: User['accessToken']) =>
+  async (payload: { password: User['password'] }) => {
+    return request('/users/me', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
     });
   };

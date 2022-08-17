@@ -8,6 +8,7 @@ import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
 import { UserLoginRequestBody } from 'types/userType';
 import { submitLoginApi } from 'apis/userApis';
+import Button from 'components/@shared/Button';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -64,9 +65,9 @@ const LoginPage = () => {
         </S.FieldBox>
       </S.Form>
       <S.ButtonBox>
-        <S.LoginButton type="submit" form="login-form" disabled={isSubmitting}>
+        <Button type="submit" form="login-form" disabled={isSubmitting}>
           로그인
-        </S.LoginButton>
+        </Button>
         <S.RegisterHintParagraph>
           모라고라가 처음이신가요?
           <S.RegisterLink to="/register">회원가입</S.RegisterLink>
