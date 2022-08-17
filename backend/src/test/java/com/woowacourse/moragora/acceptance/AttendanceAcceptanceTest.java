@@ -86,7 +86,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         final Long meetingId = (long) saveMeeting(token, userIds, meeting);
         final LocalDateTime dateTime = LocalDate.now().atTime(10, 0);
         final Event event = Event.builder()
-                .date(LocalDate.now())
+                .date(dateTime.toLocalDate())
                 .startTime(dateTime.toLocalTime())
                 .endTime(dateTime.toLocalTime().plusHours(8))
                 .meeting(meeting)
