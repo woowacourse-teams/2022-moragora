@@ -6,7 +6,7 @@ spring:
       hibernate:
         format_sql: true
         jdbc:
-          time_zome: Asia/Seoul
+          time_zone: Asia/Seoul
     hibernate:
       ddl-auto: create # ddl-auto
 
