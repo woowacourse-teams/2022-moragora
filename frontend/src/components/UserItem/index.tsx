@@ -1,16 +1,16 @@
 import React, { useContext, useState } from 'react';
 import * as S from './UserItem.styled';
 import Checkbox from 'components/@shared/Checkbox';
-import CoffeeIconSVG from 'assets/coffee.svg';
-import { Participant } from 'types/userType';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import useMutation from 'hooks/useMutation';
-import { putUserAttendanceApi } from 'apis/userApis';
+import { postUserAttendanceApi } from 'apis/userApis';
 import { ATTENDANCE_STATUS } from 'consts';
+import { Attendance } from 'types/attendanceType';
+import { css } from '@emotion/react';
 
 type UserItemProps = {
-  user: Participant;
-  meetingId: string;
+  user: Attendance;
+  meetingId: number;
   disabled: boolean;
 };
 
@@ -20,7 +20,7 @@ const UserItem: React.FC<UserItemProps> = ({ user, meetingId, disabled }) => {
     ATTENDANCE_STATUS[user.attendanceStatus]
   );
 
-  const attendanceMutation = useMutation(putUserAttendanceApi, {
+  const attendanceMutation = useMutation(postUserAttendanceApi, {
     onMutate: () => {
       setChecked((prev) => !prev);
     },
@@ -38,7 +38,7 @@ const UserItem: React.FC<UserItemProps> = ({ user, meetingId, disabled }) => {
         meetingId,
         userId: user.id,
         accessToken,
-        attendanceStatus: checked ? 'present' : 'tardy',
+        isPresent: checked,
       });
     }
   };
@@ -47,13 +47,16 @@ const UserItem: React.FC<UserItemProps> = ({ user, meetingId, disabled }) => {
     <S.Layout>
       <S.Box>
         <span>{user.nickname}</span>
-        <S.CoffeeIconImageBox>
-          {Array.from({ length: user.tardyCount }).map((_, index) => (
-            <S.CoffeeIconImage src={CoffeeIconSVG} key={index} />
-          ))}
-        </S.CoffeeIconImageBox>
       </S.Box>
-      <Checkbox onChange={handleChange} checked={checked} disabled={disabled} />
+      {user.attendanceStatus === 'tardy' ? (
+        <S.AttendanceStatusText>지각</S.AttendanceStatusText>
+      ) : (
+        <Checkbox
+          onChange={handleChange}
+          checked={checked}
+          disabled={disabled}
+        />
+      )}
     </S.Layout>
   );
 };
