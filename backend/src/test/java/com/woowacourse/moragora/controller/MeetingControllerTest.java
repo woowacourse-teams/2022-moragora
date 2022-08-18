@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.woowacourse.moragora.dto.EventResponse;
+import com.woowacourse.moragora.dto.MasterRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
@@ -376,6 +377,42 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.meetings[*].isCoffeeTime", contains(false)))
                 .andExpect(jsonPath("$.meetings[*].isActive", contains(true)))
                 .andExpect(jsonPath("$.meetings[*].upcomingEvent", contains(nullValue())));
+    }
+
+    @DisplayName("마스터 권한을 미팅의 다른 참가자에게 위임한다.")
+    @Test
+    void passMaster() throws Exception {
+        // given
+        final MasterRequest request = new MasterRequest(2L);
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPut("/meetings/1/master", request);
+
+        // then
+        verify(meetingService, times(1)).assignMaster(anyLong(), any(MasterRequest.class), anyLong());
+        resultActions.andExpect(status().isNoContent())
+                .andDo(document("meeting/pass-master", preprocessResponse(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("userId").type(JsonFieldType.NUMBER).description(1)
+                        ))
+                );
+    }
+
+    @DisplayName("마스터 권한을 스스로에게 위임하면 예외가 발생한다.")
+    @Test
+    void passMaster_throwsException_ifToMe() throws Exception {
+        // given
+        final MasterRequest request = new MasterRequest(1L);
+        validateToken("1");
+        doThrow(new ClientRuntimeException("스스로에게 마스터 권한을 넘길 수 없습니다.", HttpStatus.BAD_REQUEST))
+                .when(meetingService).assignMaster(anyLong(), any(MasterRequest.class), anyLong());
+
+        // when
+        final ResultActions resultActions = performPut("/meetings/1/master", request);
+
+        // then
+        resultActions.andExpect(status().isBadRequest());
     }
 
     @DisplayName("로그인한 유저가 참가중인 미팅에서 나간다.")
