@@ -1,6 +1,8 @@
 package com.woowacourse.moragora.acceptance;
 
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.BATD;
+import static com.woowacourse.moragora.support.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.hamcrest.Matchers.equalTo;
@@ -8,7 +10,9 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import com.woowacourse.moragora.dto.NicknameRequest;
 import com.woowacourse.moragora.dto.PasswordRequest;
+import com.woowacourse.moragora.dto.UserDeleteRequest;
 import com.woowacourse.moragora.dto.UserRequest;
+import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
 import io.restassured.response.ValidatableResponse;
 import java.util.List;
@@ -97,9 +101,11 @@ class UserAcceptanceTest extends AcceptanceTest {
     @DisplayName("로그인 한 상태에서 자신의 회원정보를 요청하면 회원정보와 상태코드 200을 반환받는다.")
     @Test
     void findMe() {
-        // given, when
+        // given
         final User user = MASTER.create();
         final Long id = signUp(user);
+
+        // when
         ValidatableResponse response = get("/users/me", login(user));
 
         // then
@@ -139,7 +145,7 @@ class UserAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("로그인 한 상태에서 기존 비밀번호를 틀리게 입력하고 비밀번호 수정을 요청하면 상태코드 400을 반환한다.")
     @Test
-    void changeMyPassword_ifWrongOldPassword() {
+    void changeMyPassword_throwsException_ifWrongOldPassword() {
         // given
         final String token = signUpAndGetToken(BATD.create());
         final PasswordRequest request = new PasswordRequest("1234wrong!", "new1234!");
@@ -154,7 +160,7 @@ class UserAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("로그인 한 상태에서 기존 비밀번호와 새 비밀번호를 동일하게 입력하고 비밀번호 수정을 요청하면 상태코드 400을 반환한다.")
     @Test
-    void changeMyPassword_ifSamePassword() {
+    void changeMyPassword_throwsException_ifSamePassword() {
         // given
         final String token = signUpAndGetToken(BATD.create());
         final PasswordRequest request = new PasswordRequest("1234asdf!", "1234asdf!");
@@ -165,5 +171,57 @@ class UserAcceptanceTest extends AcceptanceTest {
         // then
         response.statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("message", equalTo("새로운 비밀번호가 기존의 비밀번호와 일치합니다."));
+    }
+
+    @DisplayName("로그인 한 상태에서 회원 탈퇴를 요청하면 상태코드 204를 반환받는다.")
+    @Test
+    void deleteMe() {
+        // given
+        final User user = KUN.create();
+        final String token = signUpAndGetToken(user);
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
+
+        // when
+        ValidatableResponse response = delete("/users/me", request, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("로그인 한 상태에서 잘못된 비밀번호로 회원 탈퇴를 요청하면 상태코드 400을 반환받는다.")
+    @Test
+    void deleteMe_throwsException_ifWrongPassword() {
+        // given
+        final User user = KUN.create();
+        final String token = signUpAndGetToken(user);
+        final UserDeleteRequest request = new UserDeleteRequest("1234wrong!");
+
+        // when
+        ValidatableResponse response = delete("/users/me", request, token);
+
+        // then
+        response.statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @DisplayName("마스터인 모임이 있는 상태에서 회원 탈퇴를 요청하면 상태코드 403을 반환받는다.")
+    @Test
+    void deleteMe_throwsException_ifMaster() {
+        // given
+        final User master = MASTER.create();
+        final String token = signUpAndGetToken(master);
+
+        final List<User> users = createUsers();
+        final List<Long> userIds = saveUsers(users);
+        final Meeting meeting = MORAGORA.create();
+        saveMeeting(token, userIds, meeting);
+
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
+
+        // when
+        ValidatableResponse response = delete("/users/me", request, token);
+
+        // then
+        response.statusCode(HttpStatus.FORBIDDEN.value())
+                .body("message", equalTo("마스터로 참여중인 모임이 있어 탈퇴할 수 없습니다."));
     }
 }

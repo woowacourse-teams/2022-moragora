@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.NicknameRequest;
 import com.woowacourse.moragora.dto.PasswordRequest;
+import com.woowacourse.moragora.dto.UserDeleteRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
@@ -369,5 +370,42 @@ public class UserControllerTest extends ControllerTest {
                                         .description("비밀번호가 올바르지 않습니다.")
                         )
                 ));
+    }
+
+    @DisplayName("로그인한 회원을 탈퇴시킨다.")
+    @Test
+    void deleteMe() throws Exception {
+        // given
+        final UserDeleteRequest userDeleteRequest = new UserDeleteRequest("1234asdf!");
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performDelete("/users/me", userDeleteRequest);
+
+        // then
+        verify(userService, times(1)).delete(any(UserDeleteRequest.class), anyLong());
+        resultActions.andExpect(status().isNoContent())
+                .andDo(document("user/delete-me",
+                        preprocessResponse(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("password").type(JsonFieldType.STRING).description("1234asdf!")
+                        )
+                ));
+    }
+
+    @DisplayName("로그인한 회원이 마스터인 모임이 있으면 예외가 발생한다.")
+    @Test
+    void deleteMe_throwsException_ifMaster() throws Exception {
+        // given
+        final UserDeleteRequest userDeleteRequest = new UserDeleteRequest("1234asdf!");
+        validateToken("1");
+
+        doThrow(new ClientRuntimeException("마스터로 참여중인 모임이 있어 탈퇴할 수 없습니다.", HttpStatus.FORBIDDEN))
+                .when(userService).delete(any(UserDeleteRequest.class), anyLong());
+        // when
+        final ResultActions resultActions = performDelete("/users/me", userDeleteRequest);
+
+        // then
+        resultActions.andExpect(status().isForbidden());
     }
 }

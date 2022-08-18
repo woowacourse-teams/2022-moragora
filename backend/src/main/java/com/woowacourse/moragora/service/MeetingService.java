@@ -1,8 +1,10 @@
 package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.EventResponse;
+import com.woowacourse.moragora.dto.MasterRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
@@ -13,6 +15,7 @@ import com.woowacourse.moragora.entity.MeetingAttendances;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.ParticipantAttendances;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
@@ -26,9 +29,11 @@ import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -101,6 +106,60 @@ public class MeetingService {
                 .collect(Collectors.toList());
 
         return new MyMeetingsResponse(myMeetingResponses);
+    }
+
+    @Transactional
+    public void assignMaster(final Long meetingId, final MasterRequest request, final Long loginId) {
+        meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+
+        final Long assignedUserId = request.getUserId();
+        userRepository.findById(assignedUserId)
+                .orElseThrow(UserNotFoundException::new);
+        validateAssignee(loginId, assignedUserId);
+
+        final Participant assignedParticipant = participantRepository
+                .findByMeetingIdAndUserId(meetingId, assignedUserId)
+                .orElseThrow(ParticipantNotFoundException::new);
+        final Participant masterParticipant = participantRepository
+                .findByMeetingIdAndUserId(meetingId, loginId)
+                .orElseThrow(ParticipantNotFoundException::new);
+
+        assignedParticipant.updateIsMaster(true);
+        masterParticipant.updateIsMaster(false);
+    }
+
+    @Transactional
+    public void updateName(final MeetingUpdateRequest request, final Long meetingId) {
+        final Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        meeting.updateName(request.getName());
+    }
+
+    @Transactional
+    public void deleteParticipant(final long meetingId, final long userId) {
+        meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        final Participant participant = participantRepository.findByMeetingIdAndUserId(meetingId, userId)
+                .orElseThrow(ParticipantNotFoundException::new);
+        validateNotMaster(participant);
+
+        attendanceRepository.deleteByParticipantId(participant.getId());
+        participantRepository.delete(participant);
+    }
+
+    @Transactional
+    public void deleteMeeting(final Long meetingId) {
+        final Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+
+        final List<Long> participantIds = meeting.getParticipantIds();
+
+        attendanceRepository.deleteByParticipantIdIn(participantIds);
+        participantRepository.deleteByIdIn(participantIds);
+        meetingRepository.deleteById(meeting.getId());
     }
 
     /**
@@ -186,15 +245,15 @@ public class MeetingService {
         return participantAttendances.countTardy();
     }
 
-    @Transactional
-    public void deleteMeeting(final Long meetingId) {
-        final Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
+    private void validateAssignee(final Long loginId, final Long participantId) {
+        if (Objects.equals(loginId, participantId)) {
+            throw new ClientRuntimeException("스스로에게 마스터 권한을 넘길 수 없습니다.", HttpStatus.BAD_REQUEST);
+        }
+    }
 
-        final List<Long> participantIds = meeting.getParticipantIds();
-
-        attendanceRepository.deleteByParticipantIdIn(participantIds);
-        participantRepository.deleteByIdIn(participantIds);
-        meetingRepository.deleteById(meeting.getId());
+    private void validateNotMaster(final Participant participant) {
+        if (participant.getIsMaster()) {
+            throw new ClientRuntimeException("마스터는 모임을 나갈 수 없습니다.", HttpStatus.FORBIDDEN);
+        }
     }
 }

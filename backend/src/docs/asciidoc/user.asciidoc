@@ -115,3 +115,18 @@ include::{snippets}/user/change-my-password-same-as-is/http-response.adoc[]
 === Response fields
 
 include::{snippets}/user/change-my-password-same-as-is/response-fields.adoc[]
+[[deleteMe]]
+== 회원 탈퇴
+
+[[deleteMe-success]]
+=== HTTP request
+
+include::{snippets}/user/delete-me/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/user/delete-me/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/user/delete-me/request-fields.adoc[]

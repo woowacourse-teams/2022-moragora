@@ -56,3 +56,47 @@ include::{snippets}/meeting/find-my-meetings/http-response.adoc[]
 === Response fields
 
 include::{snippets}/meeting/find-my-meetings/response-fields.adoc[]
+
+[[passMaster]]
+== 마스터 권한 위임
+
+[[passMaster-success]]
+=== HTTP request
+
+include::{snippets}/meeting/pass-master/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/meeting/pass-master/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/meeting/pass-master/request-fields.adoc[]
+
+[[changeName]]
+== 미팅 이름 변경
+
+[[changeName-success]]
+=== HTTP request
+
+include::{snippets}/meeting/change-name/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/meeting/change-name/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/meeting/change-name/request-fields.adoc[]
+
+[[deleteMeFrom]]
+== 미팅 나가기
+
+[[deleteMeFrom-success]]
+=== HTTP request
+
+include::{snippets}/meeting/delete-me/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/meeting/delete-me/http-response.adoc[]

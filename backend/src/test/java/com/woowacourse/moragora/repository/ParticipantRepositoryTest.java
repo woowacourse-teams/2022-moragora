@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.repository;
 
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.UserFixtures.AZPI;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.UserFixtures.SUN;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,19 +60,24 @@ class ParticipantRepositoryTest {
         assertThat(participant.isPresent()).isTrue();
     }
 
-    @DisplayName("participant id들로 참가자 정보를 삭제한다.")
+    @DisplayName("id로 여러 참가자를 삭제한다.")
     @Test
     void deleteByIdIn() {
         // given
-        final User user = KUN.create();
+        final User user1 = KUN.create();
+        final User user2 = SUN.create();
+        final User user3 = AZPI.create();
         final Meeting meeting = MORAGORA.create();
-        final Participant participant = dataSupport.saveParticipant(user, meeting, false);
+        final Participant participant1 = dataSupport.saveParticipant(user1, meeting, false);
+        final Participant participant2 = dataSupport.saveParticipant(user2, meeting, false);
+        dataSupport.saveParticipant(user3, meeting, false);
 
         // when
-        participantRepository.deleteByIdIn(List.of(participant.getId()));
+        participantRepository.deleteByIdIn(List.of(participant1.getId(), participant2.getId()));
+        final List<Participant> result = participantRepository.findByMeetingId(meeting.getId());
 
         // then
-        final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
-        assertThat(participants.size()).isEqualTo(0);
+        assertThat(result).hasSize(1);
     }
+
 }

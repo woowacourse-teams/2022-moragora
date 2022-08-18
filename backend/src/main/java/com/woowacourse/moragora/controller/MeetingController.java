@@ -3,8 +3,10 @@ package com.woowacourse.moragora.controller;
 import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
 import com.woowacourse.auth.support.MasterAuthorization;
+import com.woowacourse.moragora.dto.MasterRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.service.MeetingService;
 import java.net.URI;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,8 +51,33 @@ public class MeetingController {
         return ResponseEntity.ok(meetingsResponse);
     }
 
-    @DeleteMapping("/{meetingId}")
     @MasterAuthorization
+    @PutMapping("/{meetingId}/master")
+    public ResponseEntity<Void> passMaster(@PathVariable final Long meetingId,
+                                           @RequestBody final MasterRequest masterRequest,
+                                           @AuthenticationPrincipal final Long loginId) {
+        meetingService.assignMaster(meetingId, masterRequest, loginId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @MasterAuthorization
+    @PutMapping("/{meetingId}")
+    public ResponseEntity<MeetingUpdateRequest> changeName(@PathVariable final Long meetingId,
+                                                           @RequestBody @Valid MeetingUpdateRequest request,
+                                                           @AuthenticationPrincipal final Long loginId) {
+        meetingService.updateName(request, meetingId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{meetingId}/me")
+    public ResponseEntity<Void> deleteMeFrom(@PathVariable final Long meetingId,
+                                             @AuthenticationPrincipal Long loginId) {
+        meetingService.deleteParticipant(meetingId, loginId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @MasterAuthorization
+    @DeleteMapping("/{meetingId}")
     public ResponseEntity<Void> remove(@AuthenticationPrincipal final Long loginId,
                                        @PathVariable final Long meetingId) {
         meetingService.deleteMeeting(meetingId);

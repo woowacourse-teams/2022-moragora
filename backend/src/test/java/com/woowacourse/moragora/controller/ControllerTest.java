@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.auth.controller.AuthController;
 import com.woowacourse.auth.service.AuthService;
 import com.woowacourse.auth.support.JwtTokenProvider;
-import com.woowacourse.auth.support.MasterAspect;
 import com.woowacourse.moragora.service.AttendanceService;
 import com.woowacourse.moragora.service.CommonService;
 import com.woowacourse.moragora.service.EventService;
@@ -54,9 +53,6 @@ public class ControllerTest {
 
     @MockBean
     protected JwtTokenProvider jwtTokenProvider;
-
-    @MockBean
-    protected MasterAspect masterAspect;
 
     @Autowired
     private MockMvc mockMvc;
