@@ -48,3 +48,21 @@ include::{snippets}/auth/login-fail/request-fields.adoc[]
 === Reponse fields
 
 include::{snippets}/auth/login-fail/response-fields.adoc[]
+
+
+
+[[login-google]]
+== 로그인
+
+[[login-google]]
+=== HTTP request
+
+include::{snippets}/auth/login-google/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/auth/login-google/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/auth/login-google/response-fields.adoc[]

@@ -4,7 +4,7 @@ import com.woowacourse.auth.dto.GoogleProfileResponse;
 import com.woowacourse.auth.dto.LoginRequest;
 import com.woowacourse.auth.dto.LoginResponse;
 import com.woowacourse.auth.exception.AuthenticationFailureException;
-import com.woowacourse.auth.infrastructure.GoogleClient;
+import com.woowacourse.auth.support.GoogleClient;
 import com.woowacourse.auth.support.JwtTokenProvider;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Provider;

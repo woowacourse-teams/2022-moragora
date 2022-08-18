@@ -1,4 +1,4 @@
-package com.woowacourse.auth.infrastructure;
+package com.woowacourse.auth.support;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

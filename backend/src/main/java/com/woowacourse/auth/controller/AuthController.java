@@ -25,8 +25,8 @@ public class AuthController {
         return ResponseEntity.ok(loginResponse);
     }
 
-    @GetMapping("/login/oauth2/google")
-    public ResponseEntity<LoginResponse> loginByGoogle(@RequestParam("code") final String code) {
+    @PostMapping("/login/oauth2/google")
+    public ResponseEntity<LoginResponse> loginWithGoogle(@RequestParam("code") final String code) {
         final LoginResponse loginResponse = authService.loginWithGoogle(code);
         return ResponseEntity.ok(loginResponse);
     }
