@@ -43,3 +43,7 @@ out/
 
 ### Rest Docs Resource
 /src/main/resources/static/docs
+
+application-dev.yml
+application-local.yml
+application-prod.yml

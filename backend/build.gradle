@@ -83,6 +83,11 @@ task copyDocument(type: Copy) {
     into file("src/main/resources/static/docs")
 }
 
+task copySecret(type: Copy) {
+    from '../backend/submodule'
+    into 'src/main/resources'
+}
+
 bootJar {
     dependsOn copyDocument
 }
