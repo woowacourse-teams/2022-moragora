@@ -82,10 +82,7 @@ const CheckInPage = () => {
     );
   }
 
-  if (
-    !currentMeeting ||
-    attendancesQuery.error?.message.split(': ')[0] === '404'
-  ) {
+  if (!currentMeeting) {
     return (
       <>
         <S.Layout>
