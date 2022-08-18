@@ -256,4 +256,5 @@ public class MeetingService {
             throw new ClientRuntimeException("마스터는 모임을 나갈 수 없습니다.", HttpStatus.FORBIDDEN);
         }
     }
+
 }
