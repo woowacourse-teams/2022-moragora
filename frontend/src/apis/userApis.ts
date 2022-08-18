@@ -69,7 +69,7 @@ export const googleLoginApi = async ({ code }: GoogleLoginRequestBody) => {
   const googleLoginResponse = await request<UserLoginResponseBody>(
     `/login/oauth2/google?code=${code}`,
     {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },

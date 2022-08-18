@@ -9,6 +9,7 @@ import InputHint from 'components/@shared/InputHint';
 import Button from 'components/@shared/Button';
 import { UserLoginRequestBody } from 'types/userType';
 import { googleLoginApi, submitLoginApi } from 'apis/userApis';
+import GoogleLoginButton from 'components/GoogleLoginButton';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -45,20 +46,6 @@ const LoginPage = () => {
     ) as UserLoginRequestBody;
 
     await loginMutate(formDataObject);
-  };
-
-  const handleGoogleLogin = () => {
-    const params = new URLSearchParams({
-      client_id:
-        '384532281638-939rf8dpjt0hdd9tggkdpjfk7neu6sht.apps.googleusercontent.com',
-      redirect_uri: location.href,
-      response_type: 'code',
-      scope:
-        'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
-    });
-
-    location.href =
-      'https://accounts.google.com/o/oauth2/v2/auth?' + params.toString();
   };
 
   useEffect(() => {
@@ -102,9 +89,7 @@ const LoginPage = () => {
         <Button type="submit" form="login-form" disabled={isSubmitting}>
           로그인
         </Button>
-        <Button type="button" onClick={handleGoogleLogin}>
-          구글로 로그인 하기
-        </Button>
+        <GoogleLoginButton />
         <S.RegisterHintParagraph>
           체크메이트가 처음이신가요?
           <S.RegisterLink to="/register">회원가입</S.RegisterLink>
