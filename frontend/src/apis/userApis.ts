@@ -77,7 +77,7 @@ export const googleLoginApi = async ({ code }: GoogleLoginRequestBody) => {
   );
 
   if (!googleLoginResponse.body.accessToken) {
-    throw new Error('구글 로그인 과정중 오류가 발생했습니다.');
+    throw new Error('구글 로그인 중 오류가 발생했습니다.');
   }
 
   const accessToken = googleLoginResponse.body.accessToken;
