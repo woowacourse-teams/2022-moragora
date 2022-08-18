@@ -1,6 +1,9 @@
 package com.woowacourse.moragora.service;
 
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.BATD;
+import static com.woowacourse.moragora.support.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -9,6 +12,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.woowacourse.moragora.dto.EmailCheckResponse;
 import com.woowacourse.moragora.dto.NicknameRequest;
 import com.woowacourse.moragora.dto.PasswordRequest;
+import com.woowacourse.moragora.dto.UserDeleteRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
@@ -245,5 +249,55 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.updatePassword(request, 1L))
                 .isInstanceOf(ClientRuntimeException.class)
                 .hasMessage("새로운 비밀번호가 기존의 비밀번호와 일치합니다.");
+    }
+
+    @DisplayName("회원의 정보를 삭제한다.")
+    @Test
+    void delete() {
+        // given
+        final User user = dataSupport.saveUser(KUN.create());
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
+
+        // when, then
+        assertThatNoException().isThrownBy(() -> userService.delete(request, user.getId()));
+    }
+
+    @DisplayName("존재하지 않는 회원을 탈퇴시키면 예외가 발생한다.")
+    @Test
+    void delete_throwsException_ifUserNotFound() {
+        // given
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.delete(request, 100L))
+                .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @DisplayName("잘못된 비밀번호로 탈퇴하면 예외가 발생한다.")
+    @Test
+    void delete_throwsException_ifWrongPassword() {
+        // given
+        final User user = dataSupport.saveUser(KUN.create());
+        final UserDeleteRequest request = new UserDeleteRequest("1234wrong!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.delete(request, user.getId()))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("비밀번호가 올바르지 않습니다.");
+    }
+
+    @DisplayName("모임의 마스터인 회원이 탈퇴하면 예외가 발생한다.")
+    @Test
+    void delete_throwsException_ifMaster() {
+        // given
+        final User master = MASTER.create();
+        dataSupport.saveParticipant(master, MORAGORA.create(), true);
+
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.delete(request, master.getId()))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("마스터로 참여중인 모임이 있어 탈퇴할 수 없습니다.");
     }
 }

@@ -1,7 +1,6 @@
 import {
-  GetLoginUserDataResponseBody,
-  Participant,
   User,
+  GetLoginUserDataResponseBody,
   UserCoffeeStatsResponseBody,
   UserLoginRequestBody,
   UserLoginResponseBody,
@@ -9,14 +8,11 @@ import {
   UserUpdateNicknameRequestBody,
   UserUpdatePasswordRequestBody,
 } from 'types/userType';
+import {
+  AttendancesResponseBody,
+  PostUserAttendanceRequestBody,
+} from 'types/attendanceType';
 import request from '../utils/request';
-
-type PutUserAttendanceApiParameter = {
-  meetingId: string;
-  userId: Participant['id'];
-  accessToken: User['accessToken'];
-  attendanceStatus: Participant['attendanceStatus'];
-};
 
 export const checkEmailApi = (email: User['email']) => () =>
   request<{ isExist: boolean }>(`/users/check-email?email=${email}`, {
@@ -68,24 +64,45 @@ export const submitLoginApi = async (payload: UserLoginRequestBody) => {
   return { ...loginUserResponse, accessToken };
 };
 
-export const putUserAttendanceApi = async ({
+export const getAttendancesApi =
+  (id: number | undefined, accessToken: User['accessToken']) => () => {
+    if (!id || !accessToken) {
+      throw new Error('출석 정보 요청 중 에러가 발생했습니다.');
+    }
+
+    return request<AttendancesResponseBody>(
+      `/meetings/${id}/attendances/today`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+  };
+
+export const postUserAttendanceApi = async ({
   meetingId,
   userId,
   accessToken,
-  attendanceStatus,
-}: PutUserAttendanceApiParameter) => {
+  isPresent,
+}: PostUserAttendanceRequestBody) => {
   if (!accessToken) {
     throw new Error('미팅 정보를 불러오는 중 에러가 발생했습니다.');
   }
 
-  return request<{}>(`/meetings/${meetingId}/users/${userId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({ attendanceStatus }),
-  });
+  return request<{}>(
+    `/meetings/${meetingId}/users/${userId}/attendances/today`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ isPresent }),
+    }
+  );
 };
 
 export const getLoginUserDataApi =

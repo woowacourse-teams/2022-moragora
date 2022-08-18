@@ -12,8 +12,11 @@ export const Layout = styled.li`
 
 export const Box = styled.div`
   display: flex;
-  flex-direction: column;
   gap: 0.5rem;
+`;
+
+export const AttendanceStatusText = styled.span`
+  color: ${({ theme: { colors } }) => colors['primary']};
 `;
 
 export const CoffeeIconImageBox = styled.div`

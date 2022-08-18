@@ -43,7 +43,7 @@ export default [
 
     const responseBody: MeetingListResponseBody = {
       meetings: myMeetings.map(
-        ({ attendanceEventCount, masterId, userIds, ...meeting }) => ({
+        ({ attendedEventCount, masterId, userIds, ...meeting }) => ({
           ...meeting,
           isLoginUserMaster: masterId === user.id,
           isCoffeeTime: true,
@@ -150,7 +150,7 @@ export default [
         ...meeting,
         id: meetingId,
         isActive: false,
-        attendanceEventCount: 0,
+        attendedEventCount: 0,
         masterId: token.id,
       });
 
