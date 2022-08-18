@@ -81,7 +81,7 @@ const CheckInPage = () => {
     );
   }
 
-  if (!currentMeeting) {
+  if (!currentMeeting || attendancesQuery.data?.status === 404) {
     return (
       <>
         <S.Layout>
