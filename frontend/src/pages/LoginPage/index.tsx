@@ -19,15 +19,15 @@ const LoginPage = () => {
 
   console.log(code);
 
-  const googleLoginQuery = useQuery(
-    ['googleLogin'],
-    getGoogleLoginToken(code || ''),
-    {
-      onSuccess: ({ body: { accessToken } }) => {
-        console.log(accessToken);
-      },
-    }
-  );
+  useQuery(['googleLogin'], getGoogleLoginToken(code || ''), {
+    enabled: !!code,
+    onSuccess: ({ body: { accessToken } }) => {
+      console.log(accessToken);
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
 
   const { mutate: loginMutate } = useMutation(submitLoginApi, {
     onSuccess: ({ body, accessToken }) => {
