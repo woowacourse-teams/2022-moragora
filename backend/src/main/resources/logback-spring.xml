@@ -4,13 +4,11 @@
     <timestamp key="BY_DATE" datePattern="yyyy-MM-dd"/>
     <property name="LOG_PARENT_PATH" value="./logs"/>
     <property name="LOG_CHILD_INFO" value="info"/>
-    <property name="LOG_CHILD_WARN" value="warn"/>
     <property name="LOG_CHILD_ERROR" value="error"/>
     <property name="LOG_BACKUP" value="../log/backup"/>
     <property name="MAX_HISTORY" value="30"/>
     <property name="LOG_PATTERN"
               value="[%d{yyyy-MM-dd HH:mm:ss}:%-4relative] [%thread] [%C.%M:%L] - %msg%n"/>
-
 
     <springProfile name="local">
         <include resource="console-appender.xml"/>
@@ -23,26 +21,23 @@
     <springProfile name="dev">
         <include resource="console-appender.xml"/>
         <include resource="file-info-appender.xml"/>
-        <include resource="file-warn-appender.xml"/>
         <include resource="file-error-appender.xml"/>
 
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE-INFO"/>
-            <appender-ref ref="FILE-WARN"/>
             <appender-ref ref="FILE-ERROR"/>
         </root>
     </springProfile>
 
-
     <springProfile name="prod">
+        <include resource="console-appender.xml"/>
         <include resource="file-info-appender.xml"/>
-        <include resource="file-warn-appender.xml"/>
         <include resource="file-error-appender.xml"/>
 
         <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE-INFO"/>
-            <appender-ref ref="FILE-WARN"/>
             <appender-ref ref="FILE-ERROR"/>
         </root>
     </springProfile>
