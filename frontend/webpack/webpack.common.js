@@ -4,6 +4,7 @@ const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const dotenv = require('dotenv');
 const { DefinePlugin, EnvironmentPlugin } = require('webpack');
+const FaviconsWebpackPlugin = require('favicons-webpack-plugin');
 
 dotenv.config();
 
@@ -46,6 +47,10 @@ module.exports = {
       ),
     }),
     new EnvironmentPlugin(['API_SERVER_HOST']),
+    new FaviconsWebpackPlugin({
+      logo: 'public/logo.png',
+      manifest: 'public/manifest.json',
+    }),
   ],
   resolve: {
     extensions: ['*', '.tsx', '.ts', '.jsx', '.js'],

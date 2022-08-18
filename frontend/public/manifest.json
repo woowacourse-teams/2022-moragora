@@ -1,0 +1,10 @@
+{
+  "short_name": "체크메이트",
+  "name": "체크메이트 - 출첵을 간편하게",
+  "descripttion": "주제만 정해주세요, 출첵은 제가 할게요! 출결관리 서비스 체크메이트",
+  "lang": "ko-KR",
+  "start_url": "/",
+  "display": "fullscreen",
+  "theme_color": "#f19528",
+  "background_color": "#ffffff"
+}
