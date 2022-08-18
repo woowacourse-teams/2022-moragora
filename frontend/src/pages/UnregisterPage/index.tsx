@@ -17,7 +17,7 @@ const UnregisterPage = () => {
     return <Navigate to="/" />;
   }
 
-  const confirmMessage = 'email@email.com/delete';
+  const confirmMessage = `${user.user?.email}/delete`;
   const passwordUpdateMutation = useMutation(unregisterApi(user.accessToken), {
     onSuccess: () => {
       user.logout();

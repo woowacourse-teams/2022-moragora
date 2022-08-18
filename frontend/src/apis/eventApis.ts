@@ -1,5 +1,9 @@
 import request from 'utils/request';
-import { EventCreateRequestBody, MeetingEvent } from 'types/eventType';
+import {
+  EventCreateRequestBody,
+  DeleteEventsRequestBody,
+  MeetingEvent,
+} from 'types/eventType';
 import { User } from 'types/userType';
 
 export const getEventsApi =
@@ -17,6 +21,18 @@ export const createEventsApi =
   (payload: EventCreateRequestBody) =>
     request<{}>(`/meetings/${meetingId}/events`, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+export const deleteEventsApi =
+  (meetingId: string, accessToken?: User['accessToken']) =>
+  (payload: DeleteEventsRequestBody) =>
+    request<{}>(`/meetings/${meetingId}/events`, {
+      method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
