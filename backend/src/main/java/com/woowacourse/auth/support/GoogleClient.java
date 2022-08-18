@@ -26,7 +26,6 @@ public class GoogleClient {
     private static final String AUTHORIZATION_TYPE = "Bearer ";
     private static final String JWT_DELIMITER = "\\.";
     private static final String TOKEN_URL = "https://www.googleapis.com/oauth2/v4/token";
-    private static final String PROFILE_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
     private static final int PAYLOAD = 1;
 
     private final RestTemplate restTemplate;
