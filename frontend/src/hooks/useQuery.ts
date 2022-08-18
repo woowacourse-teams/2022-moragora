@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useQueryClient } from 'contexts/queryClient';
 import { QUERY_STATUS } from 'consts';
-import { QueryOptions } from 'types/queryType';
+import { QueryOptions, QueryStatus } from 'types/queryType';
 
 const useQuery = <TData = any>(
   key: string[],
@@ -21,7 +21,7 @@ const useQuery = <TData = any>(
   const queryClient = useQueryClient();
   const [data, setData] = useState<TData>();
   const [error, setError] = useState<Error>();
-  const [status, setStatus] = useState(QUERY_STATUS.LOADING);
+  const [status, setStatus] = useState(QUERY_STATUS.IDLE);
   const retryCountRef = useRef<number>(0);
   const intervalId = useRef<NodeJS.Timer>();
   const staleTimerId = useRef<NodeJS.Timer>();

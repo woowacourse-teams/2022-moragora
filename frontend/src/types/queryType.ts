@@ -2,6 +2,8 @@ import useQuery from 'hooks/useQuery';
 
 export type Variables = Record<string, any> | null;
 
+export type QueryStatus = 'idle' | 'loading' | 'error' | 'success';
+
 export type QueryClient = {
   cache: Record<string, any>;
   invalidateQueries: (key: string) => void;
