@@ -28,10 +28,12 @@ const LoginPage = () => {
   const { mutate: googleLoginMutate } = useMutation(googleLoginApi, {
     onSuccess: ({ body, accessToken }) => {
       login(body, accessToken);
-      navigate('/');
     },
     onError: () => {
       alert('구글 로그인을 실패했습니다.');
+    },
+    onSettled: () => {
+      navigate('/');
     },
   });
 
