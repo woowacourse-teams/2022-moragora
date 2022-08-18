@@ -38,7 +38,7 @@ export const InputHint = styled.p`
 export const ButtonBox = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.75rem;
   align-items: center;
   padding: 0 0.75rem;
 `;
