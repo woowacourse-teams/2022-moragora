@@ -24,19 +24,18 @@ public class EventsTest {
         final Events events = new Events(List.of(event1, event2));
 
         final LocalTime changedTime = LocalTime.of(11, 0);
-        final Event eventToUpdate = new Event(event1.getDate(), changedTime, event1.getEndTime(), meeting);
+        final Event eventToUpdateEvent1 = new Event(event1.getDate(), changedTime, event1.getEndTime(), meeting);
         final Event newEvent = EVENT3.create(meeting);
 
         final List<Event> inputEvents = List.of(
-                eventToUpdate, newEvent);
+                eventToUpdateEvent1, newEvent);
 
         // when
         final List<Event> newEvents = events.updateAndExtractNewEvents(inputEvents);
-        final List<Event> updatedEvents = events.getEvents();
 
         // then
         assertThat(newEvents).hasSize(1);
         assertThat(newEvents.get(0).getDate()).isEqualTo(newEvent.getDate());
-        assertThat(updatedEvents.get(0).getStartTime()).isEqualTo(changedTime);
+        assertThat(event1.getStartTime()).isEqualTo(changedTime);
     }
 }
