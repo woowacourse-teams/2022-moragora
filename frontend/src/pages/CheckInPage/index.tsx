@@ -1,11 +1,8 @@
 import { useContext, useState } from 'react';
-import { css } from '@emotion/react';
 import * as S from './CheckInPage.styled';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { getMeetingListApi } from 'apis/meetingApis';
-import { getAttendancesApi } from 'apis/userApis';
 import Footer from 'components/layouts/Footer';
-import UserItem from 'components/UserItem';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import ReloadButton from 'components/@shared/ReloadButton';
@@ -13,6 +10,7 @@ import CheckMeetingItem from 'components/CheckMeetingItem';
 import useQuery from 'hooks/useQuery';
 import { MeetingListResponseBody } from 'types/meetingType';
 import emptyInboxSVG from 'assets/empty-inbox.svg';
+import AttendanceSection from './AttendanceSection';
 
 const CheckInPage = () => {
   const [currentMeeting, setCurrentMeeting] =
@@ -31,19 +29,10 @@ const CheckInPage = () => {
     }
   );
 
-  const attendancesQuery = useQuery(
-    ['attendances'],
-    getAttendancesApi(currentMeeting?.id, accessToken),
-    {
-      enabled: !!currentMeeting,
-    }
-  );
-
   const handleMeetingItemClick = (
     meeting: MeetingListResponseBody['meetings'][0]
   ) => {
     setCurrentMeeting(meeting);
-    attendancesQuery.refetch();
   };
 
   if (meetingListQuery.isLoading) {
@@ -59,12 +48,7 @@ const CheckInPage = () => {
     );
   }
 
-  if (
-    meetingListQuery.isError ||
-    (attendancesQuery.isError &&
-      attendancesQuery.error?.message.split(': ')[0] !== '404') ||
-    !meetingListQuery.data
-  ) {
+  if (meetingListQuery.isError || !meetingListQuery.data) {
     return (
       <>
         <S.Layout>
@@ -136,37 +120,7 @@ const CheckInPage = () => {
               ))}
           </S.MeetingList>
         </S.CheckTimeSection>
-        <S.UserListSection>
-          <S.SectionTitle>출결</S.SectionTitle>
-          {attendancesQuery.isLoading ? (
-            <div
-              css={css`
-                flex: 1;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-              `}
-            >
-              <Spinner />
-            </div>
-          ) : (
-            <S.UserListBox>
-              <S.UserList>
-                {attendancesQuery.data?.body.users.map((user) => (
-                  <UserItem
-                    key={user.id}
-                    meetingId={currentMeeting.id}
-                    user={user}
-                    disabled={
-                      !currentMeeting.isActive ||
-                      !currentMeeting.isLoginUserMaster
-                    }
-                  />
-                ))}
-              </S.UserList>
-            </S.UserListBox>
-          )}
-        </S.UserListSection>
+        <AttendanceSection currentMeeting={currentMeeting} />
       </S.Layout>
       <Footer />
     </>

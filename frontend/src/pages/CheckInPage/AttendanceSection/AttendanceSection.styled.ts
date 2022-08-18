@@ -1,17 +1,11 @@
 import styled from '@emotion/styled';
 
-export const Layout = styled.div`
+export const Layout = styled.section`
   display: flex;
   flex-direction: column;
   flex: 1;
+  width: 100%;
   overflow: hidden;
-`;
-
-export const SectionTitle = styled.h2`
-  font-size: 1.25rem;
-  font-weight: 400;
-
-  padding: 0 0.75rem;
 `;
 
 export const SpinnerBox = styled.div`
@@ -21,39 +15,30 @@ export const SpinnerBox = styled.div`
   align-items: center;
 `;
 
-export const ErrorBox = styled.div`
-  flex: 1;
+export const SectionTitle = styled.h2`
+  font-size: 1.25rem;
+  font-weight: 400;
+
+  padding: 0 0.75rem;
+`;
+
+export const UserListBox = styled.div`
+  display: flex;
+  overflow: hidden;
+  padding: 0.75rem;
+`;
+
+export const UserList = styled.ul`
+  // reset margin
+  margin: 0;
+  padding: 0;
+
+  width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-`;
-
-export const EndedCheckTimeSection = styled.section``;
-
-export const CheckTimeSection = styled.section``;
-
-export const MeetingList = styled.ul`
-  list-style: none;
-  display: flex;
-  align-items: center;
-  padding: 0;
   gap: 1rem;
-  overflow-x: scroll;
-  overflow-y: hidden;
-  padding: 0 0.75rem;
-
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-
-  &::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera*/
-  }
-`;
-
-export const MeetingItem = styled.div`
-  display: inline-block;
+  overflow-x: hidden;
+  overflow-y: scroll;
 `;
 
 export const EmptyStateBox = styled.div`
