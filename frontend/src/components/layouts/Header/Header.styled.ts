@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-export const Layout = styled.div`
+export const Layout = styled.header`
   height: 3rem;
   padding: 0.5rem;
   display: flex;
