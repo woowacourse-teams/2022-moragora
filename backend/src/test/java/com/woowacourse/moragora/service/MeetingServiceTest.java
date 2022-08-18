@@ -12,9 +12,12 @@ import static com.woowacourse.moragora.support.UserFixtures.WOODY;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.EventResponse;
+import com.woowacourse.moragora.dto.MasterRequest;
 import com.woowacourse.moragora.dto.MeetingNameRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
@@ -26,9 +29,11 @@ import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
+import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
@@ -281,7 +286,6 @@ class MeetingServiceTest {
                 .isEqualTo(expectedMeetingResponse);
     }
 
-    // TODO: 출석 마감 스케쥴링 구현 후 해당 test에서 status를 모두 NONE으로 생성해도 테스트가 통과해야 함
     @DisplayName("id로 모임 상세 정보를 조회한다(출석 마감 시간이 지나면 당일 지각 스택도 반영된다.)")
     @Test
     void findById_ifOverClosingTime() {
@@ -476,6 +480,84 @@ class MeetingServiceTest {
         // then
         assertThat(response).usingRecursiveComparison()
                 .isEqualTo(new MyMeetingsResponse(List.of(response1, response2)));
+    }
+
+    @DisplayName("미팅의 마스터를 다른 참가자로 수정한다.")
+    @Test
+    void updateMaster() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final User master = MASTER.create();
+        final User participant = KUN.create();
+        dataSupport.saveParticipant(master, meeting, true);
+        dataSupport.saveParticipant(participant, meeting, false);
+
+        final MasterRequest masterRequest = new MasterRequest(participant.getId());
+
+        // when, then
+        assertThatNoException()
+                .isThrownBy(() -> meetingService.assignMaster(meeting.getId(), masterRequest, master.getId()));
+    }
+
+    @DisplayName("미팅의 마스터를 존재하지 않는 회원으로 수정하면 예외가 발생한다.")
+    @Test
+    void updateMaster_ifUserNotFound() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final User master = MASTER.create();
+        dataSupport.saveParticipant(master, meeting, true);
+
+        final MasterRequest masterRequest = new MasterRequest(100L);
+
+        // when, then
+        assertThatExceptionOfType(UserNotFoundException.class)
+                .isThrownBy(() -> meetingService.assignMaster(meeting.getId(), masterRequest, master.getId()));
+    }
+
+    @DisplayName("존재하지 않는 미팅의 마스터를 수정하면 예외가 발생한다.")
+    @Test
+    void updateMaster_ifMeetingNotFound() {
+        // given
+        final User master = MASTER.create();
+        final User participant = KUN.create();
+
+        final MasterRequest masterRequest = new MasterRequest(participant.getId());
+
+        // when, then
+        assertThatExceptionOfType(MeetingNotFoundException.class)
+                .isThrownBy(() -> meetingService.assignMaster(100L, masterRequest, master.getId()));
+    }
+
+    @DisplayName("미팅의 마스터를 참가하지 않는 회원으로 수정하면 예외가 발생한다.")
+    @Test
+    void updateMaster_ifNotParticipant() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final User master = MASTER.create();
+        final User user = dataSupport.saveUser(KUN.create());
+        dataSupport.saveParticipant(master, meeting, true);
+
+        final MasterRequest masterRequest = new MasterRequest(user.getId());
+
+        // when, then
+        assertThatExceptionOfType(ParticipantNotFoundException.class)
+                .isThrownBy(() -> meetingService.assignMaster(meeting.getId(), masterRequest, master.getId()));
+    }
+
+    @DisplayName("미팅의 마스터를 자신으로 수정하면 예외가 발생한다.")
+    @Test
+    void updateMaster_ifMe() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final User master = MASTER.create();
+        dataSupport.saveParticipant(master, meeting, true);
+
+        final MasterRequest masterRequest = new MasterRequest(master.getId());
+
+        // when, then
+        assertThatExceptionOfType(ClientRuntimeException.class)
+                .isThrownBy(() -> meetingService.assignMaster(meeting.getId(), masterRequest, master.getId()))
+                .withMessage("스스로에게 마스터 권한을 넘길 수 없습니다.");
     }
 
     @DisplayName("미팅 이름을 변경한다.")

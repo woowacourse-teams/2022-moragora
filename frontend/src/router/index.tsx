@@ -11,6 +11,7 @@ import MeetingDetailPage from 'pages/MeetingDetailPage';
 import UserConfigPage from 'pages/UserConfigPage';
 import PasswordUpdatePage from 'pages/PasswordUpdatePage';
 import UnregisterPage from 'pages/UnregisterPage';
+import CheckInPage from 'pages/CheckInPage';
 import CalendarPage from 'pages/CalendarPage';
 import MeetingConfigPage from 'pages/MeetingConfigPage';
 
@@ -45,6 +46,11 @@ const Router = () => {
             { path: 'create', element: <MeetingCreatePage /> },
           ],
         },
+        {
+          path: 'check-in',
+          element: <CheckInPage />,
+        },
+
         {
           path: 'settings',
           children: [

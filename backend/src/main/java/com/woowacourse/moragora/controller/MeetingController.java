@@ -3,6 +3,7 @@ package com.woowacourse.moragora.controller;
 import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
 import com.woowacourse.auth.support.MasterAuthorization;
+import com.woowacourse.moragora.dto.MasterRequest;
 import com.woowacourse.moragora.dto.MeetingNameRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
@@ -47,6 +48,15 @@ public class MeetingController {
     public ResponseEntity<MyMeetingsResponse> findMy(@AuthenticationPrincipal final Long loginId) {
         final MyMeetingsResponse meetingsResponse = meetingService.findAllByUserId(loginId);
         return ResponseEntity.ok(meetingsResponse);
+    }
+
+    @MasterAuthorization
+    @PutMapping("/{meetingId}/master")
+    public ResponseEntity<Void> passMaster(@PathVariable final Long meetingId,
+                                           @RequestBody final MasterRequest masterRequest,
+                                           @AuthenticationPrincipal final Long loginId) {
+        meetingService.assignMaster(meetingId, masterRequest, loginId);
+        return ResponseEntity.noContent().build();
     }
 
     @MasterAuthorization
