@@ -4,8 +4,8 @@ import logo from 'assets/logo.svg';
 const Logo = () => {
   return (
     <S.LogoBox>
-      <S.Title hidden>moragora</S.Title>
-      <S.LogoImage src={logo} alt="moragora" />
+      <S.Title hidden>checkmate</S.Title>
+      <S.LogoImage src={logo} alt="checkmate" />
     </S.LogoBox>
   );
 };
