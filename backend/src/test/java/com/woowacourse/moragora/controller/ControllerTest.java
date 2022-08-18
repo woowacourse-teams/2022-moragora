@@ -60,6 +60,7 @@ public class ControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+
     protected ResultActions performPost(final String uri, final Object request) throws Exception {
         return mockMvc.perform(post(uri)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -86,16 +87,16 @@ public class ControllerTest {
                 .andDo(print());
     }
 
-    protected ResultActions performDelete(final String uri) throws Exception {
-        return mockMvc.perform(MockMvcRequestBuilders.delete(uri)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print());
-    }
-
     protected ResultActions performDelete(final String uri, final Object request) throws Exception {
         return mockMvc.perform(MockMvcRequestBuilders.delete(uri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+                .andDo(print());
+    }
+
+    protected ResultActions performDelete(final String uri) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.delete(uri)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());
     }
 

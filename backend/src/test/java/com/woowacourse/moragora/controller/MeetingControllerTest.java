@@ -485,4 +485,30 @@ class MeetingControllerTest extends ControllerTest {
         resultActions
                 .andExpect(status().isForbidden());
     }
+
+    @DisplayName("미팅 삭제를 완료한다.")
+    @Test
+    void delete() throws Exception {
+        // given
+        validateToken("1");
+
+        // when, then
+        performDelete("/meetings/1")
+                .andExpect(status().isNoContent());
+    }
+
+    @DisplayName("미팅을 삭제하려는 사람이 마스터가 아닌 경우 예외가 발생한다.")
+    @Test
+    void delete_throwsException_ifNotMaster() throws Exception {
+        // given
+        validateToken("1");
+
+        doThrow(new ClientRuntimeException("마스터 권한이 없습니다.", HttpStatus.FORBIDDEN))
+                .when(meetingService)
+                .deleteMeeting(1L);
+
+        // when, then
+        performDelete("/meetings/1")
+                .andExpect(status().isForbidden());
+    }
 }

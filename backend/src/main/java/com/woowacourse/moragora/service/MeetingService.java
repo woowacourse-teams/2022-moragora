@@ -150,6 +150,19 @@ public class MeetingService {
         participantRepository.delete(participant);
     }
 
+    @Transactional
+    public void deleteMeeting(final Long meetingId) {
+        final Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+
+        final List<Long> participantIds = meeting.getParticipantIds();
+
+        attendanceRepository.deleteByParticipantIdIn(participantIds);
+        participantRepository.deleteByIdIn(participantIds);
+        eventRepository.deleteByMeetingId(meeting.getId());
+        meetingRepository.deleteById(meeting.getId());
+    }
+
     /**
      * 참가자 userIds 내부에 loginId가 있는지 검증해야 userIds.size()가 0인지 검증이 정상적으로 이루어집니다.
      */

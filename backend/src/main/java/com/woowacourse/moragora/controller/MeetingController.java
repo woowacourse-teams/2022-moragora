@@ -75,4 +75,12 @@ public class MeetingController {
         meetingService.deleteParticipant(meetingId, loginId);
         return ResponseEntity.noContent().build();
     }
+
+    @MasterAuthorization
+    @DeleteMapping("/{meetingId}")
+    public ResponseEntity<Void> remove(@PathVariable final Long meetingId,
+                                       @AuthenticationPrincipal final Long loginId) {
+        meetingService.deleteMeeting(meetingId);
+        return ResponseEntity.noContent().build();
+    }
 }

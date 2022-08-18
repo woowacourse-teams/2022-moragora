@@ -3,6 +3,7 @@ package com.woowacourse.moragora.service;
 import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.EventFixtures.EVENT2;
 import static com.woowacourse.moragora.support.EventFixtures.EVENT3;
+import static com.woowacourse.moragora.support.EventFixtures.EVENT4;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.MeetingFixtures.TEATIME;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
@@ -662,5 +663,41 @@ class MeetingServiceTest {
         assertThatThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()))
                 .isInstanceOf(ClientRuntimeException.class)
                 .hasMessage("마스터는 모임을 나갈 수 없습니다.");
+    }
+
+    @DisplayName("미팅 삭제를 완료한다.")
+    @Test
+    void deleteMeeting() {
+        // given
+        final User user = dataSupport.saveUser(KUN.create());
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final Participant participant = dataSupport.saveParticipant(user, meeting, true);
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        final Event event3 = dataSupport.saveEvent(EVENT3.create(meeting));
+        final Event event4 = dataSupport.saveEvent(EVENT4.create(meeting));
+
+        dataSupport.saveAttendance(participant, event1, Status.NONE);
+        dataSupport.saveAttendance(participant, event2, Status.NONE);
+        dataSupport.saveAttendance(participant, event3, Status.NONE);
+        dataSupport.saveAttendance(participant, event4, Status.NONE);
+
+        // when
+        meetingService.deleteMeeting(meeting.getId());
+
+        // then
+        assertThatThrownBy(() -> meetingService.findById(meeting.getId(), user.getId()))
+                .isInstanceOf(MeetingNotFoundException.class);
+    }
+
+    @DisplayName("존재하지 않는 미팅을 삭제하려고 하면 예외가 발생한다.")
+    @Test
+    void deleteMeeting_throwsException_ifNotExistMeeting() {
+        // given
+        final User user = dataSupport.saveUser(KUN.create());
+
+        // when, then
+        assertThatThrownBy(() -> meetingService.findById(99L, user.getId()))
+                .isInstanceOf(MeetingNotFoundException.class);
     }
 }
