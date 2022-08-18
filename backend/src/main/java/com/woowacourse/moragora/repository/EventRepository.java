@@ -19,6 +19,8 @@ public interface EventRepository extends Repository<Event, Long> {
 
     Optional<Event> findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(final Long meetingId, final LocalDate date);
 
+    List<Event> findByMeetingId(final Long meetingId);
+
     Optional<Event> findByMeetingIdAndDate(final Long meetingId, final LocalDate date);
 
     @Query("select e from Event e join fetch e.meeting m join fetch m.participants where e.id=:id")

@@ -77,6 +77,70 @@ class EventAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.NO_CONTENT.value());
     }
 
+    @DisplayName("일정을 수정 및 생성을 하고 상태코드 200을 반환한다.")
+    @Test
+    void saveOrUpdate() {
+        // given
+        given(serverTimeManager.getDate())
+                .willReturn(LocalDate.of(2022, 7, 31));
+        given(serverTimeManager.calculateAttendanceCloseTime(any(LocalTime.class)))
+                .willReturn(LocalTime.of(10, 5));
+        final User user1 = KUN.create();
+        final User user2 = AZPI.create();
+        final List<Long> userIds = saveUsers(List.of(user2));
+
+        final String token = signUpAndGetToken(user1);
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(token, userIds, meeting);
+
+        final LocalTime startTime = LocalTime.of(10, 0);
+        final LocalTime endTime = LocalTime.of(18, 0);
+        
+        final Event event1 = new Event(LocalDate.now().plusDays(1),
+                startTime, endTime, meeting);
+        final Event event2 = new Event(LocalDate.now().plusDays(2),
+                startTime, endTime, meeting);
+        final Event event3 = new Event(LocalDate.now().plusDays(3),
+                startTime, endTime, meeting);
+
+        final EventsRequest eventsRequest = new EventsRequest(
+                List.of(
+                        new EventRequest(
+                                event1.getStartTime(),
+                                event1.getEndTime(),
+                                event1.getDate()
+                        ),
+                        new EventRequest(
+                                event2.getStartTime(),
+                                event2.getEndTime(),
+                                event2.getDate()
+                        )
+                ));
+
+        post("/meetings/" + meetingId + "/events", eventsRequest, token);
+
+        final EventsRequest updateEventsRequest = new EventsRequest(
+                List.of(
+                        new EventRequest(
+                                LocalTime.of(11, 0),
+                                event1.getEndTime(),
+                                event1.getDate()
+                        ),
+                        new EventRequest(
+                                event3.getStartTime(),
+                                event3.getEndTime(),
+                                event3.getDate()
+                        )
+                )
+        );
+
+        // when
+        final ValidatableResponse response = post("/meetings/" + meetingId + "/events", updateEventsRequest, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
     @DisplayName("마스터 권한이 없는 참가자가 일정 등록을 요청하는 경우 상태코드 403을 반환한다.")
     @Test
     void add_notMaster() {

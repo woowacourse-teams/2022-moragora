@@ -25,12 +25,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import javax.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
@@ -100,8 +100,10 @@ class EventServiceTest {
         serverTimeManager.refresh(now);
 
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
         final Event event1 = EVENT1.create(meeting);
         final Event event2 = EVENT2.create(meeting);
+
         final EventsRequest eventsRequest = new EventsRequest(
                 List.of(
                         EventRequest.builder()
@@ -180,6 +182,58 @@ class EventServiceTest {
                 .hasMessage("출석 시간 전에 일정을 생성할 수 없습니다.");
     }
 
+
+    @DisplayName("일정을 수정 및 추가한다.")
+    @Test
+    void saveOrUpdate() {
+        // given
+        final LocalDate date = LocalDate.of(2022, 7, 2);
+        final LocalTime time = LocalTime.of(10, 0);
+        final LocalDateTime now = LocalDateTime.of(date, time);
+        serverTimeManager.refresh(now);
+
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        final Event event1 = EVENT1.create(meeting);
+        final Event event2 = EVENT2.create(meeting);
+        final Event event3 = EVENT3.create(meeting);
+
+        final EventsRequest eventsRequest = new EventsRequest(
+                List.of(
+                        EventRequest.builder()
+                                .meetingStartTime(event1.getStartTime())
+                                .meetingEndTime(event1.getEndTime())
+                                .date(event1.getDate())
+                                .build()
+                        ,
+                        EventRequest.builder()
+                                .meetingStartTime(event2.getStartTime())
+                                .meetingEndTime(event2.getEndTime())
+                                .date(event2.getDate())
+                                .build()
+                ));
+
+        eventService.save(eventsRequest, meeting.getId());
+
+        final EventsRequest updateEventsRequest = new EventsRequest(
+                List.of(
+                        EventRequest.builder()
+                                .meetingStartTime(LocalTime.of(11, 0))
+                                .meetingEndTime(event1.getEndTime())
+                                .date(event1.getDate())
+                                .build()
+                        ,
+                        EventRequest.builder()
+                                .meetingStartTime(event3.getStartTime())
+                                .meetingEndTime(event3.getEndTime())
+                                .date(event3.getDate())
+                                .build()
+                ));
+
+        // when, then
+        assertThatCode(() -> eventService.save(updateEventsRequest, meeting.getId()))
+                .doesNotThrowAnyException();
+    }
 
     @DisplayName("모임 일정들을 삭제한다.")
     @Test

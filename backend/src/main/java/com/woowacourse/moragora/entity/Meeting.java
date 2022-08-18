@@ -3,6 +3,7 @@ package com.woowacourse.moragora.entity;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -56,5 +57,22 @@ public class Meeting {
         if (name.length() > MAX_NAME_LENGTH) {
             throw new InvalidFormatException();
         }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Meeting)) {
+            return false;
+        }
+        final Meeting meeting = (Meeting) o;
+        return Objects.equals(this.id, meeting.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.id);
     }
 }
