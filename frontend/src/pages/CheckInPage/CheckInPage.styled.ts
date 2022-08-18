@@ -96,7 +96,8 @@ export const EmptyStateBox = styled.div`
 export const EmptyStateImage = styled.img`
   margin-top: -4rem;
   padding-bottom: 2rem;
-  width: 100%;
+  width: 10rem;
+  height: 10rem;
   opacity: 0;
   animation: smooth-appear 2s;
   animation-fill-mode: forwards;
