@@ -25,7 +25,7 @@ jobs:
       SONARQUBE_URL: ${{ secrets.SONAR_HOST_URL }}
       SONARQUBE_TOKEN : ${{ secrets.SONAR_TOKEN }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
-      SUBMODULE_TOKEN : ${{ secrets.SUBMODULE_TOKEN}}
+      
       
     steps:
       - name: Checkout source code
@@ -40,7 +40,6 @@ jobs:
           -Dsonar.projectKey=${{ env.SONARQUBE_PROJECT_KEY }}
           -Dsonar.projectName=${{ env.SONARQUBE_PROJECT_KEY }}-${{ env.PR_NUMBER }}
           -Dsonar.login=${{ env.SONARQUBE_TOKEN }}
-          -Dsonar.login=${{ env.SUBMODULE_TOKEN }}
         
       - name: Comment Sonarqube URL
         uses: actions/github-script@v4
