@@ -39,6 +39,29 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: join(__dirname, '../public/index.html'),
+      meta: {
+        description: {
+          name: 'description',
+          content: '출첵을 간편하게 - 출결관리 서비스 체크메이트',
+        },
+        keywords: {
+          name: 'keywords',
+          content: '우아한테크코스, 출석 체크, 출결, 근태, 모임',
+        },
+        'og:type': { name: 'og:type', content: 'website' },
+        'og:url': { name: 'og:url', content: 'https://checkmate.today' },
+        'og:title': { name: 'og:title', content: '체크메이트' },
+        'og:description': {
+          name: 'og:description',
+          content: '출첵을 간편하게 - 출결관리 서비스 체크메이트',
+        },
+        'og:locale': { name: 'og:locale', content: 'en_US' },
+        'twitter:title': { name: 'twitter:title', content: '체크메이트' },
+        'twitter:description': {
+          name: 'twitter:description',
+          content: '출첵을 간편하게 - 출결관리 서비스 체크메이트',
+        },
+      },
     }),
     new ESLintPlugin(),
     new DefinePlugin({
