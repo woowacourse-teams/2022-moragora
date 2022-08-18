@@ -55,7 +55,8 @@ const LoginPage = () => {
         '384532281638-939rf8dpjt0hdd9tggkdpjfk7neu6sht.apps.googleusercontent.com',
       redirect_uri: location.href,
       response_type: 'code',
-      scope: 'openid',
+      scope:
+        'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
     });
 
     location.href =
