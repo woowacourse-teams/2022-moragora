@@ -61,7 +61,8 @@ const CheckInPage = () => {
 
   if (
     meetingListQuery.isError ||
-    (attendancesQuery.isError && attendancesQuery.data?.status !== 404) ||
+    (attendancesQuery.isError &&
+      attendancesQuery.error?.message.split(': ')[0] !== '404') ||
     !meetingListQuery.data
   ) {
     return (
@@ -81,7 +82,10 @@ const CheckInPage = () => {
     );
   }
 
-  if (!currentMeeting || attendancesQuery.data?.status === 404) {
+  if (
+    !currentMeeting ||
+    attendancesQuery.error?.message.split(': ')[0] === '404'
+  ) {
     return (
       <>
         <S.Layout>
