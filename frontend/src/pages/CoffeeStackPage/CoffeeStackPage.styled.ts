@@ -30,6 +30,10 @@ export const TitleSection = styled.section`
   padding: 0.75rem;
 `;
 
+export const MeetingTitle = styled.h2`
+  font-size: 1.25rem;
+`;
+
 export const MeetingDetailBox = styled.div`
   display: flex;
   flex-direction: column;
@@ -43,8 +47,8 @@ export const MeetingStatusSection = styled.section`
   padding: 0.75rem;
 `;
 
-export const SectionTitle = styled.h2`
-  font-size: 1.25rem;
+export const SectionTitle = styled.h3`
+  font-size: 1rem;
   font-weight: 400;
 `;
 
@@ -108,12 +112,12 @@ export const UserList = styled.ul`
 export const Paragraph = styled.p``;
 
 export const EmptyStateBox = styled.div`
-  padding: 1.25rem;
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 1.5rem;
+  gap: 0.75rem;
 `;
 
 export const EmptyStateTitle = styled.h2`
@@ -132,7 +136,7 @@ export const EventCreateLink = styled(Link)`
   color: inherit;
   text-decoration: inherit;
 
-  margin-top: 1.5rem;
+  /* margin-top: 1.5rem; */
   text-align: center;
   width: 100%;
   background-color: ${({ theme: { colors } }) => colors['primary']};
