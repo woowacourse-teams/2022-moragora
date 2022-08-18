@@ -18,6 +18,9 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
+        with:
+          token: ${{secrets.SUBMODULE_TOKEN}}
+          submodules: recursive
 
   analysis:
     runs-on: ubuntu-latest
@@ -26,29 +29,19 @@ jobs:
       SONARQUBE_URL: ${{ secrets.SONAR_HOST_URL }}
       SONARQUBE_TOKEN : ${{ secrets.SONAR_TOKEN }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
+      SUBMODULE_TOEKN: ${{ secrets.SUBMODULE_TOKEN}}
       
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
+        with:
+          token: ${{ env.SUBMODULE_TOKEN }}
+          submodules: recursive
 
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
           java-version: 11
-
-      - name: Cache SonarQube packages
-        uses: actions/cache@v1
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
 
       - name: Sonaqube Analysis
         run: ./gradlew test sonarqube
