@@ -47,4 +47,8 @@ public class Participant {
             meeting.getParticipants().add(this);
         }
     }
+
+    public void updateIsMaster(final boolean isMaster) {
+        this.isMaster = isMaster;
+    }
 }

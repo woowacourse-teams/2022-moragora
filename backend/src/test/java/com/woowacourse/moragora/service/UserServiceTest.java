@@ -1,16 +1,28 @@
 package com.woowacourse.moragora.service;
 
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.UserFixtures.BATD;
+import static com.woowacourse.moragora.support.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.EmailCheckResponse;
+import com.woowacourse.moragora.dto.NicknameRequest;
+import com.woowacourse.moragora.dto.PasswordRequest;
+import com.woowacourse.moragora.dto.UserDeleteRequest;
 import com.woowacourse.moragora.dto.UserRequest;
 import com.woowacourse.moragora.dto.UserResponse;
 import com.woowacourse.moragora.dto.UsersResponse;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.InvalidFormatException;
 import com.woowacourse.moragora.exception.NoParameterException;
+import com.woowacourse.moragora.exception.user.InvalidPasswordException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
+import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +39,9 @@ class UserServiceTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private DataSupport dataSupport;
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
@@ -139,5 +154,150 @@ class UserServiceTest {
         // given, when, then
         assertThatThrownBy(() -> userService.findById(0L))
                 .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @DisplayName("회원의 닉네임을 변경한다.")
+    @Test
+    void updateNickname() {
+        // given
+        final User user = dataSupport.saveUser(BATD.create());
+        final NicknameRequest request = new NicknameRequest("반듯");
+
+        // when, then
+        assertThatNoException().isThrownBy(() -> userService.updateNickname(request, user.getId()));
+    }
+
+    @DisplayName("회원의 닉네임을 형식에 맞지 않게 변경하면 예외가 발생한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"smart쿤!", "smartboykun12345", "smart kun"})
+    void updateNickname_throwsException_ifInvalidNickname(final String nickname) {
+        // given
+        final User user = dataSupport.saveUser(BATD.create());
+        final NicknameRequest request = new NicknameRequest(nickname);
+
+        // when, then
+        assertThatThrownBy(() -> userService.updateNickname(request, user.getId()))
+                .isInstanceOf(InvalidFormatException.class);
+    }
+
+    @DisplayName("존재하지 않는 회원의 닉네임을 변경하면 예외가 발생한다.")
+    @Test
+    void updateNickname_throwsException_ifUserNotFound() {
+        // given
+        final NicknameRequest request = new NicknameRequest("반듯");
+
+        // when, then
+        assertThatThrownBy(() -> userService.updateNickname(request, 100L))
+                .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @DisplayName("회원의 비밀번호를 변경한다.")
+    @Test
+    void updatePassword() {
+        // given
+        final User user = dataSupport.saveUser(BATD.create());
+        final PasswordRequest request = new PasswordRequest("1234asdf!", "new1234!");
+
+        // when, then
+        assertThatNoException().isThrownBy(() -> userService.updatePassword(request, user.getId()));
+    }
+
+    @DisplayName("회원의 비밀번호를 형식에 맞지 않게 변경하면 예외가 발생한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"password", "password!", "password1", "12345678!", "password!!123456789012345678901"})
+    void updatePassword_throwsException_ifInvalidPassword(final String password) {
+        // given
+        final User user = dataSupport.saveUser(BATD.create());
+        final PasswordRequest request = new PasswordRequest("1234asdf!", password);
+
+        // when, then
+        assertThatThrownBy(() -> userService.updatePassword(request, user.getId()))
+                .isInstanceOf(InvalidFormatException.class);
+    }
+
+    @DisplayName("존재하지 않는 회원의 비밀번호를 변경하면 예외가 발생한다.")
+    @Test
+    void updatePassword_throwsException_ifUserNotFound() {
+        // given
+        final PasswordRequest request = new PasswordRequest("1234asdf!", "new1234!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.updatePassword(request, 100L))
+                .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @DisplayName("기존 비밀번호를 틀리게 입력하고 비밀번호를 변경하면 예외가 발생한다.")
+    @Test
+    void updatePassword__throwsException_ifWrongPassword() {
+        // given
+        final User user = dataSupport.saveUser(BATD.create());
+        final PasswordRequest request = new PasswordRequest("1234wrong!", "new1234!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.updatePassword(request, 1L))
+                .isInstanceOf(InvalidPasswordException.class);
+    }
+
+    @DisplayName("기존 비밀번호와 동일한 비밀번호로 변경하면 예외가 발생한다.")
+    @Test
+    void updatePassword_throwsException_ifSamePassword() {
+        // given
+        final User user = dataSupport.saveUser(BATD.create());
+        final PasswordRequest request = new PasswordRequest("1234asdf!", "1234asdf!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.updatePassword(request, 1L))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("새로운 비밀번호가 기존의 비밀번호와 일치합니다.");
+    }
+
+    @DisplayName("회원의 정보를 삭제한다.")
+    @Test
+    void delete() {
+        // given
+        final User user = dataSupport.saveUser(KUN.create());
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
+
+        // when, then
+        assertThatNoException().isThrownBy(() -> userService.delete(request, user.getId()));
+    }
+
+    @DisplayName("존재하지 않는 회원을 탈퇴시키면 예외가 발생한다.")
+    @Test
+    void delete_throwsException_ifUserNotFound() {
+        // given
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.delete(request, 100L))
+                .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @DisplayName("잘못된 비밀번호로 탈퇴하면 예외가 발생한다.")
+    @Test
+    void delete_throwsException_ifWrongPassword() {
+        // given
+        final User user = dataSupport.saveUser(KUN.create());
+        final UserDeleteRequest request = new UserDeleteRequest("1234wrong!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.delete(request, user.getId()))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("비밀번호가 올바르지 않습니다.");
+    }
+
+    @DisplayName("모임의 마스터인 회원이 탈퇴하면 예외가 발생한다.")
+    @Test
+    void delete_throwsException_ifMaster() {
+        // given
+        final User master = MASTER.create();
+        dataSupport.saveParticipant(master, MORAGORA.create(), true);
+
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
+
+        // when, then
+        assertThatThrownBy(() -> userService.delete(request, master.getId()))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("마스터로 참여중인 모임이 있어 탈퇴할 수 없습니다.");
     }
 }

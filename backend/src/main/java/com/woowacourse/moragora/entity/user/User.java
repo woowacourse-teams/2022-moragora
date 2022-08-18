@@ -1,10 +1,9 @@
 package com.woowacourse.moragora.entity.user;
 
-import static com.woowacourse.moragora.entity.Provider.*;
+import static com.woowacourse.moragora.entity.Provider.CHECKMATE;
 
-import com.woowacourse.auth.exception.AuthorizationFailureException;
+import com.woowacourse.auth.exception.AuthenticationFailureException;
 import com.woowacourse.moragora.entity.Provider;
-import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -67,6 +66,21 @@ public class User {
         this(null, email, null, nickname, provider);
     }
 
+    public void checkPassword(final RawPassword rawPassword) {
+        if (!password.isSamePassword(rawPassword)) {
+            throw new AuthenticationFailureException();
+        }
+    }
+
+    public void updateNickname(final String nickname) {
+        validateNickname(nickname);
+        this.nickname = nickname;
+    }
+
+    public void updatePassword(final EncodedPassword newPassword) {
+        this.password = newPassword;
+    }
+
     private void validateEmail(final String email) {
         final Matcher matcher = PATTERN_EMAIL.matcher(email);
         if (!matcher.matches()) {
@@ -77,12 +91,6 @@ public class User {
     private void validateNickname(final String nickname) {
         if (nickname.length() > 100) {
             throw new InvalidFormatException();
-        }
-    }
-
-    public void checkPassword(final RawPassword rawPassword) {
-        if (!password.isSamePassword(rawPassword)) {
-            throw new AuthorizationFailureException();
         }
     }
 

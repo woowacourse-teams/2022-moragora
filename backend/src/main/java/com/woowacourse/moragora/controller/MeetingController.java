@@ -2,6 +2,9 @@ package com.woowacourse.moragora.controller;
 
 import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
+import com.woowacourse.auth.support.MasterAuthorization;
+import com.woowacourse.moragora.dto.MasterRequest;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
@@ -12,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,5 +48,23 @@ public class MeetingController {
     public ResponseEntity<MyMeetingsResponse> findMy(@AuthenticationPrincipal final Long loginId) {
         final MyMeetingsResponse meetingsResponse = meetingService.findAllByUserId(loginId);
         return ResponseEntity.ok(meetingsResponse);
+    }
+
+    @MasterAuthorization
+    @PutMapping("/{meetingId}/master")
+    public ResponseEntity<Void> passMaster(@PathVariable final Long meetingId,
+                                           @RequestBody final MasterRequest masterRequest,
+                                           @AuthenticationPrincipal final Long loginId) {
+        meetingService.assignMaster(meetingId, masterRequest, loginId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @MasterAuthorization
+    @PutMapping("/{meetingId}")
+    public ResponseEntity<MeetingUpdateRequest> changeName(@PathVariable final Long meetingId,
+                                                           @RequestBody @Valid MeetingUpdateRequest request,
+                                                           @AuthenticationPrincipal final Long loginId) {
+        meetingService.updateName(request, meetingId);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -10,3 +10,10 @@ export type MeetingEvent = {
 export type EventResposeBody = MeetingEvent;
 
 export type EventListResponseBody = MeetingEvent[];
+
+export type EventCreateRequestBody = {
+  events: Omit<
+    MeetingEvent,
+    'id' | 'attendanceOpenTime' | 'attendanceClosedTime'
+  >[];
+};

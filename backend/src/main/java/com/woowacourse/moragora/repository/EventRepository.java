@@ -15,7 +15,7 @@ public interface EventRepository extends Repository<Event, Long> {
 
     List<Event> saveAll(final Iterable<Event> events);
 
-    List<Event> findByMeetingIdAndDateLessThanEqual(final Long meetingId, final LocalDate date);
+    long countByMeetingIdAndDateLessThanEqual(final Long meetingId, final LocalDate date);
 
     Optional<Event> findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(final Long meetingId, final LocalDate date);
 

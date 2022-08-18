@@ -11,6 +11,22 @@ export const Layout = styled.div`
   overflow-y: hidden;
 `;
 
+export const SpinnerBox = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const ErrorBox = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+`;
+
 export const TabNavBox = styled.div`
   position: fixed;
   width: 100%;
@@ -31,6 +47,8 @@ export const TabNavLink = styled(NavLink)`
   text-decoration: none;
   color: ${({ theme: { colors } }) => colors['subtle-light']};
   z-index: 1;
+
+  transition: all 300ms ease-out;
 
   &.active {
     color: ${({ theme: { colors } }) => colors['black']};
@@ -57,7 +75,7 @@ export const IndicatorBox = styled.div<{ tabPositions: TabPosition[] }>`
   display: flex;
   justify-content: center;
 
-  transition: all 300ms linear;
+  transition: all 300ms ease-out;
 
   ${({ tabPositions }) => setTabPosition(tabPositions)}
 `;

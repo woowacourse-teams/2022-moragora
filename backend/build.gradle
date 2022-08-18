@@ -69,6 +69,9 @@ dependencies {
     // slf4j & logback
     implementation('org.slf4j:jcl-over-slf4j')
     implementation('ch.qos.logback:logback-classic')
+
+    // mysql
+    implementation 'mysql:mysql-connector-java:8.0.30'
 }
 
 task copyDocument(type: Copy) {

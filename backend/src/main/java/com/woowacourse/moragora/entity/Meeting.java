@@ -1,9 +1,17 @@
 package com.woowacourse.moragora.entity;
 
+import com.woowacourse.moragora.exception.InvalidFormatException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +22,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class Meeting {
+
+    private static final int MAX_NAME_LENGTH = 50;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,12 +37,24 @@ public class Meeting {
 
     @Builder
     public Meeting(final String name) {
+        validateName(name);
+        this.name = name;
+    }
+
+    public void updateName(final String name) {
+        validateName(name);
         this.name = name;
     }
 
     public List<Long> getParticipantIds() {
         return participants.stream()
                 .map(Participant::getId)
-                .collect(Collectors.toList());
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    private void validateName(final String name) {
+        if (name.length() > MAX_NAME_LENGTH) {
+            throw new InvalidFormatException();
+        }
     }
 }

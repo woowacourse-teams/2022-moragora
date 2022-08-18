@@ -7,11 +7,13 @@ import LoginPage from 'pages/LoginPage';
 import Auth from './Auth';
 import SettingsPage from 'pages/SettingsPage';
 import NotFoundPage from 'pages/NotFoundPage';
-import EventCreatePage from 'pages/EventCreatePage';
 import MeetingDetailPage from 'pages/MeetingDetailPage';
 import UserConfigPage from 'pages/UserConfigPage';
 import PasswordUpdatePage from 'pages/PasswordUpdatePage';
 import UnregisterPage from 'pages/UnregisterPage';
+import CheckInPage from 'pages/CheckInPage';
+import CalendarPage from 'pages/CalendarPage';
+import MeetingConfigPage from 'pages/MeetingConfigPage';
 
 const Router = () => {
   return useRoutes([
@@ -36,15 +38,19 @@ const Router = () => {
               children: [
                 { path: '', element: <Navigate to="coffee-stack" replace /> },
                 { path: 'coffee-stack', element: <CoffeeStackPage /> },
-                { path: 'event', element: <EventCreatePage /> },
-                { path: 'meeting-config', element: <div>config</div> },
+                { path: 'calendar', element: <CalendarPage /> },
+                { path: 'config', element: <MeetingConfigPage /> },
                 { path: '*', element: <NotFoundPage /> },
               ],
             },
-            { path: ':id/config', element: <EventCreatePage /> },
             { path: 'create', element: <MeetingCreatePage /> },
           ],
         },
+        {
+          path: 'check-in',
+          element: <CheckInPage />,
+        },
+
         {
           path: 'settings',
           children: [

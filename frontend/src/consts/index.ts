@@ -20,4 +20,5 @@ export const MUTATION_STATUS = {
 export const ATTENDANCE_STATUS: Record<AttendanceStatus, boolean> = {
   tardy: false,
   present: true,
+  none: false,
 } as const;

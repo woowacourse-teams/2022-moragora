@@ -1,6 +1,9 @@
 package com.woowacourse.moragora.repository;
 
 import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
+import static com.woowacourse.moragora.support.EventFixtures.EVENT2;
+import static com.woowacourse.moragora.support.EventFixtures.EVENT3;
+import static com.woowacourse.moragora.support.MeetingFixtures.F12;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.AZPI;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
@@ -14,6 +17,7 @@ import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.support.DataSupport;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -57,9 +61,9 @@ class AttendanceRepositoryTest {
         assertThat(attendance.isPresent()).isTrue();
     }
 
-    @DisplayName("미팅 참가자들의 출석정보 목록을 조회한다.")
+    @DisplayName("미팅 참가자들의 특정 날짜 이전의 출석 기록을 조회한다.")
     @Test
-    void findByParticipantIdIn() {
+    void findByParticipantIdInAndDateLessThanEqual() {
         // given
         final User user1 = KUN.create();
         final User user2 = AZPI.create();
@@ -69,20 +73,22 @@ class AttendanceRepositoryTest {
         final Participant participant1 = dataSupport.saveParticipant(user1, meeting);
         final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
 
-        final Event event = EVENT1.create(meeting);
-        final Event savedEvent = eventRepository.save(event);
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        final Event event3 = dataSupport.saveEvent(EVENT3.create(meeting));
 
-        attendanceRepository.save(new Attendance(Status.TARDY, true, participant1, savedEvent));
-        attendanceRepository.save(new Attendance(Status.TARDY, true, participant2, savedEvent));
+        dataSupport.saveAttendance(participant1, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant2, event2, Status.TARDY);
+        dataSupport.saveAttendance(participant1, event3, Status.TARDY);
 
         final List<Participant> participants = List.of(participant1, participant2);
-
         final List<Long> participantIds = participants.stream()
                 .map(Participant::getId)
                 .collect(Collectors.toList());
 
         // when
-        final List<Attendance> attendances = attendanceRepository.findByParticipantIdIn(participantIds);
+        final List<Attendance> attendances = attendanceRepository
+                .findByParticipantIdInAndDateLessThanEqual(participantIds, LocalDate.of(2022, 8, 2));
 
         // then
         assertThat(attendances).hasSize(2);
@@ -163,5 +169,55 @@ class AttendanceRepositoryTest {
 
         // then
         assertThat(attendances).hasSize(2);
+    }
+
+    @DisplayName("이벤트에 속한 출석 데이터를 삭제한다.")
+    @Test
+    void deleteByEventIdIn() {
+        // given
+        final User user = KUN.create();
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final Participant participant = dataSupport.saveParticipant(user, meeting);
+
+        final Event event1 = eventRepository.save(EVENT1.create(meeting));
+        final Event event2 = eventRepository.save(EVENT2.create(meeting));
+
+        dataSupport.saveAttendance(participant, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant, event2, Status.TARDY);
+
+        // when
+        attendanceRepository.deleteByEventIdIn(List.of(event1.getId()));
+        final List<Attendance> result = attendanceRepository
+                .findByParticipantIdInAndDateLessThanEqual(List.of(participant.getId()), event2.getDate());
+
+        // then
+        assertThat(result).hasSize(1);
+    }
+
+    @DisplayName("참가자의 출석 데이터를 삭제한다.")
+    @Test
+    void deleteByParticipantIdIn() {
+        // given
+        final User user = KUN.create();
+        final Meeting meeting1 = dataSupport.saveMeeting(MORAGORA.create());
+        final Meeting meeting2 = dataSupport.saveMeeting(F12.create());
+
+        final Participant participant1 = dataSupport.saveParticipant(user, meeting1);
+        final Participant participant2 = dataSupport.saveParticipant(user, meeting2);
+
+        final Event event1 = eventRepository.save(EVENT1.create(meeting1));
+        final Event event2 = eventRepository.save(EVENT1.create(meeting2));
+
+        dataSupport.saveAttendance(participant1, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant2, event2, Status.TARDY);
+
+        // when
+        attendanceRepository.deleteByParticipantIdIn(List.of(participant1.getId()));
+        final List<Attendance> result = attendanceRepository
+                .findByParticipantIdInAndDateLessThanEqual(List.of(participant1.getId(), participant2.getId()),
+                        event2.getDate());
+
+        // then
+        assertThat(result).hasSize(1);
     }
 }

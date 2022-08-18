@@ -43,9 +43,9 @@ export default [
 
     const responseBody: MeetingListResponseBody = {
       meetings: myMeetings.map(
-        ({ attendanceEventCount, userIds, ...meeting }) => ({
+        ({ attendedEventCount, masterId, userIds, ...meeting }) => ({
           ...meeting,
-          isLoginUserMaster: false,
+          isLoginUserMaster: masterId === user.id,
           isCoffeeTime: true,
           tardyCount: 3,
           upcomingEvent: {
@@ -107,10 +107,13 @@ export default [
 
       const { userIds, ...joinedMeeting } = {
         ...meeting,
-        isLoginUserMaster: true,
+        isLoginUserMaster: meeting.masterId === user.id,
         isCoffeeTime,
         isActive: true,
-        users: joinedUsers.map((user) => ({ ...user, isMaster: false })),
+        users: joinedUsers.map((user) => ({
+          ...user,
+          isMaster: meeting.masterId === user.id,
+        })),
       };
 
       const responseBody: MeetingResponseBody = joinedMeeting;
@@ -147,7 +150,7 @@ export default [
         ...meeting,
         id: meetingId,
         isActive: false,
-        attendanceEventCount: 0,
+        attendedEventCount: 0,
         masterId: token.id,
       });
 

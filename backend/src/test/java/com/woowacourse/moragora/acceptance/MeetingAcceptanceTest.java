@@ -14,6 +14,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
+import com.woowacourse.moragora.dto.MasterRequest;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
@@ -24,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -94,6 +97,7 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("users.email", equalTo(getEmailsIncludingMaster()));
     }
 
+    @Disabled
     @DisplayName("사용자가 자신이 속한 모든 모임을 조회하면 모임 정보와 상태코드 200을 반환한다.")
     @Test
     void findMy() {
@@ -130,9 +134,9 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.OK.value())
                 .body("meetings.id", containsInAnyOrder(meetingId1, meetingId2))
                 .body("meetings.name", containsInAnyOrder(meeting1.getName(), meeting2.getName()))
-                .body("meetings.tardyCount", containsInAnyOrder(0, 0))
+                .body("meetings.tardyCount", containsInAnyOrder(1, 0))
                 .body("meetings.isLoginUserMaster", containsInAnyOrder(true, true))
-                .body("meetings.isCoffeeTime", containsInAnyOrder(false, false))
+                .body("meetings.isCoffeeTime", containsInAnyOrder(true, false))
                 .body("meetings.isActive", containsInAnyOrder(true, false))
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.id", equalTo(1))
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.attendanceOpenTime", equalTo("09:30"))
@@ -140,7 +144,47 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.meetingStartTime", equalTo("10:00"))
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.meetingEndTime", equalTo("18:00"))
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.date", equalTo("2022-08-01"))
-                .body("meetings.find{it.id == " + meetingId2 + "}.upcomingEvent", equalTo(null))
-        ;
+                .body("meetings.find{it.id == " + meetingId2 + "}.upcomingEvent", equalTo(null));
+    }
+
+    @DisplayName("마스터가 다른 참가자에게 모임 권한 넘기기를 요청하면 상태코드 204를 반환한다.")
+    @Test
+    void passMaster() {
+        // given
+        final String token = signUpAndGetToken(MASTER.create());
+        final User user = KUN.create();
+        final Long id = signUp(user);
+
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(token, List.of(id), meeting);
+
+        final MasterRequest masterRequest = new MasterRequest(id);
+
+        // when
+        final ValidatableResponse response = put("/meetings/" + meetingId + "/master", masterRequest, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("마스터가 미팅 이름을 수정하면 상태코드 204를 반환한다.")
+    @Test
+    void changeName() {
+        // given
+        final User master = MASTER.create();
+        final String token = signUpAndGetToken(master);
+
+        final List<User> users = createUsers();
+        final List<Long> userIds = saveUsers(users);
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(token, userIds, meeting);
+
+        final MeetingUpdateRequest meetingUpdateRequest = new MeetingUpdateRequest("체크메이트");
+
+        // when
+        final ValidatableResponse response = put("meetings/" + meetingId, meetingUpdateRequest, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
     }
 }
