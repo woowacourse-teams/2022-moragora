@@ -27,6 +27,8 @@ export type UserLoginRequestBody = Pick<User, 'email' | 'password'>;
 
 export type UserLoginResponseBody = Pick<User, 'accessToken'>;
 
+export type GoogleLoginRequestBody = { code: string };
+
 export type GetLoginUserDataResponseBody = Pick<
   User,
   'id' | 'nickname' | 'email'

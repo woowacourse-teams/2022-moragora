@@ -7,6 +7,7 @@ import {
   UserRegisterRequestBody,
   UserUpdateNicknameRequestBody,
   UserUpdatePasswordRequestBody,
+  GoogleLoginRequestBody,
 } from 'types/userType';
 import {
   AttendancesResponseBody,
@@ -16,14 +17,6 @@ import request from '../utils/request';
 
 export const checkEmailApi = (email: User['email']) => () =>
   request<{ isExist: boolean }>(`/users/check-email?email=${email}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-export const getGoogleLoginToken = (code: string) => () =>
-  request<{ accessToken: string }>(`/login/oauth2/google?code=${code}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -58,6 +51,36 @@ export const submitLoginApi = async (payload: UserLoginRequestBody) => {
   }
 
   const accessToken = loginResponse.body.accessToken;
+  const loginUserResponse = await request<GetLoginUserDataResponseBody>(
+    '/users/me',
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+
+  return { ...loginUserResponse, accessToken };
+};
+
+export const googleLoginApi = async ({ code }: GoogleLoginRequestBody) => {
+  const googleLoginResponse = await request<UserLoginResponseBody>(
+    `/login/oauth2/google?code=${code}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  if (!googleLoginResponse.body.accessToken) {
+    throw new Error('구글 로그인 중 오류가 발생했습니다.');
+  }
+
+  const accessToken = googleLoginResponse.body.accessToken;
   const loginUserResponse = await request<GetLoginUserDataResponseBody>(
     '/users/me',
     {
