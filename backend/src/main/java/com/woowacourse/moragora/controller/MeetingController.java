@@ -78,8 +78,8 @@ public class MeetingController {
 
     @MasterAuthorization
     @DeleteMapping("/{meetingId}")
-    public ResponseEntity<Void> remove(@AuthenticationPrincipal final Long loginId,
-                                       @PathVariable final Long meetingId) {
+    public ResponseEntity<Void> remove(@PathVariable final Long meetingId,
+                                       @AuthenticationPrincipal final Long loginId) {
         meetingService.deleteMeeting(meetingId);
         return ResponseEntity.noContent().build();
     }
