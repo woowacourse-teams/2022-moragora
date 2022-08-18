@@ -39,7 +39,7 @@ export const TabNavBox = styled.div`
 export const TabNav = styled.nav`
   position: relative;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-evenly;
   font-weight: 600;
 `;
 

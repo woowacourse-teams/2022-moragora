@@ -50,7 +50,6 @@ const Router = () => {
           path: 'check-in',
           element: <CheckInPage />,
         },
-
         {
           path: 'settings',
           children: [

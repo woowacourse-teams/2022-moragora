@@ -6,7 +6,6 @@ export const Layout = styled.li<{ clicked: boolean }>`
   min-width: max-content;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-
   font-size: 1rem;
 
   color: ${({ theme: { colors }, clicked }) =>

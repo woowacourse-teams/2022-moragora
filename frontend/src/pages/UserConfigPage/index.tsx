@@ -28,6 +28,7 @@ const UserConfigPage = () => {
         alert(e);
       },
       onSuccess: () => {
+        user.getLoginUserData();
         alert('닉네임이 변경되었습니다.');
       },
     }

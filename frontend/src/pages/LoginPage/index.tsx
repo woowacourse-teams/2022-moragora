@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as S from './LoginPage.styled';
 import useForm from 'hooks/useForm';
@@ -6,13 +6,15 @@ import useMutation from 'hooks/useMutation';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
-import { UserLoginRequestBody } from 'types/userType';
-import { submitLoginApi } from 'apis/userApis';
 import Button from 'components/@shared/Button';
+import { UserLoginRequestBody } from 'types/userType';
+import { googleLoginApi, submitLoginApi } from 'apis/userApis';
+import GoogleLoginButton from 'components/GoogleLoginButton';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useContext(userContext) as UserContextValues;
+  const code = new URLSearchParams(location.search).get('code');
   const { errors, isSubmitting, onSubmit, register } = useForm();
 
   const { mutate: loginMutate } = useMutation(submitLoginApi, {
@@ -25,6 +27,18 @@ const LoginPage = () => {
     },
   });
 
+  const { mutate: googleLoginMutate } = useMutation(googleLoginApi, {
+    onSuccess: ({ body, accessToken }) => {
+      login(body, accessToken);
+    },
+    onError: () => {
+      alert('구글 로그인을 실패했습니다.');
+    },
+    onSettled: () => {
+      navigate('/');
+    },
+  });
+
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     const target = e.target as HTMLFormElement;
     const formData = new FormData(target);
@@ -34,6 +48,12 @@ const LoginPage = () => {
 
     await loginMutate(formDataObject);
   };
+
+  useEffect(() => {
+    if (code) {
+      googleLoginMutate({ code });
+    }
+  }, [code]);
 
   return (
     <S.Layout>
@@ -68,8 +88,9 @@ const LoginPage = () => {
         <Button type="submit" form="login-form" disabled={isSubmitting}>
           로그인
         </Button>
+        <GoogleLoginButton />
         <S.RegisterHintParagraph>
-          모라고라가 처음이신가요?
+          체크메이트가 처음이신가요?
           <S.RegisterLink to="/register">회원가입</S.RegisterLink>
         </S.RegisterHintParagraph>
       </S.ButtonBox>

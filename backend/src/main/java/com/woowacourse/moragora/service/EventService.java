@@ -6,6 +6,7 @@ import com.woowacourse.moragora.dto.EventsRequest;
 import com.woowacourse.moragora.dto.EventsResponse;
 import com.woowacourse.moragora.entity.Attendance;
 import com.woowacourse.moragora.entity.Event;
+import com.woowacourse.moragora.entity.Events;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
@@ -62,16 +63,26 @@ public class EventService {
     public void save(final EventsRequest request, final Long meetingId) {
         final Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(MeetingNotFoundException::new);
-        final List<Event> events = request.toEntities(meeting);
-        validateEventDateNotPast(events);
-        validateDuplicatedEventDate(events);
-        validateAttendanceStartTimeIsAfterNow(events);
+        final List<Event> insertedEvents = request.toEntities(meeting);
 
-        eventRepository.saveAll(events);
-        final List<Attendance> attendances = saveAllAttendances(meeting.getParticipants(), events);
+        final List<LocalDate> eventDates = insertedEvents.stream()
+                .map(Event::getDate)
+                .collect(Collectors.toList());
+
+        validateEventDateNotPast(insertedEvents);
+        validateDuplicatedEventDate(insertedEvents);
+        validateAttendanceStartTimeIsAfterNow(insertedEvents);
+
+        final List<Event> foundEvents = eventRepository.findByMeetingId(meetingId);
+        final Events events = new Events(foundEvents);
+
+        final List<Event> newEvents = events.updateAndExtractNewEvents(insertedEvents);
+        eventRepository.saveAll(newEvents);
+        saveAllAttendances(meeting.getParticipants(), newEvents);
+        final List<Attendance> attendances = attendanceRepository.findByMeetingIdAndDateIn(meetingId, eventDates);
         scheduleAttendancesUpdate(attendances);
     }
-
+    
     @Transactional
     public void cancel(final EventCancelRequest request, final Long meetingId) {
         meetingRepository.findById(meetingId)
@@ -89,7 +100,7 @@ public class EventService {
 
     public EventResponse findUpcomingEvent(final Long meetingId) {
         final Event event = eventRepository.findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(
-                        meetingId, serverTimeManager.getDate())
+                meetingId, serverTimeManager.getDate())
                 .orElseThrow(EventNotFoundException::new);
 
         final LocalTime entranceTime = event.getStartTime();
@@ -108,6 +119,38 @@ public class EventService {
                 .collect(Collectors.toList());
 
         return new EventsResponse(eventResponses);
+    }
+
+    private List<Attendance> saveAllAttendances(final List<Participant> participants, final List<Event> events) {
+        final List<Attendance> attendances = events.stream()
+                .map(event -> createAttendances(participants, event))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+
+        return attendanceRepository.saveAll(attendances);
+    }
+
+    private List<Attendance> createAttendances(final List<Participant> participants, final Event event) {
+        return participants.stream()
+                .map(participant -> new Attendance(Status.NONE, false, participant, event))
+                .collect(Collectors.toList());
+    }
+
+
+    private void scheduleAttendancesUpdate(final List<Attendance> attendances) {
+        attendances.forEach(attendance -> {
+            final ScheduledFuture<?> schedule = taskScheduler.schedule(
+                    () -> scheduler.updateToTardyAfterClosedTime(attendance),
+                    calculateUpdateInstant(attendance.getEvent()));
+            scheduledTasks.put(attendance, schedule);
+        });
+    }
+
+    private Instant calculateUpdateInstant(final Event event) {
+        final LocalTime startTime = event.getStartTime();
+        final LocalTime closingTime = serverTimeManager.calculateAttendanceCloseTime(startTime);
+        return closingTime.atDate(event.getDate()).
+                atZone(ZoneId.systemDefault()).toInstant();
     }
 
     private void validateBeginIsGreaterThanEqualEnd(final LocalDate begin, final LocalDate end) {
@@ -148,36 +191,5 @@ public class EventService {
                 throw new ClientRuntimeException("출석 시간 전에 일정을 생성할 수 없습니다.", HttpStatus.BAD_REQUEST);
             }
         });
-    }
-
-    private void scheduleAttendancesUpdate(final List<Attendance> attendances) {
-        attendances.forEach(attendance -> {
-            final ScheduledFuture<?> schedule = taskScheduler.schedule(
-                    () -> scheduler.updateToTardyAfterClosedTime(attendance),
-                    calculateUpdateInstant(attendance.getEvent()));
-            scheduledTasks.put(attendance, schedule);
-        });
-    }
-
-    private List<Attendance> saveAllAttendances(final List<Participant> participants, final List<Event> events) {
-        final List<Attendance> attendances = events.stream()
-                .map(event -> createAttendances(participants, event))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-
-        return attendanceRepository.saveAll(attendances);
-    }
-
-    private List<Attendance> createAttendances(final List<Participant> participants, final Event event) {
-        return participants.stream()
-                .map(participant -> new Attendance(Status.NONE, false, participant, event))
-                .collect(Collectors.toList());
-    }
-
-    private Instant calculateUpdateInstant(final Event event) {
-        final LocalTime startTime = event.getStartTime();
-        final LocalTime closingTime = serverTimeManager.calculateAttendanceCloseTime(startTime);
-        return closingTime.atDate(event.getDate()).
-                atZone(ZoneId.systemDefault()).toInstant();
     }
 }

@@ -68,8 +68,9 @@ module.exports = {
       'process.env.API_SERVER_HOST': JSON.stringify(
         process.env.API_SERVER_HOST
       ),
+      'process.env.CLIENT_ID': JSON.stringify(process.env.CLIENT_ID),
     }),
-    new EnvironmentPlugin(['API_SERVER_HOST']),
+    new EnvironmentPlugin(['API_SERVER_HOST', 'CLIENT_ID']),
     new FaviconsWebpackPlugin({
       logo: 'public/logo.png',
       manifest: 'public/manifest.json',

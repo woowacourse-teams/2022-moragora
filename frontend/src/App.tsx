@@ -15,6 +15,7 @@ const App = () => {
     ['loginUserData'],
     getLoginUserDataApi(accessToken),
     {
+      enabled: !!accessToken,
       onSuccess: ({ body }) => {
         if (accessToken) {
           login(body, accessToken);

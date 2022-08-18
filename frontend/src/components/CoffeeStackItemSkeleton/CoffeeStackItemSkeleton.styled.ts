@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 
 export const Layout = styled.div`
-  height: 3.5rem;
-  padding: 0.75rem;
+  height: 3rem;
+  padding: 0.5rem 0.75rem;
   border-radius: 1rem;
   background-color: white;
   display: flex;

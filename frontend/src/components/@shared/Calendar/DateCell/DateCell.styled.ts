@@ -8,8 +8,8 @@ export const Layout = styled.div<{
   isSelected?: boolean;
 }>`
   position: relative;
-  min-width: 2rem;
-  height: 2rem;
+  min-width: 1.5rem;
+  height: 1.5rem;
   display: flex;
   justify-self: center;
   justify-content: center;
