@@ -39,9 +39,10 @@ const LoginPage = () => {
     },
   });
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    const target = e.target as HTMLFormElement;
-    const formData = new FormData(target);
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async ({
+    currentTarget,
+  }) => {
+    const formData = new FormData(currentTarget);
     const formDataObject = Object.fromEntries(
       formData.entries()
     ) as UserLoginRequestBody;

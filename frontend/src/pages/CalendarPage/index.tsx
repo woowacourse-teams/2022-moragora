@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import { Navigate, useOutletContext, useParams } from 'react-router-dom';
 import { css } from '@emotion/react';
 import * as S from './CalendarPage.styled';
@@ -21,6 +21,7 @@ import { getMeetingData } from 'apis/meetingApis';
 import Spinner from 'components/@shared/Spinner';
 import { QueryState } from 'types/queryType';
 import ErrorIcon from 'components/@shared/ErrorIcon';
+import { MeetingEvent } from 'types/eventType';
 
 const CalendarPage = () => {
   const { id: meetingId } = useParams();
@@ -66,12 +67,19 @@ const CalendarPage = () => {
   } = useContext(CalendarContext);
   const { values, errors, onSubmit, register } = useForm();
 
-  const handleupdateEventsSubmit = () => {
+  const handleupdateEventsSubmit: React.FormEventHandler<HTMLFormElement> = ({
+    currentTarget,
+  }) => {
+    const formData = new FormData(currentTarget);
+    const formDataObject = Object.fromEntries(formData.entries()) as Pick<
+      MeetingEvent,
+      'meetingStartTime' | 'meetingEndTime'
+    >;
+
     updateEvents(
       selectedDates.map((date) => ({
         date: dateToFormattedString(date),
-        meetingStartTime: values['entranceTime'] as string,
-        meetingEndTime: values['leaveTime'] as string,
+        ...formDataObject,
       }))
     );
     clearSelectedDates();
@@ -83,7 +91,9 @@ const CalendarPage = () => {
   };
 
   const handleClickSaveEventsButtonClick = () => {
-    mutate(events);
+    console.log(events);
+
+    mutate({ events });
   };
 
   if (eventsQuery.isLoading) {
@@ -133,7 +143,7 @@ const CalendarPage = () => {
                   시작 시간
                   <Input
                     type="time"
-                    {...register('entranceTime', {
+                    {...register('meetingStartTime', {
                       onClick: (e) => {
                         const currentTarget =
                           e.currentTarget as HTMLInputElement & {
@@ -142,7 +152,6 @@ const CalendarPage = () => {
 
                         currentTarget.showPicker();
                       },
-                      required: true,
                       watch: true,
                     })}
                   />
@@ -153,7 +162,7 @@ const CalendarPage = () => {
                   마감 시간
                   <Input
                     type="time"
-                    {...register('leaveTime', {
+                    {...register('meetingEndTime', {
                       onClick: (e) => {
                         const currentTarget =
                           e.currentTarget as HTMLInputElement & {
@@ -162,10 +171,9 @@ const CalendarPage = () => {
 
                         currentTarget.showPicker();
                       },
-                      required: true,
                       watch: true,
                     })}
-                    disabled={errors['entranceTime'] !== ''}
+                    disabled={errors['meetingStartTime'] !== ''}
                   />
                 </S.Label>
               </S.FieldBox>
@@ -178,8 +186,8 @@ const CalendarPage = () => {
                 type="submit"
                 form="add-events-form"
                 disabled={
-                  !values['entranceTime'] ||
-                  !values['leaveTime'] ||
+                  !values['meetingStartTime'] ||
+                  !values['meetingEndTime'] ||
                   selectedDates.length === 0
                 }
               >
