@@ -1,4 +1,7 @@
+import { getLoginUserDataApi } from 'apis/userApis';
+import useQuery from 'hooks/useQuery';
 import React, { createContext, useState } from 'react';
+import { QueryClient } from 'types/queryType';
 import { User } from 'types/userType';
 
 type UserContextData = Pick<User, 'id' | 'email' | 'nickname' | 'accessToken'>;
@@ -6,6 +9,7 @@ type UserContextData = Pick<User, 'id' | 'email' | 'nickname' | 'accessToken'>;
 export type UserContextValues = {
   user: UserContextData | null;
   accessToken: User['accessToken'];
+  getLoginUserData: () => Promise<void>;
   login: (
     user: NonNullable<Omit<UserContextData, 'accessToken'>>,
     accessToken: NonNullable<UserContextData['accessToken']>
@@ -36,8 +40,30 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
     setUser(null);
   };
 
+  const getUserDataQuery = useQuery(
+    ['loginUserData'],
+    getLoginUserDataApi(accessToken),
+    {
+      enabled: !!accessToken,
+      refetchOnMount: false,
+      onSuccess: ({ body }) => {
+        if (accessToken) {
+          login(body, accessToken);
+        }
+      },
+    }
+  );
+
   return (
-    <userContext.Provider value={{ user, accessToken, login, logout }}>
+    <userContext.Provider
+      value={{
+        user,
+        accessToken,
+        getLoginUserData: getUserDataQuery.refetch,
+        login,
+        logout,
+      }}
+    >
       {children}
     </userContext.Provider>
   );

@@ -1,4 +1,5 @@
 import React from 'react';
+import { css } from '@emotion/react';
 import * as S from './CheckMeetingItem.styled';
 import { MeetingListResponseBody } from 'types/meetingType';
 import CrownIconSVG from 'assets/crown.svg';
@@ -20,11 +21,18 @@ const CheckMeetingItem: React.FC<
     <S.Layout onClick={handleClick} clicked={clicked}>
       <span>{children}</span>
       {meeting.isLoginUserMaster ? (
-        <img src={CrownIconSVG} alt="crown-icon" width={20} />
+        <img
+          src={CrownIconSVG}
+          alt="crown-icon"
+          css={css`
+            width: 1rem;
+            height: 1rem;
+          `}
+        />
       ) : (
         <svg
-          width="24"
-          height="24"
+          width="1rem"
+          height="1rem"
           viewBox="0 0 24 24"
           fill="currentColor"
           xmlns="http://www.w3.org/2000/svg"

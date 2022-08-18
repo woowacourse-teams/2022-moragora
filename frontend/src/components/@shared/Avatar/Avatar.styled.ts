@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 
 export const Layout = styled.div`
-  width: 3rem;
-  height: 3rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border: 2px solid;
   border-radius: 50%;
   overflow: hidden;
@@ -13,6 +13,6 @@ export const Layout = styled.div`
 `;
 
 export const Image = styled.img`
-  width: 5rem;
-  height: 5rem;
+  width: 4rem;
+  height: 4rem;
 `;
