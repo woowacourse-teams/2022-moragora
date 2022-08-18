@@ -29,6 +29,7 @@ public class User {
 
     private static final String REGEX_EMAIL = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$";
     private static final Pattern PATTERN_EMAIL = Pattern.compile(REGEX_EMAIL);
+    private static final int NICKNAME_LENGTH_LENGTH = 100;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -89,7 +90,7 @@ public class User {
     }
 
     private void validateNickname(final String nickname) {
-        if (nickname.length() > 100) {
+        if (nickname.length() > NICKNAME_LENGTH_LENGTH) {
             throw new InvalidFormatException();
         }
     }
