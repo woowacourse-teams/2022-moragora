@@ -7,8 +7,8 @@ const Footer: React.FC<React.HTMLAttributes<HTMLElement>> = () => {
       <S.MenuNavLink to="/meeting">
         <S.Figure>
           <svg
-            width={24}
-            height={24}
+            width="1.5rem"
+            height="1.5rem"
             viewBox="0 0 24 24"
             fill="currentColor"
             xmlns="http://www.w3.org/2000/svg"
@@ -40,8 +40,8 @@ const Footer: React.FC<React.HTMLAttributes<HTMLElement>> = () => {
       <S.MenuNavLink to="/check-in">
         <S.Figure>
           <svg
-            width="24"
-            height="24"
+            width="1.5rem"
+            height="1.5rem"
             viewBox="0 0 24 24"
             fill="currentColor"
             xmlns="http://www.w3.org/2000/svg"
@@ -66,8 +66,8 @@ const Footer: React.FC<React.HTMLAttributes<HTMLElement>> = () => {
       <S.MenuNavLink to="/settings">
         <S.Figure>
           <svg
-            width={24}
-            height={24}
+            width="1.5rem"
+            height="1.5rem"
             viewBox="0 0 24 24"
             fill="currentColor"
             xmlns="http://www.w3.org/2000/svg"

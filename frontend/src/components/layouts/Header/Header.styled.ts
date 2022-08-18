@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 
 export const Layout = styled.div`
   height: 3rem;
-  padding: 1rem 1rem;
+  padding: 0.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -26,6 +26,7 @@ export const WelcomeMessageBox = styled.div`
 `;
 
 export const NicknameParagraph = styled.p`
+  font-size: 1rem;
   font-weight: 700;
 `;
 
