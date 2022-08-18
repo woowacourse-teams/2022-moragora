@@ -2,7 +2,7 @@ package com.woowacourse.moragora.service;
 
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.MasterRequest;
-import com.woowacourse.moragora.dto.MeetingNameRequest;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
@@ -130,7 +130,7 @@ public class MeetingService {
     }
 
     @Transactional
-    public void updateName(final MeetingNameRequest request, final Long meetingId) {
+    public void updateName(final MeetingUpdateRequest request, final Long meetingId) {
         final Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(MeetingNotFoundException::new);
         meeting.updateName(request.getName());

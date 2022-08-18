@@ -15,7 +15,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.dto.MasterRequest;
-import com.woowacourse.moragora.dto.MeetingNameRequest;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
@@ -179,10 +179,10 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
         final Meeting meeting = MORAGORA.create();
         final int meetingId = saveMeeting(token, userIds, meeting);
 
-        final MeetingNameRequest meetingNameRequest = new MeetingNameRequest("체크메이트");
+        final MeetingUpdateRequest meetingUpdateRequest = new MeetingUpdateRequest("체크메이트");
 
         // when
-        final ValidatableResponse response = put("meetings/" + meetingId, meetingNameRequest, token);
+        final ValidatableResponse response = put("meetings/" + meetingId, meetingUpdateRequest, token);
 
         // then
         response.statusCode(HttpStatus.NO_CONTENT.value());

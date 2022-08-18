@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.MasterRequest;
-import com.woowacourse.moragora.dto.MeetingNameRequest;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
@@ -420,14 +420,14 @@ class MeetingControllerTest extends ControllerTest {
     @Test
     void changeName() throws Exception {
         // given
-        final MeetingNameRequest meetingNameRequest = new MeetingNameRequest("체크메이트");
+        final MeetingUpdateRequest meetingUpdateRequest = new MeetingUpdateRequest("체크메이트");
         validateToken("1");
 
         // when
-        final ResultActions resultActions = performPut("/meetings/1", meetingNameRequest);
+        final ResultActions resultActions = performPut("/meetings/1", meetingUpdateRequest);
 
         // then
-        verify(meetingService, times(1)).updateName(any(MeetingNameRequest.class), anyLong());
+        verify(meetingService, times(1)).updateName(any(MeetingUpdateRequest.class), anyLong());
         resultActions.andExpect(status().isNoContent())
                 .andDo(document("meeting/change-name",
                         preprocessRequest(prettyPrint()),
@@ -444,11 +444,11 @@ class MeetingControllerTest extends ControllerTest {
             "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghija"})
     void changeName_throwsException_ifTooLong(final String name) throws Exception {
         // given
-        final MeetingNameRequest meetingNameRequest = new MeetingNameRequest(name);
+        final MeetingUpdateRequest meetingUpdateRequest = new MeetingUpdateRequest(name);
         validateToken("1");
 
         // when
-        final ResultActions resultActions = performPut("/meetings/1", meetingNameRequest);
+        final ResultActions resultActions = performPut("/meetings/1", meetingUpdateRequest);
 
         // then
         resultActions.andExpect(status().isBadRequest());

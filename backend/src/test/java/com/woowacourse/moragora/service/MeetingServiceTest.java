@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.MasterRequest;
-import com.woowacourse.moragora.dto.MeetingNameRequest;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
@@ -565,7 +565,7 @@ class MeetingServiceTest {
     void updateName() {
         // given
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
-        final MeetingNameRequest request = new MeetingNameRequest("체크메이트");
+        final MeetingUpdateRequest request = new MeetingUpdateRequest("체크메이트");
 
         // when, then
         assertThatCode(() -> meetingService.updateName(request, meeting.getId()))
@@ -576,7 +576,7 @@ class MeetingServiceTest {
     @Test
     void updateName_ifNotFound() {
         // given
-        final MeetingNameRequest request = new MeetingNameRequest("체크메이트");
+        final MeetingUpdateRequest request = new MeetingUpdateRequest("체크메이트");
 
         // when, then
         assertThatThrownBy(() -> meetingService.updateName(request, 0L))
@@ -591,7 +591,7 @@ class MeetingServiceTest {
     void updateName_ifTooLong(final String name) {
         // given
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
-        final MeetingNameRequest request = new MeetingNameRequest(name);
+        final MeetingUpdateRequest request = new MeetingUpdateRequest(name);
 
         // when, then
         assertThatThrownBy(() -> meetingService.updateName(request, meeting.getId()))

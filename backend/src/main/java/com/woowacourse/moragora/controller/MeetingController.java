@@ -4,7 +4,7 @@ import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
 import com.woowacourse.auth.support.MasterAuthorization;
 import com.woowacourse.moragora.dto.MasterRequest;
-import com.woowacourse.moragora.dto.MeetingNameRequest;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
@@ -61,9 +61,9 @@ public class MeetingController {
 
     @MasterAuthorization
     @PutMapping("/{meetingId}")
-    public ResponseEntity<MeetingNameRequest> changeName(@PathVariable final Long meetingId,
-                                                         @RequestBody @Valid MeetingNameRequest request,
-                                                         @AuthenticationPrincipal final Long loginId) {
+    public ResponseEntity<MeetingUpdateRequest> changeName(@PathVariable final Long meetingId,
+                                                           @RequestBody @Valid MeetingUpdateRequest request,
+                                                           @AuthenticationPrincipal final Long loginId) {
         meetingService.updateName(request, meetingId);
         return ResponseEntity.noContent().build();
     }
