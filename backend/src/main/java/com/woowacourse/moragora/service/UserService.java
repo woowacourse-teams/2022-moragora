@@ -42,6 +42,7 @@ public class UserService {
         this.attendanceRepository = attendanceRepository;
     }
 
+    @Transactional
     public Long create(final UserRequest userRequest) {
         final User user = new User(userRequest.getEmail(), EncodedPassword.fromRawValue(userRequest.getPassword()),
                 userRequest.getNickname());
