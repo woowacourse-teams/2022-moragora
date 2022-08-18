@@ -6,7 +6,6 @@ import useQuery from 'hooks/useQuery';
 import { getUpcomingEventApi } from 'apis/eventApis';
 import { getMeetingData } from 'apis/meetingApis';
 import { userContext, UserContextValues } from 'contexts/userContext';
-import { NOT_FOUND_STATUS_CODE } from 'consts';
 import ReloadButton from 'components/@shared/ReloadButton';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import Spinner from 'components/@shared/Spinner';
@@ -39,7 +38,7 @@ const MeetingDetailPage = () => {
       enabled: meetingQuery.isSuccess,
       onError: (error) => {
         setUpcomingEventNotExist(
-          parseInt(error.message.split(':')[0]) === NOT_FOUND_STATUS_CODE
+          parseInt(error.message.split(': ')[0]) === 404
         );
       },
     }
