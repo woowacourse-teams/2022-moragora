@@ -1,7 +1,6 @@
 import { GOOGLE_AUTH_URI } from 'consts/auth';
 import * as S from './GoogleLoginButton.styled';
 import googleIconSVG from 'assets/google-icon.svg';
-import { css } from '@emotion/react';
 
 const GoogleLoginButton = () => {
   return (
