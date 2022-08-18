@@ -11,14 +11,7 @@ const GoogleLoginButton = () => {
         location.replace(GOOGLE_AUTH_URI);
       }}
     >
-      <img
-        src={googleIconSVG}
-        alt="google icon"
-        css={css`
-          width: 1rem;
-          height: 1rem;
-        `}
-      />
+      <S.Icon src={googleIconSVG} alt="google icon" />
       구글로 로그인 하기
     </S.Layout>
   );

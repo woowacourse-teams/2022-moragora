@@ -15,3 +15,8 @@ export const Layout = styled.button`
     background-color: ${({ theme: { colors } }) => colors['background']};
   }
 `;
+
+export const Icon = styled.img`
+  width: 1rem;
+  height: 1rem;
+`;
