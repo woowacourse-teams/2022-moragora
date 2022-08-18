@@ -5,13 +5,10 @@ import { DELAY } from 'mocks/configs';
 import { extractIdFromHeader } from 'mocks/utils';
 import {
   EventCreateRequestBody,
+  DeleteEventsRequestBody,
   EventListResponseBody,
   EventResposeBody,
 } from 'types/eventType';
-
-type DeleteEventsRequestBody = {
-  eventIds: number[];
-};
 
 type MeetingPathParams = {
   meetingId: string;
@@ -102,9 +99,9 @@ export default [
         );
       }
 
-      const { eventIds } = req.body;
+      const { dates } = req.body;
 
-      tempEvents = tempEvents.filter((event) => !eventIds.includes(event.id));
+      tempEvents = tempEvents.filter((event) => !dates.includes(event.date));
 
       return res(ctx.status(204), ctx.delay(DELAY));
     }
