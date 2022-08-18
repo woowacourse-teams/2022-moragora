@@ -5,6 +5,7 @@ import static com.woowacourse.moragora.support.EventFixtures.EVENT2;
 import static com.woowacourse.moragora.support.EventFixtures.EVENT3;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -27,15 +28,20 @@ public class EventsTest {
         final Event eventToUpdateEvent1 = new Event(event1.getDate(), changedTime, event1.getEndTime(), meeting);
         final Event newEvent = EVENT3.create(meeting);
 
-        final List<Event> inputEvents = List.of(
-                eventToUpdateEvent1, newEvent);
+        final List<Event> inputEvents = List.of(eventToUpdateEvent1, newEvent);
 
         // when
         final List<Event> newEvents = events.updateAndExtractNewEvents(inputEvents);
 
         // then
-        assertThat(newEvents).hasSize(1);
-        assertThat(newEvents.get(0).getDate()).isEqualTo(newEvent.getDate());
-        assertThat(event1.getStartTime()).isEqualTo(changedTime);
+        assertAll(
+                () -> assertThat(newEvents).hasSize(1),
+                () -> assertThat(newEvents.get(0)).usingRecursiveComparison()
+                        .ignoringFields("id")
+                        .isEqualTo(newEvent),
+                () -> assertThat(event1).usingRecursiveComparison()
+                        .ignoringFields("id")
+                        .isEqualTo(eventToUpdateEvent1)
+        );
     }
 }
