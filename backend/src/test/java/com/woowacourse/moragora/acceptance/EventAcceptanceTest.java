@@ -93,12 +93,15 @@ class EventAcceptanceTest extends AcceptanceTest {
         final Meeting meeting = MORAGORA.create();
         final int meetingId = saveMeeting(token, userIds, meeting);
 
+        final LocalTime startTime = LocalTime.of(10, 0);
+        final LocalTime endTime = LocalTime.of(18, 0);
+        
         final Event event1 = new Event(LocalDate.now().plusDays(1),
-                LocalTime.of(10, 0), LocalTime.of(18, 0), meeting);
+                startTime, endTime, meeting);
         final Event event2 = new Event(LocalDate.now().plusDays(2),
-                LocalTime.of(10, 0), LocalTime.of(18, 0), meeting);
+                startTime, endTime, meeting);
         final Event event3 = new Event(LocalDate.now().plusDays(3),
-                LocalTime.of(10, 0), LocalTime.of(18, 0), meeting);
+                startTime, endTime, meeting);
 
         final EventsRequest eventsRequest = new EventsRequest(
                 List.of(

@@ -65,7 +65,7 @@ public class Event {
         return this.meeting.equals(meeting);
     }
 
-    public void changeTime(final LocalTime startTime, final LocalTime endTime) {
+    public void updateTime(final LocalTime startTime, final LocalTime endTime) {
         validateEntranceLeaveTime(startTime, endTime);
         this.startTime = startTime;
         this.endTime = endTime;
