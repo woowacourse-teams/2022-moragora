@@ -16,6 +16,7 @@ import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.dto.MasterRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
@@ -161,6 +162,45 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
 
         // when
         final ValidatableResponse response = put("/meetings/" + meetingId + "/master", masterRequest, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("마스터가 미팅 이름을 수정하면 상태코드 204를 반환한다.")
+    @Test
+    void changeName() {
+        // given
+        final User master = MASTER.create();
+        final String token = signUpAndGetToken(master);
+
+        final List<User> users = createUsers();
+        final List<Long> userIds = saveUsers(users);
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(token, userIds, meeting);
+
+        final MeetingUpdateRequest meetingUpdateRequest = new MeetingUpdateRequest("체크메이트");
+
+        // when
+        final ValidatableResponse response = put("meetings/" + meetingId, meetingUpdateRequest, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("로그인한 유저가 자신이 속한 미팅에 대해 나가기를 요청하면 상태코드 204를 반환한다.")
+    @Test
+    void deleteMeFrom() {
+        // given
+        final User user = KUN.create();
+        final Long id = signUp(user);
+        final String token = login(user);
+
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(signUpAndGetToken(MASTER.create()), List.of(id), meeting);
+
+        // when
+        final ValidatableResponse response = delete("/meetings/" + meetingId + "/me", token);
 
         // then
         response.statusCode(HttpStatus.NO_CONTENT.value());

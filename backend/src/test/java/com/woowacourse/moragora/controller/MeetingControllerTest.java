@@ -27,6 +27,7 @@ import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.MasterRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
@@ -413,5 +414,75 @@ class MeetingControllerTest extends ControllerTest {
 
         // then
         resultActions.andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("미팅의 이름을 변경한다.")
+    @Test
+    void changeName() throws Exception {
+        // given
+        final MeetingUpdateRequest meetingUpdateRequest = new MeetingUpdateRequest("체크메이트");
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPut("/meetings/1", meetingUpdateRequest);
+
+        // then
+        verify(meetingService, times(1)).updateName(any(MeetingUpdateRequest.class), anyLong());
+        resultActions.andExpect(status().isNoContent())
+                .andDo(document("meeting/change-name",
+                        preprocessRequest(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("name").type(JsonFieldType.STRING).description("체크메이트")
+                        )
+                ));
+    }
+
+    @DisplayName("미팅의 이름을 50자를 초과하는 이름으로 변경한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"012345678901234567890123456789012345678901234567891",
+            "영일이삼사오육칠팔구영일이삼사오육칠팔구영일이삼사오육칠팔구영일이삼사오육칠팔구영일이삼사오육칠팔구영",
+            "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghija"})
+    void changeName_throwsException_ifTooLong(final String name) throws Exception {
+        // given
+        final MeetingUpdateRequest meetingUpdateRequest = new MeetingUpdateRequest(name);
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPut("/meetings/1", meetingUpdateRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("로그인한 유저가 참가중인 미팅에서 나간다.")
+    @Test
+    void deleteMeFrom() throws Exception {
+        // given
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performDelete("/meetings/1/me");
+
+        // then
+        verify(meetingService, times(1)).deleteParticipant(anyLong(), anyLong());
+        resultActions
+                .andExpect(status().isNoContent())
+                .andDo(document("meeting/delete-me"));
+    }
+
+    @DisplayName("로그인한 유저가 자신이 마스터인 미팅에서 나가면 예외가 발생한다.")
+    @Test
+    void deleteMeFrom_throwsException_ifMaster() throws Exception {
+        // given
+        validateToken("1");
+        doThrow(new ClientRuntimeException("마스터는 모임을 나갈 수 없습니다.", HttpStatus.FORBIDDEN))
+                .when(meetingService).deleteParticipant(anyLong(), anyLong());
+
+        // when
+        final ResultActions resultActions = performDelete("/meetings/1/me");
+
+        // then
+        resultActions
+                .andExpect(status().isForbidden());
     }
 }

@@ -4,6 +4,7 @@ import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.MasterRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
@@ -128,6 +129,27 @@ public class MeetingService {
         masterParticipant.updateIsMaster(false);
     }
 
+    @Transactional
+    public void updateName(final MeetingUpdateRequest request, final Long meetingId) {
+        final Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        meeting.updateName(request.getName());
+    }
+
+    @Transactional
+    public void deleteParticipant(final long meetingId, final long userId) {
+        meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        final Participant participant = participantRepository.findByMeetingIdAndUserId(meetingId, userId)
+                .orElseThrow(ParticipantNotFoundException::new);
+        validateNotMaster(participant);
+
+        attendanceRepository.deleteByParticipantId(participant.getId());
+        participantRepository.delete(participant);
+    }
+
     /**
      * 참가자 userIds 내부에 loginId가 있는지 검증해야 userIds.size()가 0인지 검증이 정상적으로 이루어집니다.
      */
@@ -214,6 +236,12 @@ public class MeetingService {
     private void validateAssignee(final Long loginId, final Long participantId) {
         if (Objects.equals(loginId, participantId)) {
             throw new ClientRuntimeException("스스로에게 마스터 권한을 넘길 수 없습니다.", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void validateNotMaster(final Participant participant) {
+        if (participant.getIsMaster()) {
+            throw new ClientRuntimeException("마스터는 모임을 나갈 수 없습니다.", HttpStatus.FORBIDDEN);
         }
     }
 }
