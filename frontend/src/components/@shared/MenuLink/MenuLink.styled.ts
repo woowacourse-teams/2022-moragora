@@ -3,13 +3,13 @@ import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
 
 export const LayoutLink = styled(Link)<{ disabled?: boolean }>`
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-radius: 1rem;
   background-color: ${({ theme: { colors } }) => colors['white']};
-  font-size: 1.25rem;
+  font-size: 1rem;
   color: ${({ theme: { colors } }) => colors['subtle-dark']};
   text-decoration: none;
 
