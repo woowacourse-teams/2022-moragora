@@ -159,6 +159,7 @@ public class MeetingService {
 
         attendanceRepository.deleteByParticipantIdIn(participantIds);
         participantRepository.deleteByIdIn(participantIds);
+        eventRepository.deleteByMeetingId(meeting.getId());
         meetingRepository.deleteById(meeting.getId());
     }
 

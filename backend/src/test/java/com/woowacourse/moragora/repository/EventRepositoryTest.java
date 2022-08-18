@@ -175,4 +175,21 @@ public class EventRepositoryTest {
         // then
         assertThat(events).hasSize(1);
     }
+
+    @DisplayName("미팅에 해당하는 이벤트들을 삭제한다.")
+    @Test
+    void deleteByMeetingIdIn() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        dataSupport.saveEvent(EVENT2.create(meeting));
+        dataSupport.saveEvent(EVENT3.create(meeting));
+
+        // when
+        eventRepository.deleteByMeetingId(meeting.getId());
+
+        // then
+        final List<Event> events = eventRepository.findByMeetingId(meeting.getId());
+        assertThat(events.size()).isEqualTo(0);
+    }
 }
