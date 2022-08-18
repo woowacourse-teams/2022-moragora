@@ -23,13 +23,17 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Meeting {
 
-    @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY)
-    private final List<Participant> participants = new ArrayList<>();
+    private static final int MAX_NAME_LENGTH = 50;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String name;
+
+    @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY)
+    private final List<Participant> participants = new ArrayList<>();
 
     @Builder
     public Meeting(final String name) {
@@ -49,7 +53,7 @@ public class Meeting {
     }
 
     private void validateName(final String name) {
-        if (name.length() > 50) {
+        if (name.length() > MAX_NAME_LENGTH) {
             throw new InvalidFormatException();
         }
     }
