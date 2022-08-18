@@ -25,9 +25,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.MasterRequest;
-import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
@@ -452,5 +452,37 @@ class MeetingControllerTest extends ControllerTest {
 
         // then
         resultActions.andExpect(status().isBadRequest());
+    }
+
+    @DisplayName("로그인한 유저가 참가중인 미팅에서 나간다.")
+    @Test
+    void deleteMeFrom() throws Exception {
+        // given
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performDelete("/meetings/1/me");
+
+        // then
+        verify(meetingService, times(1)).deleteParticipant(anyLong(), anyLong());
+        resultActions
+                .andExpect(status().isNoContent())
+                .andDo(document("meeting/delete-me"));
+    }
+
+    @DisplayName("로그인한 유저가 자신이 마스터인 미팅에서 나가면 예외가 발생한다.")
+    @Test
+    void deleteMeFrom_throwsException_ifMaster() throws Exception {
+        // given
+        validateToken("1");
+        doThrow(new ClientRuntimeException("마스터는 모임을 나갈 수 없습니다.", HttpStatus.FORBIDDEN))
+                .when(meetingService).deleteParticipant(anyLong(), anyLong());
+
+        // when
+        final ResultActions resultActions = performDelete("/meetings/1/me");
+
+        // then
+        resultActions
+                .andExpect(status().isForbidden());
     }
 }

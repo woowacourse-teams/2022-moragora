@@ -8,6 +8,7 @@ import static com.woowacourse.moragora.support.MeetingFixtures.TEATIME;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.UserFixtures.PHILLZ;
+import static com.woowacourse.moragora.support.UserFixtures.SUN;
 import static com.woowacourse.moragora.support.UserFixtures.WOODY;
 import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,9 +19,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.MasterRequest;
-import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
@@ -596,5 +597,70 @@ class MeetingServiceTest {
         // when, then
         assertThatThrownBy(() -> meetingService.updateName(request, meeting.getId()))
                 .isInstanceOf(InvalidFormatException.class);
+    }
+
+    @DisplayName("모임의 참가자를 삭제한다.")
+    @Test
+    void deleteParticipant() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final User user = KUN.create();
+        dataSupport.saveParticipant(user, meeting, false);
+
+        // when, then
+        assertThatCode(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()))
+                .doesNotThrowAnyException();
+    }
+
+    @DisplayName("존재하지 않는 모임의 참가자를 삭제하면 예외가 발생한다.")
+    @Test
+    void deleteParticipant_ifMeetingNotFound() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final User user = KUN.create();
+        dataSupport.saveParticipant(user, meeting, false);
+
+        // when, then
+        assertThatThrownBy(() -> meetingService.deleteParticipant(100L, user.getId()))
+                .isInstanceOf(MeetingNotFoundException.class);
+    }
+
+    @DisplayName("존재하지 않는 유저를 모임에서 삭제하면 예외가 발생한다.")
+    @Test
+    void deleteParticipant_ifUserNotFound() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        // when, then
+        assertThatThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), 100L))
+                .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @DisplayName("모임에 참가하지 않는 유저를 삭제하면 예외가 발생한다.")
+    @Test
+    void deleteParticipant_ifParticipantNotFound() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        dataSupport.saveParticipant(KUN.create(), meeting, false);
+
+        final User user = dataSupport.saveUser(SUN.create());
+
+        // when, then
+        assertThatThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()))
+                .isInstanceOf(ParticipantNotFoundException.class);
+    }
+
+    @DisplayName("모임의 마스터인 참가자를 삭제하면 예외가 발생한다.")
+    @Test
+    void deleteParticipant_ifMaster() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final User user = KUN.create();
+        dataSupport.saveParticipant(user, meeting, true);
+
+        // when, then
+        assertThatThrownBy(() -> meetingService.deleteParticipant(meeting.getId(), user.getId()))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("마스터는 모임을 나갈 수 없습니다.");
     }
 }

@@ -4,14 +4,15 @@ import com.woowacourse.auth.support.Authentication;
 import com.woowacourse.auth.support.AuthenticationPrincipal;
 import com.woowacourse.auth.support.MasterAuthorization;
 import com.woowacourse.moragora.dto.MasterRequest;
-import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.service.MeetingService;
 import java.net.URI;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,6 +66,13 @@ public class MeetingController {
                                                            @RequestBody @Valid MeetingUpdateRequest request,
                                                            @AuthenticationPrincipal final Long loginId) {
         meetingService.updateName(request, meetingId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{meetingId}/me")
+    public ResponseEntity<Void> deleteMeFrom(@PathVariable final Long meetingId,
+                                             @AuthenticationPrincipal Long loginId) {
+        meetingService.deleteParticipant(meetingId, loginId);
         return ResponseEntity.noContent().build();
     }
 }

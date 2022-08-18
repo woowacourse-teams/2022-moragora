@@ -18,6 +18,8 @@ public interface ParticipantRepository extends Repository<Participant, Long> {
 
     List<Participant> findByUserId(final Long userId);
 
+    void delete(final Participant participant);
+
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("delete from Participant p where p.id in :ids")
     void deleteByIdIn(@Param("ids") final List<Long> ids);

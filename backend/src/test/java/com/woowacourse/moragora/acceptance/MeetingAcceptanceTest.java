@@ -15,8 +15,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.dto.MasterRequest;
-import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.entity.Event;
 import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.user.User;
@@ -183,6 +183,24 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
 
         // when
         final ValidatableResponse response = put("meetings/" + meetingId, meetingUpdateRequest, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("로그인한 유저가 자신이 속한 미팅에 대해 나가기를 요청하면 상태코드 204를 반환한다.")
+    @Test
+    void deleteMeFrom() {
+        // given
+        final User user = KUN.create();
+        final Long id = signUp(user);
+        final String token = login(user);
+
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(signUpAndGetToken(MASTER.create()), List.of(id), meeting);
+
+        // when
+        final ValidatableResponse response = delete("/meetings/" + meetingId + "/me", token);
 
         // then
         response.statusCode(HttpStatus.NO_CONTENT.value());
