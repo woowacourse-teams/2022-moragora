@@ -4,6 +4,7 @@ import { MeetingListResponseBody } from 'types/meetingType';
 import crownIcon from 'assets/crown.svg';
 import coffeeIcon from 'assets/simple-coffee.svg';
 import { ArrayElement } from 'types/utilityType';
+import { css } from '@emotion/react';
 
 export type MeetingItemProps = {
   meeting: ArrayElement<MeetingListResponseBody['meetings']>;
@@ -27,11 +28,18 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
           <S.MeetingBox>
             <S.IconBox>
               {meeting.isLoginUserMaster ? (
-                <img src={crownIcon} alt="crown-icon" width={24} />
+                <img
+                  src={crownIcon}
+                  alt="crown-icon"
+                  css={css`
+                    width: 1rem;
+                    height: 1rem;
+                  `}
+                />
               ) : (
                 <S.IconSVG
-                  width="24"
-                  height="24"
+                  width="1rem"
+                  height="1rem"
                   viewBox="0 0 24 24"
                   fill="currentColor"
                   xmlns="http://www.w3.org/2000/svg"
@@ -93,7 +101,14 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
                 </S.IconSVG>
               )}
               {meeting.isCoffeeTime && (
-                <img src={coffeeIcon} alt="coffee-icon" width={24} />
+                <img
+                  src={coffeeIcon}
+                  alt="coffee-icon"
+                  css={css`
+                    width: 1rem;
+                    height: 1rem;
+                  `}
+                />
               )}
             </S.IconBox>
             <S.MeetingNameSpan>{meeting.name}</S.MeetingNameSpan>
