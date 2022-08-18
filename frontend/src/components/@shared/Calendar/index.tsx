@@ -8,17 +8,16 @@ import DivideLine from 'components/@shared/DivideLine';
 import Toggle from 'components/@shared/Toggle';
 import { CalendarContext } from 'contexts/calendarContext';
 import { dateToFormattedString } from 'utils/timeUtil';
-import { MeetingEvent } from 'types/eventType';
 import { css } from '@emotion/react';
 
 type CalendarProps = {
-  savedEvents?: MeetingEvent[];
   readOnly?: boolean;
 };
 
-const Calendar: React.FC<CalendarProps> = ({ savedEvents, readOnly }) => {
+const Calendar: React.FC<CalendarProps> = ({ readOnly }) => {
   const {
     events,
+    savedEvents,
     dates,
     initialDate,
     currentDate,
