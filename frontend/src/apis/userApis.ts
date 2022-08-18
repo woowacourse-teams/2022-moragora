@@ -23,12 +23,11 @@ export const checkEmailApi = (email: User['email']) => () =>
   });
 
 export const getGoogleLoginToken = (code: string) => () =>
-  request<{ accessToken: string }>(`/login/oauth2/google`, {
+  request<{ accessToken: string }>(`/login/oauth2/google?code=${code}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ code }),
   });
 
 export const submitRegisterApi = async (payload: UserRegisterRequestBody) => {
