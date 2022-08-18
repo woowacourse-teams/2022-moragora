@@ -25,7 +25,7 @@ export const EditIconImg = styled.img`
   position: absolute;
   top: -1.5rem;
   right: -1.5rem;
-  padding: 0.3rem;
+  padding: 0.2rem 0.3rem;
 `;
 
 export const InputUnderlineDiv = styled.div`

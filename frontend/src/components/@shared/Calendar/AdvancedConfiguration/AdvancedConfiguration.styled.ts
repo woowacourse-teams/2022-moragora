@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 
 export const Layout = styled.div`
-  width: 390px;
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -12,7 +12,7 @@ export const Layout = styled.div`
 
 export const FieldGroupBox = styled.div`
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
 
 export const FieldBox = styled.div`

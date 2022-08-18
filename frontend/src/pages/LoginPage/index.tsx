@@ -69,7 +69,7 @@ const LoginPage = () => {
           로그인
         </Button>
         <S.RegisterHintParagraph>
-          모라고라가 처음이신가요?
+          체크메이트가 처음이신가요?
           <S.RegisterLink to="/register">회원가입</S.RegisterLink>
         </S.RegisterHintParagraph>
       </S.ButtonBox>

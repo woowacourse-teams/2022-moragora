@@ -77,13 +77,13 @@ const CoffeeStackPage = () => {
           </>
         )}
         <S.TitleSection>
-          <h1>{meetingQuery.data?.body.name}</h1>
+          <S.MeetingTitle>{meetingQuery.data?.body.name}</S.MeetingTitle>
         </S.TitleSection>
-        <DivideLine />
         <S.MeetingDetailBox>
           <S.MeetingStatusSection>
             <S.ProgressBox>
               <CoffeeStackProgress
+                size={10}
                 percent={
                   (totalTardyCount /
                     (meetingQuery.data?.body.users.length ?? 0)) *

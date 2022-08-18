@@ -9,6 +9,7 @@ import Toggle from 'components/@shared/Toggle';
 import { CalendarContext } from 'contexts/calendarContext';
 import { dateToFormattedString } from 'utils/timeUtil';
 import { MeetingEvent } from 'types/eventType';
+import { css } from '@emotion/react';
 
 type CalendarProps = {
   savedEvents?: MeetingEvent[];
@@ -57,18 +58,31 @@ const Calendar: React.FC<CalendarProps> = ({ savedEvents, readOnly }) => {
             onClick={() => {
               clearSelectedDates();
             }}
+            css={css`
+              font-size: 0.75rem;
+            `}
           >
             선택 해제
           </button>
-          <Toggle
-            defaultChecked={shouldApplyBeginEndDates}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setShouldApplyBeginEndDates(e.target.checked);
-            }}
+          <div
+            css={css`
+              padding: 0.75rem;
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+              font-size: 0.75rem;
+            `}
           >
-            요일 적용 기간 설정
-          </Toggle>
-          <AdvancedConfiguration />
+            <Toggle
+              defaultChecked={shouldApplyBeginEndDates}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setShouldApplyBeginEndDates(e.target.checked);
+              }}
+            >
+              요일 적용 기간 설정
+            </Toggle>
+            <AdvancedConfiguration />
+          </div>
           <DivideLine />
         </>
       )}
