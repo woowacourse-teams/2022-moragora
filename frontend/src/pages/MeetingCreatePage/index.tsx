@@ -44,15 +44,14 @@ const MeetingCreatePage = () => {
 
   const handleCreateMeetingSubmit: React.FormEventHandler<
     HTMLFormElement
-  > = async (e) => {
+  > = async ({ currentTarget }) => {
     if (!isParticipantSelected) {
       return;
     }
 
     const userIds = selectedItems.map(({ id }) => id);
 
-    const target = e.target as HTMLFormElement;
-    const formData = new FormData(target);
+    const formData = new FormData(currentTarget);
     const formDataObject = {
       ...Object.fromEntries(formData.entries()),
       userIds,

@@ -50,7 +50,7 @@ export default [
           (newEvent) => event.date === newEvent.date
         );
 
-        if (matchedEventIndex) {
+        if (!matchedEventIndex) {
           const newEvent = newEvents.splice(matchedEventIndex, 1)[0];
 
           return {
