@@ -6,8 +6,12 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -20,12 +24,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.woowacourse.moragora.dto.EventResponse;
+import com.woowacourse.moragora.dto.MasterRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
@@ -37,6 +43,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -370,5 +377,41 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.meetings[*].isCoffeeTime", contains(false)))
                 .andExpect(jsonPath("$.meetings[*].isActive", contains(true)))
                 .andExpect(jsonPath("$.meetings[*].upcomingEvent", contains(nullValue())));
+    }
+
+    @DisplayName("마스터 권한을 미팅의 다른 참가자에게 위임한다.")
+    @Test
+    void passMaster() throws Exception {
+        // given
+        final MasterRequest request = new MasterRequest(2L);
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPut("/meetings/1/master", request);
+
+        // then
+        verify(meetingService, times(1)).assignMaster(anyLong(), any(MasterRequest.class), anyLong());
+        resultActions.andExpect(status().isNoContent())
+                .andDo(document("meeting/pass-master", preprocessResponse(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("userId").type(JsonFieldType.NUMBER).description(1)
+                        ))
+                );
+    }
+
+    @DisplayName("마스터 권한을 스스로에게 위임하면 예외가 발생한다.")
+    @Test
+    void passMaster_throwsException_ifToMe() throws Exception {
+        // given
+        final MasterRequest request = new MasterRequest(1L);
+        validateToken("1");
+        doThrow(new ClientRuntimeException("스스로에게 마스터 권한을 넘길 수 없습니다.", HttpStatus.BAD_REQUEST))
+                .when(meetingService).assignMaster(anyLong(), any(MasterRequest.class), anyLong());
+
+        // when
+        final ResultActions resultActions = performPut("/meetings/1/master", request);
+
+        // then
+        resultActions.andExpect(status().isBadRequest());
     }
 }
