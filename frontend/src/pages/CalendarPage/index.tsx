@@ -43,6 +43,9 @@ const CalendarPage = () => {
     ['events'],
     getEventsApi(meetingId, user.accessToken),
     {
+      onSuccess: ({ body: { events } }) => {
+        setSavedEvents(events);
+      },
       onError: (error) => {
         alert(error.message);
       },
@@ -76,8 +79,13 @@ const CalendarPage = () => {
     }
   );
 
-  const { events, selectedDates, clearSelectedDates, updateEvents } =
-    useContext(CalendarContext);
+  const {
+    events,
+    selectedDates,
+    clearSelectedDates,
+    updateEvents,
+    setSavedEvents,
+  } = useContext(CalendarContext);
   const { values, errors, onSubmit, register } = useForm();
 
   const handleupdateEventsSubmit: React.FormEventHandler<HTMLFormElement> = ({
@@ -138,10 +146,7 @@ const CalendarPage = () => {
   return (
     <S.Layout>
       <S.CalendarBox>
-        <Calendar
-          savedEvents={eventsQuery.data?.body.events}
-          readOnly={!meetingQuery.data?.body.isLoginUserMaster}
-        />
+        <Calendar readOnly={!meetingQuery.data?.body.isLoginUserMaster} />
       </S.CalendarBox>
       {meetingQuery.data?.body.isLoginUserMaster && (
         <S.CalenderControlBox>

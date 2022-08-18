@@ -14,6 +14,7 @@ export const CalendarContext = createContext<{
   dates: Date[];
   selectedDates: Date[];
   events: MeetingEvent[];
+  savedEvents: MeetingEvent[];
   shouldApplyBeginEndDates: boolean;
   selectDate: (newDate: Date) => void;
   unselectDate: (newDate: Date) => void;
@@ -30,10 +31,12 @@ export const CalendarContext = createContext<{
   setShouldApplyBeginEndDates: (flag: boolean) => void;
   setBeginDate: (date: Date) => void;
   setEndDate: (date: Date) => void;
+  setSavedEvents: (events: MeetingEvent[]) => void;
 }>({
   selectedDates: [],
   dates: [],
   events: [],
+  savedEvents: [],
   shouldApplyBeginEndDates: false,
   selectDate: () => {},
   unselectDate: () => {},
@@ -50,6 +53,7 @@ export const CalendarContext = createContext<{
   setShouldApplyBeginEndDates: () => {},
   setBeginDate: () => {},
   setEndDate: () => {},
+  setSavedEvents: () => {},
 });
 
 export const CalendarProvider: React.FC<
@@ -65,6 +69,10 @@ export const CalendarProvider: React.FC<
   const [beginDate, setBeginDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [events, setEvents] = useState<MeetingEvent[]>([]);
+  const [savedEvents, setSavedEvents] = useState<MeetingEvent[]>([]);
+
+  const mergedEvents = [...events, ...savedEvents];
+
   const dateCellControlRef = useRef<{ element: HTMLDivElement; date: Date }[]>(
     []
   );
@@ -84,10 +92,10 @@ export const CalendarProvider: React.FC<
     hoveredDate: Date
   ) => {
     dateCellControlRef.current.forEach(({ element, date }) => {
-      const hoveredEvent = events.find(
+      const hoveredEvent = mergedEvents.find(
         (event) => event.date === dateToFormattedString(hoveredDate)
       );
-      const currentEvent = events.find(
+      const currentEvent = mergedEvents.find(
         (event) => event.date === dateToFormattedString(date)
       );
       const shouldHighlight =
@@ -197,6 +205,7 @@ export const CalendarProvider: React.FC<
     dates,
     selectedDates,
     events,
+    savedEvents,
     shouldApplyBeginEndDates,
     navigateMonthTo,
     selectDate,
@@ -213,6 +222,7 @@ export const CalendarProvider: React.FC<
     setShouldApplyBeginEndDates,
     setBeginDate,
     setEndDate,
+    setSavedEvents,
   };
 
   return (
