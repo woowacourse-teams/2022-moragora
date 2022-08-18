@@ -351,7 +351,7 @@ export default [
     MeetingMasterAssignRequestBody,
     Pick<MeetingPathParams, 'meetingId'>
   >(
-    `${process.env.API_SERVER_HOST}/meetings/:meetingId/me`,
+    `${process.env.API_SERVER_HOST}/meetings/:meetingId/master`,
     (req, res, ctx) => {
       const token = extractIdFromHeader(req);
       const meetingId = Number(req.params.meetingId);

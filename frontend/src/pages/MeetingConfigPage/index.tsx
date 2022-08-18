@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import {
   Navigate,
   useNavigate,
@@ -9,8 +9,6 @@ import { css } from '@emotion/react';
 import * as S from './MeetingConfigPage.styled';
 import Button from 'components/@shared/Button';
 import Input from 'components/@shared/Input';
-import Spinner from 'components/@shared/Spinner';
-import ErrorIcon from 'components/@shared/ErrorIcon';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
@@ -18,6 +16,7 @@ import {
   deleteMeetingApi,
   getMeetingData,
   updateMeetingNameApi,
+  leaveMeetingApi,
 } from 'apis/meetingApis';
 import { getUpcomingEventApi } from 'apis/eventApis';
 import { QueryState } from 'types/queryType';
@@ -66,7 +65,7 @@ const MeetingConfigPage = () => {
     }
   );
   const meetingLeaveMutation = useMutation(
-    deleteMeetingApi(meetingId, accessToken),
+    leaveMeetingApi(meetingId, accessToken),
     {
       onSuccess: () => {
         alert('모임을 나갔습니다.');
@@ -95,9 +94,9 @@ const MeetingConfigPage = () => {
     meetingDeleteMutation.mutate({});
   };
 
-  const handleMeetingLeaveClick: React.MouseEventHandler<HTMLButtonElement> = ({
-    currentTarget,
-  }) => {
+  const handleMeetingLeaveClick: React.MouseEventHandler<
+    HTMLButtonElement
+  > = () => {
     meetingLeaveMutation.mutate({});
   };
 

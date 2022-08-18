@@ -17,3 +17,7 @@ export type EventCreateRequestBody = {
     'id' | 'attendanceOpenTime' | 'attendanceClosedTime'
   >[];
 };
+
+export type DeleteEventsRequestBody = {
+  dates: MeetingEvent['date'][];
+};
