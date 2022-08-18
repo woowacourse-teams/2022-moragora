@@ -53,7 +53,6 @@ public class UserController {
     @GetMapping("/me")
     @Authentication
     public ResponseEntity<UserResponse> findMyInfo(@AuthenticationPrincipal final Long id) {
-        System.err.println("#####" + id);
         UserResponse response = userService.findById(id);
         return ResponseEntity.ok(response);
     }

@@ -69,8 +69,6 @@ public class GoogleClient {
         parameters.add("grant_type", grantType);
         parameters.add("redirect_uri", redirectUri);
 
-        System.err.println("#############");
-        System.err.println(parameters);
         return parameters;
     }
 
