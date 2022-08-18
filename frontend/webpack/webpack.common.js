@@ -56,6 +56,7 @@ module.exports = {
           content: '출첵을 간편하게 - 출결관리 서비스 체크메이트',
         },
         'og:locale': { name: 'og:locale', content: 'en_US' },
+        'twitter:card': { name: 'twitter:card', content: 'summary' },
         'twitter:title': { name: 'twitter:title', content: '체크메이트' },
         'twitter:description': {
           name: 'twitter:description',
