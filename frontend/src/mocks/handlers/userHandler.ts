@@ -97,6 +97,33 @@ export default [
     }
   ),
 
+  rest.post(
+    `${process.env.API_SERVER_HOST}/login/oauth2/google`,
+    (req, res, ctx) => {
+      const code = req.url.searchParams.get('code');
+
+      if (!code) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '유효하지 않은 인증코드입니다.' })
+        );
+      }
+
+      const targetUser = users[0];
+      const accessToken = generateToken(targetUser.id);
+
+      targetUser.accessToken = accessToken;
+
+      return res(
+        ctx.status(200),
+        ctx.json({
+          accessToken: targetUser.accessToken,
+        }),
+        ctx.delay(DELAY)
+      );
+    }
+  ),
+
   rest.get(
     `${process.env.API_SERVER_HOST}/users/check-email`,
     (req, res, ctx) => {
