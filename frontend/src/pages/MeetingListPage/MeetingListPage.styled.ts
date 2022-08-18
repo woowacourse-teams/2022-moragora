@@ -140,6 +140,7 @@ export const MeetingCreateLink = styled(Link)`
 export const EmptyStateImage = styled.img`
   margin-top: -4rem;
   padding-bottom: 2rem;
+  width: 10rem;
   height: 10rem;
   opacity: 0;
   animation: smooth-appear 2s;
