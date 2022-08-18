@@ -62,22 +62,23 @@ export const UserListSection = styled.section`
   overflow: hidden;
 `;
 
+export const UserListBox = styled.div`
+  display: flex;
+  overflow: hidden;
+  padding-top: 0.75rem;
+`;
+
 export const UserList = styled.ul`
   // reset margin
   margin: 0;
+  padding: 0;
 
   width: 100%;
-  padding: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   overflow-x: hidden;
   overflow-y: scroll;
-`;
-
-export const UserListBox = styled.div`
-  display: flex;
-  overflow: hidden;
 `;
 
 export const EmptyStateBox = styled.div`
