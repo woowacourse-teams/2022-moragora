@@ -79,3 +79,41 @@ export const UserListBox = styled.div`
   display: flex;
   overflow: hidden;
 `;
+
+export const EmptyStateBox = styled.div`
+  flex: 1;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+`;
+
+export const EmptyStateImage = styled.img`
+  margin-top: -4rem;
+  padding-bottom: 2rem;
+  width: 100%;
+  opacity: 0;
+  animation: smooth-appear 2s;
+  animation-fill-mode: forwards;
+`;
+
+export const EmptyStateTitle = styled.h2`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: ${({ theme: { colors } }) => colors['subtle-dark']};
+  opacity: 0;
+  animation: smooth-appear 2s;
+  animation-fill-mode: forwards;
+`;
+
+export const EmptyStateParagraph = styled.p`
+  font-size: 1rem;
+  margin-bottom: 3rem;
+  color: ${({ theme: { colors } }) => colors['subtle-light']};
+  opacity: 0;
+  animation: dissolve 1s;
+  animation-delay: 1.5s;
+  animation-fill-mode: forwards;
+`;
