@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.auth.dto.GoogleProfileResponse;
 import com.woowacourse.auth.dto.GoogleTokenResponse;
+import com.woowacourse.auth.exception.GoogleOAuthFailureException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
@@ -86,7 +87,7 @@ public class GoogleClient {
 
             return new GoogleProfileResponse(email, name);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new GoogleOAuthFailureException("id 토큰을 읽을 수 없습니다.");
         }
     }
 
