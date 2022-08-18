@@ -79,7 +79,6 @@ const CoffeeStackPage = () => {
         <S.TitleSection>
           <S.MeetingTitle>{meetingQuery.data?.body.name}</S.MeetingTitle>
         </S.TitleSection>
-        <DivideLine />
         <S.MeetingDetailBox>
           <S.MeetingStatusSection>
             <S.ProgressBox>
