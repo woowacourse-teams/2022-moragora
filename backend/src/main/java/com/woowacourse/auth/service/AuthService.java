@@ -49,8 +49,8 @@ public class AuthService {
     public LoginResponse loginWithGoogle(final String code) {
         final String googleIdToken = googleClient.getIdToken(code);
         final GoogleProfileResponse profileResponse = googleClient.getProfileResponse(googleIdToken);
-        final User user = userRepository.findByEmailAndProvider(profileResponse.getEmail(),
-                Provider.GOOGLE).orElseGet(() -> saveGoogleUser(profileResponse));
+        final User user = userRepository.findByEmailAndProvider(profileResponse.getEmail(), Provider.GOOGLE)
+                .orElseGet(() -> saveGoogleUser(profileResponse));
         final String accessToken = jwtTokenProvider.createToken(String.valueOf(user.getId()));
 
         return new LoginResponse(accessToken);
