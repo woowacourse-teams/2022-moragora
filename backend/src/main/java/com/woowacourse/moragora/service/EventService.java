@@ -82,37 +82,7 @@ public class EventService {
         final List<Attendance> attendances = attendanceRepository.findByMeetingIdAndDateIn(meetingId, eventDates);
         scheduleAttendancesUpdate(attendances);
     }
-//
-//    @Transactional
-//    public void save2(final EventsRequest request, final Long meetingId) {
-//        final Meeting meeting = meetingRepository.findById(meetingId)
-//                .orElseThrow(MeetingNotFoundException::new);
-//        final List<Event> events = request.toEntities(meeting);
-//
-//        validateEventDateNotPast(events);
-//        validateDuplicatedEventDate(events);
-//        validateAttendanceStartTimeIsAfterNow(events);
-//
-//        final List<LocalDate> eventDates = events.stream()
-//                .map(Event::getDate)
-//                .collect(Collectors.toList());
-//
-//        final List<Event> eventsToUpdate = eventRepository.findByMeetingIdAndDateIn(meetingId, eventDates);
-//        final List<Event> eventsToSave = events.stream()
-//                .filter(event -> notContain(eventsToUpdate, event.getDate()))
-//                .collect(Collectors.toList());
-//
-//        eventRepository.saveAll(eventsToSave);
-//        saveAllAttendances(meeting.getParticipants(), eventsToSave);
-//        scheduleAttendancesUpdate(attendances);
-//    }
-//
-//    private boolean notContain(final List<Event> foundEvents, final LocalDate date) {
-//        return foundEvents.stream()
-//                .map(Event::getDate)
-//                .noneMatch(it -> it.equals(date));
-//    }
-
+    
     @Transactional
     public void cancel(final EventCancelRequest request, final Long meetingId) {
         meetingRepository.findById(meetingId)
