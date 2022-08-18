@@ -84,7 +84,7 @@ task copyDocument(type: Copy) {
 }
 
 task copySecret(type: Copy) {
-    from '../backend/submodule'
+    from '../backend/src/main/resources/config'
     into 'src/main/resources'
 }
 
