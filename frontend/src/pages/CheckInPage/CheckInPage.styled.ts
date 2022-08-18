@@ -5,12 +5,13 @@ export const Layout = styled.div`
   flex-direction: column;
   flex: 1;
   overflow: hidden;
-  padding: 0.75rem;
 `;
 
 export const SectionTitle = styled.h2`
   font-size: 1.25rem;
   font-weight: 400;
+
+  padding: 0 0.75rem;
 `;
 
 export const SpinnerBox = styled.div`
@@ -41,6 +42,7 @@ export const MeetingList = styled.ul`
   gap: 1rem;
   overflow-x: scroll;
   overflow-y: hidden;
+  padding: 0 0.75rem;
 
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
@@ -65,7 +67,7 @@ export const UserListSection = styled.section`
 export const UserListBox = styled.div`
   display: flex;
   overflow: hidden;
-  padding-top: 0.75rem;
+  padding: 0.75rem;
 `;
 
 export const UserList = styled.ul`
