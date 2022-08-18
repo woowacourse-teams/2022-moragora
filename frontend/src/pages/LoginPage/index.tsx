@@ -14,6 +14,7 @@ import GoogleLoginButton from 'components/GoogleLoginButton';
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useContext(userContext) as UserContextValues;
+  const code = new URLSearchParams(location.search).get('code');
   const { errors, isSubmitting, onSubmit, register } = useForm();
 
   const { mutate: loginMutate } = useMutation(submitLoginApi, {
@@ -49,12 +50,10 @@ const LoginPage = () => {
   };
 
   useEffect(() => {
-    const code = new URLSearchParams(location.search).get('code');
-
     if (code) {
       googleLoginMutate({ code });
     }
-  }, []);
+  }, [code]);
 
   return (
     <S.Layout>
