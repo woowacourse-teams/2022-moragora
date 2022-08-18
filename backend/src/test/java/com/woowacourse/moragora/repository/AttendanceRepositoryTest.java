@@ -3,6 +3,7 @@ package com.woowacourse.moragora.repository;
 import static com.woowacourse.moragora.support.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.EventFixtures.EVENT2;
 import static com.woowacourse.moragora.support.EventFixtures.EVENT3;
+import static com.woowacourse.moragora.support.MeetingFixtures.F12;
 import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.UserFixtures.AZPI;
 import static com.woowacourse.moragora.support.UserFixtures.KUN;
@@ -152,6 +153,56 @@ class AttendanceRepositoryTest {
 
         // then
         assertThat(attendances).hasSize(2);
+    }
+
+    @DisplayName("이벤트에 속한 출석 데이터를 삭제한다.")
+    @Test
+    void deleteByEventIdIn() {
+        // given
+        final User user = KUN.create();
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final Participant participant = dataSupport.saveParticipant(user, meeting);
+
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+
+        dataSupport.saveAttendance(participant, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant, event2, Status.TARDY);
+
+        // when
+        attendanceRepository.deleteByEventIdIn(List.of(event1.getId()));
+        final List<Attendance> result = attendanceRepository
+                .findByParticipantIdInAndDateLessThanEqual(List.of(participant.getId()), event2.getDate());
+
+        // then
+        assertThat(result).hasSize(1);
+    }
+
+    @DisplayName("참가자의 출석 데이터를 삭제한다.")
+    @Test
+    void deleteByParticipantIdIn() {
+        // given
+        final User user = KUN.create();
+        final Meeting meeting1 = dataSupport.saveMeeting(MORAGORA.create());
+        final Meeting meeting2 = dataSupport.saveMeeting(F12.create());
+
+        final Participant participant1 = dataSupport.saveParticipant(user, meeting1);
+        final Participant participant2 = dataSupport.saveParticipant(user, meeting2);
+
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting1));
+        final Event event2 = dataSupport.saveEvent(EVENT1.create(meeting2));
+
+        dataSupport.saveAttendance(participant1, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant2, event2, Status.TARDY);
+
+        // when
+        attendanceRepository.deleteByParticipantIdIn(List.of(participant1.getId()));
+        final List<Attendance> result = attendanceRepository
+                .findByParticipantIdInAndDateLessThanEqual(List.of(participant1.getId(), participant2.getId()),
+                        event2.getDate());
+
+        // then
+        assertThat(result).hasSize(1);
     }
 
     @DisplayName("특정 참가자의 출석 데이터를 삭제한다.")
