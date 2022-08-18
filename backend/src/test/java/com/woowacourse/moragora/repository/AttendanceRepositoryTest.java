@@ -169,4 +169,33 @@ class AttendanceRepositoryTest {
         // then
         assertThat(attendances).hasSize(2);
     }
+
+    @DisplayName("참가자의 id들의 출석부를 모두 삭제한다.")
+    @Test
+    void deleteByParticipantIdIn() {
+        // given
+        final User user1 = KUN.create();
+        final User user2 = AZPI.create();
+
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+
+        final Participant participant1 = dataSupport.saveParticipant(user1, meeting);
+        final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
+
+        final Event event = dataSupport.saveEvent(EVENT1.create(meeting));
+
+        dataSupport.saveAttendance(participant1, event, Status.NONE);
+        dataSupport.saveAttendance(participant2, event, Status.NONE);
+
+        final List<Long> participantIds = List.of(participant1.getId(), participant2.getId());
+
+        // when
+        attendanceRepository.deleteByParticipantIdIn(participantIds);
+
+        // then
+        final List<Attendance> attendances = attendanceRepository.findByParticipantIdInAndEventId(
+                participantIds, event.getId());
+
+        assertThat(attendances.size()).isEqualTo(0);
+    }
 }

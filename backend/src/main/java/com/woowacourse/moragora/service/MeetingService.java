@@ -185,4 +185,16 @@ public class MeetingService {
                 .extractAttendancesByParticipant(participant);
         return participantAttendances.countTardy();
     }
+
+    @Transactional
+    public void deleteMeeting(final Long meetingId) {
+        final Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+
+        final List<Long> participantIds = meeting.getParticipantIds();
+
+        attendanceRepository.deleteByParticipantIdIn(participantIds);
+        participantRepository.deleteByIdIn(participantIds);
+        meetingRepository.deleteById(meeting.getId());
+    }
 }

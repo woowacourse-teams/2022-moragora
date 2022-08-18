@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.auth.controller.AuthController;
 import com.woowacourse.auth.service.AuthService;
 import com.woowacourse.auth.support.JwtTokenProvider;
+import com.woowacourse.auth.support.MasterAspect;
 import com.woowacourse.moragora.service.AttendanceService;
 import com.woowacourse.moragora.service.CommonService;
 import com.woowacourse.moragora.service.EventService;
@@ -54,42 +55,52 @@ public class ControllerTest {
     @MockBean
     protected JwtTokenProvider jwtTokenProvider;
 
+    @MockBean
+    protected MasterAspect masterAspect;
+
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
 
+
     protected ResultActions performPost(final String uri, final Object request) throws Exception {
         return mockMvc.perform(post(uri)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andDo(print());
     }
 
     protected ResultActions performPost(final String uri) throws Exception {
         return mockMvc.perform(post(uri)
-                .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());
     }
 
     protected ResultActions performGet(final String uri) throws Exception {
         return mockMvc.perform(MockMvcRequestBuilders.get(uri)
-                .accept(MediaType.APPLICATION_JSON))
+                        .accept(MediaType.APPLICATION_JSON))
                 .andDo(print());
     }
 
     protected ResultActions performPut(final String uri, final Object request) throws Exception {
         return mockMvc.perform(MockMvcRequestBuilders.put(uri)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andDo(print());
     }
 
     protected ResultActions performDelete(final String uri, final Object request) throws Exception {
         return mockMvc.perform(MockMvcRequestBuilders.delete(uri)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print());
+    }
+
+    protected ResultActions performDelete(final String uri) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.delete(uri)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print());
     }
 

@@ -144,4 +144,20 @@ public class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.date", equalTo("2022-08-01"))
                 .body("meetings.find{it.id == " + meetingId2 + "}.upcomingEvent", equalTo(null));
     }
+
+    @DisplayName("마스터인 사용자가 미팅 삭제를 하려고 하면 모임이 삭제가 완료되고 상태코드 204를 반환받는다.")
+    @Test
+    void delete() {
+        // given
+        final User user = MASTER.create();
+        final String token = signUpAndGetToken(user);
+        final List<Long> userIds = saveUsers(createUsers());
+        final int meetingId = saveMeeting(token, userIds, MORAGORA.create());
+
+        // when
+        final ValidatableResponse response = delete("/meetings/" + meetingId, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
 }

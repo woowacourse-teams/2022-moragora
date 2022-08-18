@@ -24,6 +24,7 @@ import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
@@ -470,5 +471,32 @@ class MeetingServiceTest {
         // then
         assertThat(response).usingRecursiveComparison()
                 .isEqualTo(new MyMeetingsResponse(List.of(response1, response2)));
+    }
+
+    @DisplayName("미팅 삭제를 완료한다.")
+    @Test
+    void deleteMeeting() {
+        // given
+        final User user = dataSupport.saveUser(KUN.create());
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        dataSupport.saveParticipant(user, meeting, true);
+
+        // when
+        meetingService.deleteMeeting(meeting.getId());
+
+        // then
+        assertThatThrownBy(() -> meetingService.findById(meeting.getId(), user.getId()))
+                .isInstanceOf(MeetingNotFoundException.class);
+    }
+
+    @DisplayName("존재하지 않는 미팅을 삭제하려고 하면 예외가 발생한다.")
+    @Test
+    void deleteMeeting_throwsException_ifNotExistMeeting() {
+        // given
+        final User user = dataSupport.saveUser(KUN.create());
+
+        // when, then
+        assertThatThrownBy(() -> meetingService.findById(99L, user.getId()))
+                .isInstanceOf(MeetingNotFoundException.class);
     }
 }

@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -26,6 +27,7 @@ import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
 import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
@@ -37,6 +39,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpStatus;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -370,5 +373,31 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.meetings[*].isCoffeeTime", contains(false)))
                 .andExpect(jsonPath("$.meetings[*].isActive", contains(true)))
                 .andExpect(jsonPath("$.meetings[*].upcomingEvent", contains(nullValue())));
+    }
+
+    @DisplayName("미팅 삭제를 완료한다.")
+    @Test
+    void delete() throws Exception {
+        // given
+        validateToken("1");
+
+        // when, then
+        performDelete("/meetings/1")
+                .andExpect(status().isNoContent());
+    }
+
+    @DisplayName("미팅을 삭제하려는 사람이 마스터가 아닌 경우 예외가 발생한다.")
+    @Test
+    void delete_throwsException_ifNotMaster() throws Exception {
+        // given
+        validateToken("1");
+
+        doThrow(new ClientRuntimeException("마스터 권한이 없습니다.", HttpStatus.FORBIDDEN))
+                .when(meetingService)
+                .deleteMeeting(1L);
+
+        // when, then
+        performDelete("/meetings/1")
+                .andExpect(status().isForbidden());
     }
 }

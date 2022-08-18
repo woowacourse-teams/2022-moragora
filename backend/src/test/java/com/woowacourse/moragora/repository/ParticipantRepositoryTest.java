@@ -58,4 +58,20 @@ class ParticipantRepositoryTest {
         // then
         assertThat(participant.isPresent()).isTrue();
     }
+
+    @DisplayName("participant id들로 참가자 정보를 삭제한다.")
+    @Test
+    void deleteByIdIn() {
+        // given
+        final User user = KUN.create();
+        final Meeting meeting = MORAGORA.create();
+        final Participant participant = dataSupport.saveParticipant(user, meeting, false);
+
+        // when
+        participantRepository.deleteByIdIn(List.of(participant.getId()));
+
+        // then
+        final List<Participant> participants = participantRepository.findByMeetingId(meeting.getId());
+        assertThat(participants.size()).isEqualTo(0);
+    }
 }
