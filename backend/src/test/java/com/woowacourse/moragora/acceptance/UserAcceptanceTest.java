@@ -145,7 +145,7 @@ class UserAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("로그인 한 상태에서 기존 비밀번호를 틀리게 입력하고 비밀번호 수정을 요청하면 상태코드 400을 반환한다.")
     @Test
-    void changeMyPassword_ifWrongOldPassword() {
+    void changeMyPassword_throwsException_ifWrongOldPassword() {
         // given
         final String token = signUpAndGetToken(BATD.create());
         final PasswordRequest request = new PasswordRequest("1234wrong!", "new1234!");
@@ -160,7 +160,7 @@ class UserAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("로그인 한 상태에서 기존 비밀번호와 새 비밀번호를 동일하게 입력하고 비밀번호 수정을 요청하면 상태코드 400을 반환한다.")
     @Test
-    void changeMyPassword_ifSamePassword() {
+    void changeMyPassword_throwsException_ifSamePassword() {
         // given
         final String token = signUpAndGetToken(BATD.create());
         final PasswordRequest request = new PasswordRequest("1234asdf!", "1234asdf!");
@@ -190,7 +190,7 @@ class UserAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("로그인 한 상태에서 잘못된 비밀번호로 회원 탈퇴를 요청하면 상태코드 400을 반환받는다.")
     @Test
-    void deleteMe_ifWrongPassword() {
+    void deleteMe_throwsException_ifWrongPassword() {
         // given
         final User user = KUN.create();
         final String token = signUpAndGetToken(user);
@@ -205,7 +205,7 @@ class UserAcceptanceTest extends AcceptanceTest {
 
     @DisplayName("마스터인 모임이 있는 상태에서 회원 탈퇴를 요청하면 상태코드 403을 반환받는다.")
     @Test
-    void deleteMe_ifMaster() {
+    void deleteMe_throwsException_ifMaster() {
         // given
         final User master = MASTER.create();
         final String token = signUpAndGetToken(master);

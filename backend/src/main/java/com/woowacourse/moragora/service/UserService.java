@@ -123,7 +123,7 @@ public class UserService {
     }
 
     private void validateKeyword(final String keyword) {
-        if (keyword.isEmpty()) {
+        if (keyword.isBlank()) {
             throw new NoParameterException();
         }
     }
