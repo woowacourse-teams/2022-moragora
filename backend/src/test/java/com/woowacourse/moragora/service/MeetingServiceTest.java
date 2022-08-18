@@ -21,6 +21,7 @@ import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.MasterRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
@@ -30,6 +31,7 @@ import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.InvalidFormatException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
@@ -43,6 +45,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -555,6 +559,44 @@ class MeetingServiceTest {
         assertThatExceptionOfType(ClientRuntimeException.class)
                 .isThrownBy(() -> meetingService.assignMaster(meeting.getId(), masterRequest, master.getId()))
                 .withMessage("스스로에게 마스터 권한을 넘길 수 없습니다.");
+    }
+
+    @DisplayName("미팅 이름을 변경한다.")
+    @Test
+    void updateName() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final MeetingUpdateRequest request = new MeetingUpdateRequest("체크메이트");
+
+        // when, then
+        assertThatCode(() -> meetingService.updateName(request, meeting.getId()))
+                .doesNotThrowAnyException();
+    }
+
+    @DisplayName("존재하지 않는 미팅의 이름을 변경하면 예외가 발생한다.")
+    @Test
+    void updateName_ifNotFound() {
+        // given
+        final MeetingUpdateRequest request = new MeetingUpdateRequest("체크메이트");
+
+        // when, then
+        assertThatThrownBy(() -> meetingService.updateName(request, 0L))
+                .isInstanceOf(MeetingNotFoundException.class);
+    }
+
+    @DisplayName("변경하려는 미팅 이름이 50자를 초과하면 예외가 발생한다.")
+    @ParameterizedTest
+    @ValueSource(strings = {"012345678901234567890123456789012345678901234567891",
+            "영일이삼사오육칠팔구영일이삼사오육칠팔구영일이삼사오육칠팔구영일이삼사오육칠팔구영일이삼사오육칠팔구영",
+            "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghija"})
+    void updateName_ifTooLong(final String name) {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final MeetingUpdateRequest request = new MeetingUpdateRequest(name);
+
+        // when, then
+        assertThatThrownBy(() -> meetingService.updateName(request, meeting.getId()))
+                .isInstanceOf(InvalidFormatException.class);
     }
 
     @DisplayName("모임의 참가자를 삭제한다.")

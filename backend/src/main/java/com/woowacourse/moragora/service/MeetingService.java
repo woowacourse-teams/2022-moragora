@@ -4,6 +4,7 @@ import com.woowacourse.moragora.dto.EventResponse;
 import com.woowacourse.moragora.dto.MasterRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
@@ -126,6 +127,13 @@ public class MeetingService {
 
         assignedParticipant.updateIsMaster(true);
         masterParticipant.updateIsMaster(false);
+    }
+
+    @Transactional
+    public void updateName(final MeetingUpdateRequest request, final Long meetingId) {
+        final Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        meeting.updateName(request.getName());
     }
 
     @Transactional
