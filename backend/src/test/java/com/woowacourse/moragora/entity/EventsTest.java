@@ -25,10 +25,10 @@ public class EventsTest {
         final Events events = new Events(List.of(event1, event2));
 
         final LocalTime changedTime = LocalTime.of(11, 0);
-        final Event eventToUpdateEvent1 = new Event(event1.getDate(), changedTime, event1.getEndTime(), meeting);
+        final Event updatedEvent1 = new Event(event1.getDate(), changedTime, event1.getEndTime(), meeting);
         final Event newEvent = EVENT3.create(meeting);
 
-        final List<Event> inputEvents = List.of(eventToUpdateEvent1, newEvent);
+        final List<Event> inputEvents = List.of(updatedEvent1, newEvent);
 
         // when
         final List<Event> newEvents = events.updateAndExtractNewEvents(inputEvents);
@@ -36,12 +36,9 @@ public class EventsTest {
         // then
         assertAll(
                 () -> assertThat(newEvents).hasSize(1),
-                () -> assertThat(newEvents.get(0)).usingRecursiveComparison()
-                        .ignoringFields("id")
-                        .isEqualTo(newEvent),
                 () -> assertThat(event1).usingRecursiveComparison()
                         .ignoringFields("id")
-                        .isEqualTo(eventToUpdateEvent1)
+                        .isEqualTo(updatedEvent1)
         );
     }
 }
