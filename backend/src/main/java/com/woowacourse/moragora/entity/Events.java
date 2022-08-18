@@ -18,12 +18,12 @@ public class Events {
     public List<Event> updateAndExtractNewEvents(final List<Event> insertedEvents) {
         final ArrayList<Event> newEvents = new ArrayList<>();
         for (Event insertedEvent : insertedEvents) {
-            save(insertedEvent, newEvents);
+            updateOrExtractNewEvent(insertedEvent, newEvents);
         }
         return newEvents;
     }
 
-    public void save(final Event insertedEvent, final List<Event> newEvents) {
+    public void updateOrExtractNewEvent(final Event insertedEvent, final List<Event> newEvents) {
         final LocalDate date = insertedEvent.getDate();
         final Meeting meeting = insertedEvent.getMeeting();
 

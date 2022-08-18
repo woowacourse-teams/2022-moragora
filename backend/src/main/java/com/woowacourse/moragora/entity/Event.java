@@ -45,7 +45,7 @@ public class Event {
                  final LocalTime startTime,
                  final LocalTime endTime,
                  final Meeting meeting) {
-        validateEntranceLeaveTime(startTime, endTime);
+        validateStartEndTime(startTime, endTime);
         this.id = id;
         this.date = date;
         this.startTime = startTime;
@@ -66,7 +66,7 @@ public class Event {
     }
 
     public void updateTime(final LocalTime startTime, final LocalTime endTime) {
-        validateEntranceLeaveTime(startTime, endTime);
+        validateStartEndTime(startTime, endTime);
         this.startTime = startTime;
         this.endTime = endTime;
     }
@@ -75,7 +75,7 @@ public class Event {
         return this.date.isBefore(date);
     }
 
-    private void validateEntranceLeaveTime(final LocalTime entranceTime, final LocalTime leaveTime) {
+    private void validateStartEndTime(final LocalTime entranceTime, final LocalTime leaveTime) {
         if (entranceTime.isAfter(leaveTime)) {
             throw new IllegalEntranceLeaveTimeException();
         }
