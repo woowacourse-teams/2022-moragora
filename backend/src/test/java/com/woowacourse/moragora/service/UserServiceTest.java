@@ -169,7 +169,10 @@ class UserServiceTest {
 
     @DisplayName("회원의 닉네임을 형식에 맞지 않게 변경하면 예외가 발생한다.")
     @ParameterizedTest
-    @ValueSource(strings = {"smart쿤!", "smartboykun12345", "smart kun"})
+    @ValueSource(strings = {
+            "imsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboy1",
+            "imsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboy123"
+    })
     void updateNickname_throwsException_ifInvalidNickname(final String nickname) {
         // given
         final User user = dataSupport.saveUser(BATD.create());

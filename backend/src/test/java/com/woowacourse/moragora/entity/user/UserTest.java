@@ -13,13 +13,18 @@ import org.junit.jupiter.params.provider.ValueSource;
 class UserTest {
 
     @DisplayName("회원을 생성한다.")
-    @Test
-    void createUser() {
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "kun",
+            "sunnnnnnny",
+            "imsmartboyimsmartboyimsmartboyimsmartboyimsmartboy"
+    })
+    void createUser(final String nickname) {
         // given
         final EncodedPassword encodedPassword = EncodedPassword.fromRawValue("asdfqer1!");
 
         // when, then
-        assertThatCode(() -> new User("kun@email.com", encodedPassword, "kun"))
+        assertThatCode(() -> new User("kun@email.com", encodedPassword, nickname))
                 .doesNotThrowAnyException();
     }
 
@@ -37,7 +42,10 @@ class UserTest {
 
     @DisplayName("유효하지 않은 닉네임로 회원을 생성하면 예외가 발생한다.")
     @ParameterizedTest
-    @ValueSource(strings = {"smart쿤!", "smartboykun12345", "smart kun"})
+    @ValueSource(strings = {
+            "imsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboy1",
+            "imsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboy123"
+    })
     void createUser_throwsException_IfInvalidNickname(final String nickname) {
         // given
         final EncodedPassword encodedPassword = EncodedPassword.fromRawValue("asdfqer1!");
@@ -74,7 +82,10 @@ class UserTest {
 
     @DisplayName("유효하지 않은 닉네임으로 유저의 닉네임을 변경하면 예외가 발생한다.")
     @ParameterizedTest
-    @ValueSource(strings = {"smart쿤!", "smartboykun12345", "smart kun"})
+    @ValueSource(strings = {
+            "imsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboy1",
+            "imsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboyimsmartboy123"
+    })
     void updateNickname_throwsException_ifInvalidNickname(final String nickname) {
         // given
         final User user = new User("kun@email.com", EncodedPassword.fromRawValue("asdfqer1!"), "kun");

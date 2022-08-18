@@ -1,18 +1,31 @@
 package com.woowacourse.auth.acceptance;
 
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 
+import com.woowacourse.auth.dto.GoogleProfileResponse;
 import com.woowacourse.auth.dto.LoginRequest;
+import com.woowacourse.auth.support.GoogleClient;
 import com.woowacourse.moragora.acceptance.AcceptanceTest;
 import com.woowacourse.moragora.dto.UserRequest;
+import io.restassured.RestAssured;
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 @DisplayName("인증 관련 기능")
 class AuthAcceptanceTest extends AcceptanceTest {
+
+    @MockBean
+    private GoogleClient googleClient;
 
     @DisplayName("로그인에 성공할 때 토큰과 상태코드 200을 반환한다.")
     @Test
@@ -50,5 +63,32 @@ class AuthAcceptanceTest extends AcceptanceTest {
         // then
         response.statusCode(HttpStatus.BAD_REQUEST.value())
                 .body("message", equalTo("이메일이나 비밀번호가 틀렸습니다."));
+    }
+
+
+    @DisplayName("구글 로그인에 성공할 때 토큰과 상태코드 200을 반환한다.")
+    @Test
+    void loginWithGoogle() {
+        // given
+        final String email = "kun@naver.com";
+        final String password = "1234smart!";
+        final UserRequest userRequest = new UserRequest(email, password, "kun");
+
+        final LoginRequest loginRequest = new LoginRequest(email, password);
+
+        given(googleClient.getIdToken(anyString()))
+                .willReturn("fakeIdToken");
+        given(googleClient.getProfileResponse(anyString()))
+                .willReturn(new GoogleProfileResponse("sunny@gmail.com", "썬"));
+
+        // when
+        final ValidatableResponse response = RestAssured.given().log().all()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when().post("/login/oauth2/google?code=anyCode")
+                .then().log().all();
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("accessToken", notNullValue());
     }
 }
