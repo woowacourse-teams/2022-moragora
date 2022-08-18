@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.entity;
 
+import com.woowacourse.moragora.exception.InvalidFormatException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,16 +23,26 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Meeting {
 
-    @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY)
-    private final List<Participant> participants = new ArrayList<>();
+    private static final int MAX_NAME_LENGTH = 50;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String name;
 
+    @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY)
+    private final List<Participant> participants = new ArrayList<>();
+
     @Builder
     public Meeting(final String name) {
+        validateName(name);
+        this.name = name;
+    }
+
+    public void updateName(final String name) {
+        validateName(name);
         this.name = name;
     }
 
@@ -39,5 +50,11 @@ public class Meeting {
         return participants.stream()
                 .map(Participant::getId)
                 .collect(Collectors.toUnmodifiableList());
+    }
+
+    private void validateName(final String name) {
+        if (name.length() > MAX_NAME_LENGTH) {
+            throw new InvalidFormatException();
+        }
     }
 }

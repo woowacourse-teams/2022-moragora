@@ -72,3 +72,19 @@ include::{snippets}/meeting/pass-master/http-response.adoc[]
 === Request fields
 
 include::{snippets}/meeting/pass-master/request-fields.adoc[]
+
+[[changeName]]
+== 미팅 이름 변경
+
+[[changeName-success]]
+=== HTTP request
+
+include::{snippets}/meeting/change-name/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/meeting/change-name/http-response.adoc[]
+
+=== Request fields
+
+include::{snippets}/meeting/change-name/request-fields.adoc[]
