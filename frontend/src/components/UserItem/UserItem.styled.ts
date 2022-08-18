@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 
 export const Layout = styled.li`
-  padding: 0.75rem;
+  padding: 0.5rem 0.75rem;
   display: flex;
   gap: 0.5rem;
   justify-content: space-between;

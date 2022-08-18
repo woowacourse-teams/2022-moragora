@@ -16,8 +16,8 @@ export const Input = styled.input`
 
   font: inherit;
   color: ${({ theme: { colors } }) => colors['subtle-light']};
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2rem;
+  height: 2rem;
   border: 1px solid currentColor;
   border-radius: 50%;
   transform: translateY(-0.075em);
@@ -35,12 +35,11 @@ export const Input = styled.input`
     content: '';
     clip-path: polygon(26% 49%, 42% 64%, 77% 32%, 82% 36%, 42% 73%, 22% 53%);
     position: absolute;
-    inset: 0.75rem;
+    inset: 0.25rem;
     background-color: currentColor;
   }
 
   :checked::before {
-    inset: 0.75rem;
     color: ${({ theme: { colors } }) => colors['white']};
   }
 
