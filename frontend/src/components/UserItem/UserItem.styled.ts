@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 
 export const Layout = styled.li`
-  padding: 0.75rem;
+  padding: 0.5rem 0.75rem;
   display: flex;
   gap: 0.5rem;
   justify-content: space-between;
@@ -12,8 +12,11 @@ export const Layout = styled.li`
 
 export const Box = styled.div`
   display: flex;
-  flex-direction: column;
   gap: 0.5rem;
+`;
+
+export const AttendanceStatusText = styled.span`
+  color: ${({ theme: { colors } }) => colors['primary']};
 `;
 
 export const CoffeeIconImageBox = styled.div`

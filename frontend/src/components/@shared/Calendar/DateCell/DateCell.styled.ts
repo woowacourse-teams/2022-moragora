@@ -8,8 +8,8 @@ export const Layout = styled.div<{
   isSelected?: boolean;
 }>`
   position: relative;
-  min-width: 2rem;
-  height: 2rem;
+  min-width: 1.5rem;
+  height: 1.5rem;
   display: flex;
   justify-self: center;
   justify-content: center;
@@ -46,7 +46,7 @@ export const Layout = styled.div<{
   :hover {
     ::after {
       content: ${({ event }) =>
-        event ? `'${event.entranceTime} - ${event.leaveTime}'` : ''};
+        event ? `'${event.meetingStartTime} - ${event.meetingEndTime}'` : ''};
       position: absolute;
       bottom: -1.5rem;
       padding: 0.25rem;

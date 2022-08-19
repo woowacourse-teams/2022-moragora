@@ -6,7 +6,7 @@ export const Layout = styled.div<{
   isActive: MeetingItemProps['meeting']['isActive'];
 }>`
   display: inline-block;
-  border-radius: 2rem;
+  border-radius: 1.5rem;
   box-shadow: 0px 0px 1rem rgba(0, 0, 0, 0.1);
 
   color: ${({ isActive, theme: { colors } }) =>
@@ -20,9 +20,9 @@ export const MeetingItemLink = styled(Link)`
 
 export const Box = styled.div`
   box-sizing: border-box;
-  width: 12.5rem;
-  height: 12.5rem;
-  padding: 1.75rem 1.25rem;
+  width: 10rem;
+  height: 10rem;
+  padding: 1rem;
 
   display: flex;
   flex-direction: column;
@@ -32,7 +32,7 @@ export const Box = styled.div`
 export const MeetingBox = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
 `;
 
 export const IconBox = styled.div`
@@ -43,19 +43,19 @@ export const IconBox = styled.div`
 export const IconSVG = styled.svg``;
 
 export const MeetingNameSpan = styled.span`
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 400;
   color: ${({ theme: { colors } }) => colors['black']};
 `;
 
 export const MeetingTimeSpan = styled.span`
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 300;
   color: ${({ theme: { colors } }) => colors['subtle-dark']};
 `;
 
 export const MeetingStatusSpan = styled.span`
   align-self: flex-end;
-  font-size: 1rem;
+  font-size: 0.75rem;
   font-weight: 700;
 `;

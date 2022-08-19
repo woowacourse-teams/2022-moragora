@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useQueryClient } from 'contexts/queryClient';
 import { QUERY_STATUS } from 'consts';
-import { QueryOptions } from 'types/queryType';
+import { QueryOptions, QueryStatus } from 'types/queryType';
 
 const useQuery = <TData = any>(
   key: string[],
@@ -21,7 +21,7 @@ const useQuery = <TData = any>(
   const queryClient = useQueryClient();
   const [data, setData] = useState<TData>();
   const [error, setError] = useState<Error>();
-  const [status, setStatus] = useState(QUERY_STATUS.LOADING);
+  const [status, setStatus] = useState(QUERY_STATUS.IDLE);
   const retryCountRef = useRef<number>(0);
   const intervalId = useRef<NodeJS.Timer>();
   const staleTimerId = useRef<NodeJS.Timer>();
@@ -55,20 +55,20 @@ const useQuery = <TData = any>(
     try {
       setStatus(QUERY_STATUS.LOADING);
 
-      const data = await queryData();
+      const refetchData = await queryData();
 
-      setData(data);
+      setData(refetchData);
       setStatus(QUERY_STATUS.SUCCESS);
-      await onSuccess?.(data);
-    } catch (error) {
+      await onSuccess?.(refetchData);
+    } catch (refetchError) {
       setStatus(QUERY_STATUS.ERROR);
 
-      if (!(error instanceof Error)) {
+      if (!(refetchError instanceof Error)) {
         return;
       }
 
-      setError(error);
-      await onError?.(error);
+      setError(refetchError);
+      await onError?.(refetchError);
 
       const shouldRetry = retryCountRef.current < retry;
 

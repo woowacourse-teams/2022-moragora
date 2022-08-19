@@ -1,11 +1,22 @@
 package com.woowacourse.moragora.acceptance;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.UserFixtures.BATD;
+import static com.woowacourse.moragora.support.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.UserFixtures.MASTER;
+import static com.woowacourse.moragora.support.UserFixtures.createUsers;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
+import com.woowacourse.moragora.dto.NicknameRequest;
+import com.woowacourse.moragora.dto.PasswordRequest;
+import com.woowacourse.moragora.dto.UserDeleteRequest;
 import com.woowacourse.moragora.dto.UserRequest;
+import com.woowacourse.moragora.entity.Meeting;
+import com.woowacourse.moragora.entity.user.User;
 import io.restassured.response.ValidatableResponse;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -61,35 +72,156 @@ class UserAcceptanceTest extends AcceptanceTest {
     @Test
     void search() {
         // given
-        final String keyword = "foo";
+        final String keyword = "email";
+        final List<User> users = createUsers();
+        final List<Long> ids = saveUsers(users);
+
+        final List<Integer> userIds = ids.stream()
+                .map(Long::intValue)
+                .collect(Collectors.toList());
+
+        final List<String> nicknames = users.stream()
+                .map(User::getNickname)
+                .collect(Collectors.toList());
+
+        final List<String> emails = users.stream()
+                .map(User::getEmail)
+                .collect(Collectors.toList());
 
         // when
         final ValidatableResponse response = get("/users?keyword=" + keyword);
 
         // then
         response.statusCode(HttpStatus.OK.value())
-                .body("users.id", containsInAnyOrder(1, 2, 3, 4, 5, 6, 7))
-                .body("users.nickname", containsInAnyOrder("아스피", "필즈", "포키",
-                        "썬", "우디", "쿤", "반듯"))
-                .body("users.email", containsInAnyOrder("aaa111@foo.com",
-                        "bbb222@foo.com",
-                        "ccc333@foo.com",
-                        "ddd444@foo.com",
-                        "eee555@foo.com",
-                        "fff666@foo.com",
-                        "ggg777@foo.com"));
+                .body("users.id", equalTo(userIds))
+                .body("users.nickname", equalTo(nicknames))
+                .body("users.email", equalTo(emails));
     }
 
     @DisplayName("로그인 한 상태에서 자신의 회원정보를 요청하면 회원정보와 상태코드 200을 반환받는다.")
     @Test
     void findMe() {
-        // given, when
-        ValidatableResponse response = get("/users/me", signUpAndGetToken());
+        // given
+        final User user = MASTER.create();
+        final Long id = signUp(user);
+
+        // when
+        ValidatableResponse response = get("/users/me", login(user));
 
         // then
         response.statusCode(HttpStatus.OK.value())
-                .body("id", notNullValue())
-                .body("email", equalTo("test@naver.com"))
-                .body("nickname", equalTo("kun"));
+                .body("id", equalTo(id.intValue()))
+                .body("email", equalTo(user.getEmail()))
+                .body("nickname", equalTo(user.getNickname()));
+    }
+
+    @DisplayName("로그인 한 상태에서 닉네임 수정을 요청하면 닉네임을 수정한 후 상태코드 204을 반환한다.")
+    @Test
+    void changeMyNickname() {
+        // given
+        final String token = signUpAndGetToken(BATD.create());
+        final NicknameRequest request = new NicknameRequest("반듯");
+
+        // when
+        final ValidatableResponse response = put("/users/me/nickname", request, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("로그인 한 상태에서 비밀번호 수정을 요청하면 비밀번호를 수정한 후 상태코드 204을 반환한다.")
+    @Test
+    void changeMyPassword() {
+        // given
+        final String token = signUpAndGetToken(BATD.create());
+        final PasswordRequest request = new PasswordRequest("1234asdf!", "new1234!");
+
+        // when
+        final ValidatableResponse response = put("/users/me/password", request, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("로그인 한 상태에서 기존 비밀번호를 틀리게 입력하고 비밀번호 수정을 요청하면 상태코드 400을 반환한다.")
+    @Test
+    void changeMyPassword_throwsException_ifWrongOldPassword() {
+        // given
+        final String token = signUpAndGetToken(BATD.create());
+        final PasswordRequest request = new PasswordRequest("1234wrong!", "new1234!");
+
+        // when
+        final ValidatableResponse response = put("/users/me/password", request, token);
+
+        // then
+        response.statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("message", equalTo("비밀번호가 올바르지 않습니다."));
+    }
+
+    @DisplayName("로그인 한 상태에서 기존 비밀번호와 새 비밀번호를 동일하게 입력하고 비밀번호 수정을 요청하면 상태코드 400을 반환한다.")
+    @Test
+    void changeMyPassword_throwsException_ifSamePassword() {
+        // given
+        final String token = signUpAndGetToken(BATD.create());
+        final PasswordRequest request = new PasswordRequest("1234asdf!", "1234asdf!");
+
+        // when
+        final ValidatableResponse response = put("/users/me/password", request, token);
+
+        // then
+        response.statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("message", equalTo("새로운 비밀번호가 기존의 비밀번호와 일치합니다."));
+    }
+
+    @DisplayName("로그인 한 상태에서 회원 탈퇴를 요청하면 상태코드 204를 반환받는다.")
+    @Test
+    void deleteMe() {
+        // given
+        final User user = KUN.create();
+        final String token = signUpAndGetToken(user);
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
+
+        // when
+        ValidatableResponse response = delete("/users/me", request, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("로그인 한 상태에서 잘못된 비밀번호로 회원 탈퇴를 요청하면 상태코드 400을 반환받는다.")
+    @Test
+    void deleteMe_throwsException_ifWrongPassword() {
+        // given
+        final User user = KUN.create();
+        final String token = signUpAndGetToken(user);
+        final UserDeleteRequest request = new UserDeleteRequest("1234wrong!");
+
+        // when
+        ValidatableResponse response = delete("/users/me", request, token);
+
+        // then
+        response.statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @DisplayName("마스터인 모임이 있는 상태에서 회원 탈퇴를 요청하면 상태코드 403을 반환받는다.")
+    @Test
+    void deleteMe_throwsException_ifMaster() {
+        // given
+        final User master = MASTER.create();
+        final String token = signUpAndGetToken(master);
+
+        final List<User> users = createUsers();
+        final List<Long> userIds = saveUsers(users);
+        final Meeting meeting = MORAGORA.create();
+        saveMeeting(token, userIds, meeting);
+
+        final UserDeleteRequest request = new UserDeleteRequest("1234asdf!");
+
+        // when
+        ValidatableResponse response = delete("/users/me", request, token);
+
+        // then
+        response.statusCode(HttpStatus.FORBIDDEN.value())
+                .body("message", equalTo("마스터로 참여중인 모임이 있어 탈퇴할 수 없습니다."));
     }
 }

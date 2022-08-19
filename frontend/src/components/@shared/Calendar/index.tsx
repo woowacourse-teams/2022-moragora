@@ -8,10 +8,16 @@ import DivideLine from 'components/@shared/DivideLine';
 import Toggle from 'components/@shared/Toggle';
 import { CalendarContext } from 'contexts/calendarContext';
 import { dateToFormattedString } from 'utils/timeUtil';
+import { css } from '@emotion/react';
 
-const Calendar = () => {
+type CalendarProps = {
+  readOnly?: boolean;
+};
+
+const Calendar: React.FC<CalendarProps> = ({ readOnly }) => {
   const {
     events,
+    savedEvents,
     dates,
     initialDate,
     currentDate,
@@ -44,24 +50,41 @@ const Calendar = () => {
         <MonthControlBox />
       </S.YearMonthBox>
       <DivideLine />
-      <button
-        type="button"
-        onClick={() => {
-          clearSelectedDates();
-        }}
-      >
-        선택 해제
-      </button>
-      <Toggle
-        defaultChecked={shouldApplyBeginEndDates}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          setShouldApplyBeginEndDates(e.target.checked);
-        }}
-      >
-        요일 적용 기간 설정
-      </Toggle>
-      <AdvancedConfiguration />
-      <DivideLine />
+      {readOnly || (
+        <>
+          <button
+            type="button"
+            onClick={() => {
+              clearSelectedDates();
+            }}
+            css={css`
+              font-size: 0.75rem;
+            `}
+          >
+            선택 해제
+          </button>
+          <div
+            css={css`
+              padding: 0.75rem;
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
+              font-size: 0.75rem;
+            `}
+          >
+            <Toggle
+              defaultChecked={shouldApplyBeginEndDates}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setShouldApplyBeginEndDates(e.target.checked);
+              }}
+            >
+              요일 적용 기간 설정
+            </Toggle>
+            <AdvancedConfiguration />
+          </div>
+          <DivideLine />
+        </>
+      )}
       <S.CalendarBox>
         <WeekCell day={0}>일</WeekCell>
         <WeekCell day={1}>월</WeekCell>
@@ -78,9 +101,15 @@ const Calendar = () => {
             ref={bindDateCellControlRef(date)}
             key={dates[0].getDay() + date.getDate()}
             date={date}
-            event={events.find(
-              (event) => event.date === dateToFormattedString(date)
-            )}
+            event={
+              events.find(
+                (event) => event.date === dateToFormattedString(date)
+              ) ||
+              savedEvents?.find(
+                (event) => event.date === dateToFormattedString(date)
+              )
+            }
+            readOnly={readOnly}
           />
         ))}
       </S.CalendarBox>

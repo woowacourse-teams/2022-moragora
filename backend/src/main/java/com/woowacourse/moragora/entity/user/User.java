@@ -1,17 +1,23 @@
 package com.woowacourse.moragora.entity.user;
 
-import com.woowacourse.auth.exception.AuthorizationFailureException;
+import static com.woowacourse.moragora.entity.Provider.CHECKMATE;
+
+import com.woowacourse.auth.exception.AuthenticationFailureException;
+import com.woowacourse.moragora.entity.Provider;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,9 +29,7 @@ public class User {
 
     private static final String REGEX_EMAIL = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$";
     private static final Pattern PATTERN_EMAIL = Pattern.compile(REGEX_EMAIL);
-
-    private static final String REGEX_NICKNAME = "[a-zA-Z0-9가-힣]{1,15}";
-    private static final Pattern PATTERN_NICKNAME = Pattern.compile(REGEX_NICKNAME);
+    private static final int NICKNAME_LENGTH_LENGTH = 100;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,17 +44,42 @@ public class User {
     @Column(nullable = false)
     private String nickname;
 
-    public User(final Long id, final String email, final EncodedPassword password, final String nickname) {
+    @Enumerated(EnumType.STRING)
+    private Provider provider;
+
+    @Builder
+    public User(final Long id, final String email, final EncodedPassword password,
+                final String nickname, final Provider provider) {
         validateEmail(email);
         validateNickname(nickname);
         this.id = id;
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+        this.provider = provider;
     }
 
     public User(final String email, final EncodedPassword password, final String nickname) {
-        this(null, email, password, nickname);
+        this(null, email, password, nickname, CHECKMATE);
+    }
+
+    public User(final String email, final String nickname, final Provider provider) {
+        this(null, email, null, nickname, provider);
+    }
+
+    public void checkPassword(final RawPassword rawPassword) {
+        if (!password.isSamePassword(rawPassword)) {
+            throw new AuthenticationFailureException();
+        }
+    }
+
+    public void updateNickname(final String nickname) {
+        validateNickname(nickname);
+        this.nickname = nickname;
+    }
+
+    public void updatePassword(final EncodedPassword newPassword) {
+        this.password = newPassword;
     }
 
     private void validateEmail(final String email) {
@@ -61,15 +90,8 @@ public class User {
     }
 
     private void validateNickname(final String nickname) {
-        final Matcher matcher = PATTERN_NICKNAME.matcher(nickname);
-        if (!matcher.matches()) {
+        if (nickname.length() > NICKNAME_LENGTH_LENGTH) {
             throw new InvalidFormatException();
-        }
-    }
-
-    public void checkPassword(final RawPassword rawPassword) {
-        if (!password.isSamePassword(rawPassword)) {
-            throw new AuthorizationFailureException();
         }
     }
 

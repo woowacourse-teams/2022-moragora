@@ -1,7 +1,10 @@
 package com.woowacourse.moragora.service;
 
+import com.woowacourse.moragora.dto.EventResponse;
+import com.woowacourse.moragora.dto.MasterRequest;
 import com.woowacourse.moragora.dto.MeetingRequest;
 import com.woowacourse.moragora.dto.MeetingResponse;
+import com.woowacourse.moragora.dto.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.MyMeetingResponse;
 import com.woowacourse.moragora.dto.MyMeetingsResponse;
 import com.woowacourse.moragora.dto.ParticipantResponse;
@@ -11,11 +14,11 @@ import com.woowacourse.moragora.entity.Meeting;
 import com.woowacourse.moragora.entity.MeetingAttendances;
 import com.woowacourse.moragora.entity.Participant;
 import com.woowacourse.moragora.entity.ParticipantAttendances;
-import com.woowacourse.moragora.entity.Status;
 import com.woowacourse.moragora.entity.user.User;
-import com.woowacourse.moragora.exception.event.EventNotFoundException;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
+import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.repository.AttendanceRepository;
 import com.woowacourse.moragora.repository.EventRepository;
@@ -24,11 +27,13 @@ import com.woowacourse.moragora.repository.ParticipantRepository;
 import com.woowacourse.moragora.repository.UserRepository;
 import com.woowacourse.moragora.support.ServerTimeManager;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,65 +78,89 @@ public class MeetingService {
         return meeting.getId();
     }
 
-    @Transactional
     public MeetingResponse findById(final Long meetingId, final Long loginId) {
         final Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(MeetingNotFoundException::new);
-
-        final List<Participant> participants = meeting.getParticipants();
-        final boolean isMaster = participants.stream()
-                .filter(Participant::getIsMaster)
-                .anyMatch(participant -> participant.getUser().getId() == loginId);
+        final Participant participant = participantRepository.findByMeetingIdAndUserId(meeting.getId(), loginId)
+                .orElseThrow(ParticipantNotFoundException::new);
 
         final LocalDate today = serverTimeManager.getDate();
-        final List<Event> events = eventRepository.findByMeetingIdAndDateLessThanEqual(meetingId, today);
+        final MeetingAttendances meetingAttendances = getMeetingAttendances(meeting, today);
 
-        final boolean hasUpcomingEvent = eventRepository.countByMeetingIdAndDateGreaterThanEqual(meetingId, today) > 0;
+        final long attendedEventCount = eventRepository.countByMeetingIdAndDateLessThanEqual(meetingId, today);
+        final Optional<Event> event = eventRepository.findByMeetingIdAndDate(meeting.getId(), today);
+        final boolean isActive = event.isPresent() && serverTimeManager.isAttendanceOpen(event.get().getStartTime());
 
-        final Event event = eventRepository.findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(),
-                        today)
-                .orElse(null);
-
-        final boolean hasEventToday = hasUpcomingEvent && event.isSameDate(today);
-
-        final MeetingAttendances meetingAttendances = findAttendancesByMeeting(meeting.getParticipantIds());
-        final boolean isActive = hasEventToday && serverTimeManager.isAttendanceTime(event.getEntranceTime());
-        final boolean isOver = !hasEventToday || serverTimeManager.isOverClosingTime(event.getEntranceTime());
-
-        if (hasEventToday) {
-            final List<ParticipantResponse> participantResponses = participants.stream()
-                    .map(participant -> generateParticipantResponse(serverTimeManager.getDateAndTime(),
-                            meetingAttendances, isOver, participant))
-                    .collect(Collectors.toList());
-
-            return MeetingResponse.of(
-                    meeting, isMaster, isActive, participantResponses,
-                    meetingAttendances.isTardyStackFull(isOver, today), hasUpcomingEvent,
-                    events.size());
-        }
-
-        final List<ParticipantResponse> participantResponses = participants.stream()
-                .map(participant -> generateParticipantResponseWithoutStatus(serverTimeManager.getDateAndTime(),
-                        meetingAttendances, isOver, participant))
-                .collect(Collectors.toList());
-
-        return MeetingResponse.of(meeting, isMaster, isActive, participantResponses, meetingAttendances.isTardyStackFull(isOver, today), hasUpcomingEvent, events.size());
+        return MeetingResponse.from(
+                meeting, attendedEventCount, participant.getIsMaster(),
+                meetingAttendances.isTardyStackFull(),
+                isActive, collectParticipantResponsesOf(meeting, meetingAttendances)
+        );
     }
-
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
         final List<Participant> participants = participantRepository.findByUserId(userId);
+
         final List<MyMeetingResponse> myMeetingResponses = participants.stream()
-                .map(participant -> generateMyMeetingResponse(participant, getMeetingAttendances(participant)))
+                .map(participant -> generateMyMeetingResponse(participant, serverTimeManager.getDate()))
                 .collect(Collectors.toList());
 
         return new MyMeetingsResponse(myMeetingResponses);
     }
 
-    private MeetingAttendances getMeetingAttendances(final Participant participant) {
-        final Meeting meeting = participant.getMeeting();
+    @Transactional
+    public void assignMaster(final Long meetingId, final MasterRequest request, final Long loginId) {
+        meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+
+        final Long assignedUserId = request.getUserId();
+        userRepository.findById(assignedUserId)
+                .orElseThrow(UserNotFoundException::new);
+        validateAssignee(loginId, assignedUserId);
+
+        final Participant assignedParticipant = participantRepository
+                .findByMeetingIdAndUserId(meetingId, assignedUserId)
+                .orElseThrow(ParticipantNotFoundException::new);
+        final Participant masterParticipant = participantRepository
+                .findByMeetingIdAndUserId(meetingId, loginId)
+                .orElseThrow(ParticipantNotFoundException::new);
+
+        assignedParticipant.updateIsMaster(true);
+        masterParticipant.updateIsMaster(false);
+    }
+
+    @Transactional
+    public void updateName(final MeetingUpdateRequest request, final Long meetingId) {
+        final Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        meeting.updateName(request.getName());
+    }
+
+    @Transactional
+    public void deleteParticipant(final long meetingId, final long userId) {
+        meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        final Participant participant = participantRepository.findByMeetingIdAndUserId(meetingId, userId)
+                .orElseThrow(ParticipantNotFoundException::new);
+        validateNotMaster(participant);
+
+        attendanceRepository.deleteByParticipantId(participant.getId());
+        participantRepository.delete(participant);
+    }
+
+    @Transactional
+    public void deleteMeeting(final Long meetingId) {
+        final Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+
         final List<Long> participantIds = meeting.getParticipantIds();
-        return findAttendancesByMeeting(participantIds);
+
+        attendanceRepository.deleteByParticipantIdIn(participantIds);
+        participantRepository.deleteByIdIn(participantIds);
+        eventRepository.deleteByMeetingId(meeting.getId());
+        meetingRepository.deleteById(meeting.getId());
     }
 
     /**
@@ -157,20 +186,6 @@ public class MeetingService {
         }
     }
 
-    private void putAttendanceIfAbsent(final Meeting meeting, final List<Participant> participants) {
-        final List<Long> participantIds = participants.stream()
-                .map(Participant::getId)
-                .collect(Collectors.toList());
-        final Event event = eventRepository.findByMeetingIdAndDate(meeting.getId(), serverTimeManager.getDate())
-                .orElseThrow(EventNotFoundException::new);
-        final List<Attendance> attendances = attendanceRepository
-                .findByParticipantIdInAndEventId(participantIds, event.getId());
-
-        if (attendances.size() == 0) {
-            saveAttendances(participants, event);
-        }
-    }
-
     private void saveParticipants(final Meeting meeting, final User loginUser, final List<User> users) {
         final Participant loginParticipant = new Participant(loginUser, meeting, true);
         final List<Participant> participants = users.stream()
@@ -184,67 +199,62 @@ public class MeetingService {
         }
     }
 
-    private void saveAttendances(final List<Participant> participants, final Event event) {
-        for (final Participant participant : participants) {
-            attendanceRepository.save(new Attendance(Status.TARDY, false, participant, event));
-        }
-    }
-
-    private MeetingAttendances findAttendancesByMeeting(final List<Long> participantIds) {
-        final List<Attendance> foundAttendances = attendanceRepository.findByParticipantIdIn(participantIds);
+    private MeetingAttendances getMeetingAttendances(final Meeting meeting, final LocalDate today) {
+        final List<Long> participantIds = meeting.getParticipantIds();
+        final List<Attendance> foundAttendances = attendanceRepository
+                .findByParticipantIdInAndDateLessThanEqual(participantIds, today);
         return new MeetingAttendances(foundAttendances, participantIds.size());
     }
 
-    private ParticipantResponse generateParticipantResponse(final LocalDateTime now,
-                                                            final MeetingAttendances meetingAttendances,
-                                                            final boolean isOver,
-                                                            final Participant participant) {
-        final ParticipantAttendances participantAttendances =
-                meetingAttendances.extractAttendancesByParticipant(participant);
-        final int tardyCount = participantAttendances.countTardy(isOver, now.toLocalDate());
-        final Status status = participantAttendances.extractAttendanceByDate(now.toLocalDate()).getStatus();
-
-        return ParticipantResponse.of(participant.getUser(), status, tardyCount);
+    private List<ParticipantResponse> collectParticipantResponsesOf(final Meeting meeting,
+                                                                    final MeetingAttendances meetingAttendances) {
+        final List<Participant> participants = meeting.getParticipants();
+        return participants.stream()
+                .map(it -> ParticipantResponse.of(it, countTardyByParticipant(it, meetingAttendances)))
+                .collect(Collectors.toUnmodifiableList());
     }
 
-    private ParticipantResponse generateParticipantResponseWithoutStatus(final LocalDateTime now,
-                                                                         final MeetingAttendances meetingAttendances,
-                                                                         final boolean isOver,
-                                                                         final Participant participant) {
-        final ParticipantAttendances participantAttendances =
-                meetingAttendances.extractAttendancesByParticipant(participant);
-        final int tardyCount = participantAttendances.countTardy(isOver, now.toLocalDate());
-
-        return ParticipantResponse.of(participant.getUser(), Status.TARDY, tardyCount);
-    }
-
-    private MyMeetingResponse generateMyMeetingResponse(final Participant participant,
-                                                        final MeetingAttendances meetingAttendances) {
+    private MyMeetingResponse generateMyMeetingResponse(final Participant participant, final LocalDate today) {
         final Meeting meeting = participant.getMeeting();
-        final ParticipantAttendances participantAttendances = meetingAttendances
-                .extractAttendancesByParticipant(participant);
+        final boolean isLoginUserMaster = participant.getIsMaster();
 
-        final LocalDate today = serverTimeManager.getDate();
-        final boolean hasUpcomingEvent =
-                eventRepository.countByMeetingIdAndDateGreaterThanEqual(meeting.getId(), today) > 0;
-        final Event event = eventRepository
-                .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
-                .orElse(null);
-        final boolean hasEventToday = hasUpcomingEvent && event.isSameDate(today);
-        final boolean isActive = hasEventToday && serverTimeManager.isAttendanceTime(event.getEntranceTime());
-        final boolean isOver = !hasEventToday || serverTimeManager.isOverClosingTime(event.getEntranceTime());
+        final MeetingAttendances meetingAttendances = getMeetingAttendances(meeting, today);
+        final boolean isCoffeeTime = meetingAttendances.isTardyStackFull();
+        final int tardyCount = countTardyByParticipant(participant, meetingAttendances);
 
-        final int tardyCount = participantAttendances.countTardy(isOver, today);
-        if (hasUpcomingEvent) {
-            final LocalTime entranceTime = event.getEntranceTime();
-            final LocalTime closingTime = serverTimeManager.calculateClosingTime(entranceTime);
+        final Optional<Event> upcomingEvent = eventRepository
+                .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today);
+        if (upcomingEvent.isEmpty()) {
             return MyMeetingResponse.of(
-                    meeting, isActive, closingTime, tardyCount, event,
-                    participant.getIsMaster(), meetingAttendances.isTardyStackFull(isOver, today)
+                    meeting, tardyCount, isLoginUserMaster, isCoffeeTime, false, null
             );
         }
-        return MyMeetingResponse.whenHasNoUpcomingEventOf(
-                meeting, isActive, tardyCount,
-                participant.getIsMaster(), meetingAttendances.isTardyStackFull(isOver, today));
+        final Event event = upcomingEvent.get();
+        final LocalTime startTime = event.getStartTime();
+        final boolean isActive = event.isSameDate(today) && serverTimeManager.isAttendanceOpen(startTime);
+        final LocalTime attendanceOpenTime = serverTimeManager.calculateOpenTime(startTime);
+        final LocalTime attendanceClosedTime = serverTimeManager.calculateAttendanceCloseTime(startTime);
+        return MyMeetingResponse.of(
+                meeting, tardyCount, isLoginUserMaster, isCoffeeTime, isActive,
+                EventResponse.of(event, attendanceOpenTime, attendanceClosedTime)
+        );
+    }
+
+    private int countTardyByParticipant(final Participant participant, final MeetingAttendances meetingAttendances) {
+        final ParticipantAttendances participantAttendances = meetingAttendances
+                .extractAttendancesByParticipant(participant);
+        return participantAttendances.countTardy();
+    }
+
+    private void validateAssignee(final Long loginId, final Long participantId) {
+        if (Objects.equals(loginId, participantId)) {
+            throw new ClientRuntimeException("스스로에게 마스터 권한을 넘길 수 없습니다.", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private void validateNotMaster(final Participant participant) {
+        if (participant.getIsMaster()) {
+            throw new ClientRuntimeException("마스터는 모임을 나갈 수 없습니다.", HttpStatus.FORBIDDEN);
+        }
     }
 }

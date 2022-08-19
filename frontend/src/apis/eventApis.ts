@@ -1,5 +1,9 @@
 import request from 'utils/request';
-import { MeetingEvent } from 'types/eventType';
+import {
+  EventCreateRequestBody,
+  DeleteEventsRequestBody,
+  MeetingEvent,
+} from 'types/eventType';
 import { User } from 'types/userType';
 
 export const getEventsApi =
@@ -11,14 +15,37 @@ export const getEventsApi =
         Authorization: `Bearer ${accessToken}`,
       },
     });
+
 export const createEventsApi =
   (meetingId: string, accessToken?: User['accessToken']) =>
-  (events: MeetingEvent[]) =>
+  (payload: EventCreateRequestBody) =>
     request<{}>(`/meetings/${meetingId}/events`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({ events }),
+      body: JSON.stringify(payload),
+    });
+
+export const deleteEventsApi =
+  (meetingId: string, accessToken?: User['accessToken']) =>
+  (payload: DeleteEventsRequestBody) =>
+    request<{}>(`/meetings/${meetingId}/events`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+export const getUpcomingEventApi =
+  (meetingId: string, accessToken?: User['accessToken']) => () =>
+    request<MeetingEvent>(`/meetings/${meetingId}/events/upcoming`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
     });

@@ -4,6 +4,7 @@ import { MeetingListResponseBody } from 'types/meetingType';
 import crownIcon from 'assets/crown.svg';
 import coffeeIcon from 'assets/simple-coffee.svg';
 import { ArrayElement } from 'types/utilityType';
+import { css } from '@emotion/react';
 
 export type MeetingItemProps = {
   meeting: ArrayElement<MeetingListResponseBody['meetings']>;
@@ -12,7 +13,7 @@ export type MeetingItemProps = {
 const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
   let meetingStatusMessage = '';
 
-  if (meeting.hasUpcomingEvent) {
+  if (meeting.upcomingEvent) {
     meetingStatusMessage = meeting.isActive
       ? '체크인하세요!'
       : '출결 준비 중입니다.';
@@ -26,12 +27,19 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
         <S.Box>
           <S.MeetingBox>
             <S.IconBox>
-              {meeting.isMaster ? (
-                <img src={crownIcon} alt="crown-icon" width={24} />
+              {meeting.isLoginUserMaster ? (
+                <img
+                  src={crownIcon}
+                  alt="crown-icon"
+                  css={css`
+                    width: 1rem;
+                    height: 1rem;
+                  `}
+                />
               ) : (
                 <S.IconSVG
-                  width="24"
-                  height="24"
+                  width="1rem"
+                  height="1rem"
                   viewBox="0 0 24 24"
                   fill="currentColor"
                   xmlns="http://www.w3.org/2000/svg"
@@ -93,13 +101,20 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
                 </S.IconSVG>
               )}
               {meeting.isCoffeeTime && (
-                <img src={coffeeIcon} alt="coffee-icon" width={24} />
+                <img
+                  src={coffeeIcon}
+                  alt="coffee-icon"
+                  css={css`
+                    width: 1rem;
+                    height: 1rem;
+                  `}
+                />
               )}
             </S.IconBox>
             <S.MeetingNameSpan>{meeting.name}</S.MeetingNameSpan>
             <S.MeetingTimeSpan>
-              {meeting.hasUpcomingEvent &&
-                `${meeting.entranceTime} ~ ${meeting.closingTime}`}
+              {meeting.upcomingEvent &&
+                `${meeting.upcomingEvent.meetingStartTime} ~ ${meeting.upcomingEvent.meetingEndTime}`}
             </S.MeetingTimeSpan>
           </S.MeetingBox>
           <S.MeetingStatusSpan>{meetingStatusMessage}</S.MeetingStatusSpan>

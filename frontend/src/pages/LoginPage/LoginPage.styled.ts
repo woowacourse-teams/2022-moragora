@@ -23,7 +23,7 @@ export const FieldBox = styled.div`
   gap: 0.75rem;
 `;
 
-export const Label = styled.div`
+export const Label = styled.label`
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -38,8 +38,9 @@ export const InputHint = styled.p`
 export const ButtonBox = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.75rem;
   align-items: center;
+  padding: 0 0.75rem;
 `;
 
 export const RegisterHintParagraph = styled.p``;
@@ -49,8 +50,4 @@ export const RegisterLink = styled(Link)`
 
   text-decoration: inherit;
   color: ${({ theme: { colors } }) => colors['primary']};
-`;
-
-export const LoginButton = styled(Button)`
-  width: 382px;
 `;

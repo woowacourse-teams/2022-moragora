@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { NavLink } from 'react-router-dom';
 
 export const Nav = styled.nav`
-  height: 86px;
+  height: 4rem;
   display: flex;
   justify-content: space-evenly;
   align-items: center;

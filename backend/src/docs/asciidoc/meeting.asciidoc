@@ -57,46 +57,46 @@ include::{snippets}/meeting/find-my-meetings/http-response.adoc[]
 
 include::{snippets}/meeting/find-my-meetings/response-fields.adoc[]
 
-[[checkAttendance]]
-== 출석 제출
+[[passMaster]]
+== 마스터 권한 위임
 
-[[checkAttendance-success]]
+[[passMaster-success]]
 === HTTP request
 
-include::{snippets}/meeting/enter-Attendance/http-request.adoc[]
+include::{snippets}/meeting/pass-master/http-request.adoc[]
 
 === HTTP response
 
-include::{snippets}/meeting/enter-Attendance/http-response.adoc[]
+include::{snippets}/meeting/pass-master/http-response.adoc[]
 
 === Request fields
 
-include::{snippets}/meeting/enter-Attendance/request-fields.adoc[]
+include::{snippets}/meeting/pass-master/request-fields.adoc[]
 
-[[showUserCoffeeStats]]
-== 유저별 사용할 커피 스택 수 조회
+[[changeName]]
+== 미팅 이름 변경
 
-[[showUserCoffeeStats-success]]
+[[changeName-success]]
 === HTTP request
 
-include::{snippets}/meeting/usable-coffee/http-request.adoc[]
+include::{snippets}/meeting/change-name/http-request.adoc[]
 
 === HTTP response
 
-include::{snippets}/meeting/usable-coffee/http-response.adoc[]
+include::{snippets}/meeting/change-name/http-response.adoc[]
 
-=== Response fields
+=== Request fields
 
-include::{snippets}/meeting/usable-coffee/response-fields.adoc[]
+include::{snippets}/meeting/change-name/request-fields.adoc[]
 
-[[useCoffeeStack]]
-== 커피스택 비우기
+[[deleteMeFrom]]
+== 미팅 나가기
 
-[[useCoffeeStack-success]]
+[[deleteMeFrom-success]]
 === HTTP request
 
-include::{snippets}/meeting/use-coffee/http-request.adoc[]
+include::{snippets}/meeting/delete-me/http-request.adoc[]
 
 === HTTP response
 
-include::{snippets}/meeting/use-coffee/http-response.adoc[]
+include::{snippets}/meeting/delete-me/http-response.adoc[]

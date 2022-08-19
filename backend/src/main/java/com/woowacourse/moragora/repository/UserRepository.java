@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.repository;
 
+import com.woowacourse.moragora.entity.Provider;
 import com.woowacourse.moragora.entity.user.User;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +18,10 @@ public interface UserRepository extends Repository<User, Long> {
 
     Optional<User> findByEmail(final String email);
 
+    Optional<User> findByEmailAndProvider(String email, Provider google);
+
     @Query("select u from User u where u.nickname like %:keyword% or u.email like %:keyword%")
     List<User> findByNicknameOrEmailLike(@Param("keyword") final String keyword);
+
+    void delete(final User user);
 }

@@ -1,4 +1,4 @@
-export type AttendanceStatus = 'present' | 'tardy';
+export type AttendanceStatus = 'none' | 'present' | 'tardy';
 
 export type User = {
   id: number;
@@ -27,15 +27,21 @@ export type UserLoginRequestBody = Pick<User, 'email' | 'password'>;
 
 export type UserLoginResponseBody = Pick<User, 'accessToken'>;
 
-export type UserAttendanceCheckRequestBody = Pick<
-  Participant,
-  'attendanceStatus'
->;
+export type GoogleLoginRequestBody = { code: string };
 
 export type GetLoginUserDataResponseBody = Pick<
   User,
   'id' | 'nickname' | 'email'
 >;
+
+export type UserUpdateNicknameRequestBody = Pick<User, 'nickname'>;
+
+export type UserUpdatePasswordRequestBody = {
+  oldPassword: User['password'];
+  newPassword: User['password'];
+};
+
+export type UserDeleteRequestBody = Pick<User, 'password'>;
 
 export type UserCoffeeStatsResponseBody = {
   userCoffeeStats: (Pick<User, 'id' | 'nickname'> & {

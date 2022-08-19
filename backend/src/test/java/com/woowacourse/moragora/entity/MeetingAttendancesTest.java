@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.entity;
 
+import static com.woowacourse.moragora.entity.Provider.CHECKMATE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.entity.user.EncodedPassword;
@@ -47,7 +48,7 @@ class MeetingAttendancesTest {
                 List.of(attendance1, attendance2, attendance3), 3);
 
         // when
-        final int actual = meetingAttendances.countTardy(true, now.toLocalDate());
+        final int actual = meetingAttendances.countTardy();
 
         // then
         assertThat(actual).isEqualTo(expected);
@@ -58,9 +59,9 @@ class MeetingAttendancesTest {
     void countUsableAttendancesPerUsers() {
         // given
         final EncodedPassword encodedPassword = EncodedPassword.fromRawValue("qwer1234!");
-        final User user1 = new User(1L, "sun@gmail.com", encodedPassword, "sun");
-        final User user2 = new User(2L, "kun@gmail.com", encodedPassword, "kun");
-        final User user3 = new User(3L, "forky@gmail.com", encodedPassword, "forky");
+        final User user1 = new User(1L, "sun@gmail.com", encodedPassword, "sun", CHECKMATE);
+        final User user2 = new User(2L, "kun@gmail.com", encodedPassword, "kun", CHECKMATE);
+        final User user3 = new User(3L, "forky@gmail.com", encodedPassword, "forky", CHECKMATE);
 
         final LocalDateTime now = LocalDateTime.now();
         final LocalDate endDate = now.toLocalDate();
@@ -129,6 +130,6 @@ class MeetingAttendancesTest {
         meetingAttendances.disableAttendances();
 
         // then
-        assertThat(meetingAttendances.countTardy(true, now.toLocalDate())).isEqualTo(3);
+        assertThat(meetingAttendances.countTardy()).isEqualTo(3);
     }
 }

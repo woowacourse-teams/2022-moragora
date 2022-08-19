@@ -1,13 +1,19 @@
 import { Navigate, useRoutes } from 'react-router-dom';
 import MeetingCreatePage from 'pages/MeetingCreatePage';
 import MeetingListPage from 'pages/MeetingListPage';
-import MeetingPage from 'pages/MeetingPage';
+import CoffeeStackPage from 'pages/CoffeeStackPage';
 import RegisterPage from 'pages/RegisterPage';
 import LoginPage from 'pages/LoginPage';
 import Auth from './Auth';
 import SettingsPage from 'pages/SettingsPage';
 import NotFoundPage from 'pages/NotFoundPage';
-import EventCreatePage from 'pages/EventCreatePage';
+import MeetingDetailPage from 'pages/MeetingDetailPage';
+import UserConfigPage from 'pages/UserConfigPage';
+import PasswordUpdatePage from 'pages/PasswordUpdatePage';
+import UnregisterPage from 'pages/UnregisterPage';
+import CheckInPage from 'pages/CheckInPage';
+import CalendarPage from 'pages/CalendarPage';
+import MeetingConfigPage from 'pages/MeetingConfigPage';
 
 const Router = () => {
   return useRoutes([
@@ -23,20 +29,44 @@ const Router = () => {
       element: <Auth shouldLogin={true} />,
       children: [
         {
-          path: '/meeting',
+          path: 'meeting',
           children: [
             { path: '', element: <MeetingListPage /> },
-            { path: ':id', element: <MeetingPage /> },
-            { path: ':id/config', element: <EventCreatePage /> },
+            {
+              path: ':id',
+              element: <MeetingDetailPage />,
+              children: [
+                { path: '', element: <Navigate to="coffee-stack" replace /> },
+                { path: 'coffee-stack', element: <CoffeeStackPage /> },
+                { path: 'calendar', element: <CalendarPage /> },
+                { path: 'config', element: <MeetingConfigPage /> },
+                { path: '*', element: <NotFoundPage /> },
+              ],
+            },
             { path: 'create', element: <MeetingCreatePage /> },
           ],
         },
         {
+          path: 'check-in',
+          element: <CheckInPage />,
+        },
+        {
           path: 'settings',
-          element: <SettingsPage />,
+          children: [
+            { path: '', element: <SettingsPage /> },
+            {
+              path: 'user-config',
+              children: [
+                { path: '', element: <UserConfigPage /> },
+                { path: 'password', element: <PasswordUpdatePage /> },
+                { path: 'unregister', element: <UnregisterPage /> },
+              ],
+            },
+          ],
         },
       ],
     },
+
     { path: '*', element: <NotFoundPage /> },
   ]);
 };

@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 
 export const Layout = styled.div`
-  padding: 0.75rem;
+  padding: 0.5rem 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -9,12 +9,17 @@ export const Layout = styled.div`
   background-color: ${({ theme: { colors } }) => colors['white']};
 `;
 
-export const Box = styled.div`
+export const NameBox = styled.div`
+  display: flex;
+  gap: 1rem;
+`;
+
+export const CoffeeStackBox = styled.div`
   display: flex;
   flex-wrap: wrap;
 `;
 
 export const CoffeeIconImage = styled.img`
-  width: 2rem;
-  height: 2rem;
+  width: 1.5rem;
+  height: 1.5rem;
 `;

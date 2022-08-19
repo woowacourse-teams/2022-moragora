@@ -32,7 +32,7 @@ export const DateBox = styled.div`
 `;
 
 export const DateParagraph = styled.p`
-  font-size: 1.5rem;
+  font-size: 1.25rem;
 `;
 
 export const TimeSection = styled.section`
@@ -54,7 +54,7 @@ export const TitleBox = styled.div`
 `;
 
 export const Title = styled.h2`
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 300;
   color: ${({ theme: { colors } }) => colors['subtle-dark']};
 `;
@@ -140,7 +140,8 @@ export const MeetingCreateLink = styled(Link)`
 export const EmptyStateImage = styled.img`
   margin-top: -4rem;
   padding-bottom: 2rem;
-  width: 100%;
+  width: 10rem;
+  height: 10rem;
   opacity: 0;
   animation: smooth-appear 2s;
   animation-fill-mode: forwards;

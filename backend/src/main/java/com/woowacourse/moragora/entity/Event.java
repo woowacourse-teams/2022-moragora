@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,37 +30,52 @@ public class Event {
     private LocalDate date;
 
     @Column(nullable = false)
-    private LocalTime entranceTime;
+    private LocalTime startTime;
 
     @Column(nullable = false)
-    private LocalTime leaveTime;
+    private LocalTime endTime;
 
     @ManyToOne
     @JoinColumn(name = "meeting_id")
     private Meeting meeting;
 
+    @Builder
     public Event(final Long id,
                  final LocalDate date,
-                 final LocalTime entranceTime,
-                 final LocalTime leaveTime,
+                 final LocalTime startTime,
+                 final LocalTime endTime,
                  final Meeting meeting) {
-        validateEntranceLeaveTime(entranceTime, leaveTime);
+        validateStartEndTime(startTime, endTime);
         this.id = id;
         this.date = date;
-        this.entranceTime = entranceTime;
-        this.leaveTime = leaveTime;
+        this.startTime = startTime;
+        this.endTime = endTime;
         this.meeting = meeting;
     }
 
-    public Event(final LocalDate date, final LocalTime entranceTime, final LocalTime leaveTime, final Meeting meeting) {
-        this(null, date, entranceTime, leaveTime, meeting);
+    public Event(final LocalDate date, final LocalTime startTime, final LocalTime endTime, final Meeting meeting) {
+        this(null, date, startTime, endTime, meeting);
     }
 
     public boolean isSameDate(final LocalDate date) {
         return this.date.isEqual(date);
     }
 
-    private void validateEntranceLeaveTime(final LocalTime entranceTime, final LocalTime leaveTime) {
+    public boolean isSameMeeting(final Meeting meeting) {
+        return this.meeting.equals(meeting);
+    }
+
+    public void updateTime(final LocalTime startTime, final LocalTime endTime) {
+        validateStartEndTime(startTime, endTime);
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
+    public boolean isDateBefore(final LocalDate date) {
+        return this.date.isBefore(date);
+    }
+
+    private void validateStartEndTime(final LocalTime entranceTime, final LocalTime leaveTime) {
         if (entranceTime.isAfter(leaveTime)) {
             throw new IllegalEntranceLeaveTimeException();
         }

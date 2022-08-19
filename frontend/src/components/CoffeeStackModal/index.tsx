@@ -8,6 +8,7 @@ import ErrorIcon from 'components/@shared/ErrorIcon';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { getUserCoffeeStatsApi } from 'apis/userApis';
 import coffeeIcon from 'assets/coffee.svg';
+import { css } from '@emotion/react';
 
 type CoffeeStackModalProps = {
   onConfirm: React.MouseEventHandler;
@@ -39,36 +40,44 @@ const CoffeeStackModal = ({ onDismiss, onConfirm }: CoffeeStackModalProps) => {
     return (
       <S.Layout>
         <ErrorIcon />
-        <S.CloseButton variant="confirm" type="button" onClick={onDismiss}>
+        <DialogButton variant="dismiss" type="button" onClick={onDismiss}>
           닫기
-        </S.CloseButton>
+        </DialogButton>
       </S.Layout>
     );
   }
 
   return (
     <S.Layout>
-      <S.Header>It's 커피 타임~</S.Header>
+      <S.Title>It's 커피 타임~</S.Title>
       <S.StatsBox>
         {userCoffeeStatsResponse.body.userCoffeeStats.map((data) => (
-          <S.RowBox>
+          <S.RowBox key={data.id}>
             <span>{data.nickname}</span>
             <S.CoffeeIconBox>
-              <img src={coffeeIcon} alt="coffee-icon" width={40} />
+              <img
+                src={coffeeIcon}
+                alt="coffee-icon"
+                css={css`
+                  width: 1.5rem;
+                `}
+              />
               <span>X</span>
               <span>{data.coffeeCount}</span>
             </S.CoffeeIconBox>
           </S.RowBox>
         ))}
       </S.StatsBox>
-      <S.ButtonBox>
-        <S.dismissButton variant="dismiss" type="button" onClick={onDismiss}>
-          안 마실래요
-        </S.dismissButton>
-        <DialogButton variant="confirm" type="button" onClick={onConfirm}>
-          잘마실게요!
-        </DialogButton>
-      </S.ButtonBox>
+      <S.Box>
+        <S.ButtonBox>
+          <DialogButton variant="dismiss" type="button" onClick={onDismiss}>
+            안 마실래요
+          </DialogButton>
+          <DialogButton variant="confirm" type="button" onClick={onConfirm}>
+            잘 마실게요!
+          </DialogButton>
+        </S.ButtonBox>
+      </S.Box>
     </S.Layout>
   );
 };
