@@ -2,27 +2,31 @@
 
 <configuration>
     <timestamp key="BY_DATE" datePattern="yyyy-MM-dd"/>
-    <property name="LOG_PARENT_PATH" value="./logs"/>
-    <property name="LOG_CHILD_INFO" value="info"/>
-    <property name="LOG_CHILD_ERROR" value="error"/>
-    <property name="LOG_BACKUP" value="../log/backup"/>
+    <property name="DEFAULT_PATH" value="./logs"/>
+    <property name="INFO_PATH" value="info"/>
+    <property name="ERROR_PATH" value="error"/>
+    <property name="BACKUP_PATH" value="../log/backup"/>
     <property name="MAX_HISTORY" value="30"/>
-    <property name="LOG_PATTERN"
-              value="[%d{yyyy-MM-dd HH:mm:ss}:%-4relative] [%thread] [%C.%M:%L] - %msg%n"/>
+    <property name="CONSOLE_LOG_PATTERN"
+              value="[%d{yyyy-MM-dd HH:mm:ss}:%-4relative] %green([%thread]) [traceId=%X{traceId}] %highlight(%-5level) [%C.%M:%line] - %msg%n"/>
+    <property name="FILE_LOG_PATTERN"
+              value="[%d{yyyy-MM-dd HH:mm:ss}:%-4relative] [%thread] [traceId=%X{traceId}] %-5level [%C.%M:%line] - %msg%n"/>
 
     <springProfile name="local">
-        <include resource="console-appender.xml"/>
-
+        <include resource="logback/console-appender.xml"/>
+        <include resource="logback/file-info-appender.xml"/>
+        <include resource="logback/file-error-appender.xml"/>
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE-INFO"/>
+            <appender-ref ref="FILE-ERROR"/>
         </root>
     </springProfile>
 
     <springProfile name="dev">
-        <include resource="console-appender.xml"/>
-        <include resource="file-info-appender.xml"/>
-        <include resource="file-error-appender.xml"/>
-
+        <include resource="logback/console-appender.xml"/>
+        <include resource="logback/file-info-appender.xml"/>
+        <include resource="logback/file-error-appender.xml"/>
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE-INFO"/>
@@ -31,12 +35,9 @@
     </springProfile>
 
     <springProfile name="prod">
-        <include resource="console-appender.xml"/>
-        <include resource="file-info-appender.xml"/>
-        <include resource="file-error-appender.xml"/>
-
+        <include resource="logback/file-info-appender.xml"/>
+        <include resource="logback/file-error-appender.xml"/>
         <root level="INFO">
-            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE-INFO"/>
             <appender-ref ref="FILE-ERROR"/>
         </root>
