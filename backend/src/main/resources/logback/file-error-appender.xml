@@ -6,9 +6,11 @@
             <onMatch>ACCEPT</onMatch>
             <onMismatch>DENY</onMismatch>
         </filter>
-        <encoder>
+        <layout class="com.woowacourse.logging.MaskingPatternLayout">
+            <maskPattern>(\w+@\w+\.\w+)</maskPattern>
+            <maskPattern>\"*password\"\s*:\s*\"(.*?)\"</maskPattern>
             <pattern>${FILE_LOG_PATTERN}</pattern>
-        </encoder>
+        </layout>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${BACKUP_PATH}/${ERROR_PATH}/error-%d{yyyy-MM-dd}.%i.zip</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
