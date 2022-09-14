@@ -7,6 +7,7 @@ const currentDate = new Date().toISOString().split('.')[0];
 
 module.exports = merge(common, {
   mode: 'production',
+  devtool: 'source-map',
   plugins: [
     new BundleAnalyzerPlugin({
       analyzerMode: 'disabled',
