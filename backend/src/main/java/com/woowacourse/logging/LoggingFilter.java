@@ -54,7 +54,7 @@ public class LoggingFilter extends OncePerRequestFilter {
     private void logRequest(final ContentCachingRequestWrapper request) {
         final String requestBody = new String(request.getContentAsByteArray());
 
-        if (Objects.isNull(request.getHeader(AUTHORIZATION_HEADER))) {
+        if (request.getHeader(AUTHORIZATION_HEADER) == null) {
             log.info(HTTP_REQUEST_FORMAT + REQUEST_BODY_FORMAT,
                     getRequestUri(request),
                     request.getMethod(),
@@ -86,7 +86,7 @@ public class LoggingFilter extends OncePerRequestFilter {
         final String requestURI = request.getRequestURI();
         final String queryString = request.getQueryString();
 
-        if (Objects.isNull(queryString)) {
+        if (queryString == null) {
             return requestURI;
         }
 
