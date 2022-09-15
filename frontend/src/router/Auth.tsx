@@ -9,11 +9,11 @@ const Auth: React.FC<AuthProps> = ({ shouldLogin }) => {
   const userState = useContext(userContext);
 
   useEffect(() => {
-    if (shouldLogin && !userState?.user?.accessToken) {
+    if (shouldLogin && !userState?.accessToken) {
       navigate('/login');
     }
 
-    if (!shouldLogin && userState?.user?.accessToken) {
+    if (!shouldLogin && userState?.accessToken) {
       navigate('/');
     }
   }, [navigate, userState]);

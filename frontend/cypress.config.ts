@@ -1,8 +1,6 @@
 import { defineConfig } from 'cypress';
 const webpackConfig = require('./webpack/webpack.test');
 
-console.log(webpackConfig);
-
 export default defineConfig({
   reporter: 'junit',
   reporterOptions: {
