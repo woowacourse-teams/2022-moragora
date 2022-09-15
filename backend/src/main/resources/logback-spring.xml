@@ -5,6 +5,7 @@
     <property name="DEFAULT_PATH" value="./logs"/>
     <property name="INFO_PATH" value="info"/>
     <property name="ERROR_PATH" value="error"/>
+    <property name="SLOW_SQL_PATH" value="slow-sql"/>
     <property name="BACKUP_PATH" value="../logs/backup"/>
     <property name="MAX_HISTORY" value="30"/>
     <property name="CONSOLE_LOG_PATTERN"
@@ -14,28 +15,44 @@
 
     <springProfile name="local">
         <include resource="logback/console-appender.xml"/>
+        <include resource="logback/file-info-appender.xml"/>
+        <include resource="logback/file-error-appender.xml"/>
+        <include resource="logback/file-slow-sql-appender.xml"/>
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE-INFO"/>
+            <appender-ref ref="FILE-ERROR"/>
         </root>
+        <logger name="org.hibernate.SQL_SLOW" level="INFO">
+            <appender-ref ref="FILE-SLOW-SQL"/>
+        </logger>
     </springProfile>
 
     <springProfile name="dev">
         <include resource="logback/console-appender.xml"/>
         <include resource="logback/file-info-appender.xml"/>
         <include resource="logback/file-error-appender.xml"/>
+        <include resource="logback/file-slow-sql-appender.xml"/>
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE-INFO"/>
             <appender-ref ref="FILE-ERROR"/>
         </root>
+        <logger name="org.hibernate.SQL_SLOW" level="INFO">
+            <appender-ref ref="FILE-SLOW-SQL"/>
+        </logger>
     </springProfile>
 
     <springProfile name="prod">
         <include resource="logback/file-info-appender.xml"/>
         <include resource="logback/file-error-appender.xml"/>
+        <include resource="logback/file-slow-sql-appender.xml"/>
         <root level="INFO">
             <appender-ref ref="FILE-INFO"/>
             <appender-ref ref="FILE-ERROR"/>
         </root>
+        <logger name="org.hibernate.SQL_SLOW" level="INFO">
+            <appender-ref ref="FILE-SLOW-SQL"/>
+        </logger>
     </springProfile>
 </configuration>

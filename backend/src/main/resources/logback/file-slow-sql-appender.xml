@@ -1,0 +1,14 @@
+<included>
+    <appender name="FILE-SLOW-SQL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${DEFAULT_PATH}/${SLOW_SQL_PATH}/slow-sql-${BY_DATE}.log</file>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${BACKUP_PATH}/${SLOW_SQL_PATH}/slow-sql-%d{yyyy-MM-dd}.%i.zip</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+</included>
