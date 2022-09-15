@@ -37,6 +37,7 @@ public class MaskingPatternLayout extends PatternLayout {
                 }
             });
         }
+
         return sb.toString();
     }
 }

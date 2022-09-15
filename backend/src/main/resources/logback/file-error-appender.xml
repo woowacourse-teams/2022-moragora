@@ -7,7 +7,7 @@
             <onMismatch>DENY</onMismatch>
         </filter>
         <layout class="com.woowacourse.logging.MaskingPatternLayout">
-            <maskPattern>(\w+@\w+\.\w+)</maskPattern>
+            <maskPattern>\"accessToken\"\s*:\s*\"(.*?)\"</maskPattern>
             <maskPattern>\"*password\"\s*:\s*\"(.*?)\"</maskPattern>
             <pattern>${FILE_LOG_PATTERN}</pattern>
         </layout>
