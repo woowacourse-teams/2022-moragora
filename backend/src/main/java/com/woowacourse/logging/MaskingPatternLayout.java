@@ -4,11 +4,16 @@ import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class MaskingPatternLayout extends PatternLayout {
+
+    private static final String MASKED_STRING = "********";
 
     private Pattern multilinePattern;
     private final List<String> maskPatterns = new ArrayList<>();
@@ -27,17 +32,19 @@ public class MaskingPatternLayout extends PatternLayout {
         if (multilinePattern == null) {
             return message;
         }
-        final StringBuilder sb = new StringBuilder(message);
-        final Matcher matcher = multilinePattern.matcher(sb);
+
+        final StringBuilder stringBuilder = new StringBuilder(message);
+        final Matcher matcher = multilinePattern.matcher(stringBuilder);
         while (matcher.find()) {
-            IntStream.rangeClosed(1, matcher.groupCount()).forEach(group -> {
-                if (matcher.group(group) != null) {
-                    IntStream.range(matcher.start(group), matcher.end(group))
-                            .forEach(it -> sb.setCharAt(it, '*'));
-                }
-            });
+            maskIfMatch(stringBuilder, matcher);
         }
 
-        return sb.toString();
+        return stringBuilder.toString();
+    }
+
+    private void maskIfMatch(final StringBuilder stringBuilder, final Matcher matcher) {
+        IntStream.rangeClosed(1, matcher.groupCount())
+                .filter(it -> !Objects.isNull(matcher.group(it)))
+                .forEach(it -> stringBuilder.replace(matcher.start(it), matcher.end(it), MASKED_STRING));
     }
 }
