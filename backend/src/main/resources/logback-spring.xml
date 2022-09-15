@@ -12,6 +12,8 @@
               value="[%d{yyyy-MM-dd HH:mm:ss}:%-4relative] %green([%thread]) [traceId=%X{traceId}] %highlight(%-5level) [%C.%M:%line] - %msg%n"/>
     <property name="FILE_LOG_PATTERN"
               value="[%d{yyyy-MM-dd HH:mm:ss}:%-4relative] [%thread] [traceId=%X{traceId}] %-5level [%C.%M:%line] - %msg%n"/>
+    <property name="TOKEN_PATTERN" value='\"accessToken\"\s*:\s*\"(.*?)\"'/>
+    <property name="PASSWORD_PATTERN" value='\"*password\"\s*:\s*\"(.*?)\"'/>
 
     <springProfile name="local">
         <include resource="logback/console-appender.xml"/>

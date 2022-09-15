@@ -1,8 +1,8 @@
 <included>
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="com.woowacourse.logging.MaskingPatternLayout">
-            <maskPattern>\"accessToken\"\s*:\s*\"(.*?)\"</maskPattern>
-            <maskPattern>\"*password\"\s*:\s*\"(.*?)\"</maskPattern>
+            <maskPattern>${TOKEN_PATTERN}</maskPattern>
+            <maskPattern>${PASSWORD_PATTERN}</maskPattern>
             <pattern>${CONSOLE_LOG_PATTERN}</pattern>
         </layout>
     </appender>
