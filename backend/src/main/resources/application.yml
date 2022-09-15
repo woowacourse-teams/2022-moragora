@@ -7,6 +7,10 @@ spring:
         format_sql: true
         jdbc:
           time_zone: Asia/Seoul
+        session:
+          events:
+            log:
+              LOG_QUERIES_SLOWER_THAN_MS: 1000
     hibernate:
       ddl-auto: create # ddl-auto
 

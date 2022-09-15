@@ -12,13 +12,12 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice
 @Slf4j
+@RestControllerAdvice
 public class ControllerAdvice {
 
     @ExceptionHandler(ClientRuntimeException.class)
     public ResponseEntity<ErrorResponse> handleClientRuntimeException(final ClientRuntimeException exception) {
-        log.info(exception.getMessage());
         return ResponseEntity.status(exception.getHttpStatus()).body(new ErrorResponse(exception.getMessage()));
     }
 
@@ -27,19 +26,17 @@ public class ControllerAdvice {
         final List<FieldError> fieldErrors = bindingResult.getFieldErrors();
         final FieldError mainError = fieldErrors.get(0);
 
-        log.info(mainError.getDefaultMessage());
         return ResponseEntity.badRequest().body(new ErrorResponse(mainError.getDefaultMessage()));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleInvalidRequestFormat() {
-        log.error("입력 형식이 올바르지 않습니다.");
         return ResponseEntity.badRequest().body(new ErrorResponse("입력 형식이 올바르지 않습니다."));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleInternalServerError() {
-        log.error("서버에 오류가 발생했습니다.");
+    public ResponseEntity<ErrorResponse> handleInternalServerError(final Exception exception) {
+        log.error("Internal Server Error\n{}" , exception.getMessage(), exception);
         return ResponseEntity.internalServerError().body(new ErrorResponse("서버에 오류가 발생했습니다."));
     }
 }
