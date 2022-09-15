@@ -8,9 +8,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class MaskingPatternLayout extends PatternLayout {
 
     private static final String MASKED_STRING = "********";
