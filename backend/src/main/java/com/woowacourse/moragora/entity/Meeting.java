@@ -3,7 +3,6 @@ package com.woowacourse.moragora.entity;
 import com.woowacourse.moragora.exception.InvalidFormatException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,6 +14,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.EqualsAndHashCode.Include;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,12 +23,14 @@ import lombok.NoArgsConstructor;
 @Table(name = "meeting")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Meeting {
 
     private static final int MAX_NAME_LENGTH = 50;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Include
     private Long id;
 
     @Column(nullable = false)
@@ -37,9 +40,14 @@ public class Meeting {
     private final List<Participant> participants = new ArrayList<>();
 
     @Builder
-    public Meeting(final String name) {
+    public Meeting(final Long id, final String name) {
         validateName(name);
+        this.id = id;
         this.name = name;
+    }
+
+    public Meeting(final String name) {
+        this(null, name);
     }
 
     public void updateName(final String name) {
@@ -57,22 +65,5 @@ public class Meeting {
         if (name.length() > MAX_NAME_LENGTH) {
             throw new InvalidFormatException();
         }
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Meeting)) {
-            return false;
-        }
-        final Meeting meeting = (Meeting) o;
-        return Objects.equals(this.id, meeting.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.id);
     }
 }
