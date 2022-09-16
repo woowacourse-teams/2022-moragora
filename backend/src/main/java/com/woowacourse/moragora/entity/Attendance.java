@@ -1,6 +1,5 @@
 package com.woowacourse.moragora.entity;
 
-import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -12,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "attendance")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@EqualsAndHashCode(of = "id")
 public class Attendance {
 
     @Id
@@ -67,22 +68,5 @@ public class Attendance {
 
     public boolean isEnabled() {
         return !disabled;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Attendance)) {
-            return false;
-        }
-        final Attendance that = (Attendance) o;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }
