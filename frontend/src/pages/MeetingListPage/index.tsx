@@ -108,7 +108,7 @@ const MeetingListPage = () => {
     );
   }
 
-  if (isError || !meetingListResponse?.body) {
+  if (isError) {
     return (
       <>
         <S.Layout>
@@ -126,7 +126,7 @@ const MeetingListPage = () => {
     );
   }
 
-  if (meetingListResponse.body.meetings.length === 0) {
+  if (meetingListResponse?.body.meetings.length === 0) {
     return (
       <>
         <S.Layout>
@@ -190,7 +190,7 @@ const MeetingListPage = () => {
             <S.Title>나의 커피 스택</S.Title>
           </S.TitleBox>
           <S.CoffeeStackList>
-            {meetingListResponse.body.meetings.map((meeting) => (
+            {meetingListResponse?.body.meetings.map((meeting) => (
               <li key={meeting.id}>
                 <CoffeeStackItem
                   name={meeting.name}

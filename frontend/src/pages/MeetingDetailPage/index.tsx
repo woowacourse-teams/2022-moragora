@@ -83,7 +83,7 @@ const MeetingDetailPage = () => {
     );
   }
 
-  if (!id || meetingQuery.isError || !meetingQuery.data?.body) {
+  if (!id || meetingQuery.isError) {
     return (
       <>
         <S.Layout>
