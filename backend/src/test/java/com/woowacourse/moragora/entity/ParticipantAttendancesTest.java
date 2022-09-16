@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 class ParticipantAttendancesTest {
 
-    @DisplayName("ParticipantAttendances 객체를 만들 때 참가자가 한명도 없다면 예외가 발생한다.")
+    @DisplayName("ParticipantAttendances 객체를 만들 때 참가자가 두명이상이라면 예외가 발생한다.")
     @Test
     void validateSingleParticipant() {
 
