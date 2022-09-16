@@ -48,7 +48,7 @@ const CheckInPage = () => {
     );
   }
 
-  if (meetingListQuery.isError || !meetingListQuery.data) {
+  if (meetingListQuery.isError) {
     return (
       <>
         <S.Layout>
@@ -89,7 +89,7 @@ const CheckInPage = () => {
         <S.EndedCheckTimeSection>
           <S.SectionTitle>출결이 끝난 모임</S.SectionTitle>
           <S.MeetingList>
-            {meetingListQuery.data.body.meetings
+            {meetingListQuery.data?.body.meetings
               .filter((meeting) => !meeting.isActive)
               .map((meeting) => (
                 <CheckMeetingItem
@@ -106,7 +106,7 @@ const CheckInPage = () => {
         <S.CheckTimeSection>
           <S.SectionTitle>출결 중인 모임</S.SectionTitle>
           <S.MeetingList>
-            {meetingListQuery.data.body.meetings
+            {meetingListQuery.data?.body.meetings
               .filter((meeting) => meeting.isActive)
               .map((meeting) => (
                 <CheckMeetingItem
