@@ -2,9 +2,12 @@ package com.woowacourse.moragora.entity;
 
 import static com.woowacourse.moragora.entity.Provider.CHECKMATE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.entity.user.EncodedPassword;
 import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.support.EventFixtures;
+import com.woowacourse.moragora.support.UserFixtures;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -131,5 +134,31 @@ class MeetingAttendancesTest {
 
         // then
         assertThat(meetingAttendances.countTardy()).isEqualTo(3);
+    }
+
+    @DisplayName("MeetingAttendances 객체를 만들 때 Meeting이 2개 이상이면 예외가 발생한다.")
+    @Test
+    void validateSingleMeeting() {
+        // given
+        final User user = UserFixtures.KUN.create();
+        final Meeting meeting1 = Meeting.builder()
+                .id(1L)
+                .name("모라고라")
+                .build();
+
+        final Meeting meeting2 = Meeting.builder()
+                .id(2L)
+                .name("f12")
+                .build();
+
+        final Participant participant1 = new Participant(user, meeting1, false);
+        final Participant participant2 = new Participant(user, meeting2, false);
+        final Event event1 = EventFixtures.EVENT1.create(meeting1);
+        final Attendance attendance1 = new Attendance(Status.TARDY, false, participant1, event1);
+        final Attendance attendance2 = new Attendance(Status.TARDY, false, participant2, event1);
+
+        // when, then
+        assertThatThrownBy(() -> new MeetingAttendances(List.of(attendance1, attendance2), 2))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }
