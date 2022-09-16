@@ -1,8 +1,10 @@
 package com.woowacourse.moragora.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
 import com.woowacourse.moragora.support.EventFixtures;
 import com.woowacourse.moragora.support.MeetingFixtures;
 import java.time.LocalDate;
@@ -77,5 +79,17 @@ class EventTest {
 
         // then
         assertThat(actual).isTrue();
+    }
+
+    @DisplayName("이벤트를 업데이트하려고 할 때 시작시간이 종료시간보다 이후의 시간이라면 예외가 발생한다.")
+    @Test
+    void update_throwException_ifStartTimeIsAfterLeaveTime() {
+        // given
+        final Meeting meeting = MeetingFixtures.MORAGORA.create();
+        final Event event = EventFixtures.EVENT1.create(meeting);
+
+        // when, then
+        assertThatThrownBy(() -> event.updateTime(LocalTime.of(11, 5), LocalTime.of(10, 5)))
+                .isInstanceOf(IllegalEntranceLeaveTimeException.class);
     }
 }
