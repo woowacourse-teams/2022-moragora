@@ -6,10 +6,10 @@ import static com.woowacourse.moragora.support.fixture.UserFixtures.SUN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.domain.attendance.Attendance;
+import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.participant.Participant;
-import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;

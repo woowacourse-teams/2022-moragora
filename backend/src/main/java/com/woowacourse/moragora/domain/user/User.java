@@ -4,8 +4,8 @@ import static com.woowacourse.moragora.domain.user.Provider.CHECKMATE;
 
 import com.woowacourse.moragora.domain.user.password.EncodedPassword;
 import com.woowacourse.moragora.domain.user.password.RawPassword;
-import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.exception.global.InvalidFormatException;
+import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

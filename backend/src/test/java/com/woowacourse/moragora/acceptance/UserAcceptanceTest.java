@@ -8,12 +8,12 @@ import static com.woowacourse.moragora.support.fixture.UserFixtures.createUsers;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
+import com.woowacourse.moragora.domain.meeting.Meeting;
+import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.dto.request.user.NicknameRequest;
 import com.woowacourse.moragora.dto.request.user.PasswordRequest;
 import com.woowacourse.moragora.dto.request.user.UserDeleteRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
-import com.woowacourse.moragora.domain.meeting.Meeting;
-import com.woowacourse.moragora.domain.user.User;
 import io.restassured.response.ValidatableResponse;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -2,7 +2,6 @@ package com.woowacourse.moragora.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.woowacourse.moragora.support.CryptoEncoder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

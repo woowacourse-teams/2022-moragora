@@ -1,7 +1,7 @@
 package com.woowacourse.moragora.support.fixture;
 
-import com.woowacourse.moragora.domain.user.password.EncodedPassword;
 import com.woowacourse.moragora.domain.user.User;
+import com.woowacourse.moragora.domain.user.password.EncodedPassword;
 import java.util.List;
 
 public enum UserFixtures {

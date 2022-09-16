@@ -8,13 +8,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.woowacourse.moragora.dto.request.event.EventCancelRequest;
-import com.woowacourse.moragora.dto.request.event.EventRequest;
-import com.woowacourse.moragora.dto.response.event.EventResponse;
-import com.woowacourse.moragora.dto.request.event.EventsRequest;
-import com.woowacourse.moragora.dto.response.event.EventsResponse;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
+import com.woowacourse.moragora.dto.request.event.EventCancelRequest;
+import com.woowacourse.moragora.dto.request.event.EventRequest;
+import com.woowacourse.moragora.dto.request.event.EventsRequest;
+import com.woowacourse.moragora.dto.response.event.EventResponse;
+import com.woowacourse.moragora.dto.response.event.EventsResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;

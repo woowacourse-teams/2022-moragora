@@ -1,5 +1,7 @@
 package com.woowacourse.moragora.domain.attendance;
 
+import com.woowacourse.moragora.domain.event.Event;
+import com.woowacourse.moragora.domain.participant.Participant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -10,8 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import com.woowacourse.moragora.domain.event.Event;
-import com.woowacourse.moragora.domain.participant.Participant;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.EqualsAndHashCode.Include;

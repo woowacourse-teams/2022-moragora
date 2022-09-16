@@ -7,9 +7,9 @@ import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import com.woowacourse.moragora.domain.meeting.Meeting;
 import java.time.LocalTime;
 import java.util.List;
-import com.woowacourse.moragora.domain.meeting.Meeting;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

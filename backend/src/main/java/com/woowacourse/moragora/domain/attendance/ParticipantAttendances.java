@@ -1,7 +1,6 @@
 package com.woowacourse.moragora.domain.attendance;
 
 import java.util.List;
-import com.woowacourse.moragora.domain.attendance.Attendance;
 import lombok.Getter;
 
 @Getter

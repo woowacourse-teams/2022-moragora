@@ -6,14 +6,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.woowacourse.moragora.presentation.auth.AuthController;
-import com.woowacourse.moragora.application.auth.AuthService;
-import com.woowacourse.moragora.support.JwtTokenProvider;
 import com.woowacourse.moragora.application.AttendanceService;
 import com.woowacourse.moragora.application.CommonService;
 import com.woowacourse.moragora.application.EventService;
 import com.woowacourse.moragora.application.MeetingService;
 import com.woowacourse.moragora.application.UserService;
+import com.woowacourse.moragora.application.auth.AuthService;
+import com.woowacourse.moragora.presentation.auth.AuthController;
+import com.woowacourse.moragora.support.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

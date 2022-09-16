@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.domain.user.password.EncodedPassword;
 import com.woowacourse.moragora.domain.user.password.RawPassword;
-import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.exception.global.InvalidFormatException;
+import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

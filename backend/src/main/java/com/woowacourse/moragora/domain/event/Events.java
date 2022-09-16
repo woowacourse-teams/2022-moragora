@@ -1,10 +1,10 @@
 package com.woowacourse.moragora.domain.event;
 
+import com.woowacourse.moragora.domain.meeting.Meeting;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import com.woowacourse.moragora.domain.meeting.Meeting;
 import lombok.Getter;
 
 @Getter

@@ -2,7 +2,6 @@ package com.woowacourse.moragora.domain.user.password;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.woowacourse.moragora.domain.user.password.EncodedPassword;
 import com.woowacourse.moragora.support.CryptoEncoder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

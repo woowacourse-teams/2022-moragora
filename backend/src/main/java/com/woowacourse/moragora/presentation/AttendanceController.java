@@ -1,10 +1,10 @@
 package com.woowacourse.moragora.presentation;
 
+import com.woowacourse.moragora.application.AttendanceService;
 import com.woowacourse.moragora.application.auth.MasterAuthorization;
+import com.woowacourse.moragora.dto.request.user.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.response.attendance.AttendancesResponse;
 import com.woowacourse.moragora.dto.response.meeting.CoffeeStatsResponse;
-import com.woowacourse.moragora.dto.request.user.UserAttendanceRequest;
-import com.woowacourse.moragora.application.AttendanceService;
 import com.woowacourse.moragora.presentation.auth.Authentication;
 import com.woowacourse.moragora.presentation.auth.AuthenticationPrincipal;
 import org.springframework.http.ResponseEntity;

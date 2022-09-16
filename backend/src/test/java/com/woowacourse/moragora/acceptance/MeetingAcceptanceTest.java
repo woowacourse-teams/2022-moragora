@@ -14,13 +14,13 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
-import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
-import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
+import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
-import com.woowacourse.moragora.application.ServerTimeManager;
+import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
+import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
+import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDate;
 import java.time.LocalTime;

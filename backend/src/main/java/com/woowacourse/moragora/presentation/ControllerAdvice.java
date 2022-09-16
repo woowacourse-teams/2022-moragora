@@ -36,7 +36,7 @@ public class ControllerAdvice {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleInternalServerError(final Exception exception) {
-        log.error("Internal Server Error\n{}" , exception.getMessage(), exception);
+        log.error("Internal Server Error\n{}", exception.getMessage(), exception);
         return ResponseEntity.internalServerError().body(new ErrorResponse("서버에 오류가 발생했습니다."));
     }
 }

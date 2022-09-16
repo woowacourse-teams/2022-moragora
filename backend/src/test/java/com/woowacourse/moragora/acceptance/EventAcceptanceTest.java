@@ -14,14 +14,14 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-import com.woowacourse.moragora.dto.request.user.LoginRequest;
-import com.woowacourse.moragora.dto.request.event.EventCancelRequest;
-import com.woowacourse.moragora.dto.request.event.EventRequest;
-import com.woowacourse.moragora.dto.request.event.EventsRequest;
+import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
-import com.woowacourse.moragora.application.ServerTimeManager;
+import com.woowacourse.moragora.dto.request.event.EventCancelRequest;
+import com.woowacourse.moragora.dto.request.event.EventRequest;
+import com.woowacourse.moragora.dto.request.event.EventsRequest;
+import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -95,7 +95,7 @@ class EventAcceptanceTest extends AcceptanceTest {
 
         final LocalTime startTime = LocalTime.of(10, 0);
         final LocalTime endTime = LocalTime.of(18, 0);
-        
+
         final Event event1 = new Event(LocalDate.now().plusDays(1),
                 startTime, endTime, meeting);
         final Event event2 = new Event(LocalDate.now().plusDays(2),

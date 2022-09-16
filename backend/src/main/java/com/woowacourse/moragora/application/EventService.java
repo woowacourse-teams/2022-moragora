@@ -1,21 +1,21 @@
 package com.woowacourse.moragora.application;
 
-import com.woowacourse.moragora.dto.request.event.EventCancelRequest;
-import com.woowacourse.moragora.dto.response.event.EventResponse;
-import com.woowacourse.moragora.dto.request.event.EventsRequest;
-import com.woowacourse.moragora.dto.response.event.EventsResponse;
 import com.woowacourse.moragora.domain.attendance.Attendance;
+import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
+import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
+import com.woowacourse.moragora.domain.event.EventRepository;
 import com.woowacourse.moragora.domain.event.Events;
 import com.woowacourse.moragora.domain.meeting.Meeting;
+import com.woowacourse.moragora.domain.meeting.MeetingRepository;
 import com.woowacourse.moragora.domain.participant.Participant;
-import com.woowacourse.moragora.domain.attendance.Status;
+import com.woowacourse.moragora.dto.request.event.EventCancelRequest;
+import com.woowacourse.moragora.dto.request.event.EventsRequest;
+import com.woowacourse.moragora.dto.response.event.EventResponse;
+import com.woowacourse.moragora.dto.response.event.EventsResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
-import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
-import com.woowacourse.moragora.domain.event.EventRepository;
-import com.woowacourse.moragora.domain.meeting.MeetingRepository;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -81,7 +81,7 @@ public class EventService {
         final List<Attendance> attendances = attendanceRepository.findByMeetingIdAndDateIn(meetingId, eventDates);
         scheduleAttendancesUpdate(attendances);
     }
-    
+
     @Transactional
     public void cancel(final EventCancelRequest request, final Long meetingId) {
         meetingRepository.findById(meetingId)
@@ -99,7 +99,7 @@ public class EventService {
 
     public EventResponse findUpcomingEvent(final Long meetingId) {
         final Event event = eventRepository.findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(
-                meetingId, serverTimeManager.getDate())
+                        meetingId, serverTimeManager.getDate())
                 .orElseThrow(EventNotFoundException::new);
 
         final LocalTime entranceTime = event.getStartTime();
