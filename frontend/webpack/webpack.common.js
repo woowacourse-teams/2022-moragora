@@ -15,8 +15,8 @@ module.exports = {
   output: {
     publicPath: '/',
     path: resolve(__dirname, '../build'),
-    filename: '[name].bundle.js',
-    assetModuleFilename: 'images/[hash][ext][query]',
+    filename: '[name].[contenthash].js',
+    assetModuleFilename: 'images/[contenthash][ext][query]',
     clean: true,
   },
   module: {
