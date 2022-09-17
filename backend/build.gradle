@@ -130,7 +130,7 @@ jacocoTestCoverageVerification {
                 minimum = 0.80
             }
 
-            excludes = ['*support*', '*config*', '*dto*', '*exception*', '*logging*', '*Application*']
+            excludes = ['*infrastructure*', '*support*', '*config*', '*dto*', '*exception*', '*logging*', '*Application*']
         }
     }
 }

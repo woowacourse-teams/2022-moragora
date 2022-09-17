@@ -8,7 +8,7 @@ import static org.mockito.BDDMockito.given;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
-import com.woowacourse.moragora.infastructure.GoogleClient;
+import com.woowacourse.moragora.infrastructure.GoogleClient;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.DisplayName;

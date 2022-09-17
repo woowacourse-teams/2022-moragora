@@ -1,4 +1,4 @@
-package com.woowacourse.moragora.infastructure;
+package com.woowacourse.moragora.infrastructure;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

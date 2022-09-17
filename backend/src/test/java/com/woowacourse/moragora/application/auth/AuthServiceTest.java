@@ -17,7 +17,7 @@ import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
-import com.woowacourse.moragora.infastructure.GoogleClient;
+import com.woowacourse.moragora.infrastructure.GoogleClient;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import com.woowacourse.moragora.support.JwtTokenProvider;
