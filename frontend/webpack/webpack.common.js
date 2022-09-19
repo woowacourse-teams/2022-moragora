@@ -16,7 +16,7 @@ module.exports = {
     publicPath: '/',
     path: resolve(__dirname, '../build'),
     filename: '[name].[contenthash].js',
-    assetModuleFilename: 'images/[hash][ext]',
+    assetModuleFilename: 'images/[name].[hash:8][ext][query]',
     clean: true,
   },
   module: {
