@@ -1,16 +1,16 @@
 package com.woowacourse.moragora.support;
 
-import com.woowacourse.moragora.entity.Attendance;
-import com.woowacourse.moragora.entity.Event;
-import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.entity.Participant;
-import com.woowacourse.moragora.entity.Status;
-import com.woowacourse.moragora.entity.user.User;
-import com.woowacourse.moragora.repository.AttendanceRepository;
-import com.woowacourse.moragora.repository.EventRepository;
-import com.woowacourse.moragora.repository.MeetingRepository;
-import com.woowacourse.moragora.repository.ParticipantRepository;
-import com.woowacourse.moragora.repository.UserRepository;
+import com.woowacourse.moragora.domain.attendance.Attendance;
+import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
+import com.woowacourse.moragora.domain.attendance.Status;
+import com.woowacourse.moragora.domain.event.Event;
+import com.woowacourse.moragora.domain.event.EventRepository;
+import com.woowacourse.moragora.domain.meeting.Meeting;
+import com.woowacourse.moragora.domain.meeting.MeetingRepository;
+import com.woowacourse.moragora.domain.participant.Participant;
+import com.woowacourse.moragora.domain.participant.ParticipantRepository;
+import com.woowacourse.moragora.domain.user.User;
+import com.woowacourse.moragora.domain.user.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

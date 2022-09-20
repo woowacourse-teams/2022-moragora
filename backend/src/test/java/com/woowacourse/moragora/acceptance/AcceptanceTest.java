@@ -1,13 +1,13 @@
 package com.woowacourse.moragora.acceptance;
 
-import com.woowacourse.auth.dto.LoginRequest;
-import com.woowacourse.moragora.dto.EventRequest;
-import com.woowacourse.moragora.dto.EventsRequest;
-import com.woowacourse.moragora.dto.MeetingRequest;
-import com.woowacourse.moragora.dto.UserRequest;
-import com.woowacourse.moragora.entity.Event;
-import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.domain.event.Event;
+import com.woowacourse.moragora.domain.meeting.Meeting;
+import com.woowacourse.moragora.domain.user.User;
+import com.woowacourse.moragora.dto.request.event.EventRequest;
+import com.woowacourse.moragora.dto.request.event.EventsRequest;
+import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
+import com.woowacourse.moragora.dto.request.user.LoginRequest;
+import com.woowacourse.moragora.dto.request.user.UserRequest;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
