@@ -146,3 +146,13 @@ sonarqube {
         property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
     }
 }
+
+
+//def tomcatVersion = '8.0.53'
+//
+//dependencies {
+//    implementation "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}"
+//    implementation "org.apache.tomcat.embed:tomcat-embed-el:${tomcatVersion}"
+//    implementation "org.apache.tomcat.embed:tomcat-embed-websocket:${tomcatVersion}"
+//    implementation "org.apache.tomcat:tomcat-annotations-api:${tomcatVersion}"
+//}
