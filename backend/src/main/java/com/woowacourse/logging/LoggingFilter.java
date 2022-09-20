@@ -52,8 +52,9 @@ public class LoggingFilter extends OncePerRequestFilter {
         filterChain.doFilter(wrappedRequest, wrappedResponse);
 
         logProcessedRequest(wrappedRequest, wrappedResponse, System.currentTimeMillis() - startTime);
-        wrappedResponse.copyBodyToResponse();
+        queryCountInspector.clearCounter();
         MDC.clear();
+        wrappedResponse.copyBodyToResponse();
     }
 
     private void logProcessedRequest(final ContentCachingRequestWrapper request,
@@ -62,18 +63,6 @@ public class LoggingFilter extends OncePerRequestFilter {
         logRequest(request);
         logResponse(response);
         logQueryCount(duration, request.getMethod(), request.getRequestURI());
-    }
-
-    private void logQueryCount(final long duration, final String method, final String uri) {
-        final Long queryCount = queryCountInspector.getQueryCount();
-        Object[] args = new Object[]{method, uri, duration, queryCount};
-
-        if (queryCount >= 10) {
-            log.warn(QUERY_COUNTER_FORMAT, args);
-            return;
-        }
-
-        log.info(QUERY_COUNTER_FORMAT, args);
     }
 
     private void logRequest(final ContentCachingRequestWrapper request) {
@@ -105,6 +94,18 @@ public class LoggingFilter extends OncePerRequestFilter {
         }
 
         log.info(HTTP_RESPONSE_FORMAT, response.getStatus());
+    }
+
+    private void logQueryCount(final long duration, final String method, final String uri) {
+        final Long queryCount = queryCountInspector.getQueryCount();
+        Object[] args = new Object[]{method, uri, duration, queryCount};
+
+        if (queryCount >= 10) {
+            log.warn(QUERY_COUNTER_FORMAT, args);
+            return;
+        }
+
+        log.info(QUERY_COUNTER_FORMAT, args);
     }
 
     private String getRequestUri(final ContentCachingRequestWrapper request) {

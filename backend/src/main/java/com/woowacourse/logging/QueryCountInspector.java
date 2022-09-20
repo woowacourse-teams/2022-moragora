@@ -20,16 +20,16 @@ public class QueryCountInspector implements StatementInspector {
         queryCount.remove();
     }
 
-    @Override
-    public String inspect(final String sql) {
-        increaseCount();
-        return sql;
-    }
-
     private void increaseCount() {
         final Long count = queryCount.get();
         if (count != null) {
             queryCount.set(count + 1);
         }
+    }
+
+    @Override
+    public String inspect(final String sql) {
+        increaseCount();
+        return sql;
     }
 }
