@@ -1,5 +1,6 @@
 package com.woowacourse.logging;
 
+import com.woowacourse.moragora.application.ServerTimeManager;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
@@ -43,10 +44,13 @@ public class LoggingFilter extends OncePerRequestFilter {
         final ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
 
         MDC.put("traceId", UUID.randomUUID().toString());
+        final long startTime = System.currentTimeMillis();
         filterChain.doFilter(wrappedRequest, wrappedResponse);
+        final long endTime = System.currentTimeMillis();
 
         logRequest(wrappedRequest);
         logResponse(wrappedResponse);
+        log.info("\nTime Taken To Process Request : " + (endTime - startTime) + " ms");
         wrappedResponse.copyBodyToResponse();
         MDC.clear();
     }
