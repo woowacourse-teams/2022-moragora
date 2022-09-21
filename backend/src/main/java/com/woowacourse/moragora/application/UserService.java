@@ -1,5 +1,8 @@
 package com.woowacourse.moragora.application;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+
 import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.participant.ParticipantRepository;
@@ -21,8 +24,8 @@ import com.woowacourse.moragora.exception.user.InvalidPasswordException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +47,7 @@ public class UserService {
 
     @Transactional
     public Long create(final UserRequest userRequest) {
+        validateUserExists(userRequest.getEmail());
         final User user = new User(userRequest.getEmail(), EncodedPassword.fromRawValue(userRequest.getPassword()),
                 userRequest.getNickname());
         final User savedUser = userRepository.save(user);
@@ -109,6 +113,17 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    private void validateUserExists(final String email) {
+        final Optional<User> user = userRepository.findByEmail(email);
+        user.ifPresent(UserService::validateSameProvider);
+    }
+
+    private static void validateSameProvider(final User user) {
+        if (user.isProviderCheckmate()) {
+            throw new ClientRuntimeException("이미 사용중인 이메일입니다.", BAD_REQUEST);
+        }
+    }
+
     private void validateOldPasswordIsCorrect(final User user, final String oldPassword) {
         try {
             user.checkPassword(new RawPassword(oldPassword));
@@ -119,7 +134,7 @@ public class UserService {
 
     private void validateNewPasswordIsNotSame(final String oldPassword, final String newPassword) {
         if (Objects.equals(oldPassword, newPassword)) {
-            throw new ClientRuntimeException("새로운 비밀번호가 기존의 비밀번호와 일치합니다.", HttpStatus.BAD_REQUEST);
+            throw new ClientRuntimeException("새로운 비밀번호가 기존의 비밀번호와 일치합니다.", BAD_REQUEST);
         }
     }
 
@@ -133,7 +148,7 @@ public class UserService {
         final boolean isMaster = participants.stream()
                 .anyMatch(Participant::getIsMaster);
         if (isMaster) {
-            throw new ClientRuntimeException("마스터로 참여중인 모임이 있어 탈퇴할 수 없습니다.", HttpStatus.FORBIDDEN);
+            throw new ClientRuntimeException("마스터로 참여중인 모임이 있어 탈퇴할 수 없습니다.", FORBIDDEN);
         }
     }
 }

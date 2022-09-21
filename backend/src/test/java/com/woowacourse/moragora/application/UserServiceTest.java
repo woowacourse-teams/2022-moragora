@@ -4,6 +4,7 @@ import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.BATD;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.MASTER;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.SUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.createUsers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -63,6 +64,19 @@ class UserServiceTest {
 
         // then
         assertThat(id).isNotNull();
+    }
+
+    @DisplayName("새로운 회원을 생성한다.")
+    @Test
+    void create_throwsException_ifDuplicatedEmailAndProvider() {
+        // given
+        dataSupport.saveUser(SUN.create());
+        final UserRequest userRequest = new UserRequest(SUN.getEmail(), "asdf1234!", "sunny");
+
+        // when, then
+        assertThatThrownBy(() -> userService.create(userRequest))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("이미 사용중인 이메일입니다.");
     }
 
     @DisplayName("중복되지 않은 이메일의 중복 여부를 확인한다.")

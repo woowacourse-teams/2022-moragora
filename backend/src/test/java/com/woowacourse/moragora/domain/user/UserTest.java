@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.domain.user;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -95,5 +96,18 @@ class UserTest {
         // when, then
         assertThatThrownBy(() -> user.updateNickname(nickname))
                 .isInstanceOf(InvalidFormatException.class);
+    }
+
+    @DisplayName("Provider가 CHECKMATE인지 확인한다.")
+    @Test
+    void isProviderCheckmate() {
+        // given
+        final User user = new User("sun@email.com", EncodedPassword.fromRawValue("asdfqer1!"), "sun");
+
+        // when
+        final boolean expected = user.isProviderCheckmate();
+
+        // then
+        assertThat(expected).isTrue();
     }
 }
