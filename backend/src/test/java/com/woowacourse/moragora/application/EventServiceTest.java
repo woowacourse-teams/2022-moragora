@@ -435,7 +435,7 @@ class EventServiceTest {
         final Event event3 = dataSupport.saveEvent(EVENT_WITHOUT_DATE.createEventOnDate(meeting, today.plusDays(3)));
 
         // when
-        eventService.initializeSchedules(List.of(event1, event2, event3));
+        eventService.scheduleAttendancesUpdateByEvents(List.of(event1, event2, event3));
 
         // then
         assertThat(eventService.getScheduledTasks()).hasSize(3);

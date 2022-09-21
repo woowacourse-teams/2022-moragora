@@ -26,6 +26,6 @@ public class SchedulerStartUp implements ApplicationListener<ContextRefreshedEve
     public void onApplicationEvent(final ContextRefreshedEvent event) {
         final LocalDate date = LocalDate.now();
         final List<Event> eventsToSchedule = eventRepository.findByDateGreaterThanEqual(date);
-        eventService.initializeSchedules(eventsToSchedule);
+        eventService.scheduleAttendancesUpdateByEvents(eventsToSchedule);
     }
 }

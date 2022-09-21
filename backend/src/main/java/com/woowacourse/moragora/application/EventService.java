@@ -78,7 +78,7 @@ public class EventService {
         scheduleAttendancesUpdateByEvents(newEvents);
     }
 
-    private void scheduleAttendancesUpdateByEvents(final List<Event> newEvents) {
+    public void scheduleAttendancesUpdateByEvents(final List<Event> newEvents) {
         newEvents.forEach(event -> {
             final ScheduledFuture<?> schedule = taskScheduler.schedule(
                     () -> scheduler.updateAttendancesToTardyAfterClosedTime(event),
@@ -122,10 +122,6 @@ public class EventService {
                 .collect(Collectors.toList());
 
         return new EventsResponse(eventResponses);
-    }
-
-    public void initializeSchedules(final List<Event> events) {
-        scheduleAttendancesUpdateByEvents(events);
     }
 
     private void saveAllAttendances(final List<Participant> participants, final List<Event> events) {
