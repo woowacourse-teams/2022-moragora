@@ -6,7 +6,7 @@ import com.woowacourse.moragora.support.CryptoEncoder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class EncodedPasswordTest {
+class EncodedPasswordTest {
 
     @DisplayName("인코딩 되지 않은 비밀번호를 암호화하여 EncodedPassword를 생성한다.")
     @Test

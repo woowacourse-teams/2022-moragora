@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
-public class EventRepositoryTest {
+class EventRepositoryTest {
 
     @Autowired
     private EventRepository eventRepository;
@@ -189,6 +189,6 @@ public class EventRepositoryTest {
 
         // then
         final List<Event> events = eventRepository.findByMeetingId(meeting.getId());
-        assertThat(events.size()).isEqualTo(0);
+        assertThat(events).isEmpty();
     }
 }

@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
-public class CommonControllerTest extends ControllerTest {
+class CommonControllerTest extends ControllerTest {
 
     @DisplayName("서버의 현재 시간을 조회한다.")
     @Test

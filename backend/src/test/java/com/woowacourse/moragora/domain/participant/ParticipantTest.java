@@ -9,7 +9,7 @@ import com.woowacourse.moragora.domain.user.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class ParticipantTest {
+class ParticipantTest {
 
     @DisplayName("Meeting과 Participant를 맵핑한다.")
     @Test
@@ -24,7 +24,7 @@ public class ParticipantTest {
         participant.mapMeeting(meeting);
 
         // then
-        assertThat(meeting.getParticipants().size()).isEqualTo(1);
+        assertThat(meeting.getParticipants()).hasSize(1);
     }
 
     @DisplayName("Meeting 목록에 이미 Participant가 있으면 포함하지 않는다.")
@@ -41,7 +41,6 @@ public class ParticipantTest {
         participant.mapMeeting(meeting);
 
         // then
-        assertThat(meeting.getParticipants().size()).isEqualTo(1);
-
+        assertThat(meeting.getParticipants()).hasSize(1);
     }
 }

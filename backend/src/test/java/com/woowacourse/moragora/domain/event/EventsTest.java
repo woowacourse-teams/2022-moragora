@@ -13,7 +13,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class EventsTest {
+class EventsTest {
 
     @DisplayName("적용할 일정 중 수정을 실행하고 새로운 일정만 모아 반환한다.")
     @Test

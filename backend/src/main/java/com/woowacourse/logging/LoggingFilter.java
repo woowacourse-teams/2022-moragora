@@ -21,19 +21,23 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 @Component
 public class LoggingFilter extends OncePerRequestFilter {
 
-    private static final String HTTP_REQUEST_FORMAT = "\n### HTTP REQUEST ###\n" +
-            "Method: {}\n" +
-            "URI: {}\n";
+    private static final String HTTP_REQUEST_FORMAT = "\n### HTTP REQUEST ###\nMethod: {}\nURI: {}\n";
     private static final String REQUEST_AUTHORIZATION_FORMAT = "Authorization: {}\n";
     private static final String REQUEST_BODY_FORMAT = "Content-Type: {}\nBody: {}\n";
-    private static final String HTTP_RESPONSE_FORMAT = "\n### HTTP RESPONSE ###\n" +
-            "StatusCode: {}";
+    private static final String HTTP_RESPONSE_FORMAT = "\n### HTTP RESPONSE ###\nStatusCode: {}";
     private static final String HTTP_RESPONSE_WITH_BODY_FORMAT = HTTP_RESPONSE_FORMAT + "\nBody: {}";
+    private static final String QUERY_COUNTER_FORMAT = "\n### Request Processed ###\n{} {} [Time: {} ms] [Queries: {}]";
     private static final String QUERY_STRING_PREFIX = "?";
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String AUTHORIZATION_SPLIT_DELIMITER = " ";
     private static final int AUTHORIZATION_CREDENTIALS_INDEX = 1;
     private static final char MASKED_CHARACTER = '*';
+
+    private final QueryCountInspector queryCountInspector;
+
+    public LoggingFilter(final QueryCountInspector queryCountInspector) {
+        this.queryCountInspector = queryCountInspector;
+    }
 
     @Override
     protected void doFilterInternal(final HttpServletRequest request,
@@ -41,14 +45,24 @@ public class LoggingFilter extends OncePerRequestFilter {
                                     final FilterChain filterChain) throws ServletException, IOException {
         final ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
         final ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
-
+        final long startTime = System.currentTimeMillis();
         MDC.put("traceId", UUID.randomUUID().toString());
+        queryCountInspector.startCounter();
+
         filterChain.doFilter(wrappedRequest, wrappedResponse);
 
-        logRequest(wrappedRequest);
-        logResponse(wrappedResponse);
-        wrappedResponse.copyBodyToResponse();
+        logProcessedRequest(wrappedRequest, wrappedResponse, System.currentTimeMillis() - startTime);
+        queryCountInspector.clearCounter();
         MDC.clear();
+        wrappedResponse.copyBodyToResponse();
+    }
+
+    private void logProcessedRequest(final ContentCachingRequestWrapper request,
+                                     final ContentCachingResponseWrapper response,
+                                     final long duration) {
+        logRequest(request);
+        logResponse(response);
+        logQueryCount(duration, request.getMethod(), request.getRequestURI());
     }
 
     private void logRequest(final ContentCachingRequestWrapper request) {
@@ -80,6 +94,18 @@ public class LoggingFilter extends OncePerRequestFilter {
         }
 
         log.info(HTTP_RESPONSE_FORMAT, response.getStatus());
+    }
+
+    private void logQueryCount(final long duration, final String method, final String uri) {
+        final Long queryCount = queryCountInspector.getQueryCount();
+        Object[] args = new Object[]{method, uri, duration, queryCount};
+
+        if (queryCount >= 10) {
+            log.warn(QUERY_COUNTER_FORMAT, args);
+            return;
+        }
+
+        log.info(QUERY_COUNTER_FORMAT, args);
     }
 
     private String getRequestUri(final ContentCachingRequestWrapper request) {

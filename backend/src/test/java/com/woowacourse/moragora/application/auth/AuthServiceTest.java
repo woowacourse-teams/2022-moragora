@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @Transactional
-public class AuthServiceTest {
+class AuthServiceTest {
 
     @Autowired
     private AuthService authService;

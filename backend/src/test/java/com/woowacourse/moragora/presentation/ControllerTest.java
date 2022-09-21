@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.woowacourse.logging.QueryCountInspector;
 import com.woowacourse.moragora.application.AttendanceService;
 import com.woowacourse.moragora.application.CommonService;
 import com.woowacourse.moragora.application.EventService;
@@ -53,6 +54,9 @@ public class ControllerTest {
 
     @MockBean
     protected JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    protected QueryCountInspector queryCountInspector;
 
     @Autowired
     private MockMvc mockMvc;
