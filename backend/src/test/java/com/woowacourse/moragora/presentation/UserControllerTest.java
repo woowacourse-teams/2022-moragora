@@ -40,7 +40,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
-public class UserControllerTest extends ControllerTest {
+class UserControllerTest extends ControllerTest {
 
     @DisplayName("회원가입에 성공한다.")
     @Test

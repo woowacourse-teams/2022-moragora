@@ -33,7 +33,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 @DisplayName("모임 관련 기능")
-public class MeetingAcceptanceTest extends AcceptanceTest {
+class MeetingAcceptanceTest extends AcceptanceTest {
 
     @MockBean
     private ServerTimeManager serverTimeManager;
