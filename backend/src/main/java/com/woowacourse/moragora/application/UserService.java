@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.application;
 
+import static com.woowacourse.moragora.domain.user.Provider.CHECKMATE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 
@@ -47,7 +48,7 @@ public class UserService {
 
     @Transactional
     public Long create(final UserRequest userRequest) {
-        validateUserExists(userRequest.getEmail());
+        validateUserExistsByEmailAndProvider(userRequest.getEmail());
         final User user = new User(userRequest.getEmail(), EncodedPassword.fromRawValue(userRequest.getPassword()),
                 userRequest.getNickname());
         final User savedUser = userRepository.save(user);
@@ -113,13 +114,9 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    private void validateUserExists(final String email) {
-        final Optional<User> user = userRepository.findByEmail(email);
-        user.ifPresent(UserService::validateSameProvider);
-    }
-
-    private static void validateSameProvider(final User user) {
-        if (user.isProviderCheckmate()) {
+    private void validateUserExistsByEmailAndProvider(final String email) {
+        final Optional<User> user = userRepository.findByEmailAndProvider(email, CHECKMATE);
+        if (user.isPresent()) {
             throw new ClientRuntimeException("이미 사용중인 이메일입니다.", BAD_REQUEST);
         }
     }

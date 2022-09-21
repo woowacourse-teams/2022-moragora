@@ -86,10 +86,6 @@ public class User {
         this.password = newPassword;
     }
 
-    public boolean isProviderCheckmate() {
-        return this.provider == CHECKMATE;
-    }
-
     private void validateEmail(final String email) {
         final Matcher matcher = PATTERN_EMAIL.matcher(email);
         if (!matcher.matches()) {
