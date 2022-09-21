@@ -1,9 +1,9 @@
 import styled from '@emotion/styled';
 
 export const Layout = styled.div`
+  height: 100%;
   display: flex;
   flex-direction: column;
-  flex: 1;
   justify-content: center;
   overflow: hidden;
 `;
