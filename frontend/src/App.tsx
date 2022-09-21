@@ -8,6 +8,7 @@ import { userContext, UserContextValues } from 'contexts/userContext';
 import { CalendarProvider } from 'contexts/calendarContext';
 import useQuery from 'hooks/useQuery';
 import { getLoginUserDataApi } from 'apis/userApis';
+import Footer from 'components/layouts/Footer';
 
 const App = () => {
   const { login, accessToken } = useContext(userContext) as UserContextValues;
@@ -41,6 +42,7 @@ const App = () => {
         <CalendarProvider initialDate={new Date()}>
           <Router />
         </CalendarProvider>
+        <Footer />
       </AppLayout>
       <div id="root-modal" />
     </>
