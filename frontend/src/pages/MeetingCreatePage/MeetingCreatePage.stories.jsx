@@ -3,6 +3,7 @@ import MeetingCreatePage from '.';
 import Header from 'components/layouts/Header';
 import AppLayout from 'components/layouts/AppLayout';
 import Footer from 'components/layouts/Footer';
+import { Body } from 'components/layouts/Body/Body.styled';
 
 export default {
   title: 'Pages/MeetingCreatePage',
@@ -18,7 +19,9 @@ const Template = (args) => {
   return (
     <AppLayout>
       <Header />
-      <MeetingCreatePage {...args} />
+      <Body>
+        <MeetingCreatePage {...args} />
+      </Body>
       <Footer />
     </AppLayout>
   );

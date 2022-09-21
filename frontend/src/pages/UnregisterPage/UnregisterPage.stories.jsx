@@ -3,6 +3,7 @@ import UnregisterPage from '.';
 import Header from 'components/layouts/Header';
 import AppLayout from 'components/layouts/AppLayout';
 import Footer from 'components/layouts/Footer';
+import { Body } from 'components/layouts/Body/Body.styled';
 
 export default {
   title: 'Pages/UnregisterPage',
@@ -13,7 +14,9 @@ const Template = (args) => {
   return (
     <AppLayout>
       <Header />
-      <UnregisterPage {...args} />
+      <Body>
+        <UnregisterPage {...args} />
+      </Body>
       <Footer />
       <div id="root-modal" />
     </AppLayout>
