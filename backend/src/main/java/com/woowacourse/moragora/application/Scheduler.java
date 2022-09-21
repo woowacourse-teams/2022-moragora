@@ -11,14 +11,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class Scheduler {
 
+    private final ScheduledTasks scheduledTasks;
     private final AttendanceRepository attendanceRepository;
 
-    public Scheduler(final AttendanceRepository attendanceRepository) {
+    public Scheduler(final ScheduledTasks scheduledTasks,
+                     final AttendanceRepository attendanceRepository) {
+        this.scheduledTasks = scheduledTasks;
         this.attendanceRepository = attendanceRepository;
     }
 
     @Transactional
     public void updateToTardyAfterClosedTime(final Attendance attendance) {
         attendanceRepository.updateAttendanceToTardy(attendance.getId());
+        scheduledTasks.remove(attendance);
     }
 }

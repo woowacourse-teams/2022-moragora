@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
@@ -36,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class EventService {
 
-    private final Map<Attendance, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
+    private final ScheduledTasks scheduledTasks;
     private final TaskScheduler taskScheduler;
     private final EventRepository eventRepository;
     private final MeetingRepository meetingRepository;
@@ -44,12 +43,14 @@ public class EventService {
     private final ServerTimeManager serverTimeManager;
     private final Scheduler scheduler;
 
-    public EventService(final TaskScheduler taskScheduler,
+    public EventService(final ScheduledTasks scheduledTasks,
+                        final TaskScheduler taskScheduler,
                         final EventRepository eventRepository,
                         final MeetingRepository meetingRepository,
                         final AttendanceRepository attendanceRepository,
                         final ServerTimeManager serverTimeManager,
                         final Scheduler scheduler) {
+        this.scheduledTasks = scheduledTasks;
         this.taskScheduler = taskScheduler;
         this.eventRepository = eventRepository;
         this.meetingRepository = meetingRepository;
@@ -120,13 +121,21 @@ public class EventService {
         return new EventsResponse(eventResponses);
     }
 
-    private List<Attendance> saveAllAttendances(final List<Participant> participants, final List<Event> events) {
+    public void initializeSchedules(final List<Event> events) {
+        final List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+        final List<Attendance> attendances = attendanceRepository.findByEventIdIn(eventIds);
+        scheduleAttendancesUpdate(attendances);
+    }
+
+    private void saveAllAttendances(final List<Participant> participants, final List<Event> events) {
         final List<Attendance> attendances = events.stream()
                 .map(event -> createAttendances(participants, event))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        return attendanceRepository.saveAll(attendances);
+        attendanceRepository.saveAll(attendances);
     }
 
     private List<Attendance> createAttendances(final List<Participant> participants, final Event event) {
@@ -134,7 +143,6 @@ public class EventService {
                 .map(participant -> new Attendance(Status.NONE, false, participant, event))
                 .collect(Collectors.toList());
     }
-
 
     private void scheduleAttendancesUpdate(final List<Attendance> attendances) {
         attendances.forEach(attendance -> {
@@ -190,5 +198,9 @@ public class EventService {
                 throw new ClientRuntimeException("출석 시간 전에 일정을 생성할 수 없습니다.", HttpStatus.BAD_REQUEST);
             }
         });
+    }
+
+    public Map<Attendance, ScheduledFuture<?>> getScheduledTasks() {
+        return scheduledTasks.getValues();
     }
 }

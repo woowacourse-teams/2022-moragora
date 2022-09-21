@@ -3,13 +3,19 @@ package com.woowacourse.moragora.application;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT2;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT3;
+import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT_WITHOUT_DATE;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.SUN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
+import com.woowacourse.moragora.domain.participant.Participant;
+import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.dto.request.event.EventCancelRequest;
 import com.woowacourse.moragora.dto.request.event.EventRequest;
 import com.woowacourse.moragora.dto.request.event.EventsRequest;
@@ -422,4 +428,57 @@ class EventServiceTest {
                 .isInstanceOf(ClientRuntimeException.class)
                 .hasMessage("기간의 입력이 잘못되었습니다.");
     }
+
+    @DisplayName("스케줄이 정상적으로 등록되는지 확인한다.")
+    @Test
+    void initializeSchedules() {
+        // given
+        final LocalDate today = LocalDate.now();
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final User user1 = dataSupport.saveUser(SUN.create());
+        final User user2 = dataSupport.saveUser(KUN.create());
+        final Participant participant1 = dataSupport.saveParticipant(user1, meeting);
+        final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
+        final Event event1 = dataSupport.saveEvent(EVENT_WITHOUT_DATE.createEventOnDate(meeting, today.plusDays(1)));
+        final Event event2 = dataSupport.saveEvent(EVENT_WITHOUT_DATE.createEventOnDate(meeting, today.plusDays(2)));
+        final Event event3 = dataSupport.saveEvent(EVENT_WITHOUT_DATE.createEventOnDate(meeting, today.plusDays(3)));
+        dataSupport.saveAttendance(participant1, event1, Status.NONE);
+        dataSupport.saveAttendance(participant2, event1, Status.NONE);
+        dataSupport.saveAttendance(participant1, event2, Status.NONE);
+        dataSupport.saveAttendance(participant2, event2, Status.NONE);
+        dataSupport.saveAttendance(participant1, event3, Status.NONE);
+        dataSupport.saveAttendance(participant2, event3, Status.NONE);
+
+        // when
+        eventService.initializeSchedules(List.of(event1, event2, event3));
+
+        // then
+        assertThat(eventService.getScheduledTasks()).hasSize(6);
+    }
+
+//    @DisplayName("scheduled task를 제거한다.")
+//    @Test
+//    void removeSchedule() {
+//        // given
+//        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+//        final User user1 = dataSupport.saveUser(SUN.create());
+//        final User user2 = dataSupport.saveUser(KUN.create());
+//        dataSupport.saveParticipant(user1, meeting);
+//        dataSupport.saveParticipant(user2, meeting);
+//        final Event event = EVENT_WITHOUT_DATE.createEventOnDate(meeting, LocalDate.now().plusDays(1));
+//        final EventsRequest eventsRequest = new EventsRequest(
+//                List.of(
+//                        EventRequest.builder()
+//                                .meetingStartTime(event.getStartTime())
+//                                .meetingEndTime(event.getEndTime())
+//                                .date(event.getDate())
+//                                .build()
+//                ));
+//        eventService.save(eventsRequest, meeting.getId());
+//
+//        // when
+//
+//        // then
+//        assertThat(eventService.getScheduledTasks()).hasSize(2);
+//    }
 }

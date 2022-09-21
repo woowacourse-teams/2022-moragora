@@ -4,6 +4,7 @@ import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.SUN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.woowacourse.moragora.domain.attendance.Attendance;
 import com.woowacourse.moragora.domain.attendance.Status;
@@ -29,6 +30,9 @@ class SchedulerTest {
     private Scheduler scheduler;
 
     @Autowired
+    private ScheduledTasks scheduledTasks;
+
+    @Autowired
     private DataSupport dataSupport;
 
     @Autowired
@@ -40,7 +44,7 @@ class SchedulerTest {
         databaseCleanUp.execute();
     }
 
-    @DisplayName("출석 시간이 지난 Attendance를 NONE에서 TARDY로 변경한다.")
+    @DisplayName("출석 시간이 지난 Attendance를 NONE에서 TARDY로 변경하고 scheduledTasks에서 제거한다.")
     @Test
     void updateToTardyAfterClosedTime() {
         // given
@@ -56,6 +60,9 @@ class SchedulerTest {
         assert (expected).isPresent();
 
         // then
-        assertThat(expected.get().isTardy()).isTrue();
+        assertAll(
+                () -> assertThat(expected.get().isTardy()).isTrue(),
+                () -> assertThat(scheduledTasks.getValues()).isEmpty()
+        );
     }
 }
