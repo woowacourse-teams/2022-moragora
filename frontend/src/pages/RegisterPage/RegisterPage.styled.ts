@@ -1,13 +1,12 @@
 import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
-import Button from 'components/@shared/Button';
 import DialogButton from 'components/@shared/DialogButton';
 import Input from 'components/@shared/Input';
 
 export const Layout = styled.div`
+  height: 100%;
   display: flex;
   flex-direction: column;
-  flex: 1;
   overflow: hidden;
   gap: 1.5rem;
 `;

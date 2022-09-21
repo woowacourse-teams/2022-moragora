@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { css } from '@emotion/react';
 import * as S from './MeetingCreatePage.styled';
-import Footer from 'components/layouts/Footer';
 import Input from 'components/@shared/Input';
 import MemberAddInput from 'components/MemberAddInput';
 import InputHint from 'components/@shared/InputHint';
@@ -64,64 +63,58 @@ const MeetingCreatePage = () => {
   };
 
   return (
-    <>
-      <S.Layout>
-        <S.Form
-          id="meeting-create-form"
-          {...onSubmit(handleCreateMeetingSubmit)}
-        >
-          <S.FieldBox>
-            <S.Label>
-              모임명
-              <Input
-                type="text"
-                {...register('name', { maxLength: 50, required: true })}
-              />
-            </S.Label>
-            <InputHint
-              isShow={Boolean(errors['name']) && errors['name'] !== ''}
-              message={errors['name']}
+    <S.Layout>
+      <S.Form id="meeting-create-form" {...onSubmit(handleCreateMeetingSubmit)}>
+        <S.FieldBox>
+          <S.Label>
+            모임명
+            <Input
+              type="text"
+              {...register('name', { maxLength: 50, required: true })}
             />
-          </S.FieldBox>
-          <S.FieldBox>
-            <S.Label>
-              <S.AddMemberParagraph>
-                멤버 추가하기
-                <span>
-                  {selectedItems.length}/{MAX_SELECTED_USER_COUNT}
-                </span>
-              </S.AddMemberParagraph>
-              <MemberAddInput
-                css={css`
-                  width: 100%;
-                `}
-                name="searchMember"
-                placeholder="닉네임 또는 이메일로 검색하세요."
-                disabled={selectedItems.length >= MAX_SELECTED_USER_COUNT}
-                queryResult={queryResult}
-                selectedItems={selectedItems}
-                queryWithKeyword={queryWithKeyword}
-                selectItem={selectItem}
-                unselectItem={unselectItem}
-                clearQueryResult={clearQueryResult}
-              />
-            </S.Label>
-          </S.FieldBox>
+          </S.Label>
           <InputHint
-            isShow={!isParticipantSelected}
-            message="참여자가 선택되지 않았습니다."
+            isShow={Boolean(errors['name']) && errors['name'] !== ''}
+            message={errors['name']}
           />
-        </S.Form>
-        <S.MeetingCreateButton
-          form="meeting-create-form"
-          type="submit"
-          disabled={isSubmitting}
-        >
-          모임 생성하기
-        </S.MeetingCreateButton>
-      </S.Layout>
-      <Footer />
-    </>
+        </S.FieldBox>
+        <S.FieldBox>
+          <S.Label>
+            <S.AddMemberParagraph>
+              멤버 추가하기
+              <span>
+                {selectedItems.length}/{MAX_SELECTED_USER_COUNT}
+              </span>
+            </S.AddMemberParagraph>
+            <MemberAddInput
+              css={css`
+                width: 100%;
+              `}
+              name="searchMember"
+              placeholder="닉네임 또는 이메일로 검색하세요."
+              disabled={selectedItems.length >= MAX_SELECTED_USER_COUNT}
+              queryResult={queryResult}
+              selectedItems={selectedItems}
+              queryWithKeyword={queryWithKeyword}
+              selectItem={selectItem}
+              unselectItem={unselectItem}
+              clearQueryResult={clearQueryResult}
+            />
+          </S.Label>
+        </S.FieldBox>
+        <InputHint
+          isShow={!isParticipantSelected}
+          message="참여자가 선택되지 않았습니다."
+        />
+      </S.Form>
+      <S.MeetingCreateButton
+        form="meeting-create-form"
+        type="submit"
+        disabled={isSubmitting}
+      >
+        모임 생성하기
+      </S.MeetingCreateButton>
+    </S.Layout>
   );
 };
 
