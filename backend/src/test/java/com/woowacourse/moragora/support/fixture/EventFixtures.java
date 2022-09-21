@@ -20,7 +20,8 @@ public enum EventFixtures {
     EVENT11(LocalDate.of(2022, 8, 11), LocalTime.of(10, 0), LocalTime.of(18, 0)),
     EVENT12(LocalDate.of(2022, 8, 12), LocalTime.of(10, 0), LocalTime.of(18, 0)),
     EVENT13(LocalDate.of(2022, 8, 13), LocalTime.of(10, 0), LocalTime.of(18, 0)),
-    EVENT14(LocalDate.of(2022, 8, 14), LocalTime.of(10, 0), LocalTime.of(18, 0));
+    EVENT14(LocalDate.of(2022, 8, 14), LocalTime.of(10, 0), LocalTime.of(18, 0)),
+    EVENT_WITHOUT_DATE(null, LocalTime.of(10, 0), LocalTime.of(18, 0));
 
     private final LocalDate date;
 
@@ -39,6 +40,15 @@ public enum EventFixtures {
                 .date(date)
                 .startTime(entranceTime)
                 .endTime(leaveTime)
+                .meeting(meeting)
+                .build();
+    }
+
+    public Event createEventOnDate(final Meeting meeting, final LocalDate date) {
+        return Event.builder()
+                .date(date)
+                .startTime(LocalTime.of(10, 0))
+                .endTime(LocalTime.of(18, 0))
                 .meeting(meeting)
                 .build();
     }
