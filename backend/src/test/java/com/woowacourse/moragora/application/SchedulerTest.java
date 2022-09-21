@@ -42,6 +42,7 @@ class SchedulerTest {
     void setUp() {
         databaseCleanUp.afterPropertiesSet();
         databaseCleanUp.execute();
+        scheduledTasks.getValues().clear();
     }
 
     @DisplayName("출석 시간이 지난 Attendance를 NONE에서 TARDY로 변경하고 scheduledTasks에서 제거한다.")
@@ -52,10 +53,10 @@ class SchedulerTest {
         final User user = dataSupport.saveUser(SUN.create());
         final Participant participant = dataSupport.saveParticipant(user, meeting);
         final Event event = dataSupport.saveEvent(EVENT1.create(meeting));
-        final Attendance attendance = dataSupport.saveAttendance(participant, event, Status.NONE);
+        dataSupport.saveAttendance(participant, event, Status.NONE);
 
         // when
-        scheduler.updateToTardyAfterClosedTime(attendance);
+        scheduler.updateAttendancesToTardyAfterClosedTime(event);
         final Optional<Attendance> expected = dataSupport.findAttendanceByParticipantAndEvent(participant, event);
         assert (expected).isPresent();
 

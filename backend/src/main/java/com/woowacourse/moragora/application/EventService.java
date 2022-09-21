@@ -65,10 +65,6 @@ public class EventService {
                 .orElseThrow(MeetingNotFoundException::new);
         final List<Event> insertedEvents = request.toEntities(meeting);
 
-        final List<LocalDate> eventDates = insertedEvents.stream()
-                .map(Event::getDate)
-                .collect(Collectors.toList());
-
         validateEventDateNotPast(insertedEvents);
         validateDuplicatedEventDate(insertedEvents);
         validateAttendanceStartTimeIsAfterNow(insertedEvents);
@@ -79,8 +75,16 @@ public class EventService {
         final List<Event> newEvents = events.updateAndExtractNewEvents(insertedEvents);
         eventRepository.saveAll(newEvents);
         saveAllAttendances(meeting.getParticipants(), newEvents);
-        final List<Attendance> attendances = attendanceRepository.findByMeetingIdAndDateIn(meetingId, eventDates);
-        scheduleAttendancesUpdate(attendances);
+        scheduleAttendancesUpdateByEvents(newEvents);
+    }
+
+    private void scheduleAttendancesUpdateByEvents(final List<Event> newEvents) {
+        newEvents.forEach(event -> {
+            final ScheduledFuture<?> schedule = taskScheduler.schedule(
+                    () -> scheduler.updateAttendancesToTardyAfterClosedTime(event),
+                    calculateUpdateInstant(event));
+            scheduledTasks.put(event, schedule);
+        });
     }
 
     @Transactional
@@ -92,10 +96,9 @@ public class EventService {
         final List<Long> eventIds = events.stream()
                 .map(Event::getId)
                 .collect(Collectors.toList());
-        final List<Attendance> attendances = attendanceRepository.findByEventIdIn(eventIds);
         attendanceRepository.deleteByEventIdIn(eventIds);
         eventRepository.deleteByIdIn(eventIds);
-        attendances.forEach(scheduledTasks::remove);
+        events.forEach(scheduledTasks::remove);
     }
 
     public EventResponse findUpcomingEvent(final Long meetingId) {
@@ -122,11 +125,7 @@ public class EventService {
     }
 
     public void initializeSchedules(final List<Event> events) {
-        final List<Long> eventIds = events.stream()
-                .map(Event::getId)
-                .collect(Collectors.toList());
-        final List<Attendance> attendances = attendanceRepository.findByEventIdIn(eventIds);
-        scheduleAttendancesUpdate(attendances);
+        scheduleAttendancesUpdateByEvents(events);
     }
 
     private void saveAllAttendances(final List<Participant> participants, final List<Event> events) {
@@ -142,15 +141,6 @@ public class EventService {
         return participants.stream()
                 .map(participant -> new Attendance(Status.NONE, false, participant, event))
                 .collect(Collectors.toList());
-    }
-
-    private void scheduleAttendancesUpdate(final List<Attendance> attendances) {
-        attendances.forEach(attendance -> {
-            final ScheduledFuture<?> schedule = taskScheduler.schedule(
-                    () -> scheduler.updateToTardyAfterClosedTime(attendance),
-                    calculateUpdateInstant(attendance.getEvent()));
-            scheduledTasks.put(attendance, schedule);
-        });
     }
 
     private Instant calculateUpdateInstant(final Event event) {
@@ -200,7 +190,7 @@ public class EventService {
         });
     }
 
-    public Map<Attendance, ScheduledFuture<?>> getScheduledTasks() {
+    public Map<Event, ScheduledFuture<?>> getScheduledTasks() {
         return scheduledTasks.getValues();
     }
 }

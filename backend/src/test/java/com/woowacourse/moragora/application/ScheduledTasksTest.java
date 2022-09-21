@@ -2,14 +2,9 @@ package com.woowacourse.moragora.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.woowacourse.moragora.domain.attendance.Attendance;
-import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
-import com.woowacourse.moragora.domain.participant.Participant;
-import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.support.fixture.MeetingFixtures;
-import com.woowacourse.moragora.support.fixture.UserFixtures;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -41,16 +36,13 @@ class ScheduledTasksTest {
     @Test
     void put() {
         // given
-        final User user = UserFixtures.SUN.create();
         final Meeting meeting = MeetingFixtures.MORAGORA.create();
-        final Participant participant = new Participant(user, meeting, false);
         final Event event = new Event(LocalDate.now(), LocalTime.of(10, 0), LocalTime.of(18, 0), meeting);
-        final Attendance attendance = new Attendance(Status.NONE, false, participant, event);
         final ScheduledFuture<?> schedule = taskScheduler.schedule(() -> {
         }, Date.from(Instant.now()));
 
         // when
-        scheduledTasks.put(attendance, schedule);
+        scheduledTasks.put(event, schedule);
 
         // then
         assertThat(scheduledTasks.getValues()).hasSize(1);
@@ -60,17 +52,14 @@ class ScheduledTasksTest {
     @Test
     void remove() {
         // given
-        final User user = UserFixtures.SUN.create();
         final Meeting meeting = MeetingFixtures.MORAGORA.create();
-        final Participant participant = new Participant(user, meeting, false);
         final Event event = new Event(LocalDate.now(), LocalTime.of(10, 0), LocalTime.of(18, 0), meeting);
-        final Attendance attendance = new Attendance(Status.NONE, false, participant, event);
         final ScheduledFuture<?> schedule = taskScheduler.schedule(() -> {
         }, Date.from(Instant.now()));
-        scheduledTasks.put(attendance, schedule);
+        scheduledTasks.put(event, schedule);
 
         // when
-        scheduledTasks.remove(attendance);
+        scheduledTasks.remove(event);
 
         // then
         assertThat(scheduledTasks.getValues()).isEmpty();
@@ -80,19 +69,16 @@ class ScheduledTasksTest {
     @Test
     void getValues() {
         // given
-        final User user = UserFixtures.SUN.create();
         final Meeting meeting = MeetingFixtures.MORAGORA.create();
-        final Participant participant = new Participant(user, meeting, false);
         final Event event = new Event(LocalDate.now(), LocalTime.of(10, 0), LocalTime.of(18, 0), meeting);
-        final Attendance attendance = new Attendance(Status.NONE, false, participant, event);
         final ScheduledFuture<?> schedule = taskScheduler.schedule(() -> {
         }, Date.from(Instant.now()));
-        scheduledTasks.put(attendance, schedule);
+        scheduledTasks.put(event, schedule);
 
         // when
-        final Map<Attendance, ScheduledFuture<?>> expected = scheduledTasks.getValues();
+        final Map<Event, ScheduledFuture<?>> expected = scheduledTasks.getValues();
 
         // then
-        assertThat(expected).containsEntry(attendance, schedule);
+        assertThat(expected).containsEntry(event, schedule);
     }
 }
