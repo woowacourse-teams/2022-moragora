@@ -2,6 +2,7 @@ import { rest } from 'msw';
 import MeetingCreatePage from '.';
 import Header from 'components/layouts/Header';
 import AppLayout from 'components/layouts/AppLayout';
+import Footer from 'components/layouts/Footer';
 
 export default {
   title: 'Pages/MeetingCreatePage',
@@ -18,6 +19,7 @@ const Template = (args) => {
     <AppLayout>
       <Header />
       <MeetingCreatePage {...args} />
+      <Footer />
     </AppLayout>
   );
 };
