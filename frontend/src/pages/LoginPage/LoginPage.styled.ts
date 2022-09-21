@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
 
 export const Layout = styled.div`
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
