@@ -89,8 +89,7 @@ class UserAcceptanceTest extends AcceptanceTest {
                 .collect(Collectors.toList());
 
         final List<String> providers = users.stream()
-                .map(User::getProvider)
-                .map(provider -> provider.name().toLowerCase())
+                .map(user -> user.getProvider().name().toLowerCase())
                 .collect(Collectors.toList());
 
         // when

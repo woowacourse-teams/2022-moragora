@@ -24,9 +24,11 @@ public class UserResponse {
     }
 
     public static UserResponse from(final User user) {
-        return new UserResponse(user.getId(),
+        return new UserResponse(
+                user.getId(),
                 user.getEmail(),
                 user.getNickname(),
-                user.getProvider().name());
+                user.getProvider().name()
+        );
     }
 }
