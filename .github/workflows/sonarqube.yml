@@ -27,7 +27,7 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v2
         with:
-          token: env.SUBMODULE_TOKEN
+          token: ${{ env.SUBMODULE_TOKEN }}
           submodules: true
 
       - name: gradlew permission change
