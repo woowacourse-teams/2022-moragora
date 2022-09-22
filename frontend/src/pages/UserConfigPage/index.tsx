@@ -7,6 +7,7 @@ import NicknameInput from 'components/NicknameInput';
 import { userContext } from 'contexts/userContext';
 import useMutation from 'hooks/useMutation';
 import { updateNicknameApi } from 'apis/userApis';
+import { AuthProvider } from 'types/userType';
 
 const UserConfigPage = () => {
   const user = useContext(userContext);
@@ -115,6 +116,7 @@ const UserConfigPage = () => {
               />
             </svg>
           }
+          disabled={user.user?.authProvider !== AuthProvider['checkmate']}
         >
           비밀번호 변경
         </MenuLink>
@@ -137,6 +139,7 @@ const UserConfigPage = () => {
               />
             </svg>
           }
+          disabled={user.user?.authProvider !== AuthProvider['checkmate']}
         >
           회원 탈퇴
         </MenuLink>
