@@ -15,7 +15,7 @@
     [
       "@emotion",
       {
-        "sourceMap": true, // sourceMap을 생성한다
+        "sourceMap": true,
         "autoLabel": "dev-only", // label은 개발모드에서만 적용한다
         "labelFormat": "[local]",
         // const CardList = styled.ul 이런식으로 되어 있다면,
