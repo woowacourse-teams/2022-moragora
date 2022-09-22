@@ -45,7 +45,5 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
     @Query("delete from Attendance a where a.participant.id in :participantIds")
     void deleteByParticipantIdIn(@Param("participantIds") final List<Long> participantIds);
 
-    @Query("select a from Attendance a where a.participant.meeting.id = :meetingId and a.event.date in :eventDates")
-    List<Attendance> findByMeetingIdAndDateIn(@Param("meetingId") final Long meetingId,
-                                              @Param("eventDates") final List<LocalDate> eventDates);
+    List<Attendance> findByEventId(Long id);
 }

@@ -5,11 +5,11 @@ import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
 import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.event.EventRepository;
-import com.woowacourse.moragora.domain.event.Events;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.meeting.MeetingRepository;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.dto.request.event.EventCancelRequest;
+import com.woowacourse.moragora.dto.request.event.EventRequest;
 import com.woowacourse.moragora.dto.request.event.EventsRequest;
 import com.woowacourse.moragora.dto.response.event.EventResponse;
 import com.woowacourse.moragora.dto.response.event.EventsResponse;
@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
@@ -36,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class EventService {
 
-    private final Map<Attendance, ScheduledFuture<?>> scheduledTasks = new ConcurrentHashMap<>();
+    private final ScheduledTasks scheduledTasks;
     private final TaskScheduler taskScheduler;
     private final EventRepository eventRepository;
     private final MeetingRepository meetingRepository;
@@ -44,12 +43,14 @@ public class EventService {
     private final ServerTimeManager serverTimeManager;
     private final Scheduler scheduler;
 
-    public EventService(final TaskScheduler taskScheduler,
+    public EventService(final ScheduledTasks scheduledTasks,
+                        final TaskScheduler taskScheduler,
                         final EventRepository eventRepository,
                         final MeetingRepository meetingRepository,
                         final AttendanceRepository attendanceRepository,
                         final ServerTimeManager serverTimeManager,
                         final Scheduler scheduler) {
+        this.scheduledTasks = scheduledTasks;
         this.taskScheduler = taskScheduler;
         this.eventRepository = eventRepository;
         this.meetingRepository = meetingRepository;
@@ -62,24 +63,54 @@ public class EventService {
     public void save(final EventsRequest request, final Long meetingId) {
         final Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(MeetingNotFoundException::new);
-        final List<Event> insertedEvents = request.toEntities(meeting);
+        final List<Event> requestEvents = request.toEntities(meeting);
 
-        final List<LocalDate> eventDates = insertedEvents.stream()
-                .map(Event::getDate)
+        validateEventDateNotPast(requestEvents);
+        validateDuplicatedEventDate(requestEvents);
+        validateAttendanceStartTimeIsAfterNow(requestEvents);
+
+        final List<Event> existingEvents = findExistingEvents(request, meetingId);
+        final List<Event> newEvents = findEventsToSave(requestEvents, existingEvents);
+
+        updateEvent(requestEvents, existingEvents);
+        final List<Event> savedEvents = eventRepository.saveAll(newEvents);
+        saveAllAttendances(meeting.getParticipants(), savedEvents);
+
+        existingEvents.addAll(savedEvents);
+        scheduleAttendancesUpdateByEvents(existingEvents);
+    }
+
+    private List<Event> findExistingEvents(final EventsRequest request, final Long meetingId) {
+        final List<LocalDate> datesToSearch = request.getEvents().stream()
+                .map(EventRequest::getDate).
+                collect(Collectors.toList());
+        return eventRepository.findByMeetingIdAndDateIn(meetingId, datesToSearch);
+    }
+
+    private List<Event> findEventsToSave(final List<Event> requestEvents, final List<Event> existingEvents) {
+        return requestEvents.stream()
+                .filter(it -> !existingEvents.stream()
+                        .map(Event::getDate)
+                        .collect(Collectors.toList()).contains(it.getDate()))
                 .collect(Collectors.toList());
+    }
 
-        validateEventDateNotPast(insertedEvents);
-        validateDuplicatedEventDate(insertedEvents);
-        validateAttendanceStartTimeIsAfterNow(insertedEvents);
+    private void updateEvent(final List<Event> requestEvents, final List<Event> existingEvents) {
+        for (Event existingEvent : existingEvents) {
+            final Optional<Event> searchedEvent = requestEvents.stream()
+                    .filter(it -> it.isSameDate(existingEvent))
+                    .findAny();
+            searchedEvent.ifPresent(existingEvent::updateTime);
+        }
+    }
 
-        final List<Event> foundEvents = eventRepository.findByMeetingId(meetingId);
-        final Events events = new Events(foundEvents);
-
-        final List<Event> newEvents = events.updateAndExtractNewEvents(insertedEvents);
-        eventRepository.saveAll(newEvents);
-        saveAllAttendances(meeting.getParticipants(), newEvents);
-        final List<Attendance> attendances = attendanceRepository.findByMeetingIdAndDateIn(meetingId, eventDates);
-        scheduleAttendancesUpdate(attendances);
+    public void scheduleAttendancesUpdateByEvents(final List<Event> newEvents) {
+        newEvents.forEach(event -> {
+            final ScheduledFuture<?> schedule = taskScheduler.schedule(
+                    () -> scheduler.updateAttendancesToTardyAfterClosedTime(event),
+                    calculateUpdateInstant(event));
+            scheduledTasks.put(event, schedule);
+        });
     }
 
     @Transactional
@@ -91,10 +122,9 @@ public class EventService {
         final List<Long> eventIds = events.stream()
                 .map(Event::getId)
                 .collect(Collectors.toList());
-        final List<Attendance> attendances = attendanceRepository.findByEventIdIn(eventIds);
         attendanceRepository.deleteByEventIdIn(eventIds);
         eventRepository.deleteByIdIn(eventIds);
-        attendances.forEach(scheduledTasks::remove);
+        events.forEach(scheduledTasks::remove);
     }
 
     public EventResponse findUpcomingEvent(final Long meetingId) {
@@ -120,29 +150,19 @@ public class EventService {
         return new EventsResponse(eventResponses);
     }
 
-    private List<Attendance> saveAllAttendances(final List<Participant> participants, final List<Event> events) {
+    private void saveAllAttendances(final List<Participant> participants, final List<Event> events) {
         final List<Attendance> attendances = events.stream()
                 .map(event -> createAttendances(participants, event))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
 
-        return attendanceRepository.saveAll(attendances);
+        attendanceRepository.saveAll(attendances);
     }
 
     private List<Attendance> createAttendances(final List<Participant> participants, final Event event) {
         return participants.stream()
                 .map(participant -> new Attendance(Status.NONE, false, participant, event))
                 .collect(Collectors.toList());
-    }
-
-
-    private void scheduleAttendancesUpdate(final List<Attendance> attendances) {
-        attendances.forEach(attendance -> {
-            final ScheduledFuture<?> schedule = taskScheduler.schedule(
-                    () -> scheduler.updateToTardyAfterClosedTime(attendance),
-                    calculateUpdateInstant(attendance.getEvent()));
-            scheduledTasks.put(attendance, schedule);
-        });
     }
 
     private Instant calculateUpdateInstant(final Event event) {
@@ -190,5 +210,9 @@ public class EventService {
                 throw new ClientRuntimeException("출석 시간 전에 일정을 생성할 수 없습니다.", HttpStatus.BAD_REQUEST);
             }
         });
+    }
+
+    public Map<Event, ScheduledFuture<?>> getScheduledTasks() {
+        return scheduledTasks.getValues();
     }
 }

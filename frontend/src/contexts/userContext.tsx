@@ -1,10 +1,9 @@
 import { getLoginUserDataApi } from 'apis/userApis';
 import useQuery from 'hooks/useQuery';
 import React, { createContext, useState } from 'react';
-import { QueryClient } from 'types/queryType';
 import { User } from 'types/userType';
 
-type UserContextData = Pick<User, 'id' | 'email' | 'nickname' | 'accessToken'>;
+type UserContextData = Omit<User, 'password'>;
 
 export type UserContextValues = {
   user: UserContextData | null;

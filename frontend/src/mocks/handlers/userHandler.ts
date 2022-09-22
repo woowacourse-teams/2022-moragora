@@ -4,6 +4,7 @@ import {
   UserRegisterRequestBody,
   UserLoginRequestBody,
   User,
+  AuthProvider,
 } from 'types/userType';
 import { DELAY } from 'mocks/configs';
 import { extractIdFromHeader, generateToken } from 'mocks/utils';
@@ -56,6 +57,7 @@ export default [
         password,
         nickname,
         accessToken: null,
+        authProvider: AuthProvider['checkmate'],
       };
 
       users.push(newUser);
@@ -109,7 +111,7 @@ export default [
         );
       }
 
-      const targetUser = users[0];
+      const targetUser = users[users.length - 1];
       const accessToken = generateToken(targetUser.id);
 
       targetUser.accessToken = accessToken;
@@ -182,6 +184,7 @@ export default [
         id: user.id,
         email: user.email,
         nickname: user.nickname,
+        authProvider: user.authProvider,
       }),
       ctx.delay(DELAY)
     );

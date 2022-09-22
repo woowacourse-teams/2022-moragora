@@ -4,6 +4,7 @@ import Header from 'components/layouts/Header';
 import { CalendarProvider } from 'contexts/calendarContext';
 import AppLayout from 'components/layouts/AppLayout';
 import Footer from 'components/layouts/Footer';
+import Body from 'components/layouts/Body';
 
 export default {
   title: 'Pages/CalendarPage',
@@ -20,9 +21,11 @@ const Template = (args) => {
   return (
     <AppLayout>
       <Header />
-      <CalendarProvider initialDate={new Date()}>
-        <CalendarPage {...args} />
-      </CalendarProvider>
+      <Body>
+        <CalendarProvider initialDate={new Date()}>
+          <CalendarPage {...args} />
+        </CalendarProvider>
+      </Body>
       <Footer />
     </AppLayout>
   );

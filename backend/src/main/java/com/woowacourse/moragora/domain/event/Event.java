@@ -15,6 +15,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.EqualsAndHashCode.Include;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,10 +24,12 @@ import lombok.NoArgsConstructor;
 @Table(name = "event", indexes = @Index(name = "idx_event", columnList = "meeting_id, date"))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Event {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Include
     private Long id;
 
     @Column(nullable = false)
@@ -59,6 +63,10 @@ public class Event {
         this(null, date, startTime, endTime, meeting);
     }
 
+    public boolean isSameDate(final Event other) {
+        return this.date.isEqual(other.date);
+    }
+
     public boolean isSameDate(final LocalDate date) {
         return this.date.isEqual(date);
     }
@@ -71,6 +79,12 @@ public class Event {
         validateStartEndTime(startTime, endTime);
         this.startTime = startTime;
         this.endTime = endTime;
+    }
+
+    public void updateTime(final Event other) {
+        validateStartEndTime(other.startTime, other.endTime);
+        this.startTime = other.startTime;
+        this.endTime = other.endTime;
     }
 
     public boolean isDateBefore(final LocalDate date) {

@@ -4,6 +4,7 @@ import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.SUN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.woowacourse.moragora.domain.attendance.Attendance;
 import com.woowacourse.moragora.domain.attendance.Status;
@@ -29,6 +30,9 @@ class SchedulerTest {
     private Scheduler scheduler;
 
     @Autowired
+    private ScheduledTasks scheduledTasks;
+
+    @Autowired
     private DataSupport dataSupport;
 
     @Autowired
@@ -38,9 +42,10 @@ class SchedulerTest {
     void setUp() {
         databaseCleanUp.afterPropertiesSet();
         databaseCleanUp.execute();
+        scheduledTasks.getValues().clear();
     }
 
-    @DisplayName("출석 시간이 지난 Attendance를 NONE에서 TARDY로 변경한다.")
+    @DisplayName("출석 시간이 지난 Attendance를 NONE에서 TARDY로 변경하고 scheduledTasks에서 제거한다.")
     @Test
     void updateToTardyAfterClosedTime() {
         // given
@@ -48,14 +53,17 @@ class SchedulerTest {
         final User user = dataSupport.saveUser(SUN.create());
         final Participant participant = dataSupport.saveParticipant(user, meeting);
         final Event event = dataSupport.saveEvent(EVENT1.create(meeting));
-        final Attendance attendance = dataSupport.saveAttendance(participant, event, Status.NONE);
+        dataSupport.saveAttendance(participant, event, Status.NONE);
 
         // when
-        scheduler.updateToTardyAfterClosedTime(attendance);
+        scheduler.updateAttendancesToTardyAfterClosedTime(event);
         final Optional<Attendance> expected = dataSupport.findAttendanceByParticipantAndEvent(participant, event);
         assert (expected).isPresent();
 
         // then
-        assertThat(expected.get().isTardy()).isTrue();
+        assertAll(
+                () -> assertThat(expected.get().isTardy()).isTrue(),
+                () -> assertThat(scheduledTasks.getValues()).isEmpty()
+        );
     }
 }
