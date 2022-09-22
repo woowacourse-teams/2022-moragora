@@ -1,0 +1,49 @@
+name: checkmate-backend CI
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+    paths:
+      - backend/**
+
+defaults:
+  run:
+    working-directory: ./backend
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v2
+
+      - name: Submodule init
+        run: git submodule init
+          git submodule update --remote
+
+      - name: Change gradlew permission
+          run: sudo chmod 755 gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Add Coverage to PR
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.3
+        with:
+          title: 📝 테스트 커버리지 리포트입니다
+          paths: ${{ github.workspace }}/backend/build/reports/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 80
+          min-coverage-changed-files: 80
+
+      - name: Add test results to PR
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: always()
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+          token: ${{ github.token }}
+
