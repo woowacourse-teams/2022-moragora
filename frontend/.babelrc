@@ -4,10 +4,8 @@
     [
       "@babel/preset-react",
       {
-        "runtime": "automatic", // jsx를 변환하는 플러그인들을 자동으로 포함시켜준다는 의이미다.
+        "runtime": "automatic",
         "importSource": "@emotion/react"
-        // jsx를 처리할때 emotion에서 제공하는 함수를 사용하라는 의미이다.
-        // 이렇게 해야 jsx에 달려있는 css prop를 해석하고 className으로 변환할 수 있기 때문이다.
       }
     ],
     "@babel/preset-typescript"
