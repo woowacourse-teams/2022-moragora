@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import Footer from 'components/layouts/Footer';
 import * as S from './SettingsPage.styled';
 import Button from 'components/@shared/Button';
 import ModalPortal from 'components/ModalPortal';
@@ -76,7 +75,6 @@ const SettingsPage = () => {
           <Button onClick={() => handleOpen()}>로그아웃</Button>
         </S.ButtonBox>
       </S.Layout>
-      <Footer />
     </>
   );
 };

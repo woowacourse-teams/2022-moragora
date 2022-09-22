@@ -61,21 +61,21 @@ class UserRepositoryTest {
         final List<User> users = userRepository.findByIdIn(List.of(user1.getId(), user2.getId(), user3.getId()));
 
         // then
-        assertThat(users.containsAll(List.of(user1, user2, user3))).isTrue();
+        assertThat(users).containsAll(List.of(user1, user2, user3));
     }
 
-    @DisplayName("이메일로 유저를 검색한다.")
+    @DisplayName("이메일과 provider로 유저를 검색한다.")
     @Test
-    void findByEmail() {
+    void findByEmailAndProvider() {
         // given
         final User user = KUN.create();
         final User savedUser = userRepository.save(user);
 
         // when
-        final Optional<User> foundUser = userRepository.findByEmail(savedUser.getEmail());
+        final Optional<User> foundUser = userRepository.findByEmailAndProvider(savedUser.getEmail(), Provider.CHECKMATE);
 
         // then
-        assertThat(foundUser.isPresent()).isTrue();
+        assertThat(foundUser).isPresent();
     }
 
     @DisplayName("keyword로 유저를 검색할 수 있다.")
