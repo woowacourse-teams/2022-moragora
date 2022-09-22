@@ -5,11 +5,11 @@ import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
 import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.event.EventRepository;
-import com.woowacourse.moragora.domain.event.Events;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.meeting.MeetingRepository;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.dto.request.event.EventCancelRequest;
+import com.woowacourse.moragora.dto.request.event.EventRequest;
 import com.woowacourse.moragora.dto.request.event.EventsRequest;
 import com.woowacourse.moragora.dto.response.event.EventResponse;
 import com.woowacourse.moragora.dto.response.event.EventsResponse;
@@ -63,19 +63,45 @@ public class EventService {
     public void save(final EventsRequest request, final Long meetingId) {
         final Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(MeetingNotFoundException::new);
-        final List<Event> insertedEvents = request.toEntities(meeting);
+        final List<Event> requestEvents = request.toEntities(meeting);
 
-        validateEventDateNotPast(insertedEvents);
-        validateDuplicatedEventDate(insertedEvents);
-        validateAttendanceStartTimeIsAfterNow(insertedEvents);
+        validateEventDateNotPast(requestEvents);
+        validateDuplicatedEventDate(requestEvents);
+        validateAttendanceStartTimeIsAfterNow(requestEvents);
 
-        final List<Event> foundEvents = eventRepository.findByMeetingId(meetingId);
-        final Events events = new Events(foundEvents);
+        final List<Event> existingEvents = findExistingEvents(request, meetingId);
+        final List<Event> newEvents = findEventsToSave(requestEvents, existingEvents);
 
-        final List<Event> newEvents = events.updateAndExtractNewEvents(insertedEvents);
-        eventRepository.saveAll(newEvents);
-        saveAllAttendances(meeting.getParticipants(), newEvents);
-        scheduleAttendancesUpdateByEvents(newEvents);
+        updateEvent(requestEvents, existingEvents);
+        final List<Event> savedEvents = eventRepository.saveAll(newEvents);
+        saveAllAttendances(meeting.getParticipants(), savedEvents);
+
+        existingEvents.addAll(savedEvents);
+        scheduleAttendancesUpdateByEvents(existingEvents);
+    }
+
+    private List<Event> findExistingEvents(final EventsRequest request, final Long meetingId) {
+        final List<LocalDate> datesToSearch = request.getEvents().stream()
+                .map(EventRequest::getDate).
+                collect(Collectors.toList());
+        return eventRepository.findByMeetingIdAndDateIn(meetingId, datesToSearch);
+    }
+
+    private List<Event> findEventsToSave(final List<Event> requestEvents, final List<Event> existingEvents) {
+        return requestEvents.stream()
+                .filter(it -> !existingEvents.stream()
+                        .map(Event::getDate)
+                        .collect(Collectors.toList()).contains(it.getDate()))
+                .collect(Collectors.toList());
+    }
+
+    private void updateEvent(final List<Event> requestEvents, final List<Event> existingEvents) {
+        for (Event existingEvent : existingEvents) {
+            final Optional<Event> searchedEvent = requestEvents.stream()
+                    .filter(it -> it.isSameDate(existingEvent))
+                    .findAny();
+            searchedEvent.ifPresent(existingEvent::updateTime);
+        }
     }
 
     public void scheduleAttendancesUpdateByEvents(final List<Event> newEvents) {
