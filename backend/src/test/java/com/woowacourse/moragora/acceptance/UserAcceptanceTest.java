@@ -16,7 +16,6 @@ import com.woowacourse.moragora.dto.request.user.UserDeleteRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
 import io.restassured.response.ValidatableResponse;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -91,9 +90,8 @@ class UserAcceptanceTest extends AcceptanceTest {
 
         final List<String> providers = users.stream()
                 .map(User::getProvider)
-                .map(provider -> provider.name().toLowerCase(Locale.ROOT))
+                .map(provider -> provider.name().toLowerCase())
                 .collect(Collectors.toList());
-        System.out.println(providers);
 
         // when
         final ValidatableResponse response = get("/users?keyword=" + keyword);
@@ -121,7 +119,7 @@ class UserAcceptanceTest extends AcceptanceTest {
                 .body("id", equalTo(id.intValue()))
                 .body("email", equalTo(user.getEmail()))
                 .body("nickname", equalTo(user.getNickname()))
-                .body("authProvider", equalTo(user.getProvider().name().toLowerCase(Locale.ROOT)));
+                .body("authProvider", equalTo(user.getProvider().name().toLowerCase()));
     }
 
     @DisplayName("로그인 한 상태에서 닉네임 수정을 요청하면 닉네임을 수정한 후 상태코드 204을 반환한다.")
