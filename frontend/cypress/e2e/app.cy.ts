@@ -56,9 +56,10 @@ describe('유저', () => {
       password: 'user1pw!',
     };
 
-    it('성공 시 참여 중인 모임 목록 페이지로 이동한다.', () => {
+    it('성공 시 로그인 페이지로 이동한다.', () => {
       cy.get('input[name="email"]').type(validUser.email);
       cy.get('input[name="password"]').type(validUser.password).type('{enter}');
+      cy.url().should('include', '/meeting');
       cy.get('a[href="/settings"]').click();
       cy.get('button[class*="-StyledButton"]').click();
       cy.get('button[class*="-Button"]').contains('확인').click();
