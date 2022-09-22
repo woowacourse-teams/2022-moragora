@@ -47,7 +47,7 @@
     "babel-loader": "^8.2.5",
     "css-loader": "^6.7.1",
     "cypress": "^10.4.0",
-    "cypress-ci": "^0.2.2",
+    "cypress-ci": "^0.2.3",
     "dotenv": "^16.0.1",
     "eslint": "^8.19.0",
     "eslint-config-airbnb": "^19.0.4",

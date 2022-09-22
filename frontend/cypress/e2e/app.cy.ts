@@ -19,7 +19,7 @@ describe('유저', () => {
       cy.get('input[name="password"]').type(newUser.password);
       cy.get('input[name="passwordConfirm"]').type(newUser.passwordConfirm);
       cy.get('input[name="nickname"]').type(newUser.nickname).type('{enter}');
-      cy.url().should('include', '/mseting');
+      cy.url().should('include', '/meeting');
     });
   });
 
