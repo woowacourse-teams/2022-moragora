@@ -1,5 +1,7 @@
 package com.woowacourse.moragora.support.fixture;
 
+import static com.woowacourse.moragora.domain.user.Provider.CHECKMATE;
+
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.domain.user.password.EncodedPassword;
 import java.util.List;
@@ -51,6 +53,7 @@ public enum UserFixtures {
                 .email(this.email)
                 .password(this.password)
                 .nickname(this.nickname)
+                .provider(CHECKMATE)
                 .build();
     }
 
