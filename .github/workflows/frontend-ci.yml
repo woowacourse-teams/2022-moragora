@@ -1,4 +1,4 @@
-name: checkmate-backend-CI
+name: checkmate-frontend-CI
 
 env:
   API_SERVER_HOST: https://dev.checkmate.today
