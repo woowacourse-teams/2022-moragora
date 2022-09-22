@@ -1,4 +1,4 @@
-name: checkmate-backend CI
+name: checkmate-backend-CI
 
 on:
   pull_request:
@@ -7,10 +7,11 @@ on:
       - main
     paths:
       - backend/**
+    types: [ opened, synchronize ]
 
 defaults:
   run:
-    working-directory: ./backend
+    working-directory: backend
 
 jobs:
   build:
@@ -25,7 +26,7 @@ jobs:
           git submodule update --remote
 
       - name: Change gradlew permission
-          run: sudo chmod 755 gradlew
+        run: sudo chmod 755 gradlew
 
       - name: Build with Gradle
         run: ./gradlew build
