@@ -59,7 +59,7 @@ public class UserService {
         if (email.isBlank()) {
             throw new NoParameterException();
         }
-        final boolean isExist = userRepository.findByEmail(email).isPresent();
+        final boolean isExist = userRepository.findByEmailAndProvider(email, CHECKMATE).isPresent();
         return new EmailCheckResponse(isExist);
     }
 

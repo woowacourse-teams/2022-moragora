@@ -14,8 +14,6 @@ public interface UserRepository extends Repository<User, Long> {
 
     List<User> findByIdIn(final List<Long> ids);
 
-    Optional<User> findByEmail(final String email);
-
     Optional<User> findByEmailAndProvider(String email, Provider provider);
 
     @Query("select u from User u where u.nickname like %:keyword% or u.email like %:keyword%")
