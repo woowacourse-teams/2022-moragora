@@ -14,4 +14,10 @@ export const Layout = styled.li<{ clicked: boolean }>`
   background-color: ${({ theme: { colors }, clicked }) =>
     clicked ? colors['primary'] : colors['white']};
   border-radius: 1rem;
+
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${({ theme: { colors } }) => colors['primary-subtle']};
+  }
 `;

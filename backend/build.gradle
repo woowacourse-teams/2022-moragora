@@ -75,6 +75,10 @@ dependencies {
 
     // mysql
     implementation 'mysql:mysql-connector-java:8.0.30'
+
+    // prometheus
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 task copyDocument(type: Copy) {
@@ -130,7 +134,7 @@ jacocoTestCoverageVerification {
                 minimum = 0.80
             }
 
-            excludes = ['*support*', '*config*', '*dto*', '*exception*', '*logging*', '*Application*']
+            excludes = ['*infrastructure*', '*support*', '*config*', '*dto*', '*exception*', '*logging*', '*Application*']
         }
     }
 }
