@@ -2,6 +2,8 @@ import { rest } from 'msw';
 import NotFoundPage from '.';
 import Header from 'components/layouts/Header';
 import AppLayout from 'components/layouts/AppLayout';
+import Footer from 'components/layouts/Footer';
+import { Body } from 'components/layouts/Body/Body.styled';
 
 export default {
   title: 'Pages/NotFoundPage',
@@ -12,7 +14,10 @@ const Template = (args) => {
   return (
     <AppLayout>
       <Header />
-      <NotFoundPage {...args} />
+      <Body>
+        <NotFoundPage {...args} />
+      </Body>
+      <Footer />
     </AppLayout>
   );
 };

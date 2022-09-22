@@ -2,7 +2,7 @@ package com.woowacourse.moragora.acceptance;
 
 import static org.mockito.BDDMockito.given;
 
-import com.woowacourse.moragora.support.ServerTimeManager;
+import com.woowacourse.moragora.application.ServerTimeManager;
 import io.restassured.response.ValidatableResponse;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
-public class CommonAcceptanceTest extends AcceptanceTest {
+class CommonAcceptanceTest extends AcceptanceTest {
 
     @MockBean
     private ServerTimeManager serverTimeManager;

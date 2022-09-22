@@ -3,6 +3,8 @@ import Router from 'router';
 import * as S from './App.styled';
 import AppLayout from 'components/layouts/AppLayout';
 import Header from 'components/layouts/Header';
+import Footer from 'components/layouts/Footer';
+import Body from 'components/layouts/Body';
 import Spinner from 'components/@shared/Spinner';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { CalendarProvider } from 'contexts/calendarContext';
@@ -39,8 +41,11 @@ const App = () => {
       <AppLayout>
         <Header />
         <CalendarProvider initialDate={new Date()}>
-          <Router />
+          <Body>
+            <Router />
+          </Body>
         </CalendarProvider>
+        <Footer />
       </AppLayout>
       <div id="root-modal" />
     </>

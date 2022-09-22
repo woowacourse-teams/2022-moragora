@@ -1,19 +1,19 @@
 package com.woowacourse.moragora.acceptance;
 
-import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
-import static com.woowacourse.moragora.support.UserFixtures.BATD;
-import static com.woowacourse.moragora.support.UserFixtures.KUN;
-import static com.woowacourse.moragora.support.UserFixtures.MASTER;
-import static com.woowacourse.moragora.support.UserFixtures.createUsers;
+import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.BATD;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.MASTER;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.createUsers;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-import com.woowacourse.moragora.dto.NicknameRequest;
-import com.woowacourse.moragora.dto.PasswordRequest;
-import com.woowacourse.moragora.dto.UserDeleteRequest;
-import com.woowacourse.moragora.dto.UserRequest;
-import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.domain.meeting.Meeting;
+import com.woowacourse.moragora.domain.user.User;
+import com.woowacourse.moragora.dto.request.user.NicknameRequest;
+import com.woowacourse.moragora.dto.request.user.PasswordRequest;
+import com.woowacourse.moragora.dto.request.user.UserDeleteRequest;
+import com.woowacourse.moragora.dto.request.user.UserRequest;
 import io.restassured.response.ValidatableResponse;
 import java.util.List;
 import java.util.stream.Collectors;
