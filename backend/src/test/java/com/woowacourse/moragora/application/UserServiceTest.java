@@ -149,10 +149,11 @@ class UserServiceTest {
         // given
         final String email = "kun@naver.com";
         final String nickname = "kun";
+        final String authProvider = "checkmate";
         final UserRequest userRequest = new UserRequest(email, "1234smart!", nickname);
         final Long id = userService.create(userRequest);
 
-        final UserResponse expectedResponse = new UserResponse(id, email, nickname);
+        final UserResponse expectedResponse = new UserResponse(id, email, nickname, authProvider);
 
         // when
         final UserResponse response = userService.findById(id);

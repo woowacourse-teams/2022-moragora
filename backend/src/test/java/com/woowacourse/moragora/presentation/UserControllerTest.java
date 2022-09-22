@@ -149,13 +149,13 @@ class UserControllerTest extends ControllerTest {
 
         final UsersResponse usersResponse = new UsersResponse(
                 List.of(
-                        new UserResponse(1L, "aaa111@foo.com", "아스피"),
-                        new UserResponse(2L, "bbb222@foo.com", "필즈"),
-                        new UserResponse(3L, "ccc333@foo.com", "포키"),
-                        new UserResponse(4L, "ddd444@foo.com", "썬"),
-                        new UserResponse(5L, "eee555@foo.com", "우디"),
-                        new UserResponse(6L, "fff666@foo.com", "쿤"),
-                        new UserResponse(7L, "ggg777@foo.com", "반듯"))
+                        new UserResponse(1L, "aaa111@foo.com", "아스피", "checkmate"),
+                        new UserResponse(2L, "bbb222@foo.com", "필즈", "checkmate"),
+                        new UserResponse(3L, "ccc333@foo.com", "포키", "checkmate"),
+                        new UserResponse(4L, "ddd444@foo.com", "썬", "checkmate"),
+                        new UserResponse(5L, "eee555@foo.com", "우디", "checkmate"),
+                        new UserResponse(6L, "fff666@foo.com", "쿤", "checkmate"),
+                        new UserResponse(7L, "ggg777@foo.com", "반듯", "checkmate"))
         );
 
         given(userService.searchByKeyword(keyword))
@@ -177,12 +177,16 @@ class UserControllerTest extends ControllerTest {
                         "ggg777@foo.com")))
                 .andExpect(jsonPath("$.users[*].nickname", containsInAnyOrder(
                         "아스피", "필즈", "포키", "썬", "우디", "쿤", "반듯")))
+                .andExpect(jsonPath("$.users[*].authProvider", containsInAnyOrder(
+                        "checkmate", "checkmate", "checkmate", "checkmate", "checkmate", "checkmate", "checkmate")))
                 .andDo(document("user/keyword-search",
                         preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("users[].id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("users[].email").type(JsonFieldType.STRING).description("aaa111@foo.com"),
-                                fieldWithPath("users[].nickname").type(JsonFieldType.STRING).description("아스피")
+                                fieldWithPath("users[].nickname").type(JsonFieldType.STRING).description("아스피"),
+                                fieldWithPath("users[].authProvider").type(JsonFieldType.STRING)
+                                        .description("checkmate")
                         )
                 ));
     }
@@ -210,7 +214,8 @@ class UserControllerTest extends ControllerTest {
         final long id = 1L;
         final String email = "foo@email.com";
         final String nickname = "foo";
-        final UserResponse userResponse = new UserResponse(id, email, nickname);
+        final String authProvider = "checkmate";
+        final UserResponse userResponse = new UserResponse(id, email, nickname, authProvider);
 
         validateToken("1");
         given(userService.findById(id))
@@ -224,12 +229,14 @@ class UserControllerTest extends ControllerTest {
                 .andExpect(jsonPath("id").value(id))
                 .andExpect(jsonPath("email").value(email))
                 .andExpect(jsonPath("nickname").value(nickname))
+                .andExpect(jsonPath("authProvider").value(authProvider))
                 .andDo(document("user/find-my-info",
                         preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("id").type(JsonFieldType.NUMBER).description(1L),
                                 fieldWithPath("email").type(JsonFieldType.STRING).description("foo@email.com"),
-                                fieldWithPath("nickname").type(JsonFieldType.STRING).description("foo")
+                                fieldWithPath("nickname").type(JsonFieldType.STRING).description("foo"),
+                                fieldWithPath("authProvider").type(JsonFieldType.STRING).description("checkmate")
                         )
                 ));
     }
