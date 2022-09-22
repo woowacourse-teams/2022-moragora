@@ -21,10 +21,14 @@ jobs:
       SONARQUBE_URL: ${{ secrets.SONAR_HOST_URL }}
       SONARQUBE_TOKEN : ${{ secrets.SONAR_TOKEN }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
+      SUBMODULE_TOKEN : ${{ secrets.SUBMODULE_TOKEN }}
       
     steps:
       - name: Checkout source code
         uses: actions/checkout@v2
+        with:
+          token: env.SUBMODULE_TOKEN
+          submodules: true
 
       - name: gradlew permission change
         run: sudo chmod 755 gradlew
