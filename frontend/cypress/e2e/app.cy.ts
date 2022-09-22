@@ -63,7 +63,7 @@ describe('유저', () => {
       cy.get('a[href="/settings"]').click();
       cy.get('button[class*="-StyledButton"]').click();
       cy.get('button[class*="-Button"]').contains('확인').click();
-      cy.url().should('include', '/login');
+      cy.url().should('include', '/loagin');
     });
   });
 });
