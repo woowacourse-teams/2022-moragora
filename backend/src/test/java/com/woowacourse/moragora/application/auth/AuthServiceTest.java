@@ -145,7 +145,7 @@ class AuthServiceTest {
                 .willReturn("something");
         given(googleClient.getProfileResponse(anyString()))
                 .willReturn(new GoogleProfileResponse("sunny@gmail.com", "썬"));
-        final UserResponse expectedResponse = new UserResponse(null, "sunny@gmail.com", "썬");
+        final UserResponse expectedResponse = new UserResponse(null, "sunny@gmail.com", "썬", "google");
 
         // when
         final LoginResponse loginResponse = authService.loginWithGoogle("codecode");
