@@ -1,11 +1,13 @@
 import styled from '@emotion/styled';
 
 export const Layout = styled.header`
-  height: 3rem;
+  position: fixed;
+  inset: 0 0 calc(100vh - 4rem) 0;
   padding: 0.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background-color: ${({ theme: { colors } }) => colors['surface']};
 `;
 
 export const Box = styled.div`

@@ -2,6 +2,8 @@ import { rest } from 'msw';
 import CheckInPage from '.';
 import Header from 'components/layouts/Header';
 import AppLayout from 'components/layouts/AppLayout';
+import Footer from 'components/layouts/Footer';
+import { Body } from 'components/layouts/Body/Body.styled';
 
 export default {
   title: 'Pages/CheckInPage',
@@ -12,7 +14,10 @@ const Template = (args) => {
   return (
     <AppLayout>
       <Header />
-      <CheckInPage {...args} />
+      <Body>
+        <CheckInPage {...args} />
+      </Body>
+      <Footer />
       <div id="root-modal" />
     </AppLayout>
   );
