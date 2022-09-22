@@ -3,6 +3,8 @@ package com.woowacourse.moragora.domain.event;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT2;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT3;
+import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT_WITHOUT_DATE;
+import static com.woowacourse.moragora.support.fixture.MeetingFixtures.F12;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -190,5 +192,30 @@ class EventRepositoryTest {
         // then
         final List<Event> events = eventRepository.findByMeetingId(meeting.getId());
         assertThat(events).isEmpty();
+    }
+
+    @DisplayName("오늘과 오늘 이후의 모든 이벤트를 조회한다.")
+    @Test
+    void findByDateGreaterThanEqual() {
+        // given
+        final Meeting meeting1 = dataSupport.saveMeeting(MORAGORA.create());
+        final Meeting meeting2 = dataSupport.saveMeeting(F12.create());
+        final LocalDate today = LocalDate.now();
+
+        dataSupport.saveEvent(EVENT1.create(meeting1));
+        dataSupport.saveEvent(EVENT2.create(meeting1));
+        dataSupport.saveEvent(EVENT3.create(meeting2));
+        dataSupport.saveEvent(EVENT_WITHOUT_DATE.createEventOnDate(meeting1, today));
+        dataSupport.saveEvent(EVENT_WITHOUT_DATE.createEventOnDate(meeting1, today.plusDays(1)));
+        dataSupport.saveEvent(EVENT_WITHOUT_DATE.createEventOnDate(meeting2, today));
+        dataSupport.saveEvent(EVENT_WITHOUT_DATE.createEventOnDate(meeting2, today.plusDays(1)));
+        dataSupport.saveEvent(EVENT_WITHOUT_DATE.createEventOnDate(meeting2, today.plusDays(2)));
+        dataSupport.saveEvent(EVENT_WITHOUT_DATE.createEventOnDate(meeting2, today.plusDays(3)));
+
+        // when
+        final List<Event> events = eventRepository.findByDateGreaterThanEqual(today);
+
+        // then
+        assertThat(events).hasSize(6);
     }
 }
