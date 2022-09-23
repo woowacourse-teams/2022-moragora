@@ -177,6 +177,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
     @DisplayName("마스터가 아닌 참가자가 미팅 참가자의 출석을 업데이트하면 상태코드 403을 반환한다.")
     @Test
     void updateAttendance_NotMaster() {
+        // given
         final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(true);
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 1);
