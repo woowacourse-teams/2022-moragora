@@ -1,6 +1,5 @@
 import { useContext, useRef, useState } from 'react';
 import { Navigate, Outlet, useParams } from 'react-router-dom';
-import Footer from 'components/layouts/Footer';
 import * as S from './MeetingDetailPage.styled';
 import useQuery from 'hooks/useQuery';
 import { getUpcomingEventApi } from 'apis/eventApis';
@@ -72,67 +71,16 @@ const MeetingDetailPage = () => {
 
   if (meetingQuery.isLoading || upcomingEventQuery.isLoading) {
     return (
-      <>
-        <S.Layout>
-          <S.SpinnerBox>
-            <Spinner />
-          </S.SpinnerBox>
-        </S.Layout>
-        <Footer />
-      </>
+      <S.Layout>
+        <S.SpinnerBox>
+          <Spinner />
+        </S.SpinnerBox>
+      </S.Layout>
     );
   }
 
-  if (!id || meetingQuery.isError || !meetingQuery.data?.body) {
+  if (!id || meetingQuery.isError) {
     return (
-      <>
-        <S.Layout>
-          <S.TabNavBox>
-            <S.TabNav>
-              <S.TabNavLink
-                to={'coffee-stack'}
-                ref={bindTabRef('coffee-stack')}
-              >
-                커피스택
-              </S.TabNavLink>
-              <S.TabNavLink to={'calendar'} ref={bindTabRef('calendar')}>
-                일정
-              </S.TabNavLink>
-              <S.TabNavLink to={'config'} ref={bindTabRef('config')}>
-                설정
-              </S.TabNavLink>
-              <S.IndicatorBox tabPositions={tabPositionMap()}>
-                <svg
-                  width="18"
-                  height="5"
-                  viewBox="0 0 18 5"
-                  fill="currentColor"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M3.06725 0.366895C6.97724 -0.122283 10.71 -0.122314 14.7987 0.366895C18.8875 0.856104 19.243 2.69073 14.7987 4.03621C10.3545 5.38169 7.33274 5.25938 3.06725 4.03621C-1.19824 2.81304 -0.842737 0.856074 3.06725 0.366895Z"
-                    fill="inherit"
-                  />
-                </svg>
-              </S.IndicatorBox>
-            </S.TabNav>
-          </S.TabNavBox>
-          <S.ErrorBox>
-            <ErrorIcon />
-            <ReloadButton
-              onClick={() => {
-                meetingQuery.refetch();
-              }}
-            />
-          </S.ErrorBox>
-        </S.Layout>
-        <Footer />
-      </>
-    );
-  }
-
-  return (
-    <>
       <S.Layout>
         <S.TabNavBox>
           <S.TabNav>
@@ -161,19 +109,58 @@ const MeetingDetailPage = () => {
             </S.IndicatorBox>
           </S.TabNav>
         </S.TabNavBox>
-        <S.MainBox>
-          <Outlet
-            context={{
-              meetingQuery,
-              upcomingEventQuery,
-              totalTardyCount,
-              upcomingEventNotExist,
+        <S.ErrorBox>
+          <ErrorIcon />
+          <ReloadButton
+            onClick={() => {
+              meetingQuery.refetch();
             }}
           />
-        </S.MainBox>
+        </S.ErrorBox>
       </S.Layout>
-      <Footer />
-    </>
+    );
+  }
+
+  return (
+    <S.Layout>
+      <S.TabNavBox>
+        <S.TabNav>
+          <S.TabNavLink to={'coffee-stack'} ref={bindTabRef('coffee-stack')}>
+            커피스택
+          </S.TabNavLink>
+          <S.TabNavLink to={'calendar'} ref={bindTabRef('calendar')}>
+            일정
+          </S.TabNavLink>
+          <S.TabNavLink to={'config'} ref={bindTabRef('config')}>
+            설정
+          </S.TabNavLink>
+          <S.IndicatorBox tabPositions={tabPositionMap()}>
+            <svg
+              width="18"
+              height="5"
+              viewBox="0 0 18 5"
+              fill="currentColor"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3.06725 0.366895C6.97724 -0.122283 10.71 -0.122314 14.7987 0.366895C18.8875 0.856104 19.243 2.69073 14.7987 4.03621C10.3545 5.38169 7.33274 5.25938 3.06725 4.03621C-1.19824 2.81304 -0.842737 0.856074 3.06725 0.366895Z"
+                fill="inherit"
+              />
+            </svg>
+          </S.IndicatorBox>
+        </S.TabNav>
+      </S.TabNavBox>
+      <S.MainBox>
+        <Outlet
+          context={{
+            meetingQuery,
+            upcomingEventQuery,
+            totalTardyCount,
+            upcomingEventNotExist,
+          }}
+        />
+      </S.MainBox>
+    </S.Layout>
   );
 };
 

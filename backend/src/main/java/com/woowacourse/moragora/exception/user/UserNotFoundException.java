@@ -1,6 +1,6 @@
 package com.woowacourse.moragora.exception.user;
 
-import com.woowacourse.moragora.exception.NotFoundException;
+import com.woowacourse.moragora.exception.global.NotFoundException;
 
 public class UserNotFoundException extends NotFoundException {
 

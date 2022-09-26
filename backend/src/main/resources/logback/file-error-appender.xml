@@ -1,0 +1,21 @@
+<included>
+    <appender name="FILE-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${DEFAULT_PATH}/${ERROR_PATH}/error-${BY_DATE}.log</file>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <layout class="com.woowacourse.logging.MaskingPatternLayout">
+            <maskPattern>${TOKEN_PATTERN}</maskPattern>
+            <maskPattern>${PASSWORD_PATTERN}</maskPattern>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </layout>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${BACKUP_PATH}/${ERROR_PATH}/error-%d{yyyy-MM-dd}.%i.zip</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+</included>

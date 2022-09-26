@@ -1,19 +1,19 @@
 package com.woowacourse.moragora.acceptance;
 
-import static com.woowacourse.moragora.support.MeetingFixtures.MORAGORA;
-import static com.woowacourse.moragora.support.UserFixtures.BATD;
-import static com.woowacourse.moragora.support.UserFixtures.KUN;
-import static com.woowacourse.moragora.support.UserFixtures.MASTER;
-import static com.woowacourse.moragora.support.UserFixtures.createUsers;
+import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.BATD;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.MASTER;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.createUsers;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-import com.woowacourse.moragora.dto.NicknameRequest;
-import com.woowacourse.moragora.dto.PasswordRequest;
-import com.woowacourse.moragora.dto.UserDeleteRequest;
-import com.woowacourse.moragora.dto.UserRequest;
-import com.woowacourse.moragora.entity.Meeting;
-import com.woowacourse.moragora.entity.user.User;
+import com.woowacourse.moragora.domain.meeting.Meeting;
+import com.woowacourse.moragora.domain.user.User;
+import com.woowacourse.moragora.dto.request.user.NicknameRequest;
+import com.woowacourse.moragora.dto.request.user.PasswordRequest;
+import com.woowacourse.moragora.dto.request.user.UserDeleteRequest;
+import com.woowacourse.moragora.dto.request.user.UserRequest;
 import io.restassured.response.ValidatableResponse;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -88,6 +88,10 @@ class UserAcceptanceTest extends AcceptanceTest {
                 .map(User::getEmail)
                 .collect(Collectors.toList());
 
+        final List<String> providers = users.stream()
+                .map(user -> user.getProvider().name().toLowerCase())
+                .collect(Collectors.toList());
+
         // when
         final ValidatableResponse response = get("/users?keyword=" + keyword);
 
@@ -95,7 +99,8 @@ class UserAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.OK.value())
                 .body("users.id", equalTo(userIds))
                 .body("users.nickname", equalTo(nicknames))
-                .body("users.email", equalTo(emails));
+                .body("users.email", equalTo(emails))
+                .body("users.authProvider", equalTo(providers));
     }
 
     @DisplayName("로그인 한 상태에서 자신의 회원정보를 요청하면 회원정보와 상태코드 200을 반환받는다.")
@@ -112,7 +117,8 @@ class UserAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.OK.value())
                 .body("id", equalTo(id.intValue()))
                 .body("email", equalTo(user.getEmail()))
-                .body("nickname", equalTo(user.getNickname()));
+                .body("nickname", equalTo(user.getNickname()))
+                .body("authProvider", equalTo(user.getProvider().name().toLowerCase()));
     }
 
     @DisplayName("로그인 한 상태에서 닉네임 수정을 요청하면 닉네임을 수정한 후 상태코드 204을 반환한다.")

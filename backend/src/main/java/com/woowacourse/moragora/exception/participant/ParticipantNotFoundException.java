@@ -1,6 +1,6 @@
 package com.woowacourse.moragora.exception.participant;
 
-import com.woowacourse.moragora.exception.NotFoundException;
+import com.woowacourse.moragora.exception.global.NotFoundException;
 
 public class ParticipantNotFoundException extends NotFoundException {
 

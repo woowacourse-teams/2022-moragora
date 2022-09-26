@@ -2,7 +2,6 @@ import { useContext, useState } from 'react';
 import * as S from './CheckInPage.styled';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { getMeetingListApi } from 'apis/meetingApis';
-import Footer from 'components/layouts/Footer';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import ReloadButton from 'components/@shared/ReloadButton';
@@ -37,93 +36,81 @@ const CheckInPage = () => {
 
   if (meetingListQuery.isLoading) {
     return (
-      <>
-        <S.Layout>
-          <S.SpinnerBox>
-            <Spinner />
-          </S.SpinnerBox>
-        </S.Layout>
-        <Footer />
-      </>
+      <S.Layout>
+        <S.SpinnerBox>
+          <Spinner />
+        </S.SpinnerBox>
+      </S.Layout>
     );
   }
 
-  if (meetingListQuery.isError || !meetingListQuery.data) {
+  if (meetingListQuery.isError) {
     return (
-      <>
-        <S.Layout>
-          <S.ErrorBox>
-            <ErrorIcon />
-            <ReloadButton
-              onClick={() => {
-                meetingListQuery.refetch();
-              }}
-            />
-          </S.ErrorBox>
-        </S.Layout>
-        <Footer />
-      </>
+      <S.Layout>
+        <S.ErrorBox>
+          <ErrorIcon />
+          <ReloadButton
+            onClick={() => {
+              meetingListQuery.refetch();
+            }}
+          />
+        </S.ErrorBox>
+      </S.Layout>
     );
   }
 
   if (!currentMeeting) {
     return (
-      <>
-        <S.Layout>
-          <S.EmptyStateBox>
-            <S.EmptyStateImage src={emptyInboxSVG} alt="empty inbox" />
-            <S.EmptyStateTitle>출석할 모임이 없어요.</S.EmptyStateTitle>
-            <S.EmptyStateParagraph>
-              모임에 먼저 참여해주세요!
-            </S.EmptyStateParagraph>
-          </S.EmptyStateBox>
-        </S.Layout>
-        <Footer />
-      </>
+      <S.Layout>
+        <S.EmptyStateBox>
+          <S.EmptyStateImage src={emptyInboxSVG} alt="empty inbox" />
+          <S.EmptyStateTitle>출석할 모임이 없어요.</S.EmptyStateTitle>
+          <S.EmptyStateParagraph>
+            모임에 먼저 참여해주세요!
+          </S.EmptyStateParagraph>
+        </S.EmptyStateBox>
+      </S.Layout>
     );
   }
 
   return (
-    <>
-      <S.Layout>
-        <S.EndedCheckTimeSection>
-          <S.SectionTitle>출결이 끝난 모임</S.SectionTitle>
-          <S.MeetingList>
-            {meetingListQuery.data.body.meetings
-              .filter((meeting) => !meeting.isActive)
-              .map((meeting) => (
-                <CheckMeetingItem
-                  key={meeting.id}
-                  onClick={handleMeetingItemClick}
-                  meeting={meeting}
-                  clicked={meeting.id === currentMeeting?.id}
-                >
-                  {meeting.name}
-                </CheckMeetingItem>
-              ))}
-          </S.MeetingList>
-        </S.EndedCheckTimeSection>
-        <S.CheckTimeSection>
-          <S.SectionTitle>출결 중인 모임</S.SectionTitle>
-          <S.MeetingList>
-            {meetingListQuery.data.body.meetings
-              .filter((meeting) => meeting.isActive)
-              .map((meeting) => (
-                <CheckMeetingItem
-                  key={meeting.id}
-                  onClick={handleMeetingItemClick}
-                  meeting={meeting}
-                  clicked={meeting.id === currentMeeting?.id}
-                >
-                  {meeting.name}
-                </CheckMeetingItem>
-              ))}
-          </S.MeetingList>
-        </S.CheckTimeSection>
-        <AttendanceSection currentMeeting={currentMeeting} />
-      </S.Layout>
-      <Footer />
-    </>
+    <S.Layout>
+      <S.EndedCheckTimeSection>
+        <S.SectionTitle>출결이 끝난 모임</S.SectionTitle>
+        <S.MeetingList>
+          {meetingListQuery.data?.body.meetings
+            .filter((meeting) => !meeting.isActive)
+            .map((meeting) => (
+              <CheckMeetingItem
+                key={meeting.id}
+                onClick={handleMeetingItemClick}
+                meeting={meeting}
+                clicked={meeting.id === currentMeeting?.id}
+              >
+                {meeting.name}
+              </CheckMeetingItem>
+            ))}
+        </S.MeetingList>
+      </S.EndedCheckTimeSection>
+      <S.CheckTimeSection>
+        <S.SectionTitle>출결 중인 모임</S.SectionTitle>
+        <S.MeetingList>
+          {meetingListQuery.data?.body.meetings
+            .filter((meeting) => meeting.isActive)
+            .map((meeting) => (
+              <CheckMeetingItem
+                key={meeting.id}
+                onClick={handleMeetingItemClick}
+                meeting={meeting}
+                clicked={meeting.id === currentMeeting?.id}
+              >
+                {meeting.name}
+              </CheckMeetingItem>
+            ))}
+        </S.MeetingList>
+      </S.CheckTimeSection>
+      <AttendanceSection currentMeeting={currentMeeting} />
+    </S.Layout>
   );
 };
 

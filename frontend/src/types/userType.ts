@@ -1,3 +1,8 @@
+export enum AuthProvider {
+  checkmate = 'checkmate',
+  google = 'google',
+}
+
 export type AttendanceStatus = 'none' | 'present' | 'tardy';
 
 export type User = {
@@ -6,9 +11,10 @@ export type User = {
   password: string;
   nickname: string;
   accessToken: string | null;
+  authProvider: keyof typeof AuthProvider;
 };
 
-export type Participant = Omit<User, 'password' | 'accessToken'> & {
+export type Participant = Pick<User, 'id' | 'email' | 'nickname'> & {
   tardyCount: number;
   attendanceStatus: AttendanceStatus;
 };
@@ -29,9 +35,9 @@ export type UserLoginResponseBody = Pick<User, 'accessToken'>;
 
 export type GoogleLoginRequestBody = { code: string };
 
-export type GetLoginUserDataResponseBody = Pick<
+export type GetLoginUserDataResponseBody = Omit<
   User,
-  'id' | 'nickname' | 'email'
+  'password' | 'accessToken'
 >;
 
 export type UserUpdateNicknameRequestBody = Pick<User, 'nickname'>;

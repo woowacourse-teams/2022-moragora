@@ -4,7 +4,6 @@ import Button from 'components/@shared/Button';
 export const Layout = styled.div`
   display: flex;
   flex-direction: column;
-  flex: 1;
   overflow: hidden;
   padding: 0.75rem;
 `;

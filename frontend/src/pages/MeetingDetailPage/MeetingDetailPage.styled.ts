@@ -4,9 +4,9 @@ import { NavLink } from 'react-router-dom';
 type TabPosition = DOMRect;
 
 export const Layout = styled.div`
+  height: 100%;
   display: flex;
   flex-direction: column;
-  flex: 1;
   gap: 2rem;
   overflow-y: hidden;
 `;

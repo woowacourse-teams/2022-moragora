@@ -18,6 +18,7 @@ ext {
 test {
     outputs.dir snippetsDir
     useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
 }
 
 asciidoctor {
@@ -74,6 +75,10 @@ dependencies {
 
     // mysql
     implementation 'mysql:mysql-connector-java:8.0.30'
+
+    // prometheus
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 task copyDocument(type: Copy) {
@@ -89,7 +94,6 @@ bootJar {
 
 tasks.named('test') {
     useJUnitPlatform()
-    finalizedBy 'jacocoTestReport'
 }
 
 jacoco {
@@ -100,7 +104,38 @@ jacocoTestReport {
     reports {
         xml.enabled true
         csv.enabled false
-        html.enabled false
+        html.enabled true
+    }
+
+    finalizedBy 'jacocoTestCoverageVerification'
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            enabled = true
+            element = 'CLASS'
+
+            limit {
+                counter = 'INSTRUCTION'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+
+            excludes = ['*infrastructure*', '*support*', '*config*', '*dto*', '*exception*', '*logging*', '*Application*']
+        }
     }
 }
 

@@ -7,11 +7,24 @@ spring:
         format_sql: true
         jdbc:
           time_zone: Asia/Seoul
+        session:
+          events:
+            log:
+              LOG_QUERIES_SLOWER_THAN_MS: 1000
     hibernate:
       ddl-auto: create # ddl-auto
+  datasource:
+    hikari:
+      maximum-pool-size: 20
 
 logging:
   level:
     org.hibernate:
       SQL: debug
       type: trace
+
+server:
+  tomcat:
+    threads:
+      max: 50
+    accept-count: 10

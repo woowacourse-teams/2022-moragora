@@ -36,7 +36,7 @@ const CoffeeStackModal = ({ onDismiss, onConfirm }: CoffeeStackModalProps) => {
     );
   }
 
-  if (isError || !userCoffeeStatsResponse?.body) {
+  if (isError) {
     return (
       <S.Layout>
         <ErrorIcon />
@@ -51,7 +51,7 @@ const CoffeeStackModal = ({ onDismiss, onConfirm }: CoffeeStackModalProps) => {
     <S.Layout>
       <S.Title>It's 커피 타임~</S.Title>
       <S.StatsBox>
-        {userCoffeeStatsResponse.body.userCoffeeStats.map((data) => (
+        {userCoffeeStatsResponse?.body.userCoffeeStats.map((data) => (
           <S.RowBox key={data.id}>
             <span>{data.nickname}</span>
             <S.CoffeeIconBox>
