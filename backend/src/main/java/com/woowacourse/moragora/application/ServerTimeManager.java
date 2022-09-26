@@ -37,10 +37,6 @@ public class ServerTimeManager {
         return dateTime.isAfter(startTime);
     }
 
-    public boolean isAfterAttendanceStartTime(final LocalTime startTime) {
-        return this.dateTime.isAfter(startTime.minusMinutes(ATTENDANCE_START_INTERVAL));
-    }
-
     public LocalTime calculateOpenTime(final LocalTime meetingStartTime) {
         return meetingStartTime.minusMinutes(ATTENDANCE_START_INTERVAL);
     }
