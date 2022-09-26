@@ -57,7 +57,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .meeting(meeting)
                 .build();
 
-        given(serverTimeManager.isAfterAttendanceStartTime(any(LocalTime.class)))
+        given(serverTimeManager.isAfter(any(LocalTime.class)))
                 .willReturn(false);
         given(serverTimeManager.getDate())
                 .willReturn(LocalDate.now());

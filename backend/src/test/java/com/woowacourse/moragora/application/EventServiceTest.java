@@ -157,12 +157,12 @@ class EventServiceTest {
                 .hasMessage("하루에 복수의 일정을 생성할 수 없습니다.");
     }
 
-    @DisplayName("오늘의 이벤트 생성 시, 이벤트 시작 시간이 출석 시작 시간보다 이후일 경우 예외가 발생한다.")
+    @DisplayName("오늘의 이벤트 생성 시, 이벤트 시작 시간이 현재 시간 이후일 경우 예외가 발생한다.")
     @Test
-    void save_throwsException_ifTodayEventStartTimeIsAfterAttendanceStartTime() {
+    void save_throwsException_ifTodayEventStartTimeIsAfterNow() {
         // given
         final LocalDate date = LocalDate.of(2022, 8, 1);
-        final LocalTime time = LocalTime.of(9, 30, 1);
+        final LocalTime time = LocalTime.of(10, 0, 1);
         final LocalDateTime now = LocalDateTime.of(date, time);
         serverTimeManager.refresh(now);
 
@@ -179,7 +179,7 @@ class EventServiceTest {
         // when, then
         assertThatThrownBy(() -> eventService.save(eventsRequest, meeting.getId()))
                 .isInstanceOf(ClientRuntimeException.class)
-                .hasMessage("출석 시간 전에 일정을 생성할 수 없습니다.");
+                .hasMessage("과거의 일정을 생성할 수 없습니다.");
     }
 
 
