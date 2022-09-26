@@ -7,7 +7,7 @@ public abstract class DateTime {
 
     protected LocalDateTime value;
 
-    public DateTime(final LocalDateTime dateTime) {
+    protected DateTime(final LocalDateTime dateTime) {
         this.value = dateTime;
     }
 
@@ -23,8 +23,8 @@ public abstract class DateTime {
                 time.equals(startTime);
     }
 
-    public boolean isAfter(final LocalTime endTime) {
-        final LocalTime time = value.toLocalTime();
-        return time.isAfter(endTime);
+    public boolean isAfter(final LocalTime other) {
+        final LocalTime localTime = value.toLocalTime();
+        return localTime.isAfter(other);
     }
 }
