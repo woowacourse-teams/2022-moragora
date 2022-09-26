@@ -206,8 +206,8 @@ public class EventService {
                 .findAny();
 
         event.ifPresent(it -> {
-            if (serverTimeManager.isAfterAttendanceStartTime(it.getStartTime())) {
-                throw new ClientRuntimeException("출석 시간 전에 일정을 생성할 수 없습니다.", HttpStatus.BAD_REQUEST);
+            if (serverTimeManager.isAfter(it.getStartTime())) {
+                throw new ClientRuntimeException("과거의 일정을 생성할 수 없습니다.", HttpStatus.BAD_REQUEST);
             }
         });
     }
