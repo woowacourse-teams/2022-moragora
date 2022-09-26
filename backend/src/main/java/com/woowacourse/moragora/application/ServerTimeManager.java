@@ -33,8 +33,8 @@ public class ServerTimeManager {
         return dateTime.isAfter(closingTime);
     }
 
-    public boolean isAfter(final LocalTime startTime) {
-        return dateTime.isAfter(startTime);
+    public boolean isAfter(final LocalTime localTime) {
+        return dateTime.isAfter(localTime);
     }
 
     public LocalTime calculateOpenTime(final LocalTime meetingStartTime) {
