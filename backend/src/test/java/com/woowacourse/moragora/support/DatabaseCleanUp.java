@@ -2,25 +2,25 @@ package com.woowacourse.moragora.support;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class DatabaseCleanUp implements InitializingBean {
+public class DatabaseCleanUp {
 
     @PersistenceContext
     private EntityManager entityManager;
 
     private List<String> tableNames;
 
-    @Override
-    public void afterPropertiesSet() {
+    @PostConstruct
+    public void init() {
         tableNames = entityManager.getMetamodel().getEntities().stream()
-                .filter(e -> e.getJavaType().getAnnotation(Entity.class) != null)
+                .filter(e -> e.getJavaType().isAnnotationPresent(Entity.class))
                 .map(e -> e.getName().toLowerCase())
                 .collect(Collectors.toList());
     }

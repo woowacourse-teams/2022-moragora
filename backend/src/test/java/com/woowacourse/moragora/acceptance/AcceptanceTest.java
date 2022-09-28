@@ -34,8 +34,6 @@ public class AcceptanceTest {
     @BeforeEach
     public void setUp() {
         RestAssured.port = port;
-        databaseCleanUp.afterPropertiesSet();
-
         databaseCleanUp.execute();
     }
 
