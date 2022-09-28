@@ -25,7 +25,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import javax.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-@Transactional
 class EventServiceTest {
 
     private static final int ATTENDANCE_END_INTERVAL = 5;
@@ -53,7 +51,6 @@ class EventServiceTest {
 
     @BeforeEach
     void setUp() {
-        databaseCleanUp.afterPropertiesSet();
         databaseCleanUp.execute();
     }
 
