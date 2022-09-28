@@ -26,7 +26,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -97,7 +96,6 @@ class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("users.email", equalTo(getEmailsIncludingMaster()));
     }
 
-    @Disabled
     @DisplayName("사용자가 자신이 속한 모든 모임을 조회하면 모임 정보와 상태코드 200을 반환한다.")
     @Test
     void findMy() {
