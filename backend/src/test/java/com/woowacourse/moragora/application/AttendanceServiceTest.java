@@ -47,9 +47,6 @@ class AttendanceServiceTest {
     private AttendanceService attendanceService;
 
     @Autowired
-    private EventService eventService;
-
-    @Autowired
     private ServerTimeManager serverTimeManager;
 
     @Autowired

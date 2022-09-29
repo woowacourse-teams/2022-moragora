@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.acceptance;
 
+import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
@@ -8,6 +9,7 @@ import com.woowacourse.moragora.dto.request.event.EventsRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
+import com.woowacourse.moragora.infrastructure.GoogleClient;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 
@@ -27,6 +30,12 @@ public class AcceptanceTest {
 
     @LocalServerPort
     int port;
+
+    @MockBean
+    protected ServerTimeManager serverTimeManager;
+
+    @MockBean
+    protected GoogleClient googleClient;
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
