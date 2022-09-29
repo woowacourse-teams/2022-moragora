@@ -1,9 +1,9 @@
-import { ArrayElement } from 'types/utilityType';
+import { ElementOf } from 'checkmate-ts-module';
 
 export const mergeArrays = <T extends any[]>(
   prevArray: T,
   newArray: T,
-  compareProperty: keyof ArrayElement<T>
+  compareProperty: keyof ElementOf<T>
 ) => {
   const updatedArray = prevArray.map((prevElement) => {
     const matchedElementIndex = newArray.findIndex(

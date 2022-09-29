@@ -1,13 +1,13 @@
 import React from 'react';
+import { ElementOf } from 'checkmate-ts-module';
 import * as S from './MeetingItem.styled';
 import { MeetingListResponseBody } from 'types/meetingType';
 import crownIcon from 'assets/crown.svg';
 import coffeeIcon from 'assets/simple-coffee.svg';
-import { ArrayElement } from 'types/utilityType';
 import { css } from '@emotion/react';
 
 export type MeetingItemProps = {
-  meeting: ArrayElement<MeetingListResponseBody['meetings']>;
+  meeting: ElementOf<MeetingListResponseBody['meetings']>;
 };
 
 const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {

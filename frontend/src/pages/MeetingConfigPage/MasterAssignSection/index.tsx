@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react';
+import { ElementOf } from 'checkmate-ts-module';
 import * as S from './MasterAssignSection.styled';
 import Button from 'components/@shared/Button';
 import ModalPortal from 'components/ModalPortal';
@@ -8,13 +9,12 @@ import { useOutletContext } from 'react-router-dom';
 import { QueryState } from 'types/queryType';
 import { assignMasterApi, getMeetingData } from 'apis/meetingApis';
 import { getUpcomingEventApi } from 'apis/eventApis';
-import { ArrayElement } from 'types/utilityType';
 import { MeetingResponseBody } from 'types/meetingType';
 import request from 'utils/request';
 import useMutation from 'hooks/useMutation';
 import { userContext, UserContextValues } from 'contexts/userContext';
 
-type SelectedParticipant = ArrayElement<MeetingResponseBody['users']>;
+type SelectedParticipant = ElementOf<MeetingResponseBody['users']>;
 
 const MasterAssignSection = () => {
   const { accessToken } = useContext(userContext) as UserContextValues;
