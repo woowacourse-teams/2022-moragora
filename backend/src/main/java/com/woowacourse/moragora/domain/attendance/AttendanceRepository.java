@@ -21,7 +21,7 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
     @Query("select a from Attendance a join fetch a.event e "
             + "where a.participant.id in :participantIds "
             + "and e.date <= :date ")
-    List<Attendance> findByParticipantIdInAndDateLessThanEqual(
+    List<Attendance> findByParticipantIdInAndEventDateLessThanEqual(
             @Param("participantIds") final List<Long> participantIds,
             @Param("date") final LocalDate date);
 

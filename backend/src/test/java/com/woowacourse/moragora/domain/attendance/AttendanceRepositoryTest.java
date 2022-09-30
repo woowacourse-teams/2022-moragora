@@ -76,7 +76,7 @@ class AttendanceRepositoryTest {
         dataSupport.saveAttendance(participant2, event3, Status.TARDY);
 
         // when
-        final List<Attendance> attendances = attendanceRepository.findByParticipantIdInAndDateLessThanEqual(
+        final List<Attendance> attendances = attendanceRepository.findByParticipantIdInAndEventDateLessThanEqual(
                 List.of(participant1.getId(), participant2.getId()),
                 event2.getDate()
         );
@@ -173,7 +173,7 @@ class AttendanceRepositoryTest {
         // when
         attendanceRepository.deleteByEventIdIn(List.of(event1.getId()));
         final List<Attendance> result = attendanceRepository
-                .findByParticipantIdInAndDateLessThanEqual(List.of(participant.getId()), event2.getDate());
+                .findByParticipantIdInAndEventDateLessThanEqual(List.of(participant.getId()), event2.getDate());
 
         // then
         assertThat(result).hasSize(1);
@@ -199,7 +199,7 @@ class AttendanceRepositoryTest {
         // when
         attendanceRepository.deleteByParticipantIdIn(List.of(participant1.getId()));
         final List<Attendance> result = attendanceRepository
-                .findByParticipantIdInAndDateLessThanEqual(List.of(participant1.getId(), participant2.getId()),
+                .findByParticipantIdInAndEventDateLessThanEqual(List.of(participant1.getId(), participant2.getId()),
                         event2.getDate());
 
         // then
