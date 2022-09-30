@@ -46,6 +46,8 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
     @Query("delete from Attendance a where a.participant.id in :participantIds")
     void deleteByParticipantIdIn(@Param("participantIds") final List<Long> participantIds);
 
-    @Query("select a from Attendance a where a.event.date = :today and a.event.startTime <= :now and a.status = 'NONE'")
-    List<Attendance> findByEventDateTimeAndStatus(final LocalDate today, final LocalTime now);
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("update Attendance a set a.status ='TARDY' where a.status = 'NONE' and a.event in "
+            + "(select e from Event e where e.date = :today and e.startTime <= :now)")
+    int updateByEventDateTimeAndStatus(final LocalDate today, final LocalTime now);
 }

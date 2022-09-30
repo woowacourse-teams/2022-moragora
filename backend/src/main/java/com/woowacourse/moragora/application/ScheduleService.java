@@ -1,11 +1,7 @@
 package com.woowacourse.moragora.application;
 
-import static com.woowacourse.moragora.domain.attendance.Status.TARDY;
-
-import com.woowacourse.moragora.domain.attendance.Attendance;
 import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
 import java.time.LocalDateTime;
-import java.util.List;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,8 +20,6 @@ public class ScheduleService {
     @Transactional
     public void updateToTardyAtAttendanceClosingTime() {
         final LocalDateTime now = LocalDateTime.now();
-        final List<Attendance> attendancesToUpdate = attendanceRepository
-                .findByEventDateTimeAndStatus(now.toLocalDate(), now.toLocalTime());
-        attendancesToUpdate.forEach(attendance -> attendance.changeAttendanceStatus(TARDY));
+        attendanceRepository.updateByEventDateTimeAndStatus(now.toLocalDate(), now.toLocalTime());
     }
 }

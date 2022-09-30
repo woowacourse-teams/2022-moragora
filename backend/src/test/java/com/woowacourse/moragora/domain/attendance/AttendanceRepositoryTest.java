@@ -247,24 +247,24 @@ class AttendanceRepositoryTest {
         final Participant participant = dataSupport.saveParticipant(user, meeting);
         final Event event1 = EVENT_WITHOUT_DATE.createEventOnDateAndTime(meeting, LocalDate.now(), LocalTime.now());
         final Event event2 = EVENT_WITHOUT_DATE.createEventOnDateAndTime(meeting, LocalDate.now(), LocalTime.now());
-        final Event event3 = EVENT_WITHOUT_DATE.createEventOnDateAndTime(meeting, LocalDate.now(), LocalTime.now());
-        final Event savedEvent1 = dataSupport.saveEvent(event1);
-        final Event savedEvent2 = dataSupport.saveEvent(event2);
-        final Event savedEvent3 = dataSupport.saveEvent(event3);
+        final Event event3 = EVENT_WITHOUT_DATE.createEventOnDateAndTime(meeting, LocalDate.now(),
+                LocalTime.now().plusMinutes(5));
+        final Event event4 = EVENT_WITHOUT_DATE.createEventOnDateAndTime(meeting, LocalDate.now().plusDays(1),
+                LocalTime.now());
+        final Event includedEvent1 = dataSupport.saveEvent(event1);
+        final Event includedEvent2 = dataSupport.saveEvent(event2);
+        final Event excludedEvent1 = dataSupport.saveEvent(event3);
+        final Event excludedEvent2 = dataSupport.saveEvent(event4);
 
-        dataSupport.saveAttendance(participant, savedEvent1, Status.NONE);
-        dataSupport.saveAttendance(participant, savedEvent2, Status.NONE);
-        dataSupport.saveAttendance(participant, savedEvent3, Status.TARDY);
+        dataSupport.saveAttendance(participant, includedEvent1, Status.NONE);
+        dataSupport.saveAttendance(participant, includedEvent2, Status.NONE);
+        dataSupport.saveAttendance(participant, excludedEvent1, Status.NONE);
+        dataSupport.saveAttendance(participant, excludedEvent2, Status.NONE);
 
         // when
-        final List<Attendance> attendances = attendanceRepository
-                .findByEventDateTimeAndStatus(LocalDate.now(), LocalTime.now());
-        final Attendance attendance1 = new Attendance(Status.NONE, false, participant, savedEvent1);
-        final Attendance attendance2 = new Attendance(Status.NONE, false, participant, savedEvent2);
+        final int affectedRows = attendanceRepository.updateByEventDateTimeAndStatus(LocalDate.now(), LocalTime.now());
 
         // then
-        assertThat(attendances).usingRecursiveComparison()
-                .ignoringFields("id")
-                .isEqualTo(List.of(attendance1, attendance2));
+        assertThat(affectedRows).isEqualTo(2);
     }
 }
