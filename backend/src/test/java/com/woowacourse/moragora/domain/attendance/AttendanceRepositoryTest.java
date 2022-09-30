@@ -3,6 +3,7 @@ package com.woowacourse.moragora.domain.attendance;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT2;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT3;
+import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT_WITHOUT_DATE;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.F12;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.AZPI;
@@ -16,6 +17,8 @@ import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.support.DataSupport;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -48,7 +51,7 @@ class AttendanceRepositoryTest {
                 .findByParticipantIdAndEventId(participant.getId(), event.getId());
 
         // then
-        assertThat(attendance.isPresent()).isTrue();
+        assertThat(attendance).isPresent();
     }
 
     @DisplayName("미팅 참가자들의 특정 날짜 이전의 출석 기록을 조회한다.")
@@ -233,5 +236,35 @@ class AttendanceRepositoryTest {
         // when, then
         assertThatCode(() -> attendanceRepository.deleteByParticipantId(participant.getId()))
                 .doesNotThrowAnyException();
+    }
+
+    @DisplayName("현재 날짜, 시간을 기준으로 status가 NONE인 attendances를 조회한다.")
+    @Test
+    void findByEvents() {
+        // given
+        final User user = SUN.create();
+        final Meeting meeting = MORAGORA.create();
+        final Participant participant = dataSupport.saveParticipant(user, meeting);
+        final Event event1 = EVENT_WITHOUT_DATE.createEventOnDateAndTime(meeting, LocalDate.now(), LocalTime.now());
+        final Event event2 = EVENT_WITHOUT_DATE.createEventOnDateAndTime(meeting, LocalDate.now(), LocalTime.now());
+        final Event event3 = EVENT_WITHOUT_DATE.createEventOnDateAndTime(meeting, LocalDate.now(), LocalTime.now());
+        final Event savedEvent1 = dataSupport.saveEvent(event1);
+        final Event savedEvent2 = dataSupport.saveEvent(event2);
+        final Event savedEvent3 = dataSupport.saveEvent(event3);
+
+        dataSupport.saveAttendance(participant, savedEvent1, Status.NONE);
+        dataSupport.saveAttendance(participant, savedEvent2, Status.NONE);
+        dataSupport.saveAttendance(participant, savedEvent3, Status.TARDY);
+
+        // when
+        final List<Attendance> attendances = attendanceRepository
+                .findByEventDateTimeAndStatus(LocalDate.now(), LocalTime.now());
+        final Attendance attendance1 = new Attendance(Status.NONE, false, participant, savedEvent1);
+        final Attendance attendance2 = new Attendance(Status.NONE, false, participant, savedEvent2);
+
+        // then
+        assertThat(attendances).usingRecursiveComparison()
+                .ignoringFields("id")
+                .isEqualTo(List.of(attendance1, attendance2));
     }
 }
