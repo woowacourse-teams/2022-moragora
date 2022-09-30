@@ -217,7 +217,7 @@ class AttendanceServiceTest {
         dataSupport.saveAttendance(participant, event1, Status.PRESENT);
 
         // when, then
-        assertThatCode(() -> attendanceService.countUsableCoffeeStack(savedMeeting.getId()))
+        assertThatThrownBy(() -> attendanceService.countUsableCoffeeStack(savedMeeting.getId()))
                 .isInstanceOf(InvalidCoffeeTimeException.class);
     }
 
