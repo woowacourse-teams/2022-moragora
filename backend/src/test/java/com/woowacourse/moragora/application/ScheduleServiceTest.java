@@ -10,10 +10,13 @@ import static com.woowacourse.moragora.support.fixture.UserFixtures.SUN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.domain.attendance.Attendance;
+import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.user.User;
+import com.woowacourse.moragora.dto.response.attendance.AttendanceResponse;
+import com.woowacourse.moragora.dto.response.attendance.AttendancesResponse;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import java.time.LocalDate;
@@ -30,6 +33,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 @Transactional
 class ScheduleServiceTest {
 
+    @Autowired
+    private AttendanceRepository attendanceRepository;
+    
     @Autowired
     private ScheduleService scheduleService;
 
@@ -59,14 +65,15 @@ class ScheduleServiceTest {
         final Participant participant1 = dataSupport.saveParticipant(user1, meeting, true);
         final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
         final Participant participant3 = dataSupport.saveParticipant(user3, meeting);
-        final Attendance attendance1 = dataSupport.saveAttendance(participant1, savedEvent, NONE);
-        final Attendance attendance2 = dataSupport.saveAttendance(participant2, savedEvent, NONE);
-        final Attendance attendance3 = dataSupport.saveAttendance(participant3, savedEvent, NONE);
+        dataSupport.saveAttendance(participant1, savedEvent, NONE);
+        dataSupport.saveAttendance(participant2, savedEvent, NONE);
+        dataSupport.saveAttendance(participant3, savedEvent, NONE);
 
         // when
         scheduleService.updateToTardyAtAttendanceClosingTime();
-
-        assertThat(List.of(attendance1, attendance2, attendance3))
+        
+        // then
+        assertThat(attendanceRepository.findByEventIdIn(List.of(savedEvent.getId())))
                 .extracting(Attendance::getStatus)
                 .isEqualTo(List.of(TARDY, TARDY, TARDY));
     }
@@ -91,7 +98,8 @@ class ScheduleServiceTest {
 
         // when
         scheduleService.updateToTardyAtAttendanceClosingTime();
-
+        
+        // then
         assertThat(List.of(attendance1, attendance2, attendance3))
                 .extracting(Attendance::getStatus)
                 .isEqualTo(List.of(NONE, NONE, NONE));
