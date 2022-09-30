@@ -286,7 +286,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
 
         // when
         scheduleService.updateToTardyAtAttendanceClosingTime();
-        final ValidatableResponse response = get("/meetings/" + meetingId + "/coffees/use");
+        final ValidatableResponse response = get("/meetings/" + meetingId + "/coffees/use", token);
 
         // then
         response.statusCode(HttpStatus.OK.value())
