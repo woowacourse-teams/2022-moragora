@@ -53,6 +53,15 @@ public enum EventFixtures {
                 .build();
     }
 
+    public Event createEventOnDateAndTime(final Meeting meeting, final LocalDate date, final LocalTime time) {
+        return Event.builder()
+                .date(date)
+                .startTime(time)
+                .endTime(LocalTime.of(18, 0))
+                .meeting(meeting)
+                .build();
+    }
+
     public LocalDate getDate() {
         return date;
     }
