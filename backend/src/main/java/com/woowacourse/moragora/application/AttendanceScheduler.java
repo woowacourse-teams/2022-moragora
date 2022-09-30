@@ -5,18 +5,16 @@ import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(readOnly = true)
-@Service
-public class ScheduleService {
+public class AttendanceScheduler {
 
-    private static final Logger log = LoggerFactory.getLogger(ScheduleService.class);
+    private static final Logger log = LoggerFactory.getLogger(AttendanceScheduler.class);
 
     private final AttendanceRepository attendanceRepository;
 
-    public ScheduleService(final AttendanceRepository attendanceRepository) {
+    public AttendanceScheduler(final AttendanceRepository attendanceRepository) {
         this.attendanceRepository = attendanceRepository;
     }
 

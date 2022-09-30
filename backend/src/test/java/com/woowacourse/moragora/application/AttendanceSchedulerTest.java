@@ -15,8 +15,6 @@ import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.user.User;
-import com.woowacourse.moragora.dto.response.attendance.AttendanceResponse;
-import com.woowacourse.moragora.dto.response.attendance.AttendancesResponse;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import java.time.LocalDate;
@@ -31,13 +29,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 @Transactional
-class ScheduleServiceTest {
+class AttendanceSchedulerTest {
 
     @Autowired
     private AttendanceRepository attendanceRepository;
-    
+
     @Autowired
-    private ScheduleService scheduleService;
+    private AttendanceScheduler attendanceScheduler;
 
     @Autowired
     private DataSupport dataSupport;
@@ -70,8 +68,8 @@ class ScheduleServiceTest {
         dataSupport.saveAttendance(participant3, savedEvent, NONE);
 
         // when
-        scheduleService.updateToTardyAtAttendanceClosingTime();
-        
+        attendanceScheduler.updateToTardyAtAttendanceClosingTime();
+
         // then
         assertThat(attendanceRepository.findByEventIdIn(List.of(savedEvent.getId())))
                 .extracting(Attendance::getStatus)
@@ -97,15 +95,15 @@ class ScheduleServiceTest {
         final Attendance attendance3 = dataSupport.saveAttendance(participant3, savedEvent, NONE);
 
         // when
-        scheduleService.updateToTardyAtAttendanceClosingTime();
-        
+        attendanceScheduler.updateToTardyAtAttendanceClosingTime();
+
         // then
         assertThat(List.of(attendance1, attendance2, attendance3))
                 .extracting(Attendance::getStatus)
                 .isEqualTo(List.of(NONE, NONE, NONE));
     }
 
-    @DisplayName("같은 날짜지만 아니라면 event의 attendance들을 변경시키지 않는다.")
+    @DisplayName("같은 날짜지만, 아직 출석중인 event라면 attendance들을 변경시키지 않는다.")
     @Test
     void updateToTardyAtAttendanceClosingTime_doesNotUpdate_ifBeforeAttendanceCloseTime() {
         // given
@@ -124,7 +122,7 @@ class ScheduleServiceTest {
         final Attendance attendance3 = dataSupport.saveAttendance(participant3, savedEvent, NONE);
 
         // when
-        scheduleService.updateToTardyAtAttendanceClosingTime();
+        attendanceScheduler.updateToTardyAtAttendanceClosingTime();
 
         assertThat(List.of(attendance1, attendance2, attendance3))
                 .extracting(Attendance::getStatus)

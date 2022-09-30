@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-import com.woowacourse.moragora.application.ScheduleService;
+import com.woowacourse.moragora.application.AttendanceScheduler;
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
@@ -41,7 +41,7 @@ class MeetingAcceptanceTest extends AcceptanceTest {
     private ServerTimeManager serverTimeManager;
 
     @Autowired
-    private ScheduleService scheduleService;
+    private AttendanceScheduler attendanceScheduler;
 
     @DisplayName("사용자가 모임을 등록하고 상태코드 200 OK 를 반환받는다.")
     @Test
@@ -133,7 +133,7 @@ class MeetingAcceptanceTest extends AcceptanceTest {
         saveEvents(token, List.of(event), (long) meetingId1);
 
         // when
-        scheduleService.updateToTardyAtAttendanceClosingTime();
+        attendanceScheduler.updateToTardyAtAttendanceClosingTime();
         final ValidatableResponse response = get("/meetings/me", token);
 
         // then
@@ -148,7 +148,7 @@ class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.attendanceOpenTime", equalTo("09:30"))
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.attendanceClosedTime", equalTo("10:05"))
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.meetingStartTime", equalTo("10:00"))
-                .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.meetingEndTime", equalTo("18:00"))
+                .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.meetingEndTime", equalTo("23:59"))
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.date",
                         equalTo(today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                 .body("meetings.find{it.id == " + meetingId2 + "}.upcomingEvent", equalTo(null));

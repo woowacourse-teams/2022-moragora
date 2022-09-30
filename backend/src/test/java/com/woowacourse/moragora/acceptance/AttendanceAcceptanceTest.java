@@ -15,7 +15,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-import com.woowacourse.moragora.application.ScheduleService;
+import com.woowacourse.moragora.application.AttendanceScheduler;
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
@@ -40,7 +40,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
     private ServerTimeManager serverTimeManager;
 
     @Autowired
-    private ScheduleService scheduleService;
+    private AttendanceScheduler attendanceScheduler;
 
     @DisplayName("오늘의 출석부를 요청하면 날짜에 해당하는 출석부와 상태코드 200을 반환한다.")
     @Test
@@ -103,7 +103,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         saveEvents(token, List.of(event), meetingId);
 
         // when
-        scheduleService.updateToTardyAtAttendanceClosingTime();
+        attendanceScheduler.updateToTardyAtAttendanceClosingTime();
         final ValidatableResponse response = get("/meetings/" + meetingId + "/attendances/today", token);
 
         // then
@@ -229,7 +229,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         saveEvents(token, List.of(event), (long) meetingId);
 
         // when
-        scheduleService.updateToTardyAtAttendanceClosingTime();
+        attendanceScheduler.updateToTardyAtAttendanceClosingTime();
         final ValidatableResponse response = RestAssured.given().log().all()
                 .auth().oauth2(token)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -285,7 +285,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         saveEvents(token, List.of(event), (long) meetingId);
 
         // when
-        scheduleService.updateToTardyAtAttendanceClosingTime();
+        attendanceScheduler.updateToTardyAtAttendanceClosingTime();
         final ValidatableResponse response = get("/meetings/" + meetingId + "/coffees/use", token);
 
         // then

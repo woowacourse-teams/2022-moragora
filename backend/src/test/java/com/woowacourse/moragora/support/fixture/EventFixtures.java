@@ -48,7 +48,7 @@ public enum EventFixtures {
         return Event.builder()
                 .date(date)
                 .startTime(LocalTime.of(10, 0))
-                .endTime(LocalTime.of(18, 0))
+                .endTime(LocalTime.MAX)
                 .meeting(meeting)
                 .build();
     }
@@ -57,7 +57,7 @@ public enum EventFixtures {
         return Event.builder()
                 .date(date)
                 .startTime(time)
-                .endTime(LocalTime.of(18, 0))
+                .endTime(LocalTime.MAX)
                 .meeting(meeting)
                 .build();
     }
