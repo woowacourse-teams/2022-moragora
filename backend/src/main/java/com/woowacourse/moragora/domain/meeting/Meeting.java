@@ -27,14 +27,17 @@ import lombok.NoArgsConstructor;
 public class Meeting {
 
     private static final int MAX_NAME_LENGTH = 50;
-    @OneToMany(mappedBy = "meeting")
-    private final List<Participant> participants = new ArrayList<>();
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Include
     private Long id;
+
     @Column(nullable = false)
     private String name;
+
+    @OneToMany(mappedBy = "meeting")
+    private final List<Participant> participants = new ArrayList<>();
 
     @Builder
     public Meeting(final Long id, final String name) {
