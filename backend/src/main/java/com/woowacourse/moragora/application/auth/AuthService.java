@@ -14,7 +14,9 @@ import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
+import com.woowacourse.moragora.infrastructure.MailSender;
 import com.woowacourse.moragora.support.JwtTokenProvider;
+import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,19 +24,24 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class AuthService {
 
+    private static final int AUTH_CODE_LENGTH = 6;
+
     private final JwtTokenProvider jwtTokenProvider;
     private final GoogleClient googleClient;
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
+    private final MailSender mailSender;
 
     public AuthService(final JwtTokenProvider jwtTokenProvider,
                        final GoogleClient googleClient,
                        final UserRepository userRepository,
-                       final ParticipantRepository participantRepository) {
+                       final ParticipantRepository participantRepository,
+                       final MailSender mailSender) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.googleClient = googleClient;
         this.userRepository = userRepository;
         this.participantRepository = participantRepository;
+        this.mailSender = mailSender;
     }
 
     public LoginResponse createToken(final LoginRequest loginRequest) {
@@ -68,5 +75,19 @@ public class AuthService {
     private User saveGoogleUser(final GoogleProfileResponse profileResponse) {
         final User userToSave = new User(profileResponse.getEmail(), profileResponse.getName(), GOOGLE);
         return userRepository.save(userToSave);
+    }
+
+    public void sendAuthCode(final String email) {
+        final String authCode = generateAuthCode();
+        mailSender.send(email, authCode);
+    }
+
+    private String generateAuthCode() {
+        final ThreadLocalRandom random = ThreadLocalRandom.current();
+        final StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < AUTH_CODE_LENGTH; i++) {
+            stringBuilder.append(random.nextInt(10));
+        }
+        return stringBuilder.toString();
     }
 }
