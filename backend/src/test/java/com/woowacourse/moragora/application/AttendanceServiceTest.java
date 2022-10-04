@@ -24,6 +24,7 @@ import com.woowacourse.moragora.dto.response.attendance.AttendancesResponse;
 import com.woowacourse.moragora.dto.response.meeting.CoffeeStatResponse;
 import com.woowacourse.moragora.dto.response.meeting.CoffeeStatsResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.attendance.InvalidCoffeeTimeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.meeting.NotCheckInTimeException;
@@ -197,6 +198,21 @@ class AttendanceServiceTest {
                                 new CoffeeStatResponse(user2.getId(), user2.getNickname(), 2L)
                         ))
                 );
+    }
+
+    @DisplayName("커피 스택이 충분이 쌓이지 않은 경우 커피 스택 확인 버튼을 누르면 예외를 발생한다.")
+    @Test
+    void countUsableCoffeeStack_ifNotEnoughCoffee_throwsException() {
+        // given
+        final Meeting savedMeeting = dataSupport.saveMeeting(MORAGORA.create());
+        final User user = dataSupport.saveUser(KUN.create());
+        final Participant participant = dataSupport.saveParticipant(user, savedMeeting);
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(savedMeeting));
+        dataSupport.saveAttendance(participant, event1, Status.PRESENT);
+
+        // when, then
+        assertThatThrownBy(() -> attendanceService.countUsableCoffeeStack(savedMeeting.getId()))
+                .isInstanceOf(InvalidCoffeeTimeException.class);
     }
 
     @DisplayName("사용된 커피스택을 비활성화한다.")

@@ -1,6 +1,6 @@
 package com.woowacourse.moragora.acceptance;
 
-import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT1;
+import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT_WITHOUT_DATE;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.F12;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
@@ -14,6 +14,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
+import com.woowacourse.moragora.application.AttendanceScheduler;
+import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
@@ -23,14 +25,23 @@ import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 @DisplayName("모임 관련 기능")
 class MeetingAcceptanceTest extends AcceptanceTest {
+
+    @MockBean
+    private ServerTimeManager serverTimeManager;
+
+    @Autowired
+    private AttendanceScheduler attendanceScheduler;
 
     @DisplayName("사용자가 모임을 등록하고 상태코드 200 OK 를 반환받는다.")
     @Test
@@ -105,7 +116,8 @@ class MeetingAcceptanceTest extends AcceptanceTest {
         final int meetingId1 = saveMeeting(token, ids, meeting1);
         final int meetingId2 = saveMeeting(token, ids, meeting2);
 
-        final Event event = EVENT1.create(meeting1);
+        final LocalDate today = LocalDate.now();
+        final Event event = EVENT_WITHOUT_DATE.createEventOnDate(meeting1, today);
 
         given(serverTimeManager.getDate())
                 .willReturn(event.getDate());
@@ -121,6 +133,7 @@ class MeetingAcceptanceTest extends AcceptanceTest {
         saveEvents(token, List.of(event), (long) meetingId1);
 
         // when
+        attendanceScheduler.updateToTardyAtAttendanceClosingTime();
         final ValidatableResponse response = get("/meetings/me", token);
 
         // then
@@ -135,8 +148,9 @@ class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.attendanceOpenTime", equalTo("09:30"))
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.attendanceClosedTime", equalTo("10:05"))
                 .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.meetingStartTime", equalTo("10:00"))
-                .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.meetingEndTime", equalTo("18:00"))
-                .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.date", equalTo("2022-08-01"))
+                .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.meetingEndTime", equalTo("23:59"))
+                .body("meetings.find{it.id == " + meetingId1 + "}.upcomingEvent.date",
+                        equalTo(today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
                 .body("meetings.find{it.id == " + meetingId2 + "}.upcomingEvent", equalTo(null));
     }
 
