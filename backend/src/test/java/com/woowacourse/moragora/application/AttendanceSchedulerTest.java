@@ -45,7 +45,6 @@ class AttendanceSchedulerTest {
 
     @BeforeEach
     void setUp() {
-        databaseCleanUp.afterPropertiesSet();
         databaseCleanUp.execute();
     }
 

@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.acceptance;
 
+import com.woowacourse.moragora.application.AttendanceScheduler;
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
@@ -36,6 +37,9 @@ public class AcceptanceTest {
 
     @MockBean
     protected GoogleClient googleClient;
+
+    @Autowired
+    protected AttendanceScheduler attendanceScheduler;
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
