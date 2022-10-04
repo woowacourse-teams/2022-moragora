@@ -3,7 +3,6 @@ package com.woowacourse.moragora.application;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT2;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT3;
-import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT_WITHOUT_DATE;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -422,22 +421,5 @@ class EventServiceTest {
         assertThatThrownBy(() -> eventService.findByDuration(meeting.getId(), event2.getDate(), event1.getDate()))
                 .isInstanceOf(ClientRuntimeException.class)
                 .hasMessage("기간의 입력이 잘못되었습니다.");
-    }
-
-    @DisplayName("스케줄이 정상적으로 등록되는지 확인한다.")
-    @Test
-    void initializeSchedules() {
-        // given
-        final LocalDate today = LocalDate.now();
-        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
-        final Event event1 = dataSupport.saveEvent(EVENT_WITHOUT_DATE.createEventOnDate(meeting, today.plusDays(1)));
-        final Event event2 = dataSupport.saveEvent(EVENT_WITHOUT_DATE.createEventOnDate(meeting, today.plusDays(2)));
-        final Event event3 = dataSupport.saveEvent(EVENT_WITHOUT_DATE.createEventOnDate(meeting, today.plusDays(3)));
-
-        // when
-        eventService.scheduleAttendancesUpdateByEvents(List.of(event1, event2, event3));
-
-        // then
-        assertThat(eventService.getScheduledTasks()).hasSize(3);
     }
 }

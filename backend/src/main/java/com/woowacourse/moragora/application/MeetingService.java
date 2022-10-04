@@ -201,7 +201,7 @@ public class MeetingService {
     private MeetingAttendances getMeetingAttendances(final Meeting meeting, final LocalDate today) {
         final List<Long> participantIds = meeting.getParticipantIds();
         final List<Attendance> foundAttendances = attendanceRepository
-                .findByParticipantIdInAndDateLessThanEqual(participantIds, today);
+                .findByParticipantIdInAndEventDateLessThanEqual(participantIds, today);
         return new MeetingAttendances(foundAttendances, participantIds.size());
     }
 
