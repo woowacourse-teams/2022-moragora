@@ -40,17 +40,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@Transactional
 class AttendanceServiceTest {
 
     @Autowired
     private AttendanceService attendanceService;
-
-    @Autowired
-    private EventService eventService;
 
     @Autowired
     private ServerTimeManager serverTimeManager;
@@ -63,7 +58,6 @@ class AttendanceServiceTest {
 
     @BeforeEach
     void setUp() {
-        databaseCleanUp.afterPropertiesSet();
         databaseCleanUp.execute();
     }
 

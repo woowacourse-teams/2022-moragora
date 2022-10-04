@@ -37,12 +37,6 @@ import org.springframework.http.HttpStatus;
 @DisplayName("모임 관련 기능")
 class MeetingAcceptanceTest extends AcceptanceTest {
 
-    @MockBean
-    private ServerTimeManager serverTimeManager;
-
-    @Autowired
-    private AttendanceScheduler attendanceScheduler;
-
     @DisplayName("사용자가 모임을 등록하고 상태코드 200 OK 를 반환받는다.")
     @Test
     void add() {
