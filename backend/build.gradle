@@ -47,6 +47,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.awaitility:awaitility:3.0.0'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 
     // database
     runtimeOnly 'com.h2database:h2'
