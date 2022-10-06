@@ -1,3 +1,22 @@
+export type InterceptHandler = (response: Response) => void;
+type Interceptor = {
+  onSuccess: InterceptHandler;
+  onError: InterceptHandler;
+  setInterceptor: (
+    onSuccess?: InterceptHandler,
+    onError?: InterceptHandler
+  ) => void;
+};
+
+export const interceptor: Interceptor = {
+  onSuccess: (response) => {},
+  onError: (response) => {},
+  setInterceptor: function (onSuccess, onError) {
+    if (onSuccess) this.onSuccess = onSuccess;
+    if (onError) this.onError = onError;
+  },
+};
+
 const request =
   (baseUrl: string) =>
   async <
@@ -12,8 +31,12 @@ const request =
     if (!res.ok) {
       const body = (await res.json().catch(() => ({}))) as ErrorBody;
 
+      interceptor.onError(res);
+
       throw new Error(`${res.status}: ${body.message}`);
     }
+
+    interceptor.onSuccess(res);
 
     const body = (await res.json().catch(() => ({}))) as SuccessBody;
 

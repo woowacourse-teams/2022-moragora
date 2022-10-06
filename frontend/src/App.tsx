@@ -10,9 +10,23 @@ import { userContext, UserContextValues } from 'contexts/userContext';
 import { CalendarProvider } from 'contexts/calendarContext';
 import useQuery from 'hooks/useQuery';
 import { getLoginUserDataApi } from 'apis/userApis';
+import useInterceptor from 'hooks/useInterceptor';
 
 const App = () => {
-  const { login, accessToken } = useContext(userContext) as UserContextValues;
+  const { login, logout, accessToken } = useContext(
+    userContext
+  ) as UserContextValues;
+
+  useInterceptor({
+    onError: (response) => {
+      switch (response.status) {
+        case 401: {
+          logout();
+        }
+      }
+    },
+  });
+
   const { isLoading } = useQuery(
     ['loginUserData'],
     getLoginUserDataApi(accessToken),
