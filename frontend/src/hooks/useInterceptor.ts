@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { interceptor, type InterceptHandler } from 'utils/request';
+import { interceptor } from 'utils/request';
+import type { InterceptHandler } from 'types/requestType';
 
 type UseInterceptor = {
   onSuccess: InterceptHandler;

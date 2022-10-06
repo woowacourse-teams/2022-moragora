@@ -1,12 +1,4 @@
-export type InterceptHandler = (response: Response) => void;
-type Interceptor = {
-  onSuccess: InterceptHandler;
-  onError: InterceptHandler;
-  setInterceptor: (
-    onSuccess?: InterceptHandler,
-    onError?: InterceptHandler
-  ) => void;
-};
+import { Interceptor } from 'types/requestType';
 
 export const interceptor: Interceptor = {
   onSuccess: (response) => {},
