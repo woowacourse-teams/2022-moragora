@@ -45,6 +45,22 @@
         </logger>
     </springProfile>
 
+    <springProfile name="dev-dummy">
+        <include resource="logback/console-appender.xml"/>
+        <include resource="logback/file-info-appender.xml"/>
+        <include resource="logback/file-error-appender.xml"/>
+        <include resource="logback/file-slow-sql-appender.xml"/>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE-INFO"/>
+            <appender-ref ref="FILE-ERROR"/>
+        </root>
+        <logger name="org.hibernate.SQL_SLOW" level="INFO">
+            <appender-ref ref="FILE-SLOW-SQL"/>
+        </logger>
+    </springProfile>
+
+
     <springProfile name="prod">
         <include resource="logback/file-info-appender.xml"/>
         <include resource="logback/file-error-appender.xml"/>
