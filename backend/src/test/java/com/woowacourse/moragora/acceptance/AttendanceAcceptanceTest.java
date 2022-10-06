@@ -1,7 +1,7 @@
 package com.woowacourse.moragora.acceptance;
 
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT1;
-import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT2;
+import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT_WITHOUT_DATE;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.FORKY;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
@@ -15,7 +15,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
@@ -26,17 +25,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 class AttendanceAcceptanceTest extends AcceptanceTest {
-
-    @MockBean
-    private ServerTimeManager serverTimeManager;
 
     @DisplayName("오늘의 출석부를 요청하면 날짜에 해당하는 출석부와 상태코드 200을 반환한다.")
     @Test
@@ -74,7 +68,6 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .body("users.attendanceStatus", containsInAnyOrder("none", "none", "none"));
     }
 
-    @Disabled
     @DisplayName("마감된 오늘의 출석부를 요청하면 NONE이었던 미팅 멤버들이 TARDY로 변경되고 상태코드 200을 반환한다.")
     @Test
     void showAttendanceAfterClosedTime() {
@@ -100,6 +93,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         saveEvents(token, List.of(event), meetingId);
 
         // when
+        attendanceScheduler.updateToTardyAtAttendanceClosingTime();
         final ValidatableResponse response = get("/meetings/" + meetingId + "/attendances/today", token);
 
         // then
@@ -214,15 +208,18 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
     void useCoffeeStack() {
         // given
         final String token = signUpAndGetToken(MASTER.create());
-
         final List<Long> userIds = saveUsers(createUsers());
         final Meeting meeting = MORAGORA.create();
         final int meetingId = saveMeeting(token, userIds, meeting);
+        final LocalDate date = LocalDate.now();
+        final Event event = EVENT_WITHOUT_DATE.createEventOnDate(meeting, date);
 
-        final Event event = EVENT1.create(meeting);
+        given(serverTimeManager.getDate()).willReturn(date);
+
         saveEvents(token, List.of(event), (long) meetingId);
 
         // when
+        attendanceScheduler.updateToTardyAtAttendanceClosingTime();
         final ValidatableResponse response = RestAssured.given().log().all()
                 .auth().oauth2(token)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -231,8 +228,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .then().log().all();
 
         // then
-        // TODO: 인위적으로 출석 마감 처리 후 test 통과
-        // response.statusCode(HttpStatus.NO_CONTENT.value());
+        response.statusCode(HttpStatus.NO_CONTENT.value());
     }
 
     @DisplayName("마스터가 아닌 유저가 커피스택 비우기를 요청시 상태코드 403울 반환한다.")
@@ -268,37 +264,29 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         final User master = MASTER.create();
         final Long masterId = signUp(master);
         final String token = login(master);
+        final LocalDate date = LocalDate.now();
 
         final List<Long> userIds = saveUsers(createUsers());
         final Meeting meeting = MORAGORA.create();
         final int meetingId = saveMeeting(token, userIds, meeting);
+        final Event event = EVENT_WITHOUT_DATE.createEventOnDate(meeting, date);
 
-        final Event event1 = EVENT1.create(meeting);
-        final Event event2 = EVENT2.create(meeting);
-        saveEvents(token, List.of(event1, event2), (long) meetingId);
-
-        final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(true);
-        given(serverTimeManager.getDate())
-                .willReturn(event1.getDate());
-        post("/meetings/" + meetingId + "/users/" + userIds.get(0) + "/attendances/today",
-                userAttendanceRequest, token);
-        post("/meetings/" + meetingId + "/users/" + userIds.get(1) + "/attendances/today",
-                userAttendanceRequest, token);
+        given(serverTimeManager.getDate()).willReturn(date);
+        saveEvents(token, List.of(event), (long) meetingId);
 
         // when
-        final ValidatableResponse response = get("/meetings/" + meetingId + "/coffees/use");
+        attendanceScheduler.updateToTardyAtAttendanceClosingTime();
+        final ValidatableResponse response = get("/meetings/" + meetingId + "/coffees/use", token);
 
         // then
-        // TODO: 인위적으로 출석 마감 처리 후 test 통과
-//        response.statusCode(HttpStatus.OK.value())
-//                .body("userCoffeeStats.find{it.id == " + masterId + "}.coffeeCount", equalTo(2))
-//                .body("userCoffeeStats.find{it.id == " + userIds.get(0) + "}.coffeeCount", equalTo(1))
-//                .body("userCoffeeStats.find{it.id == " + userIds.get(1) + "}.coffeeCount", equalTo(0))
-//                .body("userCoffeeStats.find{it.id == " + userIds.get(2) + "}.coffeeCount", equalTo(1))
-//                .body("userCoffeeStats.find{it.id == " + userIds.get(3) + "}.coffeeCount", equalTo(1))
-//                .body("userCoffeeStats.find{it.id == " + userIds.get(4) + "}.coffeeCount", equalTo(1))
-//                .body("userCoffeeStats.find{it.id == " + userIds.get(5) + "}.coffeeCount", equalTo(1))
-//                .body("userCoffeeStats.find{it.id == " + userIds.get(6) + "}.coffeeCount", equalTo(1))
-//        ;
+        response.statusCode(HttpStatus.OK.value())
+                .body("userCoffeeStats.find{it.id == " + masterId + "}.coffeeCount", equalTo(1))
+                .body("userCoffeeStats.find{it.id == " + userIds.get(0) + "}.coffeeCount", equalTo(1))
+                .body("userCoffeeStats.find{it.id == " + userIds.get(1) + "}.coffeeCount", equalTo(1))
+                .body("userCoffeeStats.find{it.id == " + userIds.get(2) + "}.coffeeCount", equalTo(1))
+                .body("userCoffeeStats.find{it.id == " + userIds.get(3) + "}.coffeeCount", equalTo(1))
+                .body("userCoffeeStats.find{it.id == " + userIds.get(4) + "}.coffeeCount", equalTo(1))
+                .body("userCoffeeStats.find{it.id == " + userIds.get(5) + "}.coffeeCount", equalTo(1))
+                .body("userCoffeeStats.find{it.id == " + userIds.get(6) + "}.coffeeCount", equalTo(1));
     }
 }

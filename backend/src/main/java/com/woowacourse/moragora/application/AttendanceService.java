@@ -129,7 +129,7 @@ public class AttendanceService {
                 .orElseThrow(MeetingNotFoundException::new);
         final List<Long> participantIds = meeting.getParticipantIds();
         final List<Attendance> attendances = attendanceRepository
-                .findByParticipantIdInAndDateLessThanEqual(participantIds, serverTimeManager.getDate());
+                .findByParticipantIdInAndEventDateLessThanEqual(participantIds, serverTimeManager.getDate());
         return new MeetingAttendances(attendances, participantIds.size());
     }
 
