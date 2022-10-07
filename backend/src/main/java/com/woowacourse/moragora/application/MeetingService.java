@@ -74,7 +74,7 @@ public class MeetingService {
         final User loginUser = userRepository.findById(loginId)
                 .orElseThrow(UserNotFoundException::new);
         final List<User> users = userRepository.findByIdIn(userIds);
-        validateUserExists(userIds, users);
+        validateUsersExists(userIds, users);
 
         saveParticipants(meeting, loginUser, users);
 
@@ -109,19 +109,14 @@ public class MeetingService {
 
     @Transactional
     public void assignMaster(final Long meetingId, final MasterRequest request, final Long loginId) {
-        meetingRepository.findById(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
-
         final Long assignedUserId = request.getUserId();
-        userRepository.findById(assignedUserId)
-                .orElseThrow(UserNotFoundException::new);
+        validateMeetingExists(meetingId);
+        validateUserExists(assignedUserId);
         validateAssignee(loginId, assignedUserId);
 
-        final Participant assignedParticipant = participantRepository
-                .findByMeetingIdAndUserId(meetingId, assignedUserId)
+        final Participant assignedParticipant = participantRepository.findByMeetingIdAndUserId(meetingId, assignedUserId)
                 .orElseThrow(ParticipantNotFoundException::new);
-        final Participant masterParticipant = participantRepository
-                .findByMeetingIdAndUserId(meetingId, loginId)
+        final Participant masterParticipant = participantRepository.findByMeetingIdAndUserId(meetingId, loginId)
                 .orElseThrow(ParticipantNotFoundException::new);
 
         assignedParticipant.updateIsMaster(true);
@@ -137,10 +132,9 @@ public class MeetingService {
 
     @Transactional
     public void deleteParticipant(final long meetingId, final long userId) {
-        meetingRepository.findById(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
-        userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
+        validateMeetingExists(meetingId);
+        validateUserExists(userId);
+
         final Participant participant = participantRepository.findByMeetingIdAndUserId(meetingId, userId)
                 .orElseThrow(ParticipantNotFoundException::new);
         validateNotMaster(participant);
@@ -179,7 +173,7 @@ public class MeetingService {
         }
     }
 
-    private void validateUserExists(final List<Long> userIds, final List<User> users) {
+    private void validateUsersExists(final List<Long> userIds, final List<User> users) {
         if (users.size() != userIds.size()) {
             throw new UserNotFoundException();
         }
@@ -246,6 +240,17 @@ public class MeetingService {
     private void validateNotMaster(final Participant participant) {
         if (Boolean.TRUE.equals(participant.getIsMaster())) {
             throw new ClientRuntimeException("마스터는 모임을 나갈 수 없습니다.", HttpStatus.FORBIDDEN);
+        }
+    }
+
+    private void validateMeetingExists(final Long meetingId) {
+        if (!meetingRepository.existsById(meetingId)) {
+            throw new MeetingNotFoundException();
+        }
+    }
+    private void validateUserExists(final Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException();
         }
     }
 }

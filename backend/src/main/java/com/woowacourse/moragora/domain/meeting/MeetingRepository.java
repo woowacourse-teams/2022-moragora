@@ -10,6 +10,8 @@ public interface MeetingRepository extends Repository<Meeting, Long> {
 
     Meeting save(final Meeting meeting);
 
+    Boolean existsById(final Long id);
+
     Optional<Meeting> findById(final Long id);
 
     @Query("select m from Meeting m join fetch m.participants p where m.id = :id")
