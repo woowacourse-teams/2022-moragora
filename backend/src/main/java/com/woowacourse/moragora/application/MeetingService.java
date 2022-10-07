@@ -9,7 +9,9 @@ import com.woowacourse.moragora.domain.event.EventRepository;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.meeting.MeetingRepository;
 import com.woowacourse.moragora.domain.participant.Participant;
+import com.woowacourse.moragora.domain.participant.ParticipantAndCount;
 import com.woowacourse.moragora.domain.participant.ParticipantRepository;
+import com.woowacourse.moragora.domain.query.QueryRepository;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.domain.user.UserRepository;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
@@ -19,7 +21,6 @@ import com.woowacourse.moragora.dto.response.event.EventResponse;
 import com.woowacourse.moragora.dto.response.meeting.MeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingsResponse;
-import com.woowacourse.moragora.dto.response.meeting.ParticipantResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
@@ -45,6 +46,7 @@ public class MeetingService {
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
+    private final QueryRepository queryRepository;
     private final ServerTimeManager serverTimeManager;
 
     public MeetingService(final MeetingRepository meetingRepository,
@@ -52,12 +54,14 @@ public class MeetingService {
                           final ParticipantRepository participantRepository,
                           final AttendanceRepository attendanceRepository,
                           final UserRepository userRepository,
+                          final QueryRepository queryRepository,
                           final ServerTimeManager serverTimeManager) {
         this.meetingRepository = meetingRepository;
         this.eventRepository = eventRepository;
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
+        this.queryRepository = queryRepository;
         this.serverTimeManager = serverTimeManager;
     }
 
@@ -78,23 +82,19 @@ public class MeetingService {
     }
 
     public MeetingResponse findById(final Long meetingId, final Long loginId) {
-        final Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
-        final Participant participant = participantRepository.findByMeetingIdAndUserId(meeting.getId(), loginId)
-                .orElseThrow(ParticipantNotFoundException::new);
-
         final LocalDate today = serverTimeManager.getDate();
-        final MeetingAttendances meetingAttendances = getMeetingAttendances(meeting, today);
+        final Meeting meeting = meetingRepository.findMeetingAndParticipantsById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+
+        final List<ParticipantAndCount> participantAndCounts = queryRepository
+                .countParticipantsTardy(meeting.getParticipants(), today);
+        meeting.allocateParticipantsTardyCount(participantAndCounts);
 
         final long attendedEventCount = eventRepository.countByMeetingIdAndDateLessThanEqual(meetingId, today);
-        final Optional<Event> event = eventRepository.findByMeetingIdAndDate(meeting.getId(), today);
-        final boolean isActive = event.isPresent() && serverTimeManager.isAttendanceOpen(event.get().getStartTime());
+        final Participant loginParticipant = meeting.findParticipant(loginId)
+                .orElseThrow(ParticipantNotFoundException::new);
 
-        return MeetingResponse.from(
-                meeting, attendedEventCount, participant.getIsMaster(),
-                meetingAttendances.isTardyStackFull(),
-                isActive, collectParticipantResponsesOf(meeting, meetingAttendances)
-        );
+        return MeetingResponse.of(meeting, attendedEventCount, loginParticipant);
     }
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
@@ -174,7 +174,7 @@ public class MeetingService {
             throw new InvalidParticipantException("생성자가 참가자 명단에 포함되어 있습니다.");
         }
 
-        if (userIds.size() == 0) {
+        if (userIds.isEmpty()) {
             throw new InvalidParticipantException("생성자를 제외한 참가자가 없습니다.");
         }
     }
@@ -203,14 +203,6 @@ public class MeetingService {
         final List<Attendance> foundAttendances = attendanceRepository
                 .findByParticipantIdInAndEventDateLessThanEqual(participantIds, today);
         return new MeetingAttendances(foundAttendances, participantIds.size());
-    }
-
-    private List<ParticipantResponse> collectParticipantResponsesOf(final Meeting meeting,
-                                                                    final MeetingAttendances meetingAttendances) {
-        final List<Participant> participants = meeting.getParticipants();
-        return participants.stream()
-                .map(it -> ParticipantResponse.of(it, countTardyByParticipant(it, meetingAttendances)))
-                .collect(Collectors.toUnmodifiableList());
     }
 
     private MyMeetingResponse generateMyMeetingResponse(final Participant participant, final LocalDate today) {
@@ -252,7 +244,7 @@ public class MeetingService {
     }
 
     private void validateNotMaster(final Participant participant) {
-        if (participant.getIsMaster()) {
+        if (Boolean.TRUE.equals(participant.getIsMaster())) {
             throw new ClientRuntimeException("마스터는 모임을 나갈 수 없습니다.", HttpStatus.FORBIDDEN);
         }
     }

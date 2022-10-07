@@ -231,7 +231,6 @@ class MeetingControllerTest extends ControllerTest {
                         .value("유저가 존재하지 않습니다."));
     }
 
-    // TODO userResponse 테스트 작성
     @DisplayName("단일 미팅 방을 조회한다.")
     @Test
     void findOne() throws Exception {
@@ -245,7 +244,7 @@ class MeetingControllerTest extends ControllerTest {
         final int attendanceCount = 0;
         final boolean isMaster = true;
         final MeetingResponse meetingResponse =
-                new MeetingResponse(id, name, attendanceCount, isMaster, false, true, participantResponses);
+                new MeetingResponse(id, name, attendanceCount, isMaster, false, participantResponses);
 
         final Long loginId = validateToken("1");
         given(meetingService.findById(eq(1L), eq(loginId)))
@@ -259,7 +258,6 @@ class MeetingControllerTest extends ControllerTest {
                 .andExpect(jsonPath("$.id", equalTo(1)))
                 .andExpect(jsonPath("$.name", equalTo("모임1")))
                 .andExpect(jsonPath("$.attendedEventCount", equalTo(0)))
-                .andExpect(jsonPath("$.isActive", equalTo(true)))
                 .andExpect(jsonPath("$.isLoginUserMaster", equalTo(true)))
                 .andExpect(jsonPath("$.isCoffeeTime", equalTo(false)))
                 .andExpect(jsonPath("$.users[*].id", containsInAnyOrder(1, 2)))
@@ -274,7 +272,6 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("name").type(JsonFieldType.STRING).description(name),
                                 fieldWithPath("attendedEventCount").type(JsonFieldType.NUMBER)
                                         .description(attendanceCount),
-                                fieldWithPath("isActive").type(JsonFieldType.BOOLEAN).description(true),
                                 fieldWithPath("isLoginUserMaster").type(JsonFieldType.BOOLEAN).description(isMaster),
                                 fieldWithPath("isCoffeeTime").type(JsonFieldType.BOOLEAN).description(false),
                                 fieldWithPath("users[].id").type(JsonFieldType.NUMBER).description(1L),

@@ -12,6 +12,9 @@ public interface MeetingRepository extends Repository<Meeting, Long> {
 
     Optional<Meeting> findById(final Long id);
 
+    @Query("select m from Meeting m join fetch m.participants p where m.id = :id")
+    Optional<Meeting> findMeetingAndParticipantsById(@Param("id") final Long id);
+
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("delete from Meeting m where m.id = :id")
     void deleteById(@Param("id") final Long id);
