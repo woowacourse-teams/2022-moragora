@@ -3,7 +3,7 @@ import { Interceptor } from 'types/requestType';
 export const interceptor: Interceptor = {
   onSuccess: (response) => {},
   onError: (response) => {},
-  setInterceptor: function (onSuccess, onError) {
+  set: function (onSuccess, onError) {
     if (onSuccess) this.onSuccess = onSuccess;
     if (onError) this.onError = onError;
   },

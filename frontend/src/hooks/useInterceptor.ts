@@ -9,7 +9,7 @@ type UseInterceptor = {
 
 const useInterceptor = ({ onSuccess, onError }: Partial<UseInterceptor>) => {
   useEffect(() => {
-    interceptor.setInterceptor(onSuccess, onError);
+    interceptor.set(onSuccess, onError);
   }, []);
 };
 
