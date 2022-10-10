@@ -81,16 +81,16 @@ dependencies {
     implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
-task copyDocument(type: Copy) {
-    dependsOn asciidoctor
+//task copyDocument(type: Copy) {
+//    dependsOn asciidoctor
 
-    from file("build/docs/asciidoc")
-    into file("src/main/resources/static/docs")
-}
+//    from file("build/docs/asciidoc")
+//    into file("src/main/resources/static/docs")
+//}
 
-bootJar {
-    dependsOn copyDocument
-}
+//bootJar {
+//    dependsOn copyDocument
+//}
 
 tasks.named('test') {
     useJUnitPlatform()
