@@ -7,6 +7,6 @@ public class HelloTest {
 
     @Test
     void hello() {
-        Assertions.assertThat(true).isTrue();
+        Assertions.assertThat(false).isTrue();
     }
 }
