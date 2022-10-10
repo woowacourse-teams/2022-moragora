@@ -9,9 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class MoragoraApplication {
 
     public static void main(String[] args) {
-        if (true) {
-            throw new RuntimeException();
-        }
         SpringApplication.run(MoragoraApplication.class, args);
     }
 }
