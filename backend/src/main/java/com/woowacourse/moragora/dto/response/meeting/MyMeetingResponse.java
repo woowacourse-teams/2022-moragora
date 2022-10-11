@@ -12,7 +12,7 @@ public class MyMeetingResponse {
 
     private final Long id;
     private final String name;
-    private final int tardyCount;
+    private final Integer tardyCount;
     private final Boolean isLoginUserMaster;
     private final Boolean isCoffeeTime;
     private final Boolean isActive;
@@ -21,7 +21,7 @@ public class MyMeetingResponse {
     @Builder
     public MyMeetingResponse(final Long id,
                              final String name,
-                             final int tardyCount,
+                             final Integer tardyCount,
                              final Boolean isLoginUserMaster,
                              final Boolean isCoffeeTime,
                              final Boolean isActive,
@@ -36,7 +36,7 @@ public class MyMeetingResponse {
     }
 
     public static MyMeetingResponse of(final Meeting meeting,
-                                       final int tardyCount,
+                                       final Integer tardyCount,
                                        final boolean isLoginUserMaster,
                                        final boolean isCoffeeTime,
                                        final boolean isActive,

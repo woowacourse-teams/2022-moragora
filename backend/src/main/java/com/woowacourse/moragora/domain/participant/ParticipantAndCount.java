@@ -4,5 +4,5 @@ public interface ParticipantAndCount {
 
     Participant getParticipant();
 
-    Long getTardyCount();
+    Integer getTardyCount();
 }

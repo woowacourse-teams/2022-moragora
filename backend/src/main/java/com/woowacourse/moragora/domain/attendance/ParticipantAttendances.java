@@ -13,7 +13,7 @@ public class ParticipantAttendances {
         this.values = values;
     }
 
-    public int countTardy() {
+    public Integer countTardy() {
         return (int) values.stream()
                 .filter(Attendance::isEnabled)
                 .filter(Attendance::isTardy)

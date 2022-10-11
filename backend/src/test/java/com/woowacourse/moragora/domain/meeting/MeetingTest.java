@@ -91,8 +91,8 @@ class MeetingTest {
             }
 
             @Override
-            public Long getTardyCount() {
-                return 5L;
+            public Integer getTardyCount() {
+                return 5;
             }
         };
 
@@ -114,8 +114,8 @@ class MeetingTest {
         final Participant participant2 = new Participant(user2, meeting, false);
         participant1.mapMeeting(meeting);
         participant2.mapMeeting(meeting);
-        participant1.allocateTardyCount(1L);
-        participant2.allocateTardyCount(1L);
+        participant1.allocateTardyCount(1);
+        participant2.allocateTardyCount(1);
 
         // when
         final Boolean isTardyStackFull = meeting.isTardyStackFull();
@@ -135,8 +135,8 @@ class MeetingTest {
         final Participant participant2 = new Participant(user2, meeting, false);
         participant1.mapMeeting(meeting);
         participant2.mapMeeting(meeting);
-        participant1.allocateTardyCount(1L);
-        participant2.allocateTardyCount(0L);
+        participant1.allocateTardyCount(1);
+        participant2.allocateTardyCount(0);
 
         // when
         final Boolean isTardyStackFull = meeting.isTardyStackFull();
@@ -156,8 +156,8 @@ class MeetingTest {
         final Participant participant2 = new Participant(user2, meeting, false);
         participant1.mapMeeting(meeting);
         participant2.mapMeeting(meeting);
-        participant1.allocateTardyCount(5L);
-        participant2.allocateTardyCount(3L);
+        participant1.allocateTardyCount(5);
+        participant2.allocateTardyCount(3);
 
         // when
         final long totalTardyCount = meeting.calculateTardy();
