@@ -98,63 +98,48 @@ public class MeetingService {
         return MeetingResponse.of(meeting, attendedEventCount, loginParticipant);
     }
 
-    public MyMeetingsResponse findAllByUserId_old(final Long userId) {
-        final List<Participant> participants = participantRepository.findByUserId(userId);
-
-        final List<MyMeetingResponse> myMeetingResponses =
-                participants.stream()
-                        .map(participant -> generateMyMeetingResponse(participant, serverTimeManager.getDate()))
-                        .collect(Collectors.toList());
-
-        return new MyMeetingsResponse(myMeetingResponses);
-    }
-
     public MyMeetingsResponse findAllByUserId(final Long userId) {
         final List<Meeting> meetings = queryRepository.findMeetingByUserId(userId);
         final LocalDate today = serverTimeManager.getDate();
+        return new MyMeetingsResponse(getMyMeetingsResponse(userId, meetings, today));
+    }
 
+    private List<MyMeetingResponse> getMyMeetingsResponse(final Long userId, final List<Meeting> meetings, final LocalDate today) {
         final List<MyMeetingResponse> myMeetingResponses = new ArrayList<>();
         for (final Meeting meeting : meetings) {
             final List<ParticipantAndCount> participantAndCounts =
                     queryRepository.countParticipantsTardy_2(meeting.getParticipants());
-
             meeting.allocateParticipantsTardyCount(participantAndCounts);
             meeting.isTardyStackFull();
             meeting.isMaster(userId);
-
             final Event upcomingEvent = eventRepository
                     .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
                     .orElse(null);
-
-            if (upcomingEvent == null) {
-                myMeetingResponses.add(new MyMeetingResponse(
-                        meeting.getId(),
-                        meeting.getName(),
-                        meeting.getTardyCount(),
-                        meeting.isMaster(userId),
-                        meeting.isTardyStackFull(),
-                        false,
-                        null));
-            } else {
-                final LocalTime attendanceOpenTime = upcomingEvent.getOpenTime(serverTimeManager);
-                final LocalTime attendanceClosedTime = upcomingEvent.getCloseTime(serverTimeManager);
-                final boolean isActive = upcomingEvent.isActive(today, serverTimeManager);
-                final EventResponse eventResponse = EventResponse.of(upcomingEvent, attendanceOpenTime, attendanceClosedTime);
-
-                final MyMeetingResponse myMeetingResponse = new MyMeetingResponse(
-                        meeting.getId(),
-                        meeting.getName(),
-                        meeting.getTardyCount(),
-                        meeting.isMaster(userId),
-                        meeting.isTardyStackFull(),
-                        isActive,
-                        eventResponse
-                );
-                myMeetingResponses.add(myMeetingResponse);
-            }
+            MyMeetingResponse myMeetingResponse = getMyMeetingResponse(userId, today, meeting, upcomingEvent);
+            myMeetingResponses.add(myMeetingResponse);
         }
+        return myMeetingResponses;
+    }
 
-        return new MyMeetingsResponse(myMeetingResponses);
+    private MyMeetingResponse getMyMeetingResponse(final Long userId, final LocalDate today, final Meeting meeting,
+                                                   final Event upcomingEvent) {
+        boolean isActive = false;
+        EventResponse eventResponse = null;
+        if (upcomingEvent != null) {
+            isActive = upcomingEvent.isActive(today, serverTimeManager);
+            final LocalTime attendanceOpenTime = upcomingEvent.getOpenTime(serverTimeManager);
+            final LocalTime attendanceClosedTime = upcomingEvent.getCloseTime(serverTimeManager);
+            eventResponse = EventResponse.of(upcomingEvent, attendanceOpenTime, attendanceClosedTime);
+        }
+        return new MyMeetingResponse(
+                meeting.getId(),
+                meeting.getName(),
+                meeting.getTardyCount(),
+                meeting.isMaster(userId),
+                meeting.isTardyStackFull(),
+                isActive,
+                eventResponse
+        );
     }
 
     @Transactional
