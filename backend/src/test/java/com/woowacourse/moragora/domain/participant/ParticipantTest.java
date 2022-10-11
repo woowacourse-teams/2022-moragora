@@ -115,7 +115,7 @@ class ParticipantTest {
         assertThat(tardyCount).isEqualTo(5);
     }
 
-    @DisplayName("참가자의 지각 횟수를 반환한다.")
+    @DisplayName("참가자의 지각 횟수 할당하기 전에 사용하려하면 예외가 발생한다.")
     @Test
     void getTardyCount_throwsException_ifNotAllocated() {
         // given
