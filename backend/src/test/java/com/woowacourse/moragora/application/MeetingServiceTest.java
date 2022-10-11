@@ -444,6 +444,39 @@ class MeetingServiceTest {
                 .isEqualTo(new MyMeetingsResponse(List.of(response1, response2)));
     }
 
+    @DisplayName("유저 id로 유저가 속한 모든 모임을 조회한다. (다가오는 일정이 없는 경우)")
+    @Test
+    void findAllByUserId_ifNoUpcomingEvent() {
+        // given
+        final Meeting meeting1 = MORAGORA.create();
+        final User user = KUN.create();
+        dataSupport.saveParticipant(user, meeting1, true);
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting1));
+        final Event event2 = dataSupport.saveEvent(EVENT1.create(meeting1));
+
+        final LocalTime entranceTime = event1.getStartTime();
+
+        final MyMeetingResponse response1 = MyMeetingResponse.builder()
+                .id(meeting1.getId())
+                .name(meeting1.getName())
+                .tardyCount(0)
+                .isLoginUserMaster(true)
+                .isCoffeeTime(false)
+                .isActive(false)
+                .upcomingEvent(null)
+                .build();
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 2, 10, 5);
+        serverTimeManager.refresh(dateTime);
+
+        // when
+        final MyMeetingsResponse response = meetingService.findAllByUserId(user.getId());
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .isEqualTo(new MyMeetingsResponse(List.of(response1)));
+    }
+
     @DisplayName("미팅의 마스터를 다른 참가자로 수정한다.")
     @Test
     void updateMaster() {
