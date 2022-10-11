@@ -454,8 +454,6 @@ class MeetingServiceTest {
         final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting1));
         final Event event2 = dataSupport.saveEvent(EVENT1.create(meeting1));
 
-        final LocalTime entranceTime = event1.getStartTime();
-
         final MyMeetingResponse response1 = MyMeetingResponse.builder()
                 .id(meeting1.getId())
                 .name(meeting1.getName())

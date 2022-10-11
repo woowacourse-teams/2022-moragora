@@ -3,17 +3,31 @@ package com.woowacourse.moragora.domain.event;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
+import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.meeting.Meeting;
+import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
+import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
+import com.woowacourse.moragora.support.FakeDateTime;
 import com.woowacourse.moragora.support.fixture.EventFixtures;
 import com.woowacourse.moragora.support.fixture.MeetingFixtures;
+import com.woowacourse.moragora.support.timestrategy.DateTime;
+import com.woowacourse.moragora.support.timestrategy.ServerDateTime;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class EventTest {
+
+    private DateTime dateTime = new FakeDateTime();
+    private ServerTimeManager serverTimeManager = new ServerTimeManager(dateTime);
 
     @DisplayName("같은 날짜의 이벤트인지 확인한다.")
     @Test
@@ -92,5 +106,21 @@ class EventTest {
         // when, then
         assertThatThrownBy(() -> event.updateTime(LocalTime.of(11, 5), LocalTime.of(10, 5)))
                 .isInstanceOf(IllegalEntranceLeaveTimeException.class);
+    }
+
+    @DisplayName("현재 시각을 기준으로 출석부가 열렸는 지 확인한다.")
+    @Test
+    void isActive() {
+        // given
+        final Meeting meeting = MeetingFixtures.MORAGORA.create();
+        final Event event = EventFixtures.EVENT1.create(meeting);
+        final LocalDateTime virtualDateTime = LocalDateTime.of(2022, 8, 1, 10, 00);
+        serverTimeManager.refresh(virtualDateTime);
+
+        // when
+        boolean isActive = event.isActive(virtualDateTime.toLocalDate(), serverTimeManager);
+
+        // then
+        assertThat(isActive).isTrue();
     }
 }
