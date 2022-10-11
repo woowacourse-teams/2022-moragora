@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -37,6 +38,9 @@ public class Meeting {
 
     @Column(nullable = false)
     private String name;
+
+    @Transient
+    private Integer tardyCount;
 
     @OneToMany(mappedBy = "meeting")
     private final List<Participant> participants = new ArrayList<>();
@@ -78,14 +82,23 @@ public class Meeting {
     }
 
     public long calculateTardy() {
-        return participants.stream()
-                .mapToLong(Participant::getTardyCount)
+        this.tardyCount = participants.stream()
+                .mapToInt(Participant::getTardyCount)
                 .sum();
+        return tardyCount;
     }
 
     private void validateName(final String name) {
         if (name.length() > MAX_NAME_LENGTH) {
             throw new InvalidFormatException();
         }
+    }
+
+    public boolean isMaster(final Long userId) {
+        return participants.stream()
+                .filter(participant -> participant.getUser().getId().equals(userId))
+                .map(participant -> participant.getIsMaster())
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("유저 ID에 해당하는 참가자가 없습니다, id: " + userId));
     }
 }

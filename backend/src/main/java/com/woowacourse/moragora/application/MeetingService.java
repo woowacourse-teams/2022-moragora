@@ -28,6 +28,7 @@ import com.woowacourse.moragora.exception.participant.ParticipantNotFoundExcepti
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -97,12 +98,61 @@ public class MeetingService {
         return MeetingResponse.of(meeting, attendedEventCount, loginParticipant);
     }
 
-    public MyMeetingsResponse findAllByUserId(final Long userId) {
+    public MyMeetingsResponse findAllByUserId_old(final Long userId) {
         final List<Participant> participants = participantRepository.findByUserId(userId);
 
-        final List<MyMeetingResponse> myMeetingResponses = participants.stream()
-                .map(participant -> generateMyMeetingResponse(participant, serverTimeManager.getDate()))
-                .collect(Collectors.toList());
+        final List<MyMeetingResponse> myMeetingResponses =
+                participants.stream()
+                        .map(participant -> generateMyMeetingResponse(participant, serverTimeManager.getDate()))
+                        .collect(Collectors.toList());
+
+        return new MyMeetingsResponse(myMeetingResponses);
+    }
+
+    public MyMeetingsResponse findAllByUserId(final Long userId) {
+        final List<Meeting> meetings = queryRepository.findMeetingByUserId(userId);
+        final LocalDate today = serverTimeManager.getDate();
+
+        final List<MyMeetingResponse> myMeetingResponses = new ArrayList<>();
+        for (final Meeting meeting : meetings) {
+            final List<ParticipantAndCount> participantAndCounts =
+                    queryRepository.countParticipantsTardy_2(meeting.getParticipants());
+
+            meeting.allocateParticipantsTardyCount(participantAndCounts);
+            meeting.isTardyStackFull();
+            meeting.isMaster(userId);
+
+            final Event upcomingEvent = eventRepository
+                    .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
+                    .orElse(null);
+
+            if (upcomingEvent == null) {
+                myMeetingResponses.add(new MyMeetingResponse(
+                        meeting.getId(),
+                        meeting.getName(),
+                        meeting.getTardyCount(),
+                        meeting.isMaster(userId),
+                        meeting.isTardyStackFull(),
+                        false,
+                        null));
+            } else {
+                final LocalTime attendanceOpenTime = upcomingEvent.getOpenTime(serverTimeManager);
+                final LocalTime attendanceClosedTime = upcomingEvent.getCloseTime(serverTimeManager);
+                final boolean isActive = upcomingEvent.isActive(today, serverTimeManager);
+                final EventResponse eventResponse = EventResponse.of(upcomingEvent, attendanceOpenTime, attendanceClosedTime);
+
+                final MyMeetingResponse myMeetingResponse = new MyMeetingResponse(
+                        meeting.getId(),
+                        meeting.getName(),
+                        meeting.getTardyCount(),
+                        meeting.isMaster(userId),
+                        meeting.isTardyStackFull(),
+                        isActive,
+                        eventResponse
+                );
+                myMeetingResponses.add(myMeetingResponse);
+            }
+        }
 
         return new MyMeetingsResponse(myMeetingResponses);
     }
@@ -114,7 +164,8 @@ public class MeetingService {
         validateUserExists(assignedUserId);
         validateAssignee(loginId, assignedUserId);
 
-        final Participant assignedParticipant = participantRepository.findByMeetingIdAndUserId(meetingId, assignedUserId)
+        final Participant assignedParticipant = participantRepository.findByMeetingIdAndUserId(meetingId,
+                        assignedUserId)
                 .orElseThrow(ParticipantNotFoundException::new);
         final Participant masterParticipant = participantRepository.findByMeetingIdAndUserId(meetingId, loginId)
                 .orElseThrow(ParticipantNotFoundException::new);
@@ -205,7 +256,7 @@ public class MeetingService {
 
         final MeetingAttendances meetingAttendances = getMeetingAttendances(meeting, today);
         final boolean isCoffeeTime = meetingAttendances.isTardyStackFull();
-        final int tardyCount = countTardyByParticipant(participant, meetingAttendances);
+        final Integer tardyCount = countTardyByParticipant(participant, meetingAttendances);
 
         final Optional<Event> upcomingEvent = eventRepository
                 .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today);
@@ -225,7 +276,8 @@ public class MeetingService {
         );
     }
 
-    private int countTardyByParticipant(final Participant participant, final MeetingAttendances meetingAttendances) {
+    private Integer countTardyByParticipant(final Participant participant,
+                                            final MeetingAttendances meetingAttendances) {
         final ParticipantAttendances participantAttendances = meetingAttendances
                 .extractAttendancesByParticipant(participant);
         return participantAttendances.countTardy();
@@ -248,6 +300,7 @@ public class MeetingService {
             throw new MeetingNotFoundException();
         }
     }
+
     private void validateUserExists(final Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException();

@@ -20,4 +20,19 @@ public interface QueryRepository extends Repository<Meeting, Long> {
             + "where p in :participants")
     List<ParticipantAndCount> countParticipantsTardy(@Param("participants") final List<Participant> participants,
                                                      @Param("date") final LocalDate date);
+
+    @Query("select p as participant, "
+            +   "(select count(a) "
+            +   "from Attendance a "
+            +   "where a.participant.id = p.id and a.status = 'TARDY' and a.disabled = false) "
+            +   "as tardyCount "
+            + "from Participant p join fetch p.user "
+            + "where p in :participants")
+    List<ParticipantAndCount> countParticipantsTardy_2(@Param("participants") final List<Participant> participants);
+
+    @Query("select m "
+            + " from Meeting m "
+            + " join fetch m.participants p "
+            + " where p.user.id = :userId")
+    List<Meeting> findMeetingByUserId(@Param("userId") Long userId);
 }
