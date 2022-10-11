@@ -22,7 +22,7 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
   const [user, setUser] = useState<UserContextValues['user']>(null);
-  const accessToken = user?.accessToken || localStorage.getItem('accessToken');
+  const accessToken = localStorage.getItem('accessToken');
 
   const login: UserContextValues['login'] = (user, accessToken) => {
     localStorage.setItem('accessToken', accessToken);
