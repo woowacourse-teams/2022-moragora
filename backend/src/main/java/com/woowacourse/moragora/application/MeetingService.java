@@ -104,7 +104,8 @@ public class MeetingService {
         return new MyMeetingsResponse(getMyMeetingsResponse(userId, meetings, today));
     }
 
-    private List<MyMeetingResponse> getMyMeetingsResponse(final Long userId, final List<Meeting> meetings, final LocalDate today) {
+    private List<MyMeetingResponse> getMyMeetingsResponse(final Long userId, final List<Meeting> meetings,
+                                                          final LocalDate today) {
         final List<MyMeetingResponse> myMeetingResponses = new ArrayList<>();
         for (final Meeting meeting : meetings) {
             final List<ParticipantAndCount> participantAndCounts =
@@ -132,10 +133,8 @@ public class MeetingService {
             eventResponse = EventResponse.of(upcomingEvent, attendanceOpenTime, attendanceClosedTime);
         }
         return new MyMeetingResponse(
-                meeting.getId(),
-                meeting.getName(),
-                meeting.getTardyCount(),
-                meeting.isMaster(userId),
+                meeting.getId(), meeting.getName(),
+                meeting.getTardyCount(), meeting.isMaster(userId),
                 meeting.isTardyStackFull(),
                 isActive,
                 eventResponse
