@@ -9,7 +9,9 @@ import com.woowacourse.moragora.domain.participant.ParticipantRepository;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.domain.user.UserRepository;
 import com.woowacourse.moragora.domain.user.password.RawPassword;
+import com.woowacourse.moragora.dto.request.auth.EmailRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
+import com.woowacourse.moragora.dto.response.auth.ExpiredTimeResponse;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.dto.session.EmailVerificationInfo;
@@ -86,12 +88,15 @@ public class AuthService {
         return userRepository.save(userToSave);
     }
 
-    public void sendAuthCode(final String email, final HttpSession httpSession) {
+    public ExpiredTimeResponse sendAuthCode(final EmailRequest emailRequest, final HttpSession httpSession) {
+        final String email = emailRequest.getEmail();
         final String authCode = generateAuthCode();
         mailSender.send(email, authCode);
+
         final LocalDateTime expiredDateTime = serverTimeManager.plusMinutes(AUTH_CODE_EXPIRE_MINUTE);
         final EmailVerificationInfo emailVerificationInfo = new EmailVerificationInfo(email, authCode, expiredDateTime);
         httpSession.setAttribute(ATTRIBUTE_NAME_EMAIL_VERIFICATION, emailVerificationInfo);
+        return new ExpiredTimeResponse(expiredDateTime);
     }
 
     private String generateAuthCode() {
