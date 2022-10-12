@@ -3,7 +3,6 @@ package com.woowacourse.moragora.presentation.auth;
 import com.woowacourse.moragora.application.auth.AuthService;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
-import com.woowacourse.moragora.support.RefreshTokenCookieProvider;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;

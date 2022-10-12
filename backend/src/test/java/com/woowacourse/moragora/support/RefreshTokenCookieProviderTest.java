@@ -2,12 +2,12 @@ package com.woowacourse.moragora.support;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.woowacourse.moragora.presentation.auth.RefreshTokenCookieProvider;
 import java.time.Duration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.web.server.Cookie.SameSite;
 import org.springframework.http.ResponseCookie;
-
 
 class RefreshTokenCookieProviderTest {
 
@@ -15,10 +15,13 @@ class RefreshTokenCookieProviderTest {
     @Test
     void create() {
         // given
-        final RefreshTokenCookieProvider refreshTokenCookieProvider = new RefreshTokenCookieProvider();
         final String refreshToken = "refresh_token";
+        final int validityInMilliseconds = 1000;
+        final RefreshTokenCookieProvider refreshTokenCookieProvider = new RefreshTokenCookieProvider(
+                validityInMilliseconds);
+
         final ResponseCookie expected = ResponseCookie.from("refreshToken", refreshToken)
-                .maxAge(Duration.ofDays(8))
+                .maxAge(Duration.ofMillis(validityInMilliseconds))
                 .httpOnly(true)
                 .secure(true)
                 .sameSite(SameSite.NONE.attributeValue())
