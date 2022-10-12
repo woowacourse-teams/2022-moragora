@@ -13,10 +13,14 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.woowacourse.moragora.dto.request.auth.EmailRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
+import com.woowacourse.moragora.dto.response.auth.ExpiredTimeResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.presentation.ControllerTest;
+import java.time.LocalDateTime;
+import javax.servlet.http.HttpSession;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.restdocs.payload.JsonFieldType;
@@ -108,6 +112,31 @@ class AuthControllerTest extends ControllerTest {
                         preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("accessToken").type(JsonFieldType.STRING).description(accessToken)
+                        )));
+    }
+
+    @DisplayName("이메일 인증번호를 전송하고 만료시간을 보내준다.")
+    @Test
+    void sendEmail() throws Exception {
+        // given
+        final String email = "ghd700@daum.net";
+        final LocalDateTime expiredTime = LocalDateTime.of(2022, 10, 12, 13, 0);
+        final ExpiredTimeResponse response = new ExpiredTimeResponse(expiredTime);
+
+        given(authService.sendAuthCode(any(EmailRequest.class), any(HttpSession.class)))
+                .willReturn(response);
+
+        // when
+        final ResultActions resultActions = performPost("/emails/send", new EmailRequest(email));
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("expiredTime").value(response.getExpiredTime()))
+                .andDo(document("auth/emails-send",
+                        preprocessResponse(prettyPrint()),
+                        responseFields(
+                                fieldWithPath("expiredTime").type(JsonFieldType.NUMBER)
+                                        .description(response.getExpiredTime())
                         )));
     }
 }

@@ -13,6 +13,7 @@ import com.woowacourse.moragora.application.EventService;
 import com.woowacourse.moragora.application.MeetingService;
 import com.woowacourse.moragora.application.UserService;
 import com.woowacourse.moragora.application.auth.AuthService;
+import com.woowacourse.moragora.infrastructure.MailSender;
 import com.woowacourse.moragora.presentation.auth.AuthController;
 import com.woowacourse.moragora.support.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,9 @@ public class ControllerTest {
 
     @MockBean
     protected QueryCountInspector queryCountInspector;
+
+    @MockBean
+    protected MailSender mailSender;
 
     @Autowired
     private MockMvc mockMvc;
