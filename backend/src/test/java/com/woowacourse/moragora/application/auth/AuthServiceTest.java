@@ -5,6 +5,7 @@ import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.PHILLZ;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
@@ -18,6 +19,7 @@ import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
+import com.woowacourse.moragora.presentation.auth.LoginResult;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import com.woowacourse.moragora.support.JwtTokenProvider;
@@ -66,10 +68,13 @@ class AuthServiceTest {
         final LoginRequest loginRequest = new LoginRequest(email, password);
 
         // when
-        final LoginResponse response = authService.createToken(loginRequest);
+        final LoginResult response = authService.login(loginRequest);
 
         // then
-        assertThat(response.getAccessToken()).isNotNull();
+        assertAll(
+                () -> assertThat(response.getAccessToken()).isNotNull(),
+                () -> assertThat(response.getRefreshToken()).isNotNull()
+        );
     }
 
     @DisplayName("존재하지 않는 이메일로 로그인 시도시 예외가 발생한다.")
@@ -82,7 +87,7 @@ class AuthServiceTest {
         final LoginRequest loginRequest = new LoginRequest(email, password);
 
         // when, then
-        assertThatThrownBy(() -> authService.createToken(loginRequest))
+        assertThatThrownBy(() -> authService.login(loginRequest))
                 .isInstanceOf(AuthenticationFailureException.class);
     }
 
@@ -98,7 +103,7 @@ class AuthServiceTest {
         final LoginRequest loginRequest = new LoginRequest(email, "smart1234!");
 
         // when, then
-        assertThatThrownBy(() -> authService.createToken(loginRequest))
+        assertThatThrownBy(() -> authService.login(loginRequest))
                 .isInstanceOf(AuthenticationFailureException.class);
     }
 

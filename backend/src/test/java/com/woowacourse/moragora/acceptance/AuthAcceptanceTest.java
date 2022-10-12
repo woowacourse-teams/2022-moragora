@@ -34,7 +34,8 @@ class AuthAcceptanceTest extends AcceptanceTest {
 
         // then
         response.statusCode(HttpStatus.OK.value())
-                .body("accessToken", notNullValue());
+                .body("accessToken", notNullValue())
+                .cookie("refreshToken", notNullValue());
     }
 
     @DisplayName("이메일 또는 비밀번호가 잘못되었을 때 로그인에 실패하고 상태코드 400을 반환한다.")
@@ -82,4 +83,6 @@ class AuthAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.OK.value())
                 .body("accessToken", notNullValue());
     }
+
+
 }

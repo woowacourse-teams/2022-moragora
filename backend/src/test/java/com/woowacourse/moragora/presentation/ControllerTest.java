@@ -13,8 +13,8 @@ import com.woowacourse.moragora.application.EventService;
 import com.woowacourse.moragora.application.MeetingService;
 import com.woowacourse.moragora.application.UserService;
 import com.woowacourse.moragora.application.auth.AuthService;
-import com.woowacourse.moragora.presentation.auth.AuthController;
 import com.woowacourse.moragora.support.JwtTokenProvider;
+import com.woowacourse.moragora.support.RefreshTokenCookieProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,13 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-@WebMvcTest(controllers = {
-        MeetingController.class,
-        AttendanceController.class,
-        EventController.class,
-        UserController.class,
-        AuthController.class,
-        CommonController.class})
+@WebMvcTest
 @AutoConfigureRestDocs
 public class ControllerTest {
 
@@ -54,6 +48,9 @@ public class ControllerTest {
 
     @MockBean
     protected JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    protected RefreshTokenCookieProvider refreshTokenCookieProvider;
 
     @MockBean
     protected QueryCountInspector queryCountInspector;
