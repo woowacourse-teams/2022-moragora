@@ -1,9 +1,11 @@
 package com.woowacourse.moragora.domain.meeting;
 
 import com.woowacourse.moragora.domain.participant.Participant;
+import com.woowacourse.moragora.domain.participant.ParticipantAndCount;
 import com.woowacourse.moragora.exception.global.InvalidFormatException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -59,6 +61,26 @@ public class Meeting {
         return participants.stream()
                 .map(Participant::getId)
                 .collect(Collectors.toUnmodifiableList());
+    }
+
+    public Optional<Participant> findParticipant(final Long userId) {
+        return participants.stream()
+                .filter(it -> it.isSameParticipant(userId))
+                .findAny();
+    }
+
+    public void allocateParticipantsTardyCount(final List<ParticipantAndCount> participantAndCounts) {
+        participantAndCounts.forEach(it -> it.getParticipant().allocateTardyCount(it.getTardyCount()));
+    }
+
+    public Boolean isTardyStackFull() {
+        return calculateTardy() >= participants.size();
+    }
+
+    public long calculateTardy() {
+        return participants.stream()
+                .mapToLong(Participant::getTardyCount)
+                .sum();
     }
 
     private void validateName(final String name) {
