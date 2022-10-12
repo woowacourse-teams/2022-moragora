@@ -1,5 +1,4 @@
 import React, { createContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { getLoginUserDataApi } from 'apis/userApis';
 import useQuery from 'hooks/useQuery';
 import { User } from 'types/userType';
@@ -22,23 +21,21 @@ const userContext = createContext<UserContextValues | null>(null);
 const UserContextProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
-  const navigate = useNavigate();
   const [user, setUser] = useState<UserContextValues['user']>(null);
-  const accessToken = localStorage.getItem('accessToken');
+  const [accessToken, setAccessToken] = useState<
+    UserContextData['accessToken']
+  >(localStorage.getItem('accessToken'));
 
   const login: UserContextValues['login'] = (user, accessToken) => {
     localStorage.setItem('accessToken', accessToken);
     setUser({ ...user, accessToken });
+    setAccessToken(localStorage.getItem('accessToken'));
   };
 
   const logout = () => {
     localStorage.removeItem('accessToken');
-
-    if (user) {
-      setUser(null);
-    }
-
-    navigate('/login');
+    setUser(null);
+    setAccessToken(null);
   };
 
   const getUserDataQuery = useQuery(

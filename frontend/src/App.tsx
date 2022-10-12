@@ -22,6 +22,7 @@ const App = () => {
       switch (response.status) {
         case 401: {
           logout();
+          break;
         }
       }
     },
