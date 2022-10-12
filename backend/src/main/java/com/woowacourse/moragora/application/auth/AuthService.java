@@ -3,6 +3,7 @@ package com.woowacourse.moragora.application.auth;
 import static com.woowacourse.moragora.domain.user.Provider.CHECKMATE;
 import static com.woowacourse.moragora.domain.user.Provider.GOOGLE;
 
+import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.participant.ParticipantRepository;
 import com.woowacourse.moragora.domain.user.User;
@@ -11,12 +12,15 @@ import com.woowacourse.moragora.domain.user.password.RawPassword;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
+import com.woowacourse.moragora.dto.session.EmailVerificationInfo;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
 import com.woowacourse.moragora.infrastructure.MailSender;
 import com.woowacourse.moragora.support.JwtTokenProvider;
+import java.time.LocalDateTime;
 import java.util.concurrent.ThreadLocalRandom;
+import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,23 +29,28 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private static final int AUTH_CODE_LENGTH = 6;
+    private static final int AUTH_CODE_EXPIRE_MINUTE = 5;
+    private static final String ATTRIBUTE_NAME_EMAIL_VERIFICATION = "emailVerification";
 
     private final JwtTokenProvider jwtTokenProvider;
     private final GoogleClient googleClient;
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
     private final MailSender mailSender;
+    private final ServerTimeManager serverTimeManager;
 
     public AuthService(final JwtTokenProvider jwtTokenProvider,
                        final GoogleClient googleClient,
                        final UserRepository userRepository,
                        final ParticipantRepository participantRepository,
-                       final MailSender mailSender) {
+                       final MailSender mailSender,
+                       final ServerTimeManager serverTimeManager) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.googleClient = googleClient;
         this.userRepository = userRepository;
         this.participantRepository = participantRepository;
         this.mailSender = mailSender;
+        this.serverTimeManager = serverTimeManager;
     }
 
     public LoginResponse createToken(final LoginRequest loginRequest) {
@@ -77,9 +86,12 @@ public class AuthService {
         return userRepository.save(userToSave);
     }
 
-    public void sendAuthCode(final String email) {
+    public void sendAuthCode(final String email, final HttpSession httpSession) {
         final String authCode = generateAuthCode();
         mailSender.send(email, authCode);
+        final LocalDateTime expiredDateTime = serverTimeManager.plusMinutes(AUTH_CODE_EXPIRE_MINUTE);
+        final EmailVerificationInfo emailVerificationInfo = new EmailVerificationInfo(email, authCode, expiredDateTime);
+        httpSession.setAttribute(ATTRIBUTE_NAME_EMAIL_VERIFICATION, emailVerificationInfo);
     }
 
     private String generateAuthCode() {

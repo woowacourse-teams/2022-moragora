@@ -49,6 +49,10 @@ public class ServerTimeManager {
         dateTime.changeDateTime(localDateTime);
     }
 
+    public LocalDateTime plusMinutes(final long minutes) {
+        return getDateAndTime().plusMinutes(minutes);
+    }
+
     public LocalDate getDate() {
         return dateTime.getValue().toLocalDate();
     }

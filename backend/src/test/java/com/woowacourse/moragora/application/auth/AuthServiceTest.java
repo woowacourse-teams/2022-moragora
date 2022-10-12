@@ -5,8 +5,13 @@ import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.PHILLZ;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.woowacourse.moragora.application.UserService;
 import com.woowacourse.moragora.domain.meeting.Meeting;
@@ -16,11 +21,14 @@ import com.woowacourse.moragora.dto.request.user.UserRequest;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
+import com.woowacourse.moragora.dto.session.EmailVerificationInfo;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
+import com.woowacourse.moragora.infrastructure.MailSender;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import com.woowacourse.moragora.support.JwtTokenProvider;
+import javax.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,6 +53,9 @@ class AuthServiceTest {
 
     @MockBean
     private GoogleClient googleClient;
+
+    @MockBean
+    private MailSender mailSender;
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
@@ -153,6 +164,22 @@ class AuthServiceTest {
         assertThat(response).usingRecursiveComparison()
                 .ignoringFields("id")
                 .isEqualTo(expectedResponse);
+    }
+
+    @DisplayName("인증 코드를 메일로 전송하고 세션에 이메일 인증관련 정보들을 저장한다.")
+    @Test
+    void sendAuthCode() {
+        // given
+        final String email = "ghd700@daum.net";
+        final HttpSession httpSession = mock(HttpSession.class);
+        final String attributeName = "emailVerification";
+
+        // when
+        authService.sendAuthCode(email, httpSession);
+
+        // then
+        verify(mailSender, times(1)).send(eq(email), anyString());
+        verify(httpSession, times(1)).setAttribute(eq(attributeName), any(EmailVerificationInfo.class));
     }
 
 }
