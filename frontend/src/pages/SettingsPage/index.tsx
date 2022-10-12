@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import * as S from './SettingsPage.styled';
 import Button from 'components/@shared/Button';
 import ModalPortal from 'components/ModalPortal';
@@ -9,7 +9,6 @@ import Avatar from 'components/@shared/Avatar';
 import MenuLink from 'components/@shared/MenuLink';
 
 const SettingsPage = () => {
-  const navigate = useNavigate();
   const user = useContext(userContext);
   const userState = useContext(userContext);
   const [isModalOpened, setIsModalOpened] = useState(false);
@@ -28,7 +27,6 @@ const SettingsPage = () => {
 
   const handleConfirm = () => {
     userState?.logout();
-    navigate('/');
   };
 
   return (
