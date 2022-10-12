@@ -39,7 +39,7 @@ public class MeetingResponse {
 
     public static MeetingResponse of(final Meeting meeting,
                                      final long attendedEventCount,
-                                     final Participant participant) {
+                                     final Participant loginParticipant) {
         final List<ParticipantResponse> participantResponses = meeting.getParticipants().stream()
                 .map(ParticipantResponse::from)
                 .collect(Collectors.toList());
@@ -48,7 +48,7 @@ public class MeetingResponse {
                 meeting.getId(),
                 meeting.getName(),
                 attendedEventCount,
-                participant.getIsMaster(),
+                loginParticipant.getIsMaster(),
                 meeting.isTardyStackFull(),
                 participantResponses
         );
