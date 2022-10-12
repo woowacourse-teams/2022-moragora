@@ -29,7 +29,7 @@ export default [
 
       if (!user) {
         return res(
-          ctx.status(401),
+          ctx.status(404),
           ctx.json({ message: '유저가 존재하지 않습니다.' }),
           ctx.delay(DELAY)
         );
@@ -82,7 +82,7 @@ export default [
 
       if (!user) {
         return res(
-          ctx.status(401),
+          ctx.status(404),
           ctx.json({ message: '유저가 존재하지 않습니다.' }),
           ctx.delay(DELAY)
         );

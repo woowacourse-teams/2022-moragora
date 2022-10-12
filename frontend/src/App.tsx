@@ -38,6 +38,13 @@ const App = () => {
           login(body, accessToken);
         }
       },
+      onError: (error) => {
+        const statusCode = error.message.split(': ')[0];
+
+        if (statusCode === '404') {
+          logout();
+        }
+      },
     }
   );
 
