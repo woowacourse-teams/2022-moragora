@@ -1,6 +1,6 @@
 import React, { createContext, useState } from 'react';
-import { getLoginUserDataApi } from 'apis/userApis';
 import { useNavigate } from 'react-router-dom';
+import { getLoginUserDataApi } from 'apis/userApis';
 import useQuery from 'hooks/useQuery';
 import { User } from 'types/userType';
 
@@ -38,7 +38,7 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
       setUser(null);
     }
 
-    navigate('/');
+    navigate('/login');
   };
 
   const getUserDataQuery = useQuery(
