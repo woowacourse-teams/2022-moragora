@@ -5,11 +5,14 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
+import com.woowacourse.moragora.dto.request.auth.EmailRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -81,5 +84,25 @@ class AuthAcceptanceTest extends AcceptanceTest {
         // then
         response.statusCode(HttpStatus.OK.value())
                 .body("accessToken", notNullValue());
+    }
+
+    @DisplayName("이메일 인증 요청 시 인증코드를 생성해 메일을 전송하고 session에 인증 정보들을 보관한다.")
+    @Test
+    void sendEmail() {
+        // given
+        final String email = "kun@naver.com";
+        final EmailRequest request = new EmailRequest(email);
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 10, 10, 10, 10);
+        final long expected = Timestamp.valueOf(dateTime).getTime();
+
+        given(serverTimeManager.plusMinutes(5))
+                .willReturn(dateTime);
+
+        // when
+        final ValidatableResponse response = post("/emails/send", request);
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("expiredTime", equalTo(expected));
     }
 }
