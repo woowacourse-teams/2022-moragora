@@ -51,7 +51,7 @@ class QueryRepositoryTest {
 
         // when
         final List<ParticipantAndCount> participantAndCounts = queryRepository
-                .countParticipantsTardy(List.of(participant1, participant2, participant3), LocalDate.now());
+                .countParticipantsTardy(List.of(participant1, participant2, participant3));
 
         // then
         final long expected = participantAndCounts.stream()

@@ -39,7 +39,7 @@ public class Participant {
     private Meeting meeting;
 
     @Transient
-    private Long tardyCount;
+    private Integer tardyCount;
 
     public Participant(final User user, final Meeting meeting, final boolean isMaster) {
         this.user = user;
@@ -63,11 +63,11 @@ public class Participant {
         return user.isSameUser(userId);
     }
 
-    public void allocateTardyCount(final Long tardyCount) {
+    public void allocateTardyCount(final Integer tardyCount) {
         this.tardyCount = tardyCount;
     }
 
-    public Long getTardyCount() {
+    public Integer getTardyCount() {
         if (tardyCount == null) {
             throw new BusinessException("지각 횟수가 할당되지 않았습니다.");
         }
