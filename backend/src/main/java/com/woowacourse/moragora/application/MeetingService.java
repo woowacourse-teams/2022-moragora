@@ -234,6 +234,14 @@ public class MeetingService {
         return new MeetingAttendances(foundAttendances, participantIds.size());
     }
 
+    private List<ParticipantResponse> collectParticipantResponsesOf(final Meeting meeting,
+                                                                    final MeetingAttendances meetingAttendances) {
+        final List<Participant> participants = meeting.getParticipants();
+        return participants.stream()
+                .map(it -> ParticipantResponse.of(it, countTardyByParticipant(it, meetingAttendances)))
+                .collect(Collectors.toUnmodifiableList());
+    }
+
     private MyMeetingResponse generateMyMeetingResponse(final Participant participant, final LocalDate today) {
         final Meeting meeting = participant.getMeeting();
         final boolean isLoginUserMaster = participant.getIsMaster();
@@ -285,6 +293,17 @@ public class MeetingService {
         }
     }
 
+    private void validateUserExists(final Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException();
+        }
+    }
+
+    private void validateMeetingExists(final Long meetingId) {
+        if (!meetingRepository.existsById(meetingId)) {
+            throw new MeetingNotFoundException();
+        }
+    }
     private void validateUserExists(final Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException();

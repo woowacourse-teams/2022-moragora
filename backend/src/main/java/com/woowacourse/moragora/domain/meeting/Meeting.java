@@ -88,6 +88,26 @@ public class Meeting {
         return tardyCount;
     }
 
+    public Optional<Participant> findParticipant(final Long userId) {
+        return participants.stream()
+                .filter(it -> it.isSameParticipant(userId))
+                .findAny();
+    }
+
+    public void allocateParticipantsTardyCount(final List<ParticipantAndCount> participantAndCounts) {
+        participantAndCounts.forEach(it -> it.getParticipant().allocateTardyCount(it.getTardyCount()));
+    }
+
+    public Boolean isTardyStackFull() {
+        return calculateTardy() >= participants.size();
+    }
+
+    public long calculateTardy() {
+        return participants.stream()
+                .mapToLong(Participant::getTardyCount)
+                .sum();
+    }
+
     private void validateName(final String name) {
         if (name.length() > MAX_NAME_LENGTH) {
             throw new InvalidFormatException();

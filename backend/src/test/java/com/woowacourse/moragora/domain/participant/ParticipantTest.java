@@ -87,7 +87,7 @@ class ParticipantTest {
         final Participant participant = new Participant(user, meeting, true);
 
         // when
-        participant.allocateTardyCount(5);
+        participant.allocateTardyCount(5L);
 
         // then
         assertThat(participant.getTardyCount()).isEqualTo(5);
@@ -106,10 +106,10 @@ class ParticipantTest {
                 .provider(GOOGLE)
                 .build();
         final Participant participant = new Participant(user, meeting, true);
-        participant.allocateTardyCount(5);
+        participant.allocateTardyCount(5L);
 
         // when
-        final Integer tardyCount = participant.getTardyCount();
+        final Long tardyCount = participant.getTardyCount();
 
         // then
         assertThat(tardyCount).isEqualTo(5);
