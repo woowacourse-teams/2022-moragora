@@ -1,7 +1,9 @@
 package com.woowacourse.moragora.presentation;
 
 import com.woowacourse.moragora.dto.response.ErrorResponse;
+import com.woowacourse.moragora.dto.response.TokenErrorResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.InvalidTokenException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,12 @@ public class ControllerAdvice {
     @ExceptionHandler(ClientRuntimeException.class)
     public ResponseEntity<ErrorResponse> handleClientRuntimeException(final ClientRuntimeException exception) {
         return ResponseEntity.status(exception.getHttpStatus()).body(new ErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponse> handleTokenException(final InvalidTokenException exception) {
+        return ResponseEntity.status(exception.getHttpStatus())
+                .body(new TokenErrorResponse(exception.getMessage(), exception.getStatus()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

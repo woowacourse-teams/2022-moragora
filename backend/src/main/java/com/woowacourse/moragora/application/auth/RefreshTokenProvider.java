@@ -1,6 +1,5 @@
-package com.woowacourse.moragora.support;
+package com.woowacourse.moragora.application.auth;
 
-import com.woowacourse.moragora.application.auth.RefreshToken;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;

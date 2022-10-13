@@ -22,7 +22,6 @@ import com.woowacourse.moragora.infrastructure.GoogleClient;
 import com.woowacourse.moragora.presentation.auth.LoginResult;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
-import com.woowacourse.moragora.support.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

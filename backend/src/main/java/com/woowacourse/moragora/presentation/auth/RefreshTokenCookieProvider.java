@@ -14,7 +14,8 @@ public class RefreshTokenCookieProvider {
 
     private final long validityInMilliseconds;
 
-    public RefreshTokenCookieProvider(@Value("${security.refresh.token.expire-length}") final long validityInMilliseconds) {
+    public RefreshTokenCookieProvider(
+            @Value("${security.refresh.token.expire-length}") final long validityInMilliseconds) {
         this.validityInMilliseconds = validityInMilliseconds;
     }
 
@@ -28,7 +29,7 @@ public class RefreshTokenCookieProvider {
         return ResponseCookie.from(REFRESH_TOKEN, value)
                 .httpOnly(true)
                 .secure(true)
-                .path("/")
+                .path("/token/refresh")
                 .sameSite(SameSite.NONE.attributeValue());
     }
 }

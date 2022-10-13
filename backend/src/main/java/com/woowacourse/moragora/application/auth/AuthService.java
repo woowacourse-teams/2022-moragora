@@ -3,7 +3,6 @@ package com.woowacourse.moragora.application.auth;
 import static com.woowacourse.moragora.domain.user.Provider.CHECKMATE;
 import static com.woowacourse.moragora.domain.user.Provider.GOOGLE;
 
-import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.participant.ParticipantRepository;
 import com.woowacourse.moragora.domain.user.User;
@@ -16,8 +15,7 @@ import com.woowacourse.moragora.exception.participant.ParticipantNotFoundExcepti
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
 import com.woowacourse.moragora.presentation.auth.LoginResult;
-import com.woowacourse.moragora.support.JwtTokenProvider;
-import com.woowacourse.moragora.support.RefreshTokenProvider;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,20 +25,17 @@ public class AuthService {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenProvider refreshTokenProvider;
-    private final ServerTimeManager serverTimeManager;
     private final GoogleClient googleClient;
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
 
     public AuthService(final JwtTokenProvider jwtTokenProvider,
                        final RefreshTokenProvider refreshTokenProvider,
-                       final ServerTimeManager serverTimeManager,
                        final GoogleClient googleClient,
                        final UserRepository userRepository,
                        final ParticipantRepository participantRepository) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.refreshTokenProvider = refreshTokenProvider;
-        this.serverTimeManager = serverTimeManager;
         this.googleClient = googleClient;
         this.userRepository = userRepository;
         this.participantRepository = participantRepository;
@@ -54,7 +49,7 @@ public class AuthService {
 
         final Long userId = user.getId();
         final String accessToken = jwtTokenProvider.createToken(String.valueOf(userId));
-        final String refreshToken = refreshTokenProvider.create(userId, serverTimeManager.getDateAndTime());
+        final String refreshToken = refreshTokenProvider.create(userId, LocalDateTime.now());
 
         return new LoginResult(accessToken, refreshToken);
     }

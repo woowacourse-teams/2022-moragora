@@ -3,6 +3,7 @@ package com.woowacourse.moragora.support;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.woowacourse.moragora.application.auth.RefreshToken;
+import com.woowacourse.moragora.application.auth.RefreshTokenProvider;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.DisplayName;
