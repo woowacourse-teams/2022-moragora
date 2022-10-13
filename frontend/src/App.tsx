@@ -51,9 +51,11 @@ const App = () => {
   if (isLoading) {
     return (
       <AppLayout>
-        <S.SpinnerBox>
-          <Spinner />
-        </S.SpinnerBox>
+        <Body>
+          <S.SpinnerBox>
+            <Spinner />
+          </S.SpinnerBox>
+        </Body>
       </AppLayout>
     );
   }

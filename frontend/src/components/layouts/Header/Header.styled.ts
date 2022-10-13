@@ -2,7 +2,10 @@ import styled from '@emotion/styled';
 
 export const Layout = styled.header`
   position: fixed;
-  inset: 0 0 calc(100vh - 4rem) 0;
+  height: 4rem;
+  top: 0;
+  right: 0;
+  left: 0;
   padding: 0.5rem;
   display: flex;
   justify-content: space-between;

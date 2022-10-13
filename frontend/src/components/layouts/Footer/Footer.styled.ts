@@ -3,7 +3,10 @@ import { NavLink } from 'react-router-dom';
 
 export const Nav = styled.nav`
   position: fixed;
-  inset: calc(100vh - 4rem) 0 0 0;
+  height: 4rem;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
