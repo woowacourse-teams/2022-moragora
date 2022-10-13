@@ -20,6 +20,7 @@ import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.exception.user.EmailDuplicatedException;
 import com.woowacourse.moragora.presentation.ControllerTest;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import javax.servlet.http.HttpSession;
 import org.junit.jupiter.api.DisplayName;
@@ -121,7 +122,8 @@ class AuthControllerTest extends ControllerTest {
     void sendEmail() throws Exception {
         // given
         final String email = "ghd700@daum.net";
-        final LocalDateTime expiredTime = LocalDateTime.of(2022, 10, 12, 13, 0);
+        final long expiredTime = Timestamp.valueOf(
+                LocalDateTime.of(2022, 10, 12, 13, 0).plusMinutes(5)).getTime();
         final ExpiredTimeResponse response = new ExpiredTimeResponse(expiredTime);
 
         given(authService.sendAuthCode(any(EmailRequest.class), any(HttpSession.class)))

@@ -4,6 +4,7 @@ import static com.woowacourse.moragora.domain.user.Provider.CHECKMATE;
 import static com.woowacourse.moragora.domain.user.Provider.GOOGLE;
 
 import com.woowacourse.moragora.application.ServerTimeManager;
+import com.woowacourse.moragora.domain.auth.AuthCode;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.participant.ParticipantRepository;
 import com.woowacourse.moragora.domain.user.User;
@@ -14,16 +15,13 @@ import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.response.auth.ExpiredTimeResponse;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
-import com.woowacourse.moragora.dto.session.EmailVerificationInfo;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.exception.user.EmailDuplicatedException;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
-import com.woowacourse.moragora.infrastructure.MailSender;
 import com.woowacourse.moragora.support.JwtTokenProvider;
-import java.time.LocalDateTime;
-import java.util.concurrent.ThreadLocalRandom;
 import javax.servlet.http.HttpSession;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,28 +29,26 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class AuthService {
 
-    private static final int AUTH_CODE_LENGTH = 6;
-    private static final int AUTH_CODE_EXPIRE_MINUTE = 5;
     private static final String ATTRIBUTE_NAME_EMAIL_VERIFICATION = "emailVerification";
 
     private final JwtTokenProvider jwtTokenProvider;
     private final GoogleClient googleClient;
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
-    private final MailSender mailSender;
+    private final JavaMailSender javaMailSender;
     private final ServerTimeManager serverTimeManager;
 
     public AuthService(final JwtTokenProvider jwtTokenProvider,
                        final GoogleClient googleClient,
                        final UserRepository userRepository,
                        final ParticipantRepository participantRepository,
-                       final MailSender mailSender,
+                       final JavaMailSender javaMailSender,
                        final ServerTimeManager serverTimeManager) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.googleClient = googleClient;
         this.userRepository = userRepository;
         this.participantRepository = participantRepository;
-        this.mailSender = mailSender;
+        this.javaMailSender = javaMailSender;
         this.serverTimeManager = serverTimeManager;
     }
 
@@ -93,27 +89,17 @@ public class AuthService {
         final String email = emailRequest.getEmail();
         checkEmailExist(email);
 
-        final String authCode = generateAuthCode();
-        mailSender.send(email, authCode);
+        final AuthCode authCode = new AuthCode(email, serverTimeManager.getDateAndTime());
 
-        final LocalDateTime expiredDateTime = serverTimeManager.plusMinutes(AUTH_CODE_EXPIRE_MINUTE);
-        final EmailVerificationInfo emailVerificationInfo = new EmailVerificationInfo(email, authCode, expiredDateTime);
-        httpSession.setAttribute(ATTRIBUTE_NAME_EMAIL_VERIFICATION, emailVerificationInfo);
-        return new ExpiredTimeResponse(expiredDateTime);
+        javaMailSender.send(authCode.toMailMessage());
+
+        httpSession.setAttribute(ATTRIBUTE_NAME_EMAIL_VERIFICATION, authCode);
+        return new ExpiredTimeResponse(authCode.getExpiredTime());
     }
 
     private void checkEmailExist(final String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new EmailDuplicatedException();
         }
-    }
-
-    private String generateAuthCode() {
-        final ThreadLocalRandom random = ThreadLocalRandom.current();
-        final StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < AUTH_CODE_LENGTH; i++) {
-            stringBuilder.append(random.nextInt(10));
-        }
-        return stringBuilder.toString();
     }
 }

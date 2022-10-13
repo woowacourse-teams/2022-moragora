@@ -11,7 +11,6 @@ import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
-import com.woowacourse.moragora.infrastructure.MailSender;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -26,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 @SpringBootTest(properties = "spring.session.store-type=none", webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AcceptanceTest {
@@ -40,7 +40,7 @@ public class AcceptanceTest {
     protected GoogleClient googleClient;
 
     @MockBean
-    protected MailSender sender;
+    protected JavaMailSenderImpl javaMailSender;
 
     @Autowired
     protected AttendanceScheduler attendanceScheduler;

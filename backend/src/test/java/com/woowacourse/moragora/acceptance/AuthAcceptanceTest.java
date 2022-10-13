@@ -93,9 +93,9 @@ class AuthAcceptanceTest extends AcceptanceTest {
         final String email = "kun@naver.com";
         final EmailRequest request = new EmailRequest(email);
         final LocalDateTime dateTime = LocalDateTime.of(2022, 10, 10, 10, 10);
-        final long expected = Timestamp.valueOf(dateTime).getTime();
+        final long expected = Timestamp.valueOf(dateTime.plusMinutes(5)).getTime();
 
-        given(serverTimeManager.plusMinutes(5))
+        given(serverTimeManager.getDateAndTime())
                 .willReturn(dateTime);
 
         // when

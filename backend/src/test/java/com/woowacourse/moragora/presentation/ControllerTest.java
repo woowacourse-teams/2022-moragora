@@ -13,7 +13,6 @@ import com.woowacourse.moragora.application.EventService;
 import com.woowacourse.moragora.application.MeetingService;
 import com.woowacourse.moragora.application.UserService;
 import com.woowacourse.moragora.application.auth.AuthService;
-import com.woowacourse.moragora.infrastructure.MailSender;
 import com.woowacourse.moragora.presentation.auth.AuthController;
 import com.woowacourse.moragora.support.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -60,7 +60,7 @@ public class ControllerTest {
     protected QueryCountInspector queryCountInspector;
 
     @MockBean
-    protected MailSender mailSender;
+    protected JavaMailSenderImpl mailSender;
 
     @Autowired
     private MockMvc mockMvc;

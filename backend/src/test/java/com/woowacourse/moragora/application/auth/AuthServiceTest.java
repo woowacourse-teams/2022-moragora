@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verify;
 
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.application.UserService;
+import com.woowacourse.moragora.domain.auth.AuthCode;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.dto.request.auth.EmailRequest;
@@ -24,11 +25,9 @@ import com.woowacourse.moragora.dto.response.auth.ExpiredTimeResponse;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
-import com.woowacourse.moragora.dto.session.EmailVerificationInfo;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.exception.user.EmailDuplicatedException;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
-import com.woowacourse.moragora.infrastructure.MailSender;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import com.woowacourse.moragora.support.JwtTokenProvider;
@@ -41,6 +40,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 @SpringBootTest
 class AuthServiceTest {
@@ -61,7 +62,7 @@ class AuthServiceTest {
     private GoogleClient googleClient;
 
     @MockBean
-    private MailSender mailSender;
+    private JavaMailSenderImpl javaMailSender;
 
     @Autowired
     private ServerTimeManager serverTimeManager;
@@ -191,8 +192,8 @@ class AuthServiceTest {
         final ExpiredTimeResponse expiredTimeResponse = authService.sendAuthCode(request, httpSession);
 
         // then
-        verify(mailSender, times(1)).send(eq(email), anyString());
-        verify(httpSession, times(1)).setAttribute(eq(attributeName), any(EmailVerificationInfo.class));
+        verify(javaMailSender, times(1)).send(any(SimpleMailMessage.class));
+        verify(httpSession, times(1)).setAttribute(eq(attributeName), any(AuthCode.class));
         assertThat(expiredTimeResponse.getExpiredTime()).isEqualTo(expected);
     }
 
