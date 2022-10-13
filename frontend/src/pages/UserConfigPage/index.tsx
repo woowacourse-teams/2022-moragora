@@ -1,34 +1,28 @@
 import React, { useContext, useState } from 'react';
-import { Navigate } from 'react-router-dom';
 import * as S from './UserConfigPage.styled';
 import Avatar from 'components/@shared/Avatar';
 import MenuLink from 'components/@shared/MenuLink';
 import NicknameInput from 'components/NicknameInput';
-import { userContext } from 'contexts/userContext';
+import { userContext, UserContextValues } from 'contexts/userContext';
 import useMutation from 'hooks/useMutation';
 import { updateNicknameApi } from 'apis/userApis';
 import { AuthProvider } from 'types/userType';
 
 const UserConfigPage = () => {
-  const user = useContext(userContext);
-
-  if (!user?.accessToken) {
-    return <Navigate to="/" />;
-  }
-
   const [nickname, setNickname] = useState(user.user?.nickname ?? 'unknown');
+  const userState = useContext(userContext) as UserContextValues;
   const nicknameUpdateMutation = useMutation(
-    updateNicknameApi(user.accessToken),
+    updateNicknameApi(userState.accessToken),
     {
       onMutate: ({ nickname }) => {
         setNickname(nickname);
       },
       onError: (e) => {
-        setNickname(user.user?.nickname ?? 'unknown');
+        setNickname(userState.user?.nickname ?? 'unknown');
         alert(e);
       },
       onSuccess: () => {
-        user.getLoginUserData();
+        userState.getLoginUserData();
         alert('닉네임이 변경되었습니다.');
       },
     }
@@ -44,7 +38,7 @@ const UserConfigPage = () => {
       nickname: string;
     };
 
-    if (formDataObject.nickname === user.user?.nickname) {
+    if (formDataObject.nickname === userState.user?.nickname) {
       return;
     }
 
@@ -95,7 +89,7 @@ const UserConfigPage = () => {
           }
           disabled
         >
-          이메일 <S.EmailSpan>{user.user?.email ?? 'unknown'}</S.EmailSpan>
+          이메일 <S.EmailSpan>{userState.user?.email ?? 'unknown'}</S.EmailSpan>
         </MenuLink>
         <MenuLink
           to="password"
@@ -116,7 +110,7 @@ const UserConfigPage = () => {
               />
             </svg>
           }
-          disabled={user.user?.authProvider !== AuthProvider['checkmate']}
+          disabled={userState.user?.authProvider !== AuthProvider['checkmate']}
         >
           비밀번호 변경
         </MenuLink>
@@ -139,7 +133,7 @@ const UserConfigPage = () => {
               />
             </svg>
           }
-          disabled={user.user?.authProvider !== AuthProvider['checkmate']}
+          disabled={userState.user?.authProvider !== AuthProvider['checkmate']}
         >
           회원 탈퇴
         </MenuLink>

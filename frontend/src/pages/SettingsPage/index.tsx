@@ -1,5 +1,4 @@
 import { useContext, useState } from 'react';
-import { Navigate } from 'react-router-dom';
 import * as S from './SettingsPage.styled';
 import Button from 'components/@shared/Button';
 import ModalPortal from 'components/ModalPortal';
@@ -9,13 +8,8 @@ import Avatar from 'components/@shared/Avatar';
 import MenuLink from 'components/@shared/MenuLink';
 
 const SettingsPage = () => {
-  const user = useContext(userContext);
   const userState = useContext(userContext);
   const [isModalOpened, setIsModalOpened] = useState(false);
-
-  if (!user?.accessToken) {
-    return <Navigate to="/" />;
-  }
 
   const handleOpen = () => {
     setIsModalOpened(true);
@@ -44,7 +38,7 @@ const SettingsPage = () => {
         <S.ProfileBox>
           <Avatar />
           <S.NicknameParagraph>
-            {user.user?.nickname ?? 'unknown'}
+            {userState?.user?.nickname ?? 'unknown'}
           </S.NicknameParagraph>
         </S.ProfileBox>
         <S.ButtonBox>
