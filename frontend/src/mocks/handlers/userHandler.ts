@@ -5,6 +5,8 @@ import {
   UserLoginRequestBody,
   User,
   AuthProvider,
+  UserEmailSendRequestBody,
+  EmailCodeVerifyRequestBody,
 } from 'types/userType';
 import { DELAY } from 'mocks/configs';
 import { extractIdFromHeader, generateToken } from 'mocks/utils';
@@ -15,17 +17,19 @@ import {
 } from 'types/userType';
 import meetings from 'mocks/fixtures/meetings';
 
+const emailReg =
+  /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.([a-zA-Z])+$/;
+const nicknameReg = /^([a-zA-Z0-9가-힣]){1,15}$/;
+const passwordReg =
+  /^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,30}$/;
+
+let emailExpiredTime: number = 0;
+
 export default [
   rest.post<UserRegisterRequestBody>(
     `${process.env.API_SERVER_HOST}/users`,
     (req, res, ctx) => {
       const { email, nickname, password } = req.body;
-
-      const emailReg =
-        /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.([a-zA-Z])+$/;
-      const nicknameReg = /^([a-zA-Z0-9가-힣]){1,15}$/;
-      const passwordReg =
-        /^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,30}$/;
 
       if (
         !emailReg.test(email) ||
@@ -120,22 +124,6 @@ export default [
         ctx.status(200),
         ctx.json({
           accessToken: targetUser.accessToken,
-        }),
-        ctx.delay(DELAY)
-      );
-    }
-  ),
-
-  rest.get(
-    `${process.env.API_SERVER_HOST}/users/check-email`,
-    (req, res, ctx) => {
-      const email = req.url.searchParams.get('email');
-      const isExist = users.some((user) => user.email === email);
-
-      return res(
-        ctx.status(200),
-        ctx.json({
-          isExist,
         }),
         ctx.delay(DELAY)
       );
@@ -309,6 +297,90 @@ export default [
       }
 
       users.splice(userIndex, 1);
+
+      return res(ctx.status(204), ctx.delay(DELAY));
+    }
+  ),
+
+  rest.post<UserEmailSendRequestBody>(
+    `${process.env.API_SERVER_HOST}/emails/send`,
+    (req, res, ctx) => {
+      const { email } = req.body;
+
+      if (!emailReg.test(email)) {
+        return res(
+          ctx.status(400),
+          ctx.json({
+            message: '이메일 형식이 올바르지 않습니다.',
+          }),
+          ctx.delay(DELAY)
+        );
+      }
+
+      const isExist = users.some(
+        ({ email: existedEmail }) => email === existedEmail
+      );
+
+      if (isExist) {
+        return res(
+          ctx.status(400),
+          ctx.json({
+            message: '중복된 이메일입니다.',
+          }),
+          ctx.delay(DELAY)
+        );
+      }
+
+      const timer = new Date();
+      timer.setMinutes(timer.getMinutes() + 5);
+      emailExpiredTime = timer.getTime();
+
+      return res(
+        ctx.status(200),
+        ctx.json({
+          expiredTime: emailExpiredTime,
+        }),
+        ctx.delay(DELAY)
+      );
+    }
+  ),
+
+  rest.post<EmailCodeVerifyRequestBody>(
+    `${process.env.API_SERVER_HOST}/emails/verify`,
+    (req, res, ctx) => {
+      const { email, verifyCode } = req.body;
+      const authCode = '123456';
+      const now = new Date().getTime();
+
+      if (!emailReg.test(email)) {
+        return res(
+          ctx.status(400),
+          ctx.json({
+            message: '이메일 형식이 올바르지 않습니다.',
+          }),
+          ctx.delay(DELAY)
+        );
+      }
+
+      if (verifyCode !== authCode) {
+        return res(
+          ctx.status(400),
+          ctx.json({
+            message: '인증코드가 올바르지 않습니다.',
+          }),
+          ctx.delay(DELAY)
+        );
+      }
+
+      if (emailExpiredTime < now) {
+        return res(
+          ctx.status(400),
+          ctx.json({
+            message: '인증코드가 만료되었습니다.',
+          }),
+          ctx.delay(DELAY)
+        );
+      }
 
       return res(ctx.status(204), ctx.delay(DELAY));
     }
