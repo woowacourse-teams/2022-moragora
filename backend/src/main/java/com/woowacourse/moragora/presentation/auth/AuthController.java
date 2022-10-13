@@ -6,6 +6,7 @@ import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.response.auth.ExpiredTimeResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,7 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("/emails/send")
-    public ResponseEntity<ExpiredTimeResponse> sendEmail(@RequestBody final EmailRequest emailRequest,
+    public ResponseEntity<ExpiredTimeResponse> sendEmail(@RequestBody @Valid final EmailRequest emailRequest,
                                                          final HttpSession session) {
         final ExpiredTimeResponse response = authService.sendAuthCode(emailRequest, session);
         return ResponseEntity.ok(response);
