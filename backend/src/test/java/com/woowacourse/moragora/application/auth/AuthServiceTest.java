@@ -26,6 +26,7 @@ import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
 import com.woowacourse.moragora.dto.session.EmailVerificationInfo;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
+import com.woowacourse.moragora.exception.user.EmailDuplicatedException;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
 import com.woowacourse.moragora.infrastructure.MailSender;
 import com.woowacourse.moragora.support.DataSupport;
@@ -193,5 +194,19 @@ class AuthServiceTest {
         verify(mailSender, times(1)).send(eq(email), anyString());
         verify(httpSession, times(1)).setAttribute(eq(attributeName), any(EmailVerificationInfo.class));
         assertThat(expiredTimeResponse.getExpiredTime()).isEqualTo(expected);
+    }
+
+    @DisplayName("이미 존재하는 메일 주소로 인증 코드 전송을 요청하면 예외가 발생한다.")
+    @Test
+    void sendAuthCode_throwsException_ifEmailDuplicated() {
+        // given
+        final User user1 = dataSupport.saveUser(KUN.create());
+        final String email = user1.getEmail();
+        final HttpSession httpSession = mock(HttpSession.class);
+        final EmailRequest request = new EmailRequest(email);
+
+        // when, then
+        assertThatThrownBy(() -> authService.sendAuthCode(request, httpSession))
+                .isInstanceOf(EmailDuplicatedException.class);
     }
 }

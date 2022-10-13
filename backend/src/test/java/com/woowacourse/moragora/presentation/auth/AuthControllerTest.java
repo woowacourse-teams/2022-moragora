@@ -18,6 +18,7 @@ import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.response.auth.ExpiredTimeResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
+import com.woowacourse.moragora.exception.user.EmailDuplicatedException;
 import com.woowacourse.moragora.presentation.ControllerTest;
 import java.time.LocalDateTime;
 import javax.servlet.http.HttpSession;
@@ -137,6 +138,29 @@ class AuthControllerTest extends ControllerTest {
                         responseFields(
                                 fieldWithPath("expiredTime").type(JsonFieldType.NUMBER)
                                         .description(response.getExpiredTime())
+                        )));
+    }
+
+    @DisplayName("중복된 이메일로 인증번호 전송을 요청하면 예외가 발생한다.")
+    @Test
+    void sendEmail_throwsException_whenEmailDuplicated() throws Exception {
+        // given
+        final String email = "ghd700@daum.net";
+        final String message = "이미 존재하는 이메일입니다.";
+
+        given(authService.sendAuthCode(any(EmailRequest.class), any(HttpSession.class)))
+                .willThrow(new EmailDuplicatedException());
+
+        // when
+        final ResultActions resultActions = performPost("/emails/send", new EmailRequest(email));
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").value(message))
+                .andDo(document("auth/emails-send-duplicated",
+                        preprocessResponse(prettyPrint()),
+                        responseFields(
+                                fieldWithPath("message").type(JsonFieldType.STRING).description(message)
                         )));
     }
 }

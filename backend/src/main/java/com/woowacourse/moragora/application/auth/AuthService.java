@@ -17,6 +17,7 @@ import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.dto.session.EmailVerificationInfo;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
+import com.woowacourse.moragora.exception.user.EmailDuplicatedException;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
 import com.woowacourse.moragora.infrastructure.MailSender;
 import com.woowacourse.moragora.support.JwtTokenProvider;
@@ -90,6 +91,8 @@ public class AuthService {
 
     public ExpiredTimeResponse sendAuthCode(final EmailRequest emailRequest, final HttpSession httpSession) {
         final String email = emailRequest.getEmail();
+        checkEmailExist(email);
+
         final String authCode = generateAuthCode();
         mailSender.send(email, authCode);
 
@@ -97,6 +100,12 @@ public class AuthService {
         final EmailVerificationInfo emailVerificationInfo = new EmailVerificationInfo(email, authCode, expiredDateTime);
         httpSession.setAttribute(ATTRIBUTE_NAME_EMAIL_VERIFICATION, emailVerificationInfo);
         return new ExpiredTimeResponse(expiredDateTime);
+    }
+
+    private void checkEmailExist(final String email) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new EmailDuplicatedException();
+        }
     }
 
     private String generateAuthCode() {
