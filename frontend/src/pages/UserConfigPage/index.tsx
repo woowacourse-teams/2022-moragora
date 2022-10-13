@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import * as S from './UserConfigPage.styled';
 import Avatar from 'components/@shared/Avatar';
 import MenuLink from 'components/@shared/MenuLink';
@@ -9,8 +9,11 @@ import { updateNicknameApi } from 'apis/userApis';
 import { AuthProvider } from 'types/userType';
 
 const UserConfigPage = () => {
-  const [nickname, setNickname] = useState(user.user?.nickname ?? 'unknown');
+  const initialRendering = useRef(true);
   const userState = useContext(userContext) as UserContextValues;
+  const [nickname, setNickname] = useState(
+    userState.user?.nickname ?? 'unknown'
+  );
   const nicknameUpdateMutation = useMutation(
     updateNicknameApi(userState.accessToken),
     {
@@ -27,6 +30,14 @@ const UserConfigPage = () => {
       },
     }
   );
+
+  useEffect(() => {
+    // 최초로 렌더링할 때 userContext가 로드되기까지 기다린 후 nickname을 업데이트한다.
+    if (initialRendering.current && userState.user?.nickname) {
+      initialRendering.current = false;
+      setNickname(userState.user?.nickname);
+    }
+  }, [userState]);
 
   const handleNicknameValid: React.FormEventHandler<HTMLFormElement> = async (
     e
