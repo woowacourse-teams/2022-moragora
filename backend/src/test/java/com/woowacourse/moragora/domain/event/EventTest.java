@@ -3,21 +3,14 @@ package com.woowacourse.moragora.domain.event;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
 
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.meeting.Meeting;
-import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
-import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.support.FakeDateTime;
 import com.woowacourse.moragora.support.fixture.EventFixtures;
 import com.woowacourse.moragora.support.fixture.MeetingFixtures;
 import com.woowacourse.moragora.support.timestrategy.DateTime;
-import com.woowacourse.moragora.support.timestrategy.ServerDateTime;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -122,5 +115,37 @@ class EventTest {
 
         // then
         assertThat(isActive).isTrue();
+    }
+
+    @DisplayName("출석부 열림 시간을 검증한다.")
+    @Test
+    void getOpenTime() {
+        // given
+        final Meeting meeting = MeetingFixtures.MORAGORA.create();
+        final Event event = EventFixtures.EVENT1.create(meeting);
+        final LocalDateTime virtualDateTime = LocalDateTime.of(2022, 8, 1, 10, 00);
+        serverTimeManager.refresh(virtualDateTime);
+
+        // when
+        final LocalTime openTime = event.getOpenTime(serverTimeManager);
+
+        // then
+        assertThat(openTime).isEqualTo(LocalTime.of(9, 30));
+    }
+
+    @DisplayName("출석부 닫힘 시간을 조회한다.")
+    @Test
+    void getCloseTime() {
+        // given
+        final Meeting meeting = MeetingFixtures.MORAGORA.create();
+        final Event event = EventFixtures.EVENT1.create(meeting);
+        final LocalDateTime virtualDateTime = LocalDateTime.of(2022, 8, 1, 10, 00);
+        serverTimeManager.refresh(virtualDateTime);
+
+        // when
+        final LocalTime closeTime = event.getCloseTime(serverTimeManager);
+
+        // then
+        assertThat(closeTime).isEqualTo(LocalTime.of(10, 05));
     }
 }

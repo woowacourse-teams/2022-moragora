@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServerTimeManager {
 
-    private static final int ATTENDANCE_END_INTERVAL = 5;
     private static final int ATTENDANCE_START_INTERVAL = 30;
+    private static final int ATTENDANCE_END_INTERVAL = 5;
 
     private final DateTime dateTime;
 

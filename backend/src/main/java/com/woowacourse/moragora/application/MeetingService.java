@@ -95,7 +95,7 @@ public class MeetingService {
     }
 
     public MyMeetingsResponse findAllByUserId(final Long userId) {
-        final List<Meeting> meetings = queryRepository.findMeetingByUserId(userId);
+        final List<Meeting> meetings = meetingRepository.findMeetingParticipantsByUserId(userId);
         final LocalDate today = serverTimeManager.getDate();
         return new MyMeetingsResponse(getMyMeetingsResponse(userId, meetings, today));
     }
