@@ -20,4 +20,6 @@ public interface UserRepository extends Repository<User, Long> {
     List<User> findByNicknameOrEmailLike(@Param("keyword") final String keyword);
 
     void delete(final User user);
+
+    boolean existsById(final Long userId);
 }

@@ -28,3 +28,7 @@ server:
     threads:
       max: 50
     accept-count: 10
+
+jvm:
+  args:
+    scheduler: true
