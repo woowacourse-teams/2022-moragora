@@ -1,6 +1,6 @@
+import React, { createContext, useState } from 'react';
 import { getLoginUserDataApi } from 'apis/userApis';
 import useQuery from 'hooks/useQuery';
-import React, { createContext, useState } from 'react';
 import { User } from 'types/userType';
 
 type UserContextData = Omit<User, 'password'>;
@@ -22,21 +22,20 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
   const [user, setUser] = useState<UserContextValues['user']>(null);
-  const accessToken = user?.accessToken || localStorage.getItem('accessToken');
+  const [accessToken, setAccessToken] = useState<
+    UserContextData['accessToken']
+  >(localStorage.getItem('accessToken'));
 
   const login: UserContextValues['login'] = (user, accessToken) => {
     localStorage.setItem('accessToken', accessToken);
     setUser({ ...user, accessToken });
+    setAccessToken(localStorage.getItem('accessToken'));
   };
 
   const logout = () => {
     localStorage.removeItem('accessToken');
-
-    if (!user) {
-      return;
-    }
-
     setUser(null);
+    setAccessToken(null);
   };
 
   const getUserDataQuery = useQuery(

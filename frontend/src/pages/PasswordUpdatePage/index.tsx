@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
 import * as S from './PasswordUpdatePage.styled';
 import useForm from 'hooks/useForm';
 import Input from 'components/@shared/Input';
@@ -7,19 +6,15 @@ import InputHint from 'components/@shared/InputHint';
 import Button from 'components/@shared/Button';
 import useMutation from 'hooks/useMutation';
 import { updatePasswordApi } from 'apis/userApis';
-import { userContext } from 'contexts/userContext';
+import { userContext, UserContextValues } from 'contexts/userContext';
 import { UserUpdatePasswordRequestBody } from 'types/userType';
 
 const PasswordUpdatePage = () => {
-  const user = useContext(userContext);
-
-  if (!user?.accessToken) {
-    return <Navigate to="/" />;
-  }
+  const userState = useContext(userContext) as UserContextValues;
 
   const { errors, onSubmit, register, isSubmitting } = useForm();
   const passwordUpdateMutation = useMutation(
-    updatePasswordApi(user.accessToken),
+    updatePasswordApi(userState.accessToken),
     {
       onSuccess: () => {
         alert('비밀번호가 변경되었습니다.');
