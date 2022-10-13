@@ -67,12 +67,6 @@ public class Meeting {
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    public Optional<Participant> findParticipant(final Long userId) {
-        return participants.stream()
-                .filter(it -> it.isSameParticipant(userId))
-                .findAny();
-    }
-
     public void allocateParticipantsTardyCount(final List<ParticipantAndCount> participantAndCounts) {
         participantAndCounts.forEach(it -> it.getParticipant().allocateTardyCount(it.getTardyCount()));
     }
@@ -81,7 +75,13 @@ public class Meeting {
         return calculateTardy() >= participants.size();
     }
 
-    public long calculateTardy() {
+    public Optional<Participant> findParticipant(final Long userId) {
+        return participants.stream()
+                .filter(it -> it.isSameParticipant(userId))
+                .findAny();
+    }
+
+    public Integer calculateTardy() {
         this.tardyCount = participants.stream()
                 .mapToInt(Participant::getTardyCount)
                 .sum();
