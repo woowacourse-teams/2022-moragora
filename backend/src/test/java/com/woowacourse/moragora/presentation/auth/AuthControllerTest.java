@@ -3,6 +3,7 @@ package com.woowacourse.moragora.presentation.auth;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -14,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.woowacourse.moragora.dto.request.auth.EmailRequest;
+import com.woowacourse.moragora.dto.request.auth.EmailVerifyRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.response.auth.ExpiredTimeResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
@@ -164,5 +166,22 @@ class AuthControllerTest extends ControllerTest {
                         responseFields(
                                 fieldWithPath("message").type(JsonFieldType.STRING).description(message)
                         )));
+    }
+
+    @DisplayName("인증번호를 검증한다.")
+    @Test
+    void verifyEmail() throws Exception {
+        // given
+        final String email = "ghd700@daum.net";
+        final String verifyCode = "000000";
+
+        doNothing().when(authService)
+                .verifyAuthCode(any(EmailVerifyRequest.class), any(HttpSession.class));
+
+        // when
+        final ResultActions resultActions = performPost("/emails/verify", new EmailVerifyRequest(email, verifyCode));
+
+        // then
+        resultActions.andExpect(status().isNoContent());
     }
 }

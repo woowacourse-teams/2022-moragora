@@ -1,10 +1,11 @@
 package com.woowacourse.moragora.domain.auth;
 
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.concurrent.ThreadLocalRandom;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 
 @NoArgsConstructor
@@ -25,19 +26,10 @@ public class AuthCode {
 
     private long expiredTime;
 
-    public AuthCode(final String email, final LocalDateTime dateTime) {
+    public AuthCode(final String email, final String code, final LocalDateTime dateTime) {
         this.email = email;
-        this.code = generateAuthCode();
-        this.expiredTime = Timestamp.valueOf(dateTime.plusMinutes(AUTH_CODE_EXPIRE_MINUTE)).getTime();
-    }
-
-    private String generateAuthCode() {
-        final ThreadLocalRandom random = ThreadLocalRandom.current();
-        final StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < AUTH_CODE_LENGTH; i++) {
-            stringBuilder.append(random.nextInt(10));
-        }
-        return stringBuilder.toString();
+        this.code = code;
+        this.expiredTime = toTimeStamp(dateTime.plusMinutes(AUTH_CODE_EXPIRE_MINUTE));
     }
 
     public SimpleMailMessage toMailMessage() {
@@ -46,5 +38,21 @@ public class AuthCode {
         message.setSubject(AUTH_CODE_SUBJECT);
         message.setText(AUTH_CODE_PREFIX + code);
         return message;
+    }
+
+    public void verify(final String email, final String code, final LocalDateTime dateTime) {
+        if (!this.email.equals(email)) {
+            throw new ClientRuntimeException("인증을 요청하지 않은 이메일입니다.", HttpStatus.BAD_REQUEST);
+        }
+        if (!this.code.equals(code)) {
+            throw new ClientRuntimeException("인증코드가 올바르지 않습니다.", HttpStatus.BAD_REQUEST);
+        }
+        if (toTimeStamp(dateTime) > this.expiredTime) {
+            throw new ClientRuntimeException("인증코드가 만료되었습니다.", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private long toTimeStamp(final LocalDateTime dateTime) {
+        return Timestamp.valueOf(dateTime).getTime();
     }
 }

@@ -2,6 +2,7 @@ package com.woowacourse.moragora.presentation.auth;
 
 import com.woowacourse.moragora.application.auth.AuthService;
 import com.woowacourse.moragora.dto.request.auth.EmailRequest;
+import com.woowacourse.moragora.dto.request.auth.EmailVerifyRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.response.auth.ExpiredTimeResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
@@ -39,5 +40,12 @@ public class AuthController {
                                                          final HttpSession session) {
         final ExpiredTimeResponse response = authService.sendAuthCode(emailRequest, session);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/emails/verify")
+    public ResponseEntity<Void> sendEmail(@RequestBody @Valid final EmailVerifyRequest emailVerifyRequest,
+                                          final HttpSession session) {
+        authService.verifyAuthCode(emailVerifyRequest, session);
+        return ResponseEntity.noContent().build();
     }
 }
