@@ -2,9 +2,11 @@ package com.woowacourse.moragora.acceptance;
 
 import com.woowacourse.moragora.application.AttendanceScheduler;
 import com.woowacourse.moragora.application.ServerTimeManager;
+import com.woowacourse.moragora.domain.auth.RandomCodeGenerator;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
+import com.woowacourse.moragora.dto.request.auth.EmailRequest;
 import com.woowacourse.moragora.dto.request.event.EventRequest;
 import com.woowacourse.moragora.dto.request.event.EventsRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -41,6 +44,9 @@ public class AcceptanceTest {
 
     @MockBean
     protected JavaMailSenderImpl javaMailSender;
+
+    @MockBean
+    protected RandomCodeGenerator randomCodeGenerator;
 
     @Autowired
     protected AttendanceScheduler attendanceScheduler;
@@ -66,6 +72,16 @@ public class AcceptanceTest {
     protected ValidatableResponse post(final String uri, final Object requestBody, final String token) {
         return RestAssured.given().log().all()
                 .auth().oauth2(token)
+                .body(requestBody)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when().post(uri)
+                .then().log().all();
+    }
+
+    protected ValidatableResponse postWithSession(final String uri, final Object requestBody, final String sessionId) {
+        return RestAssured.given().log().all()
+                .sessionId(sessionId)
                 .body(requestBody)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -186,5 +202,14 @@ public class AcceptanceTest {
 
         EventsRequest eventsRequest = new EventsRequest(eventRequests);
         post("/meetings/" + meetingId + "/events", eventsRequest, token);
+    }
+
+    protected String saveVerificationAndGetSessionId(final String email, final String code) {
+        final EmailRequest request = new EmailRequest(email);
+        BDDMockito.given(randomCodeGenerator.generateAuthCode())
+                .willReturn(code);
+
+        final ValidatableResponse validatableResponse = post("/emails/send", request);
+        return validatableResponse.extract().sessionId();
     }
 }

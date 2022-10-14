@@ -12,6 +12,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.application.UserService;
@@ -19,12 +20,14 @@ import com.woowacourse.moragora.domain.auth.AuthCode;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.dto.request.auth.EmailRequest;
+import com.woowacourse.moragora.dto.request.auth.EmailVerifyRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
 import com.woowacourse.moragora.dto.response.auth.ExpiredTimeResponse;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
+import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.exception.user.EmailDuplicatedException;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
@@ -209,5 +212,110 @@ class AuthServiceTest {
         // when, then
         assertThatThrownBy(() -> authService.sendAuthCode(request, httpSession))
                 .isInstanceOf(EmailDuplicatedException.class);
+    }
+
+    @DisplayName("인증 번호의 유효성을 검증하고 인증된 이메일을 세션에 저장한다.")
+    @Test
+    void verifyAuthCode() {
+        // given
+        final String email = "ghd700@daum.net";
+        final String code = "000000";
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 10, 1, 1, 1);
+        final AuthCode authCode = new AuthCode(email, code, dateTime);
+
+        final HttpSession httpSession = mock(HttpSession.class);
+        final EmailVerifyRequest request = new EmailVerifyRequest(email, code);
+
+        serverTimeManager.refresh(dateTime);
+        when(httpSession.getAttribute("emailVerification"))
+                .thenReturn(authCode);
+
+        // when
+        authService.verifyAuthCode(request, httpSession);
+
+        // then
+        verify(httpSession, times(1)).setAttribute("verifiedEmail", email);
+    }
+
+    @DisplayName("세션에 인증 정보가 없는 상태로 인증번호의 유효성을 검증하면 예외가 발생한다.")
+    @Test
+    void verifyAuthCode_throwsException_ifNothingInSession() {
+        // given
+        final String email = "ghd700@daum.net";
+        final HttpSession httpSession = mock(HttpSession.class);
+        final EmailVerifyRequest request = new EmailVerifyRequest(email, "000000");
+
+        when(httpSession.getAttribute("emailVerification"))
+                .thenReturn(null);
+
+        // when, then
+        assertThatThrownBy(() -> authService.verifyAuthCode(request, httpSession))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("인증 정보가 존재하지 않습니다.");
+    }
+
+    @DisplayName("잘못된 이메일로 인증번호의 유효성을 검증하면 예외가 발생한다.")
+    @Test
+    void verifyAuthCode_throwsException_ifWrongEmail() {
+        // given
+        final String email = "ghd700@daum.net";
+        final String code = "000000";
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 10, 1, 1, 1);
+        final AuthCode authCode = new AuthCode(email, code, dateTime);
+
+        final HttpSession httpSession = mock(HttpSession.class);
+        final EmailVerifyRequest request = new EmailVerifyRequest("wrong@daum.net", code);
+
+        serverTimeManager.refresh(dateTime);
+        when(httpSession.getAttribute("emailVerification"))
+                .thenReturn(authCode);
+
+        // when, then
+        assertThatThrownBy(() -> authService.verifyAuthCode(request, httpSession))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("인증을 요청하지 않은 이메일입니다.");
+    }
+
+    @DisplayName("잘못된 인증번호로 인증번호의 유효성을 검증하면 예외가 발생한다.")
+    @Test
+    void verifyAuthCode_throwsException_ifWrongCode() {
+        // given
+        final String email = "ghd700@daum.net";
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 10, 1, 1, 1);
+        final AuthCode authCode = new AuthCode(email, "000000", dateTime);
+
+        final HttpSession httpSession = mock(HttpSession.class);
+        final EmailVerifyRequest request = new EmailVerifyRequest(email, "wrong");
+
+        serverTimeManager.refresh(dateTime);
+        when(httpSession.getAttribute("emailVerification"))
+                .thenReturn(authCode);
+
+        // when, then
+        assertThatThrownBy(() -> authService.verifyAuthCode(request, httpSession))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("인증코드가 올바르지 않습니다.");
+    }
+
+    @DisplayName("만료된 인증번호로 인증번호의 유효성을 검증하면 예외가 발생한다.")
+    @Test
+    void verifyAuthCode_throwsException_ifExpiredCode() {
+        // given
+        final String email = "ghd700@daum.net";
+        final String code = "000000";
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 10, 1, 1, 1);
+        final AuthCode authCode = new AuthCode(email, code, dateTime);
+
+        final HttpSession httpSession = mock(HttpSession.class);
+        final EmailVerifyRequest request = new EmailVerifyRequest(email, code);
+
+        serverTimeManager.refresh(dateTime.plusMinutes(6));
+        when(httpSession.getAttribute("emailVerification"))
+                .thenReturn(authCode);
+
+        // when, then
+        assertThatThrownBy(() -> authService.verifyAuthCode(request, httpSession))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("인증코드가 만료되었습니다.");
     }
 }
