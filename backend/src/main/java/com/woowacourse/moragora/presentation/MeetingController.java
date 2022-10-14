@@ -2,6 +2,10 @@ package com.woowacourse.moragora.presentation;
 
 import com.woowacourse.moragora.application.MeetingService;
 import com.woowacourse.moragora.application.auth.MasterAuthorization;
+import com.woowacourse.moragora.dto.request.meeting.BeaconsRequest;
+import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceRequest;
+import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceResponse;
+import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceSuccessResponse;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
@@ -11,6 +15,7 @@ import com.woowacourse.moragora.presentation.auth.Authentication;
 import com.woowacourse.moragora.presentation.auth.AuthenticationPrincipal;
 import java.net.URI;
 import javax.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -79,8 +85,35 @@ public class MeetingController {
     @MasterAuthorization
     @DeleteMapping("/{meetingId}")
     public ResponseEntity<Void> remove(@PathVariable final Long meetingId,
-                                       @AuthenticationPrincipal final Long loginId) {
+                                                     @AuthenticationPrincipal final Long loginId) {
         meetingService.deleteMeeting(meetingId);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 위치 기반 :: 비콘 생성
+     */
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("/{meetingId}/beacons")
+    public ResponseEntity<Void> addBeacons(@PathVariable final Long meetingId,
+                                           @RequestBody BeaconsRequest body) {
+        meetingService.saveBeacons(meetingId, body.getGeoLocationMeetingsRequest());
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * 위치 기반 :: 참가자 생성
+     */
+    @PostMapping("/{meetingId}/users/{userId}/attendances/today/geolocation")
+    public ResponseEntity<GeoLocationAttendanceResponse> attendWithBeaconBase(@PathVariable final Long meetingId,
+                                                     @PathVariable final Long userId,
+                                                     @RequestBody final GeoLocationAttendanceRequest body) {
+        final GeoLocationAttendanceResponse responseBody =
+                meetingService.attendWithGeoLocationBase(meetingId, userId, body);
+
+        if (responseBody instanceof GeoLocationAttendanceSuccessResponse) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.badRequest().body(responseBody);
     }
 }

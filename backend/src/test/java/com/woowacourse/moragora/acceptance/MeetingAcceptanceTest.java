@@ -5,9 +5,11 @@ import static com.woowacourse.moragora.support.fixture.MeetingFixtures.F12;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.MASTER;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.PHILLZ;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.createUsers;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.getEmailsIncludingMaster;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.getNicknamesIncludingMaster;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -15,8 +17,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.domain.event.Event;
+import com.woowacourse.moragora.domain.geolocation.Beacon;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
+import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
+import com.woowacourse.moragora.dto.request.meeting.BeaconResponse;
+import com.woowacourse.moragora.dto.request.meeting.BeaconsRequest;
+import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceRequest;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
@@ -216,5 +223,80 @@ class MeetingAcceptanceTest extends AcceptanceTest {
 
         // then
         response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("위치 기반 미팅을 저장한다 (정상)")
+    @Test
+    void meeting_save_with_geolocation_base() {
+        // given
+        final User master = MASTER.create();
+        final String masterToken = signUpAndGetToken(master);
+        final User user = PHILLZ.create();
+        final Long userId = signUp(user);
+        final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
+
+        final BeaconRequest beaconRequest = new BeaconRequest("서울시 송파구", 37.33, 126.58, 10);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+
+        // when
+        final String uri = String.format("/meetings/%d/beacons", meetingId);
+        final ValidatableResponse response = post(uri, beaconsRequest, masterToken);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("위치 정보 기반 출석 : 성공")
+    @Test
+    void attend_with_geolocation_success() {
+        // given
+        final User master = MASTER.create();
+        final String masterToken = signUpAndGetToken(master);
+        final User user = PHILLZ.create();
+        final Long userId = signUp(user);
+        final String token = login(user);
+        final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
+
+        final BeaconRequest beaconRequest = new BeaconRequest("서울시 송파구", 37.000, 126.000, 10);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+        final String beaconUri = String.format("/meetings/%d/beacons", meetingId);
+        post(beaconUri, beaconsRequest, masterToken);
+
+        // when
+        final GeoLocationAttendanceRequest geoLocationAttendanceRequest = new GeoLocationAttendanceRequest(37.000, 126.000);
+        final String attendanceUri = String.format("/meetings/%d/users/%d/attendances/today/geolocation", meetingId, userId);
+        final ValidatableResponse response = post(attendanceUri, geoLocationAttendanceRequest, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("위치 정보 기반 출석 : 실패")
+    @Test
+    void attend_with_geolocation_fail() {
+        // given
+        final User master = MASTER.create();
+        final String masterToken = signUpAndGetToken(master);
+        final User user = PHILLZ.create();
+        final Long userId = signUp(user);
+        final String token = login(user);
+        final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
+
+        final BeaconRequest beaconRequest1 = new BeaconRequest("지역 A", 35.000, 125.000, 10);
+        final BeaconRequest beaconRequest2 = new BeaconRequest("지역 B", 36.000, 126.000, 10);
+        final BeaconRequest beaconRequest3 = new BeaconRequest("지역 C", 37.000, 127.000, 10);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest1, beaconRequest2, beaconRequest3));
+        final String beaconUri = String.format("/meetings/%d/beacons", meetingId);
+        post(beaconUri, beaconsRequest, masterToken);
+
+        // when
+        final GeoLocationAttendanceRequest geoLocationAttendanceRequest =
+                new GeoLocationAttendanceRequest(34.000, 124.000);
+        final String attendanceUri = String.format("/meetings/%d/users/%d/attendances/today/geolocation", meetingId, userId);
+        final ValidatableResponse response = post(attendanceUri, geoLocationAttendanceRequest, token);
+
+        // then
+        response.statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("beacons.address", contains("지역 A", "지역 B", "지역 C"));
     }
 }

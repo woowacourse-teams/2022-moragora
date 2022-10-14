@@ -6,6 +6,8 @@ import com.woowacourse.moragora.domain.attendance.MeetingAttendances;
 import com.woowacourse.moragora.domain.attendance.ParticipantAttendances;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.event.EventRepository;
+import com.woowacourse.moragora.domain.geolocation.Beacon;
+import com.woowacourse.moragora.domain.geolocation.BeaconRepository;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.meeting.MeetingRepository;
 import com.woowacourse.moragora.domain.participant.Participant;
@@ -14,6 +16,12 @@ import com.woowacourse.moragora.domain.participant.ParticipantRepository;
 import com.woowacourse.moragora.domain.query.QueryRepository;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.domain.user.UserRepository;
+import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
+import com.woowacourse.moragora.dto.request.meeting.BeaconResponse;
+import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceFailResponse;
+import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceRequest;
+import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceResponse;
+import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceSuccessResponse;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
@@ -22,12 +30,15 @@ import com.woowacourse.moragora.dto.response.meeting.MeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingsResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.beacon.BeaconNumberExceedException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -46,6 +57,7 @@ public class MeetingService {
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
+    private final BeaconRepository beaconRepository;
     private final QueryRepository queryRepository;
     private final ServerTimeManager serverTimeManager;
 
@@ -54,13 +66,14 @@ public class MeetingService {
                           final ParticipantRepository participantRepository,
                           final AttendanceRepository attendanceRepository,
                           final UserRepository userRepository,
-                          final QueryRepository queryRepository,
+                          final BeaconRepository beaconRepository, final QueryRepository queryRepository,
                           final ServerTimeManager serverTimeManager) {
         this.meetingRepository = meetingRepository;
         this.eventRepository = eventRepository;
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
+        this.beaconRepository = beaconRepository;
         this.queryRepository = queryRepository;
         this.serverTimeManager = serverTimeManager;
     }
@@ -156,8 +169,68 @@ public class MeetingService {
         meetingRepository.deleteById(meeting.getId());
     }
 
+    @Transactional
+    public void saveBeacons(final Long meetingId, final List<BeaconRequest> beaconsRequest) {
+        final Meeting meeting = meetingRepository.findById(meetingId).orElseThrow(MeetingNotFoundException::new);
+
+        if (beaconsRequest.size() > 3) {
+            throw new BeaconNumberExceedException();
+        }
+
+        final List<Beacon> beacons = beaconsRequest.stream()
+                .map(BeaconRequest::toEntity)
+                .collect(Collectors.toList());
+
+        for (final Beacon beacon : beacons) {
+            beacon.mapMeeting(meeting);
+            beaconRepository.save(beacon);
+        }
+    }
+
+    @Transactional
+    public GeoLocationAttendanceResponse attendWithGeoLocationBase(final Long meetingId, final Long userId, final GeoLocationAttendanceRequest body) {
+        meetingRepository.findById(meetingId).orElseThrow(MeetingNotFoundException::new);
+        userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+
+        final Double latitude = body.getLatitude();
+        final Double longitude = body.getLongitude();
+        final Beacon attendCoordinate = new Beacon(latitude, longitude);
+
+        final List<Beacon> beacons = beaconRepository.findAllByMeetingId(meetingId);
+
+        return geoLocationAttendanceResponses(attendCoordinate, beacons);
+    }
+
+    // TODO 플래그 변수 지울 것: 안티패턴
+    private GeoLocationAttendanceResponse geoLocationAttendanceResponses(final Beacon attendCoordinate, final List<Beacon> beacons) {
+        boolean isAttendanceSuccess = false;
+        List<BeaconResponse> beaconsResponse = new ArrayList<>();
+
+        for (final Beacon beacon : beacons) {
+            final boolean isInRadius = beacon.isInRadius(attendCoordinate);
+
+            if (isInRadius) {
+                isAttendanceSuccess = true;
+            }
+
+            final double distance = beacon.calculateDistance(attendCoordinate);
+            final BeaconResponse beaconResponse = new BeaconResponse(beacon, distance);
+            beaconsResponse.add(beaconResponse);
+        }
+
+        if (isAttendanceSuccess) {
+            return new GeoLocationAttendanceSuccessResponse();
+        }
+
+        beaconsResponse = beaconsResponse.stream()
+                .sorted(Comparator.comparing(beaconResponse -> beaconResponse.getDistance()))
+                .collect(Collectors.toList());
+
+        return new GeoLocationAttendanceFailResponse(beaconsResponse);
+    }
+
     /**
-     * 참가자 userIds 내부에 loginId가 있는지 검증해야 userIds.size()가 0인지 검증이 정상적으로 이루어집니다.
+     * 참가자 userIds 내부에 loginId가 있는지 검증해야 userIds.size()가 0인지 검증이 정상적으로 이루어집니다
      */
     private void validateUserIds(final List<Long> userIds, final Long loginId) {
         if (Set.copyOf(userIds).size() != userIds.size()) {
@@ -236,7 +309,6 @@ public class MeetingService {
             throw new ClientRuntimeException("스스로에게 마스터 권한을 넘길 수 없습니다.", HttpStatus.BAD_REQUEST);
         }
     }
-
     private void validateNotMaster(final Participant participant) {
         if (Boolean.TRUE.equals(participant.getIsMaster())) {
             throw new ClientRuntimeException("마스터는 모임을 나갈 수 없습니다.", HttpStatus.FORBIDDEN);
@@ -248,6 +320,7 @@ public class MeetingService {
             throw new MeetingNotFoundException();
         }
     }
+
     private void validateUserExists(final Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException();
