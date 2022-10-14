@@ -67,8 +67,9 @@ public class Meeting {
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    public void allocateParticipantsTardyCount(final List<ParticipantAndCount> participantAndCounts) {
+    public void allocateTardyCount(final List<ParticipantAndCount> participantAndCounts) {
         participantAndCounts.forEach(it -> it.getParticipant().allocateTardyCount(it.getTardyCount()));
+        calculateTardy();
     }
 
     public Boolean isTardyStackFull() {

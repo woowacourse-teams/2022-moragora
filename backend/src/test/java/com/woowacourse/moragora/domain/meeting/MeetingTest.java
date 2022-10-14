@@ -97,7 +97,7 @@ class MeetingTest {
         };
 
         // when
-        meeting.allocateParticipantsTardyCount(List.of(participantAndCount));
+        meeting.allocateTardyCount(List.of(participantAndCount));
 
         // then
         assertThat(participant.getTardyCount()).isEqualTo(5);

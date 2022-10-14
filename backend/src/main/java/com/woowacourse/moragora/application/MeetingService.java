@@ -85,7 +85,7 @@ public class MeetingService {
 
         final List<ParticipantAndCount> participantAndCounts = queryRepository
                 .countParticipantsTardy(meeting.getParticipants());
-        meeting.allocateParticipantsTardyCount(participantAndCounts);
+        meeting.allocateTardyCount(participantAndCounts);
 
         final long attendedEventCount = eventRepository.countByMeetingIdAndDateLessThanEqual(meetingId, today);
         final Participant loginParticipant = meeting.findParticipant(loginId)
@@ -157,9 +157,7 @@ public class MeetingService {
         for (final Meeting meeting : meetings) {
             final List<ParticipantAndCount> participantAndCounts =
                     queryRepository.countParticipantsTardy(meeting.getParticipants());
-            meeting.allocateParticipantsTardyCount(participantAndCounts);
-            meeting.isTardyStackFull();
-            meeting.isMaster(userId);
+            meeting.allocateTardyCount(participantAndCounts);
             final Event upcomingEvent = eventRepository
                     .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
                     .orElse(null);

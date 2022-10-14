@@ -36,50 +36,6 @@ public class MyMeetingResponse {
     }
 
     public static MyMeetingResponse of(final Meeting meeting,
-                                       final Integer tardyCount,
-                                       final boolean isLoginUserMaster,
-                                       final boolean isCoffeeTime,
-                                       final boolean isActive,
-                                       final EventResponse upcomingEvent) {
-
-        return new MyMeetingResponse(
-                meeting.getId(),
-                meeting.getName(),
-                tardyCount,
-                isLoginUserMaster,
-                isCoffeeTime,
-                isActive,
-                upcomingEvent
-        );
-    }
-
-/*
-    public static MyMeetingResponse of(final Meeting meeting,
-                                       final Long userId
-                                       final boolean isActive,
-                                       final EventResponse upcomingEvent) {
-        return new MyMeetingResponse(
-                meeting.getId(),
-                meeting.getName(),
-                meeting.getTardyCount(),
-                meeting.isMaster(userId),
-                isActive,
-                upcomingEvent
-        );
-    }
-*/
-
-    /**
-     final Long id,
-     final String name,
-     final Integer tardyCount,
-     final Boolean isLoginUserMaster,
-     final Boolean isCoffeeTime,
-     final Boolean isActive,
-     final EventResponse upcomingEvent
-     */
-
-    public static MyMeetingResponse of(final Meeting meeting,
                                        final Long userId,
                                        final boolean isActive,
                                        final EventResponse upcomingEvent) {
