@@ -105,7 +105,6 @@ public class AuthService {
 
         final AuthCode authCode = getAuthCodeFromSession(httpSession);
         authCode.verify(email, verifyCode, serverTimeManager.getDateAndTime());
-        System.out.println(httpSession.getId());
 
         httpSession.setAttribute("verifiedEmail", email);
     }

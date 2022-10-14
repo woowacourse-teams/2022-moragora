@@ -1,5 +1,7 @@
 package com.woowacourse.moragora.acceptance;
 
+import static org.mockito.BDDMockito.given;
+
 import com.woowacourse.moragora.application.AttendanceScheduler;
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.auth.RandomCodeGenerator;
@@ -7,6 +9,7 @@ import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.dto.request.auth.EmailRequest;
+import com.woowacourse.moragora.dto.request.auth.EmailVerifyRequest;
 import com.woowacourse.moragora.dto.request.event.EventRequest;
 import com.woowacourse.moragora.dto.request.event.EventsRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
@@ -19,7 +22,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
@@ -135,8 +138,9 @@ public class AcceptanceTest {
 
     protected Long signUp(final User user) {
         final String password = "1234asdf!";
+        final String sessionId = verifyEmailAndGetSessionId(user.getEmail());
         final UserRequest userRequest = new UserRequest(user.getEmail(), password, user.getNickname());
-        final ValidatableResponse response = post("/users", userRequest);
+        final ValidatableResponse response = postWithSession("/users", userRequest, sessionId);
 
         final String value = response
                 .extract()
@@ -159,24 +163,9 @@ public class AcceptanceTest {
     }
 
     protected List<Long> saveUsers(final List<User> users) {
-        final List<UserRequest> userRequests = users.stream()
-                .map(user -> new UserRequest(user.getEmail(), "1234asdf!", user.getNickname()))
+        return users.stream()
+                .map(this::signUp)
                 .collect(Collectors.toList());
-
-        final List<Long> userIds = new ArrayList<>();
-        for (UserRequest userRequest : userRequests) {
-            final ValidatableResponse response = post("/users", userRequest);
-
-            final String value = response
-                    .extract()
-                    .header("Location")
-                    .split("/users/")[1];
-
-            final Long id = Long.valueOf(value);
-            userIds.add(id);
-        }
-
-        return userIds;
     }
 
     protected int saveMeeting(final String token, final List<Long> userIds, final Meeting meeting) {
@@ -211,5 +200,18 @@ public class AcceptanceTest {
 
         final ValidatableResponse validatableResponse = post("/emails/send", request);
         return validatableResponse.extract().sessionId();
+    }
+
+    protected String verifyEmailAndGetSessionId(final String email) {
+        final String code = "000000";
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 10, 10, 10, 10);
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime);
+
+        final String sessionId = saveVerificationAndGetSessionId(email, code);
+        final EmailVerifyRequest request = new EmailVerifyRequest(email, code);
+        postWithSession("/emails/verify", request, sessionId);
+
+        return sessionId;
     }
 }

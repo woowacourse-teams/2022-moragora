@@ -35,7 +35,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<Void> signUp(@RequestBody @Valid final UserRequest userRequest, final HttpSession session) {
-        final String validatedEmail = (String) session.getAttribute("validatedEmail");
+        final String validatedEmail = (String) session.getAttribute("verifiedEmail");
         final Long id = userService.create(userRequest, validatedEmail);
         return ResponseEntity.created(URI.create("/users/" + id)).build();
     }

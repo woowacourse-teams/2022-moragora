@@ -28,10 +28,12 @@ class UserAcceptanceTest extends AcceptanceTest {
     @Test
     void signUp() {
         // given
-        final UserRequest userRequest = new UserRequest("kun@naver.com", "1234smart!", "kun");
+        final String email = "kun@naver.com";
+        final String sessionId = verifyEmailAndGetSessionId(email);
+        final UserRequest userRequest = new UserRequest(email, "1234smart!", "kun");
 
         // when
-        final ValidatableResponse response = post("/users", userRequest);
+        final ValidatableResponse response = postWithSession("/users", userRequest, sessionId);
 
         // then
         response.statusCode(HttpStatus.CREATED.value())
@@ -56,12 +58,11 @@ class UserAcceptanceTest extends AcceptanceTest {
     @Test
     void checkEmail_IfNotExist() {
         // given
-        final String email = "kun@naver.com";
-        final UserRequest userRequest = new UserRequest(email, "1234smart!", "kun");
-        post("/users", userRequest);
+        final User existingUser = KUN.create();
+        signUp(existingUser);
 
         // when
-        final ValidatableResponse response = get("/users/check-email?email=" + email);
+        final ValidatableResponse response = get("/users/check-email?email=" + existingUser.getEmail());
 
         // then
         response.statusCode(HttpStatus.OK.value())

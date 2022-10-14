@@ -29,7 +29,8 @@ class AuthAcceptanceTest extends AcceptanceTest {
         final String email = "kun@naver.com";
         final String password = "1234smart!";
         final UserRequest userRequest = new UserRequest(email, password, "kun");
-        post("/users", userRequest);
+        final String sessionId = verifyEmailAndGetSessionId(email);
+        postWithSession("/users", userRequest, sessionId);
 
         final LoginRequest loginRequest = new LoginRequest(email, password);
 
