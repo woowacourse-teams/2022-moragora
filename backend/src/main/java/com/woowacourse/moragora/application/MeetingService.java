@@ -181,13 +181,7 @@ public class MeetingService {
             final LocalTime attendanceClosedTime = upcomingEvent.getCloseTime(serverTimeManager);
             eventResponse = EventResponse.of(upcomingEvent, attendanceOpenTime, attendanceClosedTime);
         }
-        return new MyMeetingResponse(
-                meeting.getId(), meeting.getName(),
-                meeting.getTardyCount(), meeting.isMaster(userId),
-                meeting.isTardyStackFull(),
-                isActive,
-                eventResponse
-        );
+        return MyMeetingResponse.of(meeting, userId, isActive, eventResponse);
     }
 
     /**
