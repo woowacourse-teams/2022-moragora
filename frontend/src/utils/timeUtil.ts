@@ -75,3 +75,17 @@ export const getAllSameDays = (day: number, begin: Date, end: Date) => {
 
   return dates;
 };
+
+export const getTimestampDiff = (
+  aheadTimestamp: number,
+  behindTimestamp: number
+) => {
+  if (aheadTimestamp <= behindTimestamp) {
+    return '00:00';
+  }
+
+  const minute = Math.floor((aheadTimestamp - behindTimestamp) / 1000 / 60);
+  const second = Math.floor(((aheadTimestamp - behindTimestamp) / 1000) % 60);
+
+  return `${('0' + minute).slice(-2)}:${('0' + second).slice(-2)}`;
+};

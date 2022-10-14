@@ -3,6 +3,7 @@ import _Button from 'components/@shared/Button';
 import Input from 'components/@shared/Input';
 
 export const Layout = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 18rem;
@@ -44,6 +45,12 @@ export const NumberInput = styled(Input)`
   :focus {
     outline: none;
   }
+
+  ::-webkit-outer-spin-button,
+  ::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 `;
 
 export const ExpiredTimeParagraph = styled.p`
@@ -54,4 +61,10 @@ export const Button = styled(_Button)`
   padding: 0;
   height: 2rem;
   font-size: 0.75rem;
+`;
+
+export const CloseButton = styled.button`
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
 `;
