@@ -16,7 +16,6 @@ import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
-import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
 import com.woowacourse.moragora.exception.InvalidTokenException;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
@@ -157,8 +156,8 @@ class AuthServiceTest {
         final UserResponse expectedResponse = new UserResponse(null, "sunny@gmail.com", "썬", "google");
 
         // when
-        final LoginResponse loginResponse = authService.loginWithGoogle("codecode");
-        final String payload = jwtTokenProvider.getPayload(loginResponse.getAccessToken());
+        final TokenResponse tokenResponse = authService.loginWithGoogle("codecode");
+        final String payload = jwtTokenProvider.getPayload(tokenResponse.getAccessToken());
         final UserResponse response = userService.findById(Long.parseLong(payload));
 
         // then

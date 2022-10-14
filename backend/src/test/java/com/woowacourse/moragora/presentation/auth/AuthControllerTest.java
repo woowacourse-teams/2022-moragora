@@ -16,7 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
-import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.presentation.ControllerTest;
 import javax.servlet.http.Cookie;
@@ -100,12 +99,13 @@ class AuthControllerTest extends ControllerTest {
     @Test
     void loginWithGoogle() throws Exception {
         // given
-        final String email = "kun@email.com";
-        final String password = "1234asdfg!";
-        final String accessToken = "fake_token";
+        final String accessToken = "fake_access_token";
+        final String refreshToken = "fake_refresh_token";
 
         given(authService.loginWithGoogle(anyString()))
-                .willReturn(new LoginResponse(accessToken));
+                .willReturn(new TokenResponse(accessToken, refreshToken));
+        given(refreshTokenCookieProvider.create(refreshToken))
+                .willReturn(ResponseCookie.from("refreshToken", refreshToken).build());
 
         // when
         final ResultActions resultActions = performPost("/login/oauth2/google?code=any");
@@ -113,6 +113,7 @@ class AuthControllerTest extends ControllerTest {
         // then
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("accessToken").value(accessToken))
+                .andExpect(cookie().value("refreshToken", refreshToken))
                 .andDo(document("auth/login-google",
                         preprocessResponse(prettyPrint()),
                         responseFields(

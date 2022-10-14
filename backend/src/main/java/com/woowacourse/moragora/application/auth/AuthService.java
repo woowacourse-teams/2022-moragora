@@ -11,7 +11,6 @@ import com.woowacourse.moragora.domain.user.UserRepository;
 import com.woowacourse.moragora.domain.user.password.RawPassword;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
-import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.exception.InvalidTokenException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
@@ -51,22 +50,17 @@ public class AuthService {
         final RawPassword rawPassword = new RawPassword(loginRequest.getPassword());
         user.checkPassword(rawPassword);
 
-        final Long userId = user.getId();
-        final String accessToken = jwtTokenProvider.createToken(String.valueOf(userId));
-        final String refreshToken = refreshTokenProvider.create(userId, serverTimeManager.getDateAndTime());
-
-        return new TokenResponse(accessToken, refreshToken);
+        return createTokenResponse(user.getId());
     }
 
     @Transactional
-    public LoginResponse loginWithGoogle(final String code) {
+    public TokenResponse loginWithGoogle(final String code) {
         final String googleIdToken = googleClient.getIdToken(code);
         final GoogleProfileResponse profileResponse = googleClient.getProfileResponse(googleIdToken);
         final User user = userRepository.findByEmailAndProvider(profileResponse.getEmail(), GOOGLE)
                 .orElseGet(() -> saveGoogleUser(profileResponse));
-        final String accessToken = jwtTokenProvider.createToken(String.valueOf(user.getId()));
-        // TODO: Refresh token 발급
-        return new LoginResponse(accessToken);
+
+        return createTokenResponse(user.getId());
     }
 
     public boolean isMaster(final Long meetingId, final Long loginId) {
@@ -88,6 +82,13 @@ public class AuthService {
         return tokenResponse;
     }
 
+    private TokenResponse createTokenResponse(final Long userId) {
+        final String accessToken = jwtTokenProvider.createToken(String.valueOf(userId));
+        final String refreshToken = refreshTokenProvider.create(userId, serverTimeManager.getDateAndTime());
+
+        return new TokenResponse(accessToken, refreshToken);
+    }
+
     private User saveGoogleUser(final GoogleProfileResponse profileResponse) {
         final User userToSave = new User(profileResponse.getEmail(), profileResponse.getName(), GOOGLE);
         return userRepository.save(userToSave);
@@ -107,13 +108,7 @@ public class AuthService {
 
     private void removeTokenAndThrowException(final RefreshToken refreshToken) {
         refreshTokenProvider.remove(refreshToken.getValue());
+        // TODO: 쿠키 제거
         throw InvalidTokenException.ofInvalid();
-    }
-
-    private TokenResponse createTokenResponse(final Long userId) {
-        final String accessToken = jwtTokenProvider.createToken(String.valueOf(userId));
-        final String refreshToken = refreshTokenProvider.create(userId, serverTimeManager.getDateAndTime());
-
-        return new TokenResponse(accessToken, refreshToken);
     }
 }

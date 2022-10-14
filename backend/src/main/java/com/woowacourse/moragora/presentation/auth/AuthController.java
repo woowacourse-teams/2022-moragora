@@ -38,8 +38,13 @@ public class AuthController {
     }
 
     @PostMapping("/login/oauth2/google")
-    public ResponseEntity<LoginResponse> loginWithGoogle(@RequestParam("code") final String code) {
-        final LoginResponse loginResponse = authService.loginWithGoogle(code);
+    public ResponseEntity<LoginResponse> loginWithGoogle(final HttpServletResponse response,
+                                                         @RequestParam("code") final String code) {
+        final TokenResponse tokenResponse = authService.loginWithGoogle(code);
+        final ResponseCookie responseCookie = refreshTokenCookieProvider.create(tokenResponse.getRefreshToken());
+        response.addHeader(HttpHeaders.SET_COOKIE, responseCookie.toString());
+
+        final LoginResponse loginResponse = new LoginResponse(tokenResponse.getAccessToken());
         return ResponseEntity.ok(loginResponse);
     }
 

@@ -70,6 +70,8 @@ class AuthAcceptanceTest extends AcceptanceTest {
     @Test
     void loginWithGoogle() {
         // given
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(LocalDateTime.now());
         given(googleClient.getIdToken(anyString()))
                 .willReturn("fakeIdToken");
         given(googleClient.getProfileResponse(anyString()))
@@ -83,6 +85,7 @@ class AuthAcceptanceTest extends AcceptanceTest {
 
         // then
         response.statusCode(HttpStatus.OK.value())
+                .cookie("refreshToken", notNullValue())
                 .body("accessToken", notNullValue());
     }
 
