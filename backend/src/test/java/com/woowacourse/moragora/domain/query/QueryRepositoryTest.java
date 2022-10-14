@@ -13,7 +13,6 @@ import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.fixture.EventFixtures;
 import com.woowacourse.moragora.support.fixture.MeetingFixtures;
 import com.woowacourse.moragora.support.fixture.UserFixtures;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
@@ -51,7 +50,7 @@ class QueryRepositoryTest {
 
         // when
         final List<ParticipantAndCount> participantAndCounts = queryRepository
-                .countParticipantsTardy(List.of(participant1, participant2, participant3));
+                .countParticipantsTardyDto(List.of(participant1, participant2, participant3));
 
         // then
         final long expected = participantAndCounts.stream()

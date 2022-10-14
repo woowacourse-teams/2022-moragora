@@ -84,7 +84,7 @@ public class MeetingService {
                 .orElseThrow(MeetingNotFoundException::new);
 
         final List<ParticipantAndCount> participantAndCounts = queryRepository
-                .countParticipantsTardy(meeting.getParticipants());
+                .countParticipantsTardyDto(meeting.getParticipants());
         meeting.allocateTardyCount(participantAndCounts);
 
         final long attendedEventCount = eventRepository.countByMeetingIdAndDateLessThanEqual(meetingId, today);
@@ -156,7 +156,7 @@ public class MeetingService {
         final List<MyMeetingResponse> myMeetingResponses = new ArrayList<>();
         for (final Meeting meeting : meetings) {
             final List<ParticipantAndCount> participantAndCounts =
-                    queryRepository.countParticipantsTardy(meeting.getParticipants());
+                    queryRepository.countParticipantsTardyDto(meeting.getParticipants());
             meeting.allocateTardyCount(participantAndCounts);
             final Event upcomingEvent = eventRepository
                     .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)

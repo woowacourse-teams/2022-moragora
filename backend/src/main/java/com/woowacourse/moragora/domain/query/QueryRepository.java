@@ -17,5 +17,5 @@ public interface QueryRepository extends Repository<Meeting, Long> {
             +   "as tardyCount "
             + "from Participant p join fetch p.user "
             + "where p in :participants")
-    List<ParticipantAndCount> countParticipantsTardy(@Param("participants") final List<Participant> participants);
+    List<ParticipantAndCount> countParticipantsTardyDto(@Param("participants") final List<Participant> participants);
 }
