@@ -14,13 +14,14 @@ import com.woowacourse.moragora.application.MeetingService;
 import com.woowacourse.moragora.application.UserService;
 import com.woowacourse.moragora.application.auth.AuthService;
 import com.woowacourse.moragora.presentation.auth.AuthController;
+import com.woowacourse.moragora.support.AsyncMailSender;
 import com.woowacourse.moragora.support.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -60,7 +61,7 @@ public class ControllerTest {
     protected QueryCountInspector queryCountInspector;
 
     @MockBean
-    protected JavaMailSenderImpl mailSender;
+    protected AsyncMailSender mailSender;
 
     @Autowired
     private MockMvc mockMvc;
@@ -71,6 +72,15 @@ public class ControllerTest {
 
     protected ResultActions performPost(final String uri, final Object request) throws Exception {
         return mockMvc.perform(post(uri)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print());
+    }
+
+    protected ResultActions performPostWithSession(final String uri, final Object request,
+                                                   final MockHttpSession session) throws Exception {
+        return mockMvc.perform(post(uri)
+                        .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print());

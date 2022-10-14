@@ -47,12 +47,22 @@ public class UserService {
     }
 
     @Transactional
-    public Long create(final UserRequest userRequest) {
-        validateUserExistsByEmailAndProvider(userRequest.getEmail());
+    public Long create(final UserRequest userRequest, final String validatedEmail) {
+        final String email = userRequest.getEmail();
+
+        validateUserExistsByEmailAndProvider(email);
+        confirmEmailVerification(email, validatedEmail);
+
         final User user = new User(userRequest.getEmail(), EncodedPassword.fromRawValue(userRequest.getPassword()),
                 userRequest.getNickname());
         final User savedUser = userRepository.save(user);
         return savedUser.getId();
+    }
+
+    private void confirmEmailVerification(final String email, final String validatedEmail) {
+        if (!email.equals(validatedEmail)) {
+            throw new ClientRuntimeException("인증되지 않은 이메일입니다.", BAD_REQUEST);
+        }
     }
 
     public EmailCheckResponse isEmailExist(final String email) {

@@ -32,16 +32,21 @@ public class AcceptanceTest {
 
     @MockBean
     protected ServerTimeManager serverTimeManager;
+
     @MockBean
     protected GoogleClient googleClient;
+
     @MockBean
     protected AsyncMailSender mailSender;
+
     @Autowired
     protected AttendanceScheduler attendanceScheduler;
-    @LocalServerPort
-    int port;
+
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
+
+    @LocalServerPort
+    int port;
 
     @BeforeEach
     public void setUp() {

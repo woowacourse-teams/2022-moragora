@@ -56,10 +56,11 @@ class UserServiceTest {
     @Test
     void create() {
         // given
-        final UserRequest userRequest = new UserRequest("kun@naver.com", "1234smart!", "kun");
+        final String email = "kun@naver.com";
+        final UserRequest userRequest = new UserRequest(email, "1234smart!", "kun");
 
         // when
-        final Long id = userService.create(userRequest);
+        final Long id = userService.create(userRequest, email);
 
         // then
         assertThat(id).isNotNull();
@@ -73,9 +74,22 @@ class UserServiceTest {
         final UserRequest userRequest = new UserRequest(SUN.getEmail(), "asdf1234!", "sunny");
 
         // when, then
-        assertThatThrownBy(() -> userService.create(userRequest))
+        assertThatThrownBy(() -> userService.create(userRequest, SUN.getEmail()))
                 .isInstanceOf(ClientRuntimeException.class)
                 .hasMessage("이미 사용중인 이메일입니다.");
+    }
+
+    @DisplayName("인증되지 않은 이메일로 회원가입을 하면 예외가 발생한다.")
+    @Test
+    void create_throwsException_ifNotValidatedEmail() {
+        // given
+        final String email = "kun@naver.com";
+        final UserRequest userRequest = new UserRequest(email, "1234smart!", "kun");
+
+        // when, then
+        assertThatThrownBy(() -> userService.create(userRequest, "kun@google.com"))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("인증되지 않은 이메일입니다.");
     }
 
     @DisplayName("중복되지 않은 이메일의 중복 여부를 확인한다.")
@@ -97,7 +111,7 @@ class UserServiceTest {
         // given
         final String existingEmail = "kun@naver.com";
         final UserRequest userRequest = new UserRequest(existingEmail, "1234smart!", "kun");
-        userService.create(userRequest);
+        userService.create(userRequest, existingEmail);
 
         // when
         final EmailCheckResponse response = userService.isEmailExist(existingEmail);
@@ -124,7 +138,7 @@ class UserServiceTest {
 
         final List<User> users = createUsers();
         for (User user : users) {
-            userService.create(new UserRequest(user.getEmail(), "1234asdf!", user.getNickname()));
+            userService.create(new UserRequest(user.getEmail(), "1234asdf!", user.getNickname()), user.getEmail());
         }
 
         // when
@@ -150,7 +164,7 @@ class UserServiceTest {
         final String nickname = "kun";
         final String authProvider = "checkmate";
         final UserRequest userRequest = new UserRequest(email, "1234smart!", nickname);
-        final Long id = userService.create(userRequest);
+        final Long id = userService.create(userRequest, email);
 
         final UserResponse expectedResponse = new UserResponse(id, email, nickname, authProvider);
 

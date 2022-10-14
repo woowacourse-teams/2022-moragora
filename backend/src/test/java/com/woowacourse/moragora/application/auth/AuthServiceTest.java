@@ -82,7 +82,7 @@ class AuthServiceTest {
         final String email = "kun@email.com";
         final String password = "qwerasdf123!";
         final UserRequest userRequest = new UserRequest(email, password, "kun");
-        userService.create(userRequest);
+        userService.create(userRequest, email);
 
         final LoginRequest loginRequest = new LoginRequest(email, password);
 
@@ -114,7 +114,7 @@ class AuthServiceTest {
         final String email = "kun@email.com";
         final String password = "qwerasdf123!";
         final UserRequest userRequest = new UserRequest(email, password, "kun");
-        userService.create(userRequest);
+        userService.create(userRequest, email);
 
         final LoginRequest loginRequest = new LoginRequest(email, "smart1234!");
 

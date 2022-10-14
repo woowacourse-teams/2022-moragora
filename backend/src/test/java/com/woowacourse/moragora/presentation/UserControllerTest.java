@@ -4,6 +4,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -37,6 +38,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -50,14 +52,16 @@ class UserControllerTest extends ControllerTest {
         final String password = "1234Asdfg!";
         final String nickname = "kun";
         final UserRequest userRequest = new UserRequest(email, password, nickname);
+        final MockHttpSession session = new MockHttpSession();
+        session.setAttribute("validatedEmail", email);
 
-        given(userService.create(any(UserRequest.class)))
+        given(userService.create(any(UserRequest.class), eq(email)))
                 .willReturn(1L);
 
         validateToken("1");
 
         // when
-        final ResultActions resultActions = performPost("/users", userRequest);
+        final ResultActions resultActions = performPostWithSession("/users", userRequest, session);
 
         // then
         resultActions.andExpect(status().isCreated())
@@ -99,6 +103,29 @@ class UserControllerTest extends ControllerTest {
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
                         .value("입력 형식이 올바르지 않습니다."));
+    }
+
+    @DisplayName("인증되지않은 이메일로 회원가입을 할 경우 예외가 발생한다.")
+    @Test
+    void signUp_throwsException_ifNotValidatedEmail() throws Exception {
+        // given
+        final String email = "kun@email.com";
+        final String password = "1234Asdfg!";
+        final String nickname = "kun";
+        final UserRequest userRequest = new UserRequest(email, password, nickname);
+        final MockHttpSession session = new MockHttpSession();
+
+        given(userService.create(any(UserRequest.class), eq(null)))
+                .willThrow(new ClientRuntimeException("인증되지 않은 이메일입니다.", HttpStatus.BAD_REQUEST));
+
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/users", userRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message", equalTo("인증되지 않은 이메일입니다.")));
     }
 
     @DisplayName("이메일의 중복 여부를 확인한다.")
