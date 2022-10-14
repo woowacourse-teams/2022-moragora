@@ -1,6 +1,9 @@
 package com.woowacourse.moragora.presentation.auth;
 
+import com.woowacourse.moragora.exception.InvalidTokenException;
 import java.time.Duration;
+import java.util.Arrays;
+import javax.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.Cookie.SameSite;
 import org.springframework.http.ResponseCookie;
@@ -31,5 +34,14 @@ public class RefreshTokenCookieProvider {
                 .secure(true)
                 .path("/token/refresh")
                 .sameSite(SameSite.NONE.attributeValue());
+    }
+
+    public String extractRefreshToken(final Cookie[] cookies) {
+        final Cookie cookie = Arrays.stream(cookies)
+                .filter(it -> it.getName().equals(REFRESH_TOKEN))
+                .findAny()
+                .orElseThrow(InvalidTokenException::ofInvalid);
+
+        return cookie.getValue();
     }
 }

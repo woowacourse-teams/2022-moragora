@@ -50,7 +50,7 @@ public class JwtTokenProvider {
         } catch (final ExpiredJwtException e) {
             throw new InvalidTokenException("expired", "만료된 토큰입니다");
         } catch (final JwtException | IllegalArgumentException e) {
-            throw new InvalidTokenException("invalid", "유효하지 않은 토큰입니다");
+            throw InvalidTokenException.ofInvalid();
         }
     }
 

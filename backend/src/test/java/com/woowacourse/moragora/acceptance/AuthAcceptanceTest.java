@@ -1,15 +1,21 @@
 package com.woowacourse.moragora.acceptance;
 
+import static com.woowacourse.moragora.support.fixture.UserFixtures.AZPI;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 
+import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
 import io.restassured.RestAssured;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
+import java.time.LocalDateTime;
+import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -28,6 +34,8 @@ class AuthAcceptanceTest extends AcceptanceTest {
         post("/users", userRequest);
 
         final LoginRequest loginRequest = new LoginRequest(email, password);
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(LocalDateTime.now());
 
         // when
         final ValidatableResponse response = post("/login", loginRequest);
@@ -62,12 +70,6 @@ class AuthAcceptanceTest extends AcceptanceTest {
     @Test
     void loginWithGoogle() {
         // given
-        final String email = "kun@naver.com";
-        final String password = "1234smart!";
-        final UserRequest userRequest = new UserRequest(email, password, "kun");
-
-        final LoginRequest loginRequest = new LoginRequest(email, password);
-
         given(googleClient.getIdToken(anyString()))
                 .willReturn("fakeIdToken");
         given(googleClient.getProfileResponse(anyString()))
@@ -84,5 +86,29 @@ class AuthAcceptanceTest extends AcceptanceTest {
                 .body("accessToken", notNullValue());
     }
 
+    @DisplayName("Access token 재발급 요청 시 새로운 Access token과 상태 코드 200을 반환한다.")
+    @Test
+    void refresh_accessToken() {
+        // given
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(LocalDateTime.now());
+        final User user = AZPI.create();
+        signUp(user);
 
+        final LoginRequest loginRequest = new LoginRequest(user.getEmail(), "1234asdf!");
+        final ExtractableResponse<Response> loginResponse = post("/login", loginRequest).extract();
+        final Map<String, String> cookies = loginResponse.cookies();
+
+        // when
+        final ValidatableResponse response = RestAssured.given().log().all()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookies(cookies)
+                .when().get("/token/refresh")
+                .then().log().all();
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .cookie("refreshToken", notNullValue())
+                .body("accessToken", notNullValue());
+    }
 }

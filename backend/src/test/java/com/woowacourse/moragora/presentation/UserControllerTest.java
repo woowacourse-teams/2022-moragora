@@ -246,7 +246,7 @@ class UserControllerTest extends ControllerTest {
     @Test
     void findMe_ifNotLoggedIn() throws Exception {
         // given
-        doThrow(new InvalidTokenException("invalid", "유효하지 않은 토큰입니다."))
+        doThrow(InvalidTokenException.ofInvalid())
                 .when(jwtTokenProvider)
                 .validateToken(any());
 

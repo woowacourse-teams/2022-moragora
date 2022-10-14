@@ -12,4 +12,8 @@ public class InvalidTokenException extends ClientRuntimeException {
         super(message, HttpStatus.UNAUTHORIZED);
         this.status = status;
     }
+
+    public static InvalidTokenException ofInvalid() {
+        return new InvalidTokenException("invalid", "유효하지 않은 토큰입니다.");
+    }
 }

@@ -56,7 +56,7 @@ public class ControllerTest {
     protected QueryCountInspector queryCountInspector;
 
     @Autowired
-    private MockMvc mockMvc;
+    protected MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;

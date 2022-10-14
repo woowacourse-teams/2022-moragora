@@ -10,6 +10,7 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -18,11 +19,14 @@ import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.presentation.ControllerTest;
+import javax.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 class AuthControllerTest extends ControllerTest {
 
@@ -37,7 +41,7 @@ class AuthControllerTest extends ControllerTest {
         final String refreshToken = "fake_refresh_token";
 
         given(authService.login(any(LoginRequest.class)))
-                .willReturn(new LoginResult(accessToken, refreshToken));
+                .willReturn(new TokenResponse(accessToken, refreshToken));
         given(refreshTokenCookieProvider.create(refreshToken))
                 .willReturn(ResponseCookie.from("refreshToken", refreshToken).build());
 
@@ -98,7 +102,6 @@ class AuthControllerTest extends ControllerTest {
         // given
         final String email = "kun@email.com";
         final String password = "1234asdfg!";
-        final LoginRequest loginRequest = new LoginRequest(email, password);
         final String accessToken = "fake_token";
 
         given(authService.loginWithGoogle(anyString()))
@@ -114,6 +117,37 @@ class AuthControllerTest extends ControllerTest {
                         preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("accessToken").type(JsonFieldType.STRING).description(accessToken)
+                        )));
+    }
+
+    @DisplayName("Access token을 재발급한다.")
+    @Test
+    void refresh_accessToken() throws Exception {
+        // given
+        final String newAccessToken = "new_access_token";
+        final String newRefreshToken = "new_refresh_token";
+
+        given(refreshTokenCookieProvider.extractRefreshToken(any()))
+                .willReturn("refresh_token");
+        given(authService.refreshTokens("refresh_token"))
+                .willReturn(new TokenResponse(newAccessToken, newRefreshToken));
+        given(refreshTokenCookieProvider.create(newRefreshToken))
+                .willReturn(ResponseCookie.from("refreshToken", newRefreshToken).build());
+
+        // when
+        final ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/token/refresh")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .cookie(new Cookie("refreshToken", "refresh_token")))
+                .andDo(print());
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("accessToken").value(newAccessToken))
+                .andExpect(cookie().value("refreshToken", newRefreshToken))
+                .andDo(document("auth/refresh-tokens",
+                        preprocessResponse(prettyPrint()),
+                        responseFields(
+                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description(newAccessToken)
                         )));
     }
 }

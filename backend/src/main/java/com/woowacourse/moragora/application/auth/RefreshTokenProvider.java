@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -30,5 +31,13 @@ public class RefreshTokenProvider {
 
     public Map<String, RefreshToken> getValues() {
         return values;
+    }
+
+    public Optional<RefreshToken> findRefreshToken(final String key) {
+        return Optional.ofNullable(values.get(key));
+    }
+
+    public void remove(final String oldToken) {
+        values.remove(oldToken);
     }
 }
