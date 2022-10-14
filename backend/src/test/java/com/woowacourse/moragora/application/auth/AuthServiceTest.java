@@ -28,6 +28,7 @@ import com.woowacourse.moragora.dto.response.user.UserResponse;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.exception.user.EmailDuplicatedException;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
+import com.woowacourse.moragora.support.AsyncMailSender;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
 import com.woowacourse.moragora.support.JwtTokenProvider;
@@ -41,7 +42,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 @SpringBootTest
 class AuthServiceTest {
@@ -62,7 +62,7 @@ class AuthServiceTest {
     private GoogleClient googleClient;
 
     @MockBean
-    private JavaMailSenderImpl javaMailSender;
+    private AsyncMailSender mailSender;
 
     @Autowired
     private ServerTimeManager serverTimeManager;
@@ -192,7 +192,7 @@ class AuthServiceTest {
         final ExpiredTimeResponse expiredTimeResponse = authService.sendAuthCode(request, httpSession);
 
         // then
-        verify(javaMailSender, times(1)).send(any(SimpleMailMessage.class));
+        verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
         verify(httpSession, times(1)).setAttribute(eq(attributeName), any(AuthCode.class));
         assertThat(expiredTimeResponse.getExpiredTime()).isEqualTo(expected);
     }

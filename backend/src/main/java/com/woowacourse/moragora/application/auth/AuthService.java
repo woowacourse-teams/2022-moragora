@@ -19,9 +19,9 @@ import com.woowacourse.moragora.exception.participant.ParticipantNotFoundExcepti
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.exception.user.EmailDuplicatedException;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
+import com.woowacourse.moragora.support.AsyncMailSender;
 import com.woowacourse.moragora.support.JwtTokenProvider;
 import javax.servlet.http.HttpSession;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,20 +35,20 @@ public class AuthService {
     private final GoogleClient googleClient;
     private final UserRepository userRepository;
     private final ParticipantRepository participantRepository;
-    private final JavaMailSender javaMailSender;
+    private final AsyncMailSender mailSender;
     private final ServerTimeManager serverTimeManager;
 
     public AuthService(final JwtTokenProvider jwtTokenProvider,
                        final GoogleClient googleClient,
                        final UserRepository userRepository,
                        final ParticipantRepository participantRepository,
-                       final JavaMailSender javaMailSender,
+                       final AsyncMailSender mailSender,
                        final ServerTimeManager serverTimeManager) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.googleClient = googleClient;
         this.userRepository = userRepository;
         this.participantRepository = participantRepository;
-        this.javaMailSender = javaMailSender;
+        this.mailSender = mailSender;
         this.serverTimeManager = serverTimeManager;
     }
 
@@ -91,7 +91,7 @@ public class AuthService {
 
         final AuthCode authCode = new AuthCode(email, serverTimeManager.getDateAndTime());
 
-        javaMailSender.send(authCode.toMailMessage());
+        mailSender.send(authCode.toMailMessage());
 
         httpSession.setAttribute(ATTRIBUTE_NAME_EMAIL_VERIFICATION, authCode);
         return new ExpiredTimeResponse(authCode.getExpiredTime());
