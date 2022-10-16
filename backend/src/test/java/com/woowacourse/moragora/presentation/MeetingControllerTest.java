@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.woowacourse.moragora.domain.meeting.Meeting;
+import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
@@ -36,6 +37,7 @@ import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
+import com.woowacourse.moragora.support.ValidList;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -43,12 +45,16 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 class MeetingControllerTest extends ControllerTest {
+
+    private static final String LENGTH_50_LETTER =
+            "1abcdefghi" + "2abcdefghi" + "3abcdefghi" + "4abcdefghi" + "5abcdefghi";
 
     @DisplayName("미팅 방을 생성한다.")
     @Test
@@ -508,4 +514,32 @@ class MeetingControllerTest extends ControllerTest {
         performDelete("/meetings/1")
                 .andExpect(status().isForbidden());
     }
+
+    /**
+     * 위치 기반 서비스
+     */
+
+    // add_throwsException_ifUserIdsDuplicate
+    @DisplayName("(위치 기반) 비콘 등록시 유효성 검증을 통과하지 못한 필드가 있을 경우 예외를 반환한다.")
+    @ParameterizedTest
+    @CsvSource(delimiterString = " | ", value = {
+            "필수 입력 값이 누락됐습니다. | \t | 100",
+            "비콘 주소는 50자를 초과할 수 없습니다. | " + LENGTH_50_LETTER + "a" + " | 100",
+            "비콘의 반경은 최소 50m 이상이어야 합니다. | 잠실나루 | 10"
+    })
+    void attendWithBeaconBase_throwsException_ifNotValidated(final String validationMessage, final String address, final Integer radius) throws Exception {
+        // given
+        final BeaconRequest beaconRequest = new BeaconRequest(address, 37.0, 127.0, radius);
+        final ValidList<BeaconRequest> requestBody = ValidList.of(beaconRequest);
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/1/beacons", requestBody);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value(validationMessage));
+    }
+
 }

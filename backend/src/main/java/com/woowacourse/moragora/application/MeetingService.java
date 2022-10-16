@@ -37,7 +37,6 @@ import com.woowacourse.moragora.exception.participant.ParticipantNotFoundExcepti
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -188,7 +187,7 @@ public class MeetingService {
     }
 
     @Transactional
-    public GeoLocationAttendanceResponse attendWithGeoLocationBase(final Long meetingId, final Long userId, final GeoLocationAttendanceRequest body) {
+    public GeoLocationAttendanceResponse attendWithGeoLocation(final Long meetingId, final Long userId, final GeoLocationAttendanceRequest body) {
         meetingRepository.findById(meetingId).orElseThrow(MeetingNotFoundException::new);
         userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
 

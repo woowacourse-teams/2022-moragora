@@ -17,12 +17,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.domain.event.Event;
-import com.woowacourse.moragora.domain.geolocation.Beacon;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
-import com.woowacourse.moragora.dto.request.meeting.BeaconResponse;
-import com.woowacourse.moragora.dto.request.meeting.BeaconsRequest;
 import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceRequest;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
@@ -235,12 +232,12 @@ class MeetingAcceptanceTest extends AcceptanceTest {
         final Long userId = signUp(user);
         final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
 
-        final BeaconRequest beaconRequest = new BeaconRequest("서울시 송파구", 37.33, 126.58, 10);
-        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+        final BeaconRequest beaconRequest = new BeaconRequest("서울시 송파구", 37.33, 126.58, 50);
+        final List<BeaconRequest> requestBody = List.of(beaconRequest);
 
         // when
         final String uri = String.format("/meetings/%d/beacons", meetingId);
-        final ValidatableResponse response = post(uri, beaconsRequest, masterToken);
+        final ValidatableResponse response = post(uri, requestBody, masterToken);
 
         // then
         response.statusCode(HttpStatus.NO_CONTENT.value());
@@ -258,9 +255,9 @@ class MeetingAcceptanceTest extends AcceptanceTest {
         final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
 
         final BeaconRequest beaconRequest = new BeaconRequest("루터회관", 37.5153, 127.103, 50);
-        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+        final List<BeaconRequest> requestBody = List.of(beaconRequest);
         final String beaconUri = String.format("/meetings/%d/beacons", meetingId);
-        post(beaconUri, beaconsRequest, masterToken);
+        post(beaconUri, requestBody, masterToken);
 
         // when
         final GeoLocationAttendanceRequest geoLocationAttendanceRequest = new GeoLocationAttendanceRequest(37.5154, 127.1031);
@@ -285,9 +282,9 @@ class MeetingAcceptanceTest extends AcceptanceTest {
         final BeaconRequest beaconRequest1 = new BeaconRequest("서울역", 37.54788, 126.99712, 50);
         final BeaconRequest beaconRequest2 = new BeaconRequest("루터회관", 37.5153, 127.103, 50);
         final BeaconRequest beaconRequest3 = new BeaconRequest("선릉역", 37.50450, 127.048982, 50);
-        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest1, beaconRequest2, beaconRequest3));
+        final List<BeaconRequest> requestBody = List.of(beaconRequest1, beaconRequest2, beaconRequest3);
         final String beaconUri = String.format("/meetings/%d/beacons", meetingId);
-        post(beaconUri, beaconsRequest, masterToken);
+        post(beaconUri, requestBody, masterToken);
 
         // when
         final var attendanceRequest = new GeoLocationAttendanceRequest(37.5138, 127.1012); // 잠실역 8번
