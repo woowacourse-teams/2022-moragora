@@ -257,13 +257,13 @@ class MeetingAcceptanceTest extends AcceptanceTest {
         final String token = login(user);
         final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
 
-        final BeaconRequest beaconRequest = new BeaconRequest("서울시 송파구", 37.000, 126.000, 10);
+        final BeaconRequest beaconRequest = new BeaconRequest("루터회관", 37.5153, 127.103, 50);
         final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
         final String beaconUri = String.format("/meetings/%d/beacons", meetingId);
         post(beaconUri, beaconsRequest, masterToken);
 
         // when
-        final GeoLocationAttendanceRequest geoLocationAttendanceRequest = new GeoLocationAttendanceRequest(37.000, 126.000);
+        final GeoLocationAttendanceRequest geoLocationAttendanceRequest = new GeoLocationAttendanceRequest(37.5154, 127.1031);
         final String attendanceUri = String.format("/meetings/%d/users/%d/attendances/today/geolocation", meetingId, userId);
         final ValidatableResponse response = post(attendanceUri, geoLocationAttendanceRequest, token);
 
@@ -282,21 +282,20 @@ class MeetingAcceptanceTest extends AcceptanceTest {
         final String token = login(user);
         final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
 
-        final BeaconRequest beaconRequest1 = new BeaconRequest("지역 A", 35.000, 125.000, 10);
-        final BeaconRequest beaconRequest2 = new BeaconRequest("지역 B", 36.000, 126.000, 10);
-        final BeaconRequest beaconRequest3 = new BeaconRequest("지역 C", 37.000, 127.000, 10);
+        final BeaconRequest beaconRequest1 = new BeaconRequest("서울역", 37.54788, 126.99712, 50);
+        final BeaconRequest beaconRequest2 = new BeaconRequest("루터회관", 37.5153, 127.103, 50);
+        final BeaconRequest beaconRequest3 = new BeaconRequest("선릉역", 37.50450, 127.048982, 50);
         final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest1, beaconRequest2, beaconRequest3));
         final String beaconUri = String.format("/meetings/%d/beacons", meetingId);
         post(beaconUri, beaconsRequest, masterToken);
 
         // when
-        final GeoLocationAttendanceRequest geoLocationAttendanceRequest =
-                new GeoLocationAttendanceRequest(34.000, 124.000);
+        final var attendanceRequest = new GeoLocationAttendanceRequest(37.5138, 127.1012); // 잠실역 8번
         final String attendanceUri = String.format("/meetings/%d/users/%d/attendances/today/geolocation", meetingId, userId);
-        final ValidatableResponse response = post(attendanceUri, geoLocationAttendanceRequest, token);
+        final ValidatableResponse response = post(attendanceUri, attendanceRequest, token);
 
         // then
         response.statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("beacons.address", contains("지역 A", "지역 B", "지역 C"));
+                .body("beacons.address", contains("루터회관", "선릉역", "서울역"));
     }
 }

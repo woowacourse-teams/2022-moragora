@@ -201,32 +201,19 @@ public class MeetingService {
         return geoLocationAttendanceResponses(attendCoordinate, beacons);
     }
 
-    // TODO 플래그 변수 지울 것: 안티패턴
     private GeoLocationAttendanceResponse geoLocationAttendanceResponses(final Beacon attendCoordinate, final List<Beacon> beacons) {
-        boolean isAttendanceSuccess = false;
-        List<BeaconResponse> beaconsResponse = new ArrayList<>();
-
-        for (final Beacon beacon : beacons) {
-            final boolean isInRadius = beacon.isInRadius(attendCoordinate);
-
-            if (isInRadius) {
-                isAttendanceSuccess = true;
-            }
-
-            final double distance = beacon.calculateDistance(attendCoordinate);
-            final BeaconResponse beaconResponse = new BeaconResponse(beacon, distance);
-            beaconsResponse.add(beaconResponse);
-        }
-
+        final boolean isAttendanceSuccess = beacons.stream()
+                .anyMatch(beacon -> beacon.isInRadius(attendCoordinate));
         if (isAttendanceSuccess) {
             return new GeoLocationAttendanceSuccessResponse();
         }
 
-        beaconsResponse = beaconsResponse.stream()
-                .sorted(Comparator.comparing(beaconResponse -> beaconResponse.getDistance()))
+        final List<BeaconResponse> beaconResponses = beacons.stream()
+                .map(beacon -> new BeaconResponse(beacon, beacon.calculateDistance(attendCoordinate)))
+                .sorted(Comparator.comparing(BeaconResponse::getDistance))
                 .collect(Collectors.toList());
 
-        return new GeoLocationAttendanceFailResponse(beaconsResponse);
+        return new GeoLocationAttendanceFailResponse(beaconResponses);
     }
 
     /**
