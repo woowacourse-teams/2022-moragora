@@ -7,6 +7,14 @@ import java.util.List;
 import java.util.ListIterator;
 import javax.validation.Valid;
 
+/**
+ * 컨트롤러의 DTO List로 이루어진 파라미터를 대상으로 Bean Validation 을 적용하기 위해 만든 클래스입니다.
+ * <p/>
+ * 사용 예시:
+ * <pre>
+ * @RequestBody @Valid final ValidList<BeaconRequest> requestBody
+ * </pre>
+ */
 public class ValidList<E> implements List<E> {
 
     @Valid
