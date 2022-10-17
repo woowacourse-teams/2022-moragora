@@ -1,11 +1,10 @@
+import { useEffect, useState } from 'react';
 import * as S from './EmailConfirmModal.styled';
 import { postVerifyCodeAPi } from 'apis/userApis';
-import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
 import useTimer from 'hooks/useTimer';
 import { User, UserEmailSendRequestBody } from 'types/userType';
 import { getTimestampDiff } from 'utils/timeUtil';
-import { useEffect, useState } from 'react';
 
 type EmailConfirmModalProps = {
   email: User['email'];
@@ -18,7 +17,8 @@ type EmailConfirmModalProps = {
 const EmailConfirmModal: React.FC<
   React.PropsWithChildren<EmailConfirmModalProps>
 > = ({ email, expiredTimestamp, onSuccess, onDismiss, refetch: refetch }) => {
-  const { values, errors, isSubmitting, onSubmit, register } = useForm();
+  const [code, setCode] = useState('');
+  const [isValidCode, setIsValidCode] = useState(false);
   const [isTimeOver, setIsTimeOver] = useState(false);
   const { currentTimestamp } = useTimer(0);
   const remainTime = getTimestampDiff(expiredTimestamp, currentTimestamp);
@@ -34,25 +34,54 @@ const EmailConfirmModal: React.FC<
   });
 
   const handleReSendClick = () => {
-    alert('인증 번호를 재요청했습니다.');
-    setIsTimeOver(false);
-    refetch({ email });
+    if (confirm('인증 번호를 재요청하시겠습니까?')) {
+      setIsTimeOver(false);
+      refetch({ email });
+    }
   };
 
-  const handleSubmit = () => {
-    if (!errors['code'] && !isTimeOver) {
+  const handleInputChange: React.ChangeEventHandler<HTMLInputElement> = ({
+    target: { value },
+  }) => {
+    if (/^[0-9]{0,6}$/.test(value)) {
+      setCode(value);
+    }
+  };
+
+  const handleInputKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (
+    event
+  ) => {
+    if (['+', '-', '.', 'E', 'e'].includes(event.key)) {
+      event.preventDefault();
+    }
+  };
+
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+    event.preventDefault();
+
+    if (isValidCode && !isTimeOver) {
       codeVerifyMutation.mutate({
         email,
-        verifyCode: values['code'] as string,
+        verifyCode: code,
       });
     }
   };
 
   useEffect(() => {
     if (expiredTimestamp - currentTimestamp <= 0) {
+      setCode('');
       setIsTimeOver(true);
     }
   }, [expiredTimestamp, currentTimestamp]);
+
+  useEffect(() => {
+    if (code.length !== 6) {
+      setIsValidCode(false);
+      return;
+    }
+
+    setIsValidCode(true);
+  }, [code]);
 
   return (
     <S.Layout>
@@ -60,31 +89,29 @@ const EmailConfirmModal: React.FC<
         <span>이메일로 전송된</span>
         <span>인증번호 6자리를 입력해주세요</span>
       </S.Paragraph>
-      <S.Form {...onSubmit(handleSubmit)}>
+      <S.Form onSubmit={handleSubmit}>
         <S.InputBox>
           <S.NumberInput
             type="number"
+            autoComplete="off"
             placeholder={isTimeOver ? '인증시간 만료' : '123456'}
-            {...register('code', {
-              required: true,
-              watch: true,
-              customValidations: [
-                {
-                  validate: (value) => /^[0-9]{6}$/.test(value),
-                  validationMessage: '입력값이 유효하지 않습니다.',
-                },
-              ],
-            })}
             disabled={isTimeOver}
+            name="code"
+            required={true}
+            onChange={handleInputChange}
+            onKeyDown={handleInputKeyDown}
+            value={code}
           />
           <S.ExpiredTimeParagraph>{remainTime}</S.ExpiredTimeParagraph>
         </S.InputBox>
-        {errors['code'] || !values['code'] || isTimeOver ? (
+        {!isValidCode || isTimeOver ? (
           <S.ResendButton onClick={handleReSendClick}>
             인증번호 재요청
           </S.ResendButton>
         ) : (
-          <S.ConfirmButton disabled={isSubmitting}>확인</S.ConfirmButton>
+          <S.ConfirmButton disabled={codeVerifyMutation.isLoading}>
+            확인
+          </S.ConfirmButton>
         )}
       </S.Form>
       <S.CloseButton onClick={onDismiss}>Ⅹ</S.CloseButton>
