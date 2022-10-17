@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 
 export const SpinnerBox = styled.div`
-  flex: 1;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;

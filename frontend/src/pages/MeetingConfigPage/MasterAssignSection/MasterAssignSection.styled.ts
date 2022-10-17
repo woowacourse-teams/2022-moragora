@@ -34,7 +34,7 @@ export const ParticipantList = styled.ul`
   position: absolute;
   width: 100%;
   max-height: 12rem;
-  z-index: 10;
+  z-index: ${({ theme: { zIndex } }) => zIndex['slightly-float']};
 
   display: flex;
   flex-direction: column;

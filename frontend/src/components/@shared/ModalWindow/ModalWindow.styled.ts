@@ -9,7 +9,7 @@ export const Layout = styled.div`
   border: 2px solid ${({ theme: { colors } }) => colors['primary']};
   border-radius: 0.5rem;
   background-color: ${({ theme: { colors } }) => colors['white']};
-  z-index: 50;
+  z-index: ${({ theme: { zIndex } }) => zIndex['modal']}; ;
 `;
 
 export const Title = styled.h2`

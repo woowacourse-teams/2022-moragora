@@ -14,6 +14,7 @@ const GlobalStyles = () => (
       styles={css`
         body {
           color: #19191b;
+          background-color: #fafafa;
         }
 
         .noselect {
