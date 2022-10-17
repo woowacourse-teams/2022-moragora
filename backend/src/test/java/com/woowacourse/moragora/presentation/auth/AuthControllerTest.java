@@ -14,6 +14,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.woowacourse.moragora.domain.auth.AuthCode;
 import com.woowacourse.moragora.dto.request.auth.EmailRequest;
 import com.woowacourse.moragora.dto.request.auth.EmailVerifyRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
@@ -176,7 +177,7 @@ class AuthControllerTest extends ControllerTest {
         final String verifyCode = "000000";
 
         doNothing().when(authService)
-                .verifyAuthCode(any(EmailVerifyRequest.class), any(HttpSession.class));
+                .verifyAuthCode(any(EmailVerifyRequest.class), any(AuthCode.class), any(HttpSession.class));
 
         // when
         final ResultActions resultActions = performPost("/emails/verify", new EmailVerifyRequest(email, verifyCode));

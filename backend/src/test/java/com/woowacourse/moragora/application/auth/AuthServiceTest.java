@@ -1,7 +1,7 @@
 package com.woowacourse.moragora.application.auth;
 
-import static com.woowacourse.moragora.presentation.SessionAttribute.EMAIL_VERIFICATION;
-import static com.woowacourse.moragora.presentation.SessionAttribute.VERIFIED_EMAIL;
+import static com.woowacourse.moragora.presentation.SessionAttributeNames.AUTH_CODE;
+import static com.woowacourse.moragora.presentation.SessionAttributeNames.VERIFIED_EMAIL;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.PHILLZ;
@@ -14,7 +14,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.application.UserService;
@@ -198,7 +197,7 @@ class AuthServiceTest {
         // then
         verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
         verify(httpSession, times(1))
-                .setAttribute(eq(EMAIL_VERIFICATION.getName()), any(AuthCode.class));
+                .setAttribute(eq(AUTH_CODE), any(AuthCode.class));
         assertThat(expiredTimeResponse.getExpiredTime()).isEqualTo(expected);
     }
 
@@ -227,16 +226,13 @@ class AuthServiceTest {
 
         final HttpSession httpSession = mock(HttpSession.class);
         final EmailVerifyRequest request = new EmailVerifyRequest(email, code);
-
         serverTimeManager.refresh(dateTime);
-        when(httpSession.getAttribute(EMAIL_VERIFICATION.getName()))
-                .thenReturn(authCode);
 
         // when
-        authService.verifyAuthCode(request, httpSession);
+        authService.verifyAuthCode(request, authCode, httpSession);
 
         // then
-        verify(httpSession, times(1)).setAttribute(VERIFIED_EMAIL.getName(), email);
+        verify(httpSession, times(1)).setAttribute(VERIFIED_EMAIL, email);
     }
 
     @DisplayName("세션에 인증 정보가 없는 상태로 인증번호의 유효성을 검증하면 예외가 발생한다.")
@@ -247,11 +243,8 @@ class AuthServiceTest {
         final HttpSession httpSession = mock(HttpSession.class);
         final EmailVerifyRequest request = new EmailVerifyRequest(email, "000000");
 
-        when(httpSession.getAttribute(EMAIL_VERIFICATION.getName()))
-                .thenReturn(null);
-
         // when, then
-        assertThatThrownBy(() -> authService.verifyAuthCode(request, httpSession))
+        assertThatThrownBy(() -> authService.verifyAuthCode(request, null, httpSession))
                 .isInstanceOf(ClientRuntimeException.class)
                 .hasMessage("인증 정보가 존재하지 않습니다.");
     }
@@ -269,11 +262,9 @@ class AuthServiceTest {
         final EmailVerifyRequest request = new EmailVerifyRequest("wrong@daum.net", code);
 
         serverTimeManager.refresh(dateTime);
-        when(httpSession.getAttribute(EMAIL_VERIFICATION.getName()))
-                .thenReturn(authCode);
 
         // when, then
-        assertThatThrownBy(() -> authService.verifyAuthCode(request, httpSession))
+        assertThatThrownBy(() -> authService.verifyAuthCode(request, authCode, httpSession))
                 .isInstanceOf(ClientRuntimeException.class)
                 .hasMessage("인증을 요청하지 않은 이메일입니다.");
     }
@@ -288,13 +279,10 @@ class AuthServiceTest {
 
         final HttpSession httpSession = mock(HttpSession.class);
         final EmailVerifyRequest request = new EmailVerifyRequest(email, "wrong");
-
         serverTimeManager.refresh(dateTime);
-        when(httpSession.getAttribute(EMAIL_VERIFICATION.getName()))
-                .thenReturn(authCode);
 
         // when, then
-        assertThatThrownBy(() -> authService.verifyAuthCode(request, httpSession))
+        assertThatThrownBy(() -> authService.verifyAuthCode(request, authCode, httpSession))
                 .isInstanceOf(ClientRuntimeException.class)
                 .hasMessage("인증코드가 올바르지 않습니다.");
     }
@@ -312,11 +300,9 @@ class AuthServiceTest {
         final EmailVerifyRequest request = new EmailVerifyRequest(email, code);
 
         serverTimeManager.refresh(dateTime.plusMinutes(6));
-        when(httpSession.getAttribute(EMAIL_VERIFICATION.getName()))
-                .thenReturn(authCode);
 
         // when, then
-        assertThatThrownBy(() -> authService.verifyAuthCode(request, httpSession))
+        assertThatThrownBy(() -> authService.verifyAuthCode(request, authCode, httpSession))
                 .isInstanceOf(ClientRuntimeException.class)
                 .hasMessage("인증코드가 만료되었습니다.");
     }

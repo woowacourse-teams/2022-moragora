@@ -2,8 +2,8 @@ package com.woowacourse.moragora.application.auth;
 
 import static com.woowacourse.moragora.domain.user.Provider.CHECKMATE;
 import static com.woowacourse.moragora.domain.user.Provider.GOOGLE;
-import static com.woowacourse.moragora.presentation.SessionAttribute.EMAIL_VERIFICATION;
-import static com.woowacourse.moragora.presentation.SessionAttribute.VERIFIED_EMAIL;
+import static com.woowacourse.moragora.presentation.SessionAttributeNames.AUTH_CODE;
+import static com.woowacourse.moragora.presentation.SessionAttributeNames.VERIFIED_EMAIL;
 
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.auth.AuthCode;
@@ -95,18 +95,18 @@ public class AuthService {
         final AuthCode authCode = new AuthCode(email, code, serverTimeManager.getDateAndTime());
         mailSender.send(authCode.toMailMessage());
 
-        httpSession.setAttribute(EMAIL_VERIFICATION.getName(), authCode);
+        httpSession.setAttribute(AUTH_CODE, authCode);
         return new ExpiredTimeResponse(authCode.getExpiredTime());
     }
 
-    public void verifyAuthCode(final EmailVerifyRequest request, final HttpSession httpSession) {
+    public void verifyAuthCode(final EmailVerifyRequest request, final AuthCode authCode,
+                               final HttpSession httpSession) {
+        checkAuthCode(authCode);
         final String email = request.getEmail();
         final String verifyCode = request.getVerifyCode();
 
-        final AuthCode authCode = getAuthCodeFromSession(httpSession);
         authCode.verify(email, verifyCode, serverTimeManager.getDateAndTime());
-
-        httpSession.setAttribute(VERIFIED_EMAIL.getName(), email);
+        httpSession.setAttribute(VERIFIED_EMAIL, email);
     }
 
     private User saveGoogleUser(final GoogleProfileResponse profileResponse) {
@@ -120,11 +120,9 @@ public class AuthService {
         }
     }
 
-    private AuthCode getAuthCodeFromSession(final HttpSession httpSession) {
-        final Object authCode = httpSession.getAttribute(EMAIL_VERIFICATION.getName());
+    private void checkAuthCode(final AuthCode authCode) {
         if (authCode == null) {
             throw new ClientRuntimeException("인증 정보가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
         }
-        return (AuthCode) authCode;
     }
 }

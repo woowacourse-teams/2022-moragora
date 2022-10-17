@@ -53,7 +53,7 @@ class UserControllerTest extends ControllerTest {
         final String nickname = "kun";
         final UserRequest userRequest = new UserRequest(email, password, nickname);
         final MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionAttribute.VERIFIED_EMAIL.getName(), email);
+        session.setAttribute(SessionAttributeNames.VERIFIED_EMAIL, email);
 
         given(userService.create(any(UserRequest.class), eq(email)))
                 .willReturn(1L);

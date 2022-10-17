@@ -11,7 +11,6 @@ import com.woowacourse.moragora.dto.response.user.UsersResponse;
 import com.woowacourse.moragora.presentation.auth.Authentication;
 import com.woowacourse.moragora.presentation.auth.AuthenticationPrincipal;
 import java.net.URI;
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttribute;
 
 @RestController
 @RequestMapping("/users")
@@ -34,9 +34,10 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> signUp(@RequestBody @Valid final UserRequest userRequest, final HttpSession session) {
-        final String validatedEmail = (String) session.getAttribute(SessionAttribute.VERIFIED_EMAIL.getName());
-        final Long id = userService.create(userRequest, validatedEmail);
+    public ResponseEntity<Void> signUp(@RequestBody @Valid final UserRequest userRequest,
+                                       @SessionAttribute(name = SessionAttributeNames.VERIFIED_EMAIL,
+                                               required = false) final String verifiedEmail) {
+        final Long id = userService.create(userRequest, verifiedEmail);
         return ResponseEntity.created(URI.create("/users/" + id)).build();
     }
 
