@@ -105,7 +105,7 @@ class UserControllerTest extends ControllerTest {
 
     @DisplayName("인증되지않은 이메일로 회원가입을 할 경우 예외가 발생한다.")
     @Test
-    void signUp_throwsException_ifNotValidatedEmail() throws Exception {
+    void signUp_throwsException_ifNotVerifiedEmail() throws Exception {
         // given
         final String email = "kun@email.com";
         final String password = "1234Asdfg!";

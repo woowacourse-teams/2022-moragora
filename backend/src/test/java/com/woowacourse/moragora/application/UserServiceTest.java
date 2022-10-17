@@ -79,7 +79,7 @@ class UserServiceTest {
 
     @DisplayName("인증되지 않은 이메일로 회원가입을 하면 예외가 발생한다.")
     @Test
-    void create_throwsException_ifNotValidatedEmail() {
+    void create_throwsException_ifNotVerifiedEmail() {
         // given
         final String email = "kun@naver.com";
         final UserRequest userRequest = new UserRequest(email, "1234smart!", "kun");

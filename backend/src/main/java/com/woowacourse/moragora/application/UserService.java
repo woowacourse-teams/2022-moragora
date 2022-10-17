@@ -46,11 +46,11 @@ public class UserService {
     }
 
     @Transactional
-    public Long create(final UserRequest userRequest, final String validatedEmail) {
+    public Long create(final UserRequest userRequest, final String verifiedEmail) {
         final String email = userRequest.getEmail();
 
         validateUserExistsByEmailAndProvider(email);
-        confirmEmailVerification(email, validatedEmail);
+        confirmEmailVerification(email, verifiedEmail);
 
         final User user = new User(userRequest.getEmail(), EncodedPassword.fromRawValue(userRequest.getPassword()),
                 userRequest.getNickname());
@@ -58,8 +58,8 @@ public class UserService {
         return savedUser.getId();
     }
 
-    private void confirmEmailVerification(final String email, final String validatedEmail) {
-        if (!email.equals(validatedEmail)) {
+    private void confirmEmailVerification(final String email, final String verifitedEmail) {
+        if (!email.equals(verifitedEmail)) {
             throw new ClientRuntimeException("인증되지 않은 이메일입니다.", BAD_REQUEST);
         }
     }
