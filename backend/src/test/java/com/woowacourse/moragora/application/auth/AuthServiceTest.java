@@ -1,5 +1,7 @@
 package com.woowacourse.moragora.application.auth;
 
+import static com.woowacourse.moragora.presentation.SessionAttribute.EMAIL_VERIFICATION;
+import static com.woowacourse.moragora.presentation.SessionAttribute.VERIFIED_EMAIL;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.PHILLZ;
@@ -185,7 +187,6 @@ class AuthServiceTest {
         // given
         final String email = "ghd700@daum.net";
         final HttpSession httpSession = mock(HttpSession.class);
-        final String attributeName = "emailVerification";
         final EmailRequest request = new EmailRequest(email);
         final LocalDateTime dateTime = LocalDateTime.of(2022, 10, 1, 1, 1);
         final long expected = Timestamp.valueOf(dateTime.plusMinutes(5)).getTime();
@@ -196,7 +197,8 @@ class AuthServiceTest {
 
         // then
         verify(mailSender, times(1)).send(any(SimpleMailMessage.class));
-        verify(httpSession, times(1)).setAttribute(eq(attributeName), any(AuthCode.class));
+        verify(httpSession, times(1))
+                .setAttribute(eq(EMAIL_VERIFICATION.getName()), any(AuthCode.class));
         assertThat(expiredTimeResponse.getExpiredTime()).isEqualTo(expected);
     }
 
@@ -227,14 +229,14 @@ class AuthServiceTest {
         final EmailVerifyRequest request = new EmailVerifyRequest(email, code);
 
         serverTimeManager.refresh(dateTime);
-        when(httpSession.getAttribute("emailVerification"))
+        when(httpSession.getAttribute(EMAIL_VERIFICATION.getName()))
                 .thenReturn(authCode);
 
         // when
         authService.verifyAuthCode(request, httpSession);
 
         // then
-        verify(httpSession, times(1)).setAttribute("verifiedEmail", email);
+        verify(httpSession, times(1)).setAttribute(VERIFIED_EMAIL.getName(), email);
     }
 
     @DisplayName("세션에 인증 정보가 없는 상태로 인증번호의 유효성을 검증하면 예외가 발생한다.")
@@ -245,7 +247,7 @@ class AuthServiceTest {
         final HttpSession httpSession = mock(HttpSession.class);
         final EmailVerifyRequest request = new EmailVerifyRequest(email, "000000");
 
-        when(httpSession.getAttribute("emailVerification"))
+        when(httpSession.getAttribute(EMAIL_VERIFICATION.getName()))
                 .thenReturn(null);
 
         // when, then
@@ -267,7 +269,7 @@ class AuthServiceTest {
         final EmailVerifyRequest request = new EmailVerifyRequest("wrong@daum.net", code);
 
         serverTimeManager.refresh(dateTime);
-        when(httpSession.getAttribute("emailVerification"))
+        when(httpSession.getAttribute(EMAIL_VERIFICATION.getName()))
                 .thenReturn(authCode);
 
         // when, then
@@ -288,7 +290,7 @@ class AuthServiceTest {
         final EmailVerifyRequest request = new EmailVerifyRequest(email, "wrong");
 
         serverTimeManager.refresh(dateTime);
-        when(httpSession.getAttribute("emailVerification"))
+        when(httpSession.getAttribute(EMAIL_VERIFICATION.getName()))
                 .thenReturn(authCode);
 
         // when, then
@@ -310,7 +312,7 @@ class AuthServiceTest {
         final EmailVerifyRequest request = new EmailVerifyRequest(email, code);
 
         serverTimeManager.refresh(dateTime.plusMinutes(6));
-        when(httpSession.getAttribute("emailVerification"))
+        when(httpSession.getAttribute(EMAIL_VERIFICATION.getName()))
                 .thenReturn(authCode);
 
         // when, then

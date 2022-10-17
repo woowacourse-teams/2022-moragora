@@ -2,6 +2,8 @@ package com.woowacourse.moragora.application.auth;
 
 import static com.woowacourse.moragora.domain.user.Provider.CHECKMATE;
 import static com.woowacourse.moragora.domain.user.Provider.GOOGLE;
+import static com.woowacourse.moragora.presentation.SessionAttribute.EMAIL_VERIFICATION;
+import static com.woowacourse.moragora.presentation.SessionAttribute.VERIFIED_EMAIL;
 
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.auth.AuthCode;
@@ -32,8 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class AuthService {
-
-    private static final String ATTRIBUTE_NAME_EMAIL_VERIFICATION = "emailVerification";
 
     private final JwtTokenProvider jwtTokenProvider;
     private final GoogleClient googleClient;
@@ -95,7 +95,7 @@ public class AuthService {
         final AuthCode authCode = new AuthCode(email, code, serverTimeManager.getDateAndTime());
         mailSender.send(authCode.toMailMessage());
 
-        httpSession.setAttribute(ATTRIBUTE_NAME_EMAIL_VERIFICATION, authCode);
+        httpSession.setAttribute(EMAIL_VERIFICATION.getName(), authCode);
         return new ExpiredTimeResponse(authCode.getExpiredTime());
     }
 
@@ -106,7 +106,7 @@ public class AuthService {
         final AuthCode authCode = getAuthCodeFromSession(httpSession);
         authCode.verify(email, verifyCode, serverTimeManager.getDateAndTime());
 
-        httpSession.setAttribute("verifiedEmail", email);
+        httpSession.setAttribute(VERIFIED_EMAIL.getName(), email);
     }
 
     private User saveGoogleUser(final GoogleProfileResponse profileResponse) {
@@ -121,7 +121,7 @@ public class AuthService {
     }
 
     private AuthCode getAuthCodeFromSession(final HttpSession httpSession) {
-        final Object authCode = httpSession.getAttribute(ATTRIBUTE_NAME_EMAIL_VERIFICATION);
+        final Object authCode = httpSession.getAttribute(EMAIL_VERIFICATION.getName());
         if (authCode == null) {
             throw new ClientRuntimeException("인증 정보가 존재하지 않습니다.", HttpStatus.NOT_FOUND);
         }

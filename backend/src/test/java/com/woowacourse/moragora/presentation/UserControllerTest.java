@@ -53,7 +53,7 @@ class UserControllerTest extends ControllerTest {
         final String nickname = "kun";
         final UserRequest userRequest = new UserRequest(email, password, nickname);
         final MockHttpSession session = new MockHttpSession();
-        session.setAttribute("verifiedEmail", email);
+        session.setAttribute(SessionAttribute.VERIFIED_EMAIL.getName(), email);
 
         given(userService.create(any(UserRequest.class), eq(email)))
                 .willReturn(1L);
@@ -113,7 +113,6 @@ class UserControllerTest extends ControllerTest {
         final String password = "1234Asdfg!";
         final String nickname = "kun";
         final UserRequest userRequest = new UserRequest(email, password, nickname);
-        final MockHttpSession session = new MockHttpSession();
 
         given(userService.create(any(UserRequest.class), eq(null)))
                 .willThrow(new ClientRuntimeException("인증되지 않은 이메일입니다.", HttpStatus.BAD_REQUEST));
