@@ -96,6 +96,7 @@ public class AuthService {
         mailSender.send(authCode.toMailMessage());
 
         httpSession.setAttribute(AUTH_CODE, authCode);
+        httpSession.removeAttribute(VERIFIED_EMAIL);
         return new ExpiredTimeResponse(authCode.getExpiredTime());
     }
 
