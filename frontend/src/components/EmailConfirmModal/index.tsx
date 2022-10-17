@@ -19,7 +19,7 @@ const EmailConfirmModal: React.FC<
   React.PropsWithChildren<EmailConfirmModalProps>
 > = ({ email, expiredTimestamp, onSuccess, onDismiss, refetch: refetch }) => {
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
-  const [timeOver, setTimeOver] = useState(false);
+  const [isTimeOver, setIsTimeOver] = useState(false);
   const { currentTimestamp } = useTimer(0);
   const remainTime = getTimestampDiff(expiredTimestamp, currentTimestamp);
 
@@ -35,11 +35,12 @@ const EmailConfirmModal: React.FC<
 
   const handleReSendClick = () => {
     alert('인증 번호를 재요청했습니다.');
+    setIsTimeOver(false);
     refetch({ email });
   };
 
   const handleSubmit = () => {
-    if (!errors['code'] && !timeOver) {
+    if (!errors['code'] && !isTimeOver) {
       codeVerifyMutation.mutate({
         email,
         verifyCode: values['code'] as string,
@@ -49,7 +50,7 @@ const EmailConfirmModal: React.FC<
 
   useEffect(() => {
     if (expiredTimestamp - currentTimestamp <= 0) {
-      setTimeOver(true);
+      setIsTimeOver(true);
     }
   }, [expiredTimestamp, currentTimestamp]);
 
@@ -62,9 +63,9 @@ const EmailConfirmModal: React.FC<
       <S.Form {...onSubmit(handleSubmit)}>
         <S.InputBox>
           <S.NumberInput
+            type="number"
+            placeholder={isTimeOver ? '인증시간 만료' : '123456'}
             {...register('code', {
-              type: 'number',
-              placeholder: '123456',
               required: true,
               watch: true,
               customValidations: [
@@ -74,13 +75,16 @@ const EmailConfirmModal: React.FC<
                 },
               ],
             })}
+            disabled={isTimeOver}
           />
           <S.ExpiredTimeParagraph>{remainTime}</S.ExpiredTimeParagraph>
         </S.InputBox>
-        {errors['code'] || !values['code'] ? (
-          <S.Button onClick={handleReSendClick}>인증번호 재요청</S.Button>
+        {errors['code'] || !values['code'] || isTimeOver ? (
+          <S.ResendButton onClick={handleReSendClick}>
+            인증번호 재요청
+          </S.ResendButton>
         ) : (
-          <S.Button disabled={isSubmitting || timeOver}>확인</S.Button>
+          <S.ConfirmButton disabled={isSubmitting}>확인</S.ConfirmButton>
         )}
       </S.Form>
       <S.CloseButton onClick={onDismiss}>Ⅹ</S.CloseButton>
