@@ -4,6 +4,7 @@ import static com.woowacourse.moragora.domain.user.Provider.CHECKMATE;
 import static com.woowacourse.moragora.domain.user.Provider.GOOGLE;
 
 import com.woowacourse.moragora.application.ServerTimeManager;
+import com.woowacourse.moragora.domain.auth.RefreshToken;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.participant.ParticipantRepository;
 import com.woowacourse.moragora.domain.user.User;
@@ -44,6 +45,7 @@ public class AuthService {
         this.participantRepository = participantRepository;
     }
 
+    @Transactional
     public TokenResponse login(final LoginRequest loginRequest) {
         final User user = userRepository.findByEmailAndProvider(loginRequest.getEmail(), CHECKMATE)
                 .orElseThrow(AuthenticationFailureException::new);
@@ -70,6 +72,7 @@ public class AuthService {
         return participant.getIsMaster();
     }
 
+    @Transactional
     public TokenResponse refreshTokens(final String oldToken) {
         final RefreshToken refreshToken = refreshTokenProvider.findRefreshToken(oldToken)
                 .orElseThrow(InvalidTokenException::ofInvalid);
@@ -95,7 +98,7 @@ public class AuthService {
     }
 
     private void validateRefreshTokenExpiration(final RefreshToken refreshToken) {
-        if (refreshToken.isExpired(serverTimeManager.getDateAndTime())) {
+        if (refreshToken.isExpiredAt(serverTimeManager.getDateAndTime())) {
             removeTokenAndThrowException(refreshToken);
         }
     }

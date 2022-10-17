@@ -33,6 +33,9 @@ public class DatabaseCleanUp {
 
         for (String tableName : tableNames) {
             entityManager.createNativeQuery("TRUNCATE TABLE " + tableName).executeUpdate();
+            if (tableName.equals("refreshtoken")) {
+                continue;
+            }
             entityManager.createNativeQuery("ALTER TABLE " + tableName + " ALTER COLUMN " + "ID RESTART WITH 1")
                     .executeUpdate();
         }
