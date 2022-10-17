@@ -10,12 +10,15 @@ describe('유저', () => {
       password: 'newuserpw1!',
       passwordConfirm: 'newuserpw1!',
       nickname: '신규회원',
+      code: '123456',
     };
 
     it('성공 시 참여 중인 모임 목록 페이지로 이동한다.', () => {
       cy.get('a[class*="-RegisterLink"]').should('exist').click();
       cy.get('input[name="email"]').type(newUser.email);
       cy.get('button[class*="-EmailCheckButton"]').click();
+      cy.get('input[name="code"]').type(newUser.code);
+      cy.get('button[class*="-ConfirmButton"]').click();
       cy.get('input[name="password"]').type(newUser.password);
       cy.get('input[name="passwordConfirm"]').type(newUser.passwordConfirm);
       cy.get('input[name="nickname"]').type(newUser.nickname).type('{enter}');
