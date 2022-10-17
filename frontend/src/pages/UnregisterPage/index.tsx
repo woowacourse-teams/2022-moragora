@@ -1,31 +1,28 @@
 import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
 import * as S from './UnregisterPage.styled';
 import useForm from 'hooks/useForm';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
 import Button from 'components/@shared/Button';
-import { userContext } from 'contexts/userContext';
+import { userContext, UserContextValues } from 'contexts/userContext';
 import useMutation from 'hooks/useMutation';
 import { unregisterApi } from 'apis/userApis';
 
 const UnregisterPage = () => {
-  const user = useContext(userContext);
-
-  if (!user?.accessToken) {
-    return <Navigate to="/" />;
-  }
-
-  const confirmMessage = `${user.user?.email}/delete`;
-  const passwordUpdateMutation = useMutation(unregisterApi(user.accessToken), {
-    onSuccess: () => {
-      user.logout();
-      alert('회원 탈퇴되었습니다.');
-    },
-    onError: (e) => {
-      alert(e.message);
-    },
-  });
+  const userState = useContext(userContext) as UserContextValues;
+  const confirmMessage = `${userState.user?.email}/delete`;
+  const passwordUpdateMutation = useMutation(
+    unregisterApi(userState.accessToken),
+    {
+      onSuccess: () => {
+        userState.logout();
+        alert('회원 탈퇴되었습니다.');
+      },
+      onError: (e) => {
+        alert(e.message);
+      },
+    }
+  );
   const { errors, onSubmit, register, isSubmitting } = useForm();
 
   const handleUnregisterSubmitValid: React.FormEventHandler<
