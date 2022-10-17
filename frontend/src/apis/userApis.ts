@@ -24,6 +24,7 @@ export const postEmailSendApi = (payload: UserEmailSendRequestBody) =>
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(payload),
+    credentials: 'include',
   });
 
 export const postVerifyCodeAPi = (payload: EmailCodeVerifyRequestBody) =>
@@ -33,6 +34,7 @@ export const postVerifyCodeAPi = (payload: EmailCodeVerifyRequestBody) =>
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(payload),
+    credentials: 'include',
   });
 
 export const submitRegisterApi = async (payload: UserRegisterRequestBody) => {
@@ -42,6 +44,7 @@ export const submitRegisterApi = async (payload: UserRegisterRequestBody) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(payload),
+    credentials: 'include',
   });
 
   const { nickname, ...loginRequestBody } = payload;
