@@ -46,7 +46,7 @@ public class AuthController {
     }
 
     @PostMapping("/emails/verify")
-    public ResponseEntity<Void> sendEmail(@RequestBody @Valid final EmailVerifyRequest emailVerifyRequest,
+    public ResponseEntity<Void> verifyCode(@RequestBody @Valid final EmailVerifyRequest emailVerifyRequest,
                                           @SessionAttribute(name = SessionAttributeNames.AUTH_CODE,
                                                   required = false) final AuthCode authCode,
                                           final HttpSession session) {
