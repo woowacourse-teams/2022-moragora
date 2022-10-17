@@ -14,6 +14,7 @@ import {
 import {
   AttendancesResponseBody,
   PostUserAttendanceRequestBody,
+  PostUserGeolocationAttendanceRequestBody,
 } from 'types/attendanceType';
 import request from '../utils/request';
 
@@ -147,6 +148,30 @@ export const postUserAttendanceApi = async ({
         Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({ isPresent }),
+    }
+  );
+};
+
+export const PostUserGeolocationAttendanceApi = async ({
+  meetingId,
+  userId,
+  accessToken,
+  latitude,
+  longitude,
+}: PostUserGeolocationAttendanceRequestBody) => {
+  if (!accessToken) {
+    throw new Error('미팅 정보를 불러오는 중 에러가 발생했습니다.');
+  }
+
+  return request<{}>(
+    `/meetings/${meetingId}/users/${userId}/attendances/today/geolocation`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ latitude, longitude }),
     }
   );
 };

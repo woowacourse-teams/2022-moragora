@@ -16,3 +16,11 @@ export type PostUserAttendanceRequestBody = {
   accessToken: User['accessToken'];
   isPresent: boolean;
 };
+
+export type PostUserGeolocationAttendanceRequestBody = {
+  meetingId: number;
+  userId: User['id'];
+  accessToken: User['accessToken'];
+  latitude: number;
+  longitude: number;
+};

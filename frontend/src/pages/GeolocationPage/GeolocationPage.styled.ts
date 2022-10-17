@@ -1,42 +1,6 @@
 import styled from '@emotion/styled';
-import Button from 'components/@shared/Button';
 
-export const Layout = styled.div`
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: 0.75rem;
-`;
-
-export const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-`;
-
-export const FieldGroupBox = styled.div`
-  display: flex;
-  gap: 1rem;
-`;
-
-export const FieldBox = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-export const Label = styled.label`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-export const AddMemberParagraph = styled.p`
-  display: flex;
-  justify-content: space-between;
-`;
+export const Layout = styled.div``;
 
 export const MapSection = styled.section`
   width: 100%;
@@ -50,7 +14,8 @@ export const MapSection = styled.section`
 
 export const Map = styled.div`
   width: 100%;
-  height: 400px;
+  max-width: 700px;
+  height: 500px;
 `;
 
 export const MapOverlay = styled.div`
@@ -77,6 +42,7 @@ export const MapOverlay = styled.div`
 export const BeaconListBox = styled.div`
   display: flex;
   flex-direction: column;
+  width: 200px;
 `;
 
 export const BeaconListLengthBox = styled.div`
@@ -89,12 +55,6 @@ export const BeaconList = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  background-color: inherit;
-`;
-
-export const MeetingCreateButton = styled(Button)`
-  margin-top: 32px;
+  overflow-x: hidden;
+  overflow-y: scroll;
 `;

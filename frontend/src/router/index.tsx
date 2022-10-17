@@ -14,6 +14,7 @@ import UnregisterPage from 'pages/UnregisterPage';
 import CheckInPage from 'pages/CheckInPage';
 import CalendarPage from 'pages/CalendarPage';
 import MeetingConfigPage from 'pages/MeetingConfigPage';
+import GelocationPage from 'pages/GeolocationPage';
 
 const Router = () => {
   return useRoutes([
@@ -28,6 +29,10 @@ const Router = () => {
     {
       element: <Auth shouldLogin={true} />,
       children: [
+        {
+          path: 'geolocation',
+          element: <GelocationPage />,
+        },
         {
           path: 'meeting',
           children: [

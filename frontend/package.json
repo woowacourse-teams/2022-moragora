@@ -62,6 +62,7 @@
     "favicons": "^6.2.2",
     "favicons-webpack-plugin": "^5.0.2",
     "html-webpack-plugin": "^5.5.0",
+    "kakao.maps.d.ts": "^0.1.33",
     "msw": "^0.43.0",
     "msw-storybook-addon": "^1.6.3",
     "prettier": "^2.7.1",
