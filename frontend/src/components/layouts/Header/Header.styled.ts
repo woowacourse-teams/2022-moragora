@@ -11,6 +11,7 @@ export const Layout = styled.header`
   justify-content: space-between;
   align-items: center;
   background-color: ${({ theme: { colors } }) => colors['surface']};
+  z-index: ${({ theme: { zIndex } }) => zIndex['header']};
 `;
 
 export const Box = styled.div`

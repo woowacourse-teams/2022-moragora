@@ -13,6 +13,7 @@ export const Nav = styled.nav`
   border-top: 1px solid ${({ theme: { colors } }) => colors['background']};
   padding: 0 1rem;
   background-color: ${({ theme: { colors } }) => colors['white']};
+  z-index: ${({ theme: { zIndex } }) => zIndex['footer']};
 `;
 
 export const MenuNavLink = styled(NavLink)`

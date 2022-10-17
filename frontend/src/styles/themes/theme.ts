@@ -22,6 +22,15 @@ const SCREEN_SIZES = {
   xl: 1680,
 };
 
+const zIndex = {
+  modal: 100,
+  'modal-background': 90,
+  footer: 50,
+  header: 50,
+  'slightly-float': 10,
+  surface: 0,
+};
+
 const media: Theme['media'] = {
   xs: (...args) => css`
     @media only screen and (max-width: ${SCREEN_SIZES.xs}px) {
@@ -56,4 +65,5 @@ const media: Theme['media'] = {
 export const theme: Theme = {
   colors,
   media,
+  zIndex,
 };
