@@ -30,6 +30,11 @@ server:
     threads:
       max: 50
     accept-count: 10
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        secure: true
 
 jvm:
   args:

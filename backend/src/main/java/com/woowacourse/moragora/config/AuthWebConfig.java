@@ -26,8 +26,9 @@ public class AuthWebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(final CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("*")
+                .allowedOrigins("http://localhost:3000", "https://checkmate.today", "https://test.checkamte.today")
                 .allowedMethods(ALLOWED_METHOD_NAMES.split(","))
+                .allowCredentials(true)
                 .exposedHeaders(HttpHeaders.LOCATION);
     }
 
