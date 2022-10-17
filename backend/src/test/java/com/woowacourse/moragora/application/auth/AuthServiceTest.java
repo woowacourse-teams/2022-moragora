@@ -14,6 +14,7 @@ import com.woowacourse.moragora.application.UserService;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
+import com.woowacourse.moragora.dto.request.user.UserDeleteRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
@@ -217,6 +218,25 @@ class AuthServiceTest {
 
         // when, then
         serverTimeManager.refresh(LocalDateTime.now().plusDays(days));
+        assertThatThrownBy(() -> authService.refreshTokens(tokenResponse.getRefreshToken()))
+                .isInstanceOf(InvalidTokenException.class);
+    }
+
+    @DisplayName("Refresh token에 해당하는 유저가 존재하지 않는 경우 예외가 발생한다.")
+    @Test
+    void refreshTokens_ifUserNotExists_throwsException() {
+        // given
+        final String email = "kun@email.com";
+        final String password = "qwerasdf123!";
+        final UserRequest userRequest = new UserRequest(email, password, "kun");
+        final Long userId = userService.create(userRequest);
+
+        final LoginRequest loginRequest = new LoginRequest(email, password);
+        final TokenResponse tokenResponse = authService.login(loginRequest);
+
+        // when, then
+        userService.delete(new UserDeleteRequest(password), userId);
+        serverTimeManager.refresh(LocalDateTime.now());
         assertThatThrownBy(() -> authService.refreshTokens(tokenResponse.getRefreshToken()))
                 .isInstanceOf(InvalidTokenException.class);
     }

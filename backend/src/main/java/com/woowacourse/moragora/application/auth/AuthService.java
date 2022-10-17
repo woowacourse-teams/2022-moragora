@@ -85,6 +85,11 @@ public class AuthService {
         return tokenResponse;
     }
 
+    @Transactional
+    public void removeRefreshToken(final String refreshToken) {
+        refreshTokenProvider.remove(refreshToken);
+    }
+
     private TokenResponse createTokenResponse(final Long userId) {
         final String accessToken = jwtTokenProvider.createToken(String.valueOf(userId));
         final String refreshToken = refreshTokenProvider.create(userId, serverTimeManager.getDateAndTime());
@@ -112,9 +117,5 @@ public class AuthService {
     private void removeTokenAndThrowException(final RefreshToken refreshToken) {
         refreshTokenProvider.remove(refreshToken.getValue());
         throw InvalidTokenException.ofInvalid();
-    }
-
-    public void removeRefreshToken(final String refreshToken) {
-        refreshTokenProvider.remove(refreshToken);
     }
 }
