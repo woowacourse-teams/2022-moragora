@@ -33,7 +33,6 @@ const RegisterPage = () => {
   const registerMutation = useMutation(submitRegisterApi, {
     onSuccess: ({ body: userData, accessToken }) => {
       login(userData, accessToken);
-      navigate('/');
     },
     onError: () => {
       alert('회원가입을 실패했습니다.');

@@ -61,7 +61,7 @@ export const ExpiredTimeParagraph = styled.p`
   color: gray;
 `;
 
-export const ResendButton = styled(_Button)`
+export const ReSendButton = styled(_Button)`
   padding: 0;
   height: 2rem;
   font-size: 0.75rem;

@@ -16,7 +16,7 @@ type EmailConfirmModalProps = {
 
 const EmailConfirmModal: React.FC<
   React.PropsWithChildren<EmailConfirmModalProps>
-> = ({ email, expiredTimestamp, onSuccess, onDismiss, refetch: refetch }) => {
+> = ({ email, expiredTimestamp, onSuccess, onDismiss, refetch }) => {
   const [code, setCode] = useState('');
   const [isValidCode, setIsValidCode] = useState(false);
   const [isTimeOver, setIsTimeOver] = useState(false);
@@ -105,9 +105,9 @@ const EmailConfirmModal: React.FC<
           <S.ExpiredTimeParagraph>{remainTime}</S.ExpiredTimeParagraph>
         </S.InputBox>
         {!isValidCode || isTimeOver ? (
-          <S.ResendButton onClick={handleReSendClick}>
+          <S.ReSendButton onClick={handleReSendClick}>
             인증번호 재요청
-          </S.ResendButton>
+          </S.ReSendButton>
         ) : (
           <S.ConfirmButton disabled={codeVerifyMutation.isLoading}>
             확인
