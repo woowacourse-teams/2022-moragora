@@ -46,6 +46,10 @@ export const NumberInput = styled(Input)`
     outline: none;
   }
 
+  :disabled {
+    background-color: transparent;
+  }
+
   ::-webkit-outer-spin-button,
   ::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -57,7 +61,18 @@ export const ExpiredTimeParagraph = styled.p`
   color: gray;
 `;
 
-export const Button = styled(_Button)`
+export const ResendButton = styled(_Button)`
+  padding: 0;
+  height: 2rem;
+  font-size: 0.75rem;
+
+  background-color: ${({ theme: { colors } }) => colors['primary-subtle']};
+  &:hover {
+    background-color: ${({ theme: { colors } }) => colors['primary']};
+  }
+`;
+
+export const ConfirmButton = styled(_Button)`
   padding: 0;
   height: 2rem;
   font-size: 0.75rem;
