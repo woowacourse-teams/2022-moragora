@@ -56,7 +56,7 @@ const RegisterPage = () => {
   };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    if (isEmailVerified) {
+    if (!isEmailVerified) {
       throw e;
     }
 
@@ -98,7 +98,7 @@ const RegisterPage = () => {
                     onChange: () => {
                       setIsEmailVerified(false);
                     },
-                    disabled: isEmailVerified,
+                    readOnly: isEmailVerified,
                   })}
                   placeholder="이메일을 입력해주세요."
                 />
