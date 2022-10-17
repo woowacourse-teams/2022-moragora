@@ -1,17 +1,29 @@
 package com.woowacourse.moragora.config;
 
-import java.util.Date;
-import java.util.concurrent.ScheduledFuture;
+import com.woowacourse.moragora.application.AttendanceScheduler;
+import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 @Configuration
-public class SchedulerConfig extends ThreadPoolTaskScheduler {
+public class SchedulerConfig {
 
-    private static final long serialVersionUID = 1L;
+    private final AttendanceRepository attendanceRepository;
+    private final boolean isScheduler;
 
-    @Override
-    public ScheduledFuture<?> schedule(final Runnable task, final Date startTime) {
-        return super.schedule(task, startTime);
+    public SchedulerConfig(final AttendanceRepository attendanceRepository,
+                           @Value("${jvm.args.scheduler}") final boolean isScheduler) {
+        this.attendanceRepository = attendanceRepository;
+        this.isScheduler = isScheduler;
+    }
+
+    @Bean
+    public AttendanceScheduler scheduleService() {
+        if (isScheduler) {
+            return new AttendanceScheduler(attendanceRepository);
+        }
+
+        return null;
     }
 }

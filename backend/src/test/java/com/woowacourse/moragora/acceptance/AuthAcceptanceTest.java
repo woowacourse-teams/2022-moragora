@@ -8,20 +8,15 @@ import static org.mockito.BDDMockito.given;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
-import com.woowacourse.moragora.infrastructure.GoogleClient;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 @DisplayName("인증 관련 기능")
 class AuthAcceptanceTest extends AcceptanceTest {
-
-    @MockBean
-    private GoogleClient googleClient;
 
     @DisplayName("로그인에 성공할 때 토큰과 상태코드 200을 반환한다.")
     @Test
