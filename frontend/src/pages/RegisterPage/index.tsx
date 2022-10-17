@@ -40,7 +40,12 @@ const RegisterPage = () => {
     },
   });
 
-  const handleClose = () => {
+  const handleModalClose = () => {
+    setIsModalOpened(false);
+  };
+
+  const handleEmailConfirmSuccess = () => {
+    setIsEmailVerified(true);
     setIsModalOpened(false);
   };
 
@@ -68,13 +73,13 @@ const RegisterPage = () => {
   return (
     <>
       {isModalOpened && (
-        <ModalPortal closePortal={handleClose}>
+        <ModalPortal closePortal={handleModalClose}>
           <EmailConfirmModal
             email={values['email'] as string}
             expiredTimestamp={expiredTimestamp}
-            setIsEmailVerified={setIsEmailVerified}
-            onDismiss={handleClose}
-            refetchHandler={emailSendMutation.mutate}
+            onSuccess={handleEmailConfirmSuccess}
+            onDismiss={handleModalClose}
+            refetch={emailSendMutation.mutate}
           />
         </ModalPortal>
       )}

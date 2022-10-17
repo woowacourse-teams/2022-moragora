@@ -10,20 +10,14 @@ import { useEffect, useState } from 'react';
 type EmailConfirmModalProps = {
   email: User['email'];
   expiredTimestamp: number;
-  setIsEmailVerified: React.Dispatch<React.SetStateAction<boolean>>;
+  onSuccess: () => void;
   onDismiss: () => void;
-  refetchHandler: (variables: UserEmailSendRequestBody) => Promise<void>;
+  refetch: (variables: UserEmailSendRequestBody) => Promise<void>;
 };
 
 const EmailConfirmModal: React.FC<
   React.PropsWithChildren<EmailConfirmModalProps>
-> = ({
-  email,
-  expiredTimestamp,
-  setIsEmailVerified,
-  onDismiss,
-  refetchHandler,
-}) => {
+> = ({ email, expiredTimestamp, onSuccess, onDismiss, refetch: refetch }) => {
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
   const [timeOver, setTimeOver] = useState(false);
   const { currentTimestamp } = useTimer(0);
@@ -32,8 +26,7 @@ const EmailConfirmModal: React.FC<
   const codeVerifyMutation = useMutation(postVerifyCodeAPi, {
     onSuccess: () => {
       alert('인증을 완료했습니다.');
-      setIsEmailVerified(true);
-      onDismiss();
+      onSuccess();
     },
     onError: () => {
       alert('인증을 실패했습니다.');
@@ -42,7 +35,7 @@ const EmailConfirmModal: React.FC<
 
   const handleReSendClick = () => {
     alert('인증 번호를 재요청했습니다.');
-    refetchHandler({ email });
+    refetch({ email });
   };
 
   const handleSubmit = () => {
