@@ -15,7 +15,6 @@ import com.woowacourse.moragora.dto.request.user.NicknameRequest;
 import com.woowacourse.moragora.dto.request.user.PasswordRequest;
 import com.woowacourse.moragora.dto.request.user.UserDeleteRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
-import com.woowacourse.moragora.dto.response.user.EmailCheckResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
 import com.woowacourse.moragora.dto.response.user.UsersResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
@@ -30,7 +29,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -90,44 +88,6 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.create(userRequest, "kun@google.com"))
                 .isInstanceOf(ClientRuntimeException.class)
                 .hasMessage("인증되지 않은 이메일입니다.");
-    }
-
-    @DisplayName("중복되지 않은 이메일의 중복 여부를 확인한다.")
-    @Test
-    void isEmailExist_ifNotExists() {
-        // given
-        final String uniqueEmail = "someUniqueEmail@email.unique";
-
-        // when
-        final EmailCheckResponse response = userService.isEmailExist(uniqueEmail);
-
-        // then
-        assertThat(response.getIsExist()).isFalse();
-    }
-
-    @DisplayName("중복된 이메일의 중복 여부를 확인한다.")
-    @Test
-    void isEmailExist_ifExists() {
-        // given
-        final String existingEmail = "kun@naver.com";
-        final UserRequest userRequest = new UserRequest(existingEmail, "1234smart!", "kun");
-        userService.create(userRequest, existingEmail);
-
-        // when
-        final EmailCheckResponse response = userService.isEmailExist(existingEmail);
-
-        // then
-        assertThat(response.getIsExist()).isTrue();
-    }
-
-    @DisplayName("이메일을 입력하지 않고 중복 여부를 확인하면 예외가 발생한다.")
-    @ParameterizedTest
-    @EmptySource
-    @ValueSource(strings = {" "})
-    void isEmailExist_throwsException_ifBlank(final String email) {
-        // given, when, then
-        assertThatThrownBy(() -> userService.isEmailExist(email))
-                .isInstanceOf(NoParameterException.class);
     }
 
     @DisplayName("keyword로 회원을 검색한다.")

@@ -5,7 +5,6 @@ import com.woowacourse.moragora.dto.request.user.NicknameRequest;
 import com.woowacourse.moragora.dto.request.user.PasswordRequest;
 import com.woowacourse.moragora.dto.request.user.UserDeleteRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
-import com.woowacourse.moragora.dto.response.user.EmailCheckResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
 import com.woowacourse.moragora.dto.response.user.UsersResponse;
 import com.woowacourse.moragora.presentation.auth.Authentication;
@@ -42,12 +41,6 @@ public class UserController {
         final Long id = userService.create(userRequest, verifiedEmail);
         httpSession.invalidate();
         return ResponseEntity.created(URI.create("/users/" + id)).build();
-    }
-
-    @GetMapping("/check-email")
-    public ResponseEntity<EmailCheckResponse> checkEmail(@RequestParam final String email) {
-        final EmailCheckResponse response = userService.isEmailExist(email);
-        return ResponseEntity.ok(response);
     }
 
     @GetMapping

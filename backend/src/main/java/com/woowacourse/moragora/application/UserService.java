@@ -15,7 +15,6 @@ import com.woowacourse.moragora.dto.request.user.NicknameRequest;
 import com.woowacourse.moragora.dto.request.user.PasswordRequest;
 import com.woowacourse.moragora.dto.request.user.UserDeleteRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
-import com.woowacourse.moragora.dto.response.user.EmailCheckResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
 import com.woowacourse.moragora.dto.response.user.UsersResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
@@ -63,14 +62,6 @@ public class UserService {
         if (!email.equals(validatedEmail)) {
             throw new ClientRuntimeException("인증되지 않은 이메일입니다.", BAD_REQUEST);
         }
-    }
-
-    public EmailCheckResponse isEmailExist(final String email) {
-        if (email.isBlank()) {
-            throw new NoParameterException();
-        }
-        final boolean isExist = userRepository.findByEmailAndProvider(email, CHECKMATE).isPresent();
-        return new EmailCheckResponse(isExist);
     }
 
     public UsersResponse searchByKeyword(final String keyword) {
