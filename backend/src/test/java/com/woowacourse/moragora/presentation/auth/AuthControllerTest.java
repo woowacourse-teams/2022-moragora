@@ -151,4 +151,22 @@ class AuthControllerTest extends ControllerTest {
                                 fieldWithPath("accessToken").type(JsonFieldType.STRING).description(newAccessToken)
                         )));
     }
+
+
+    @DisplayName("로그아웃에 성공한다.")
+    @Test
+    void logout() throws Exception {
+        // given
+        given(refreshTokenCookieProvider.createInvalidCookie())
+                .willReturn(ResponseCookie.from("refreshToken", "").build());
+
+        // when
+        final ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/token/logout")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .cookie(new Cookie("refreshToken", "refresh_token")))
+                .andDo(print());
+
+        // then
+        resultActions.andExpect(status().isNoContent());
+    }
 }

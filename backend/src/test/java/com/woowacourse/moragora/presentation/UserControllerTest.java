@@ -38,6 +38,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -249,6 +250,8 @@ class UserControllerTest extends ControllerTest {
         doThrow(InvalidTokenException.ofInvalid())
                 .when(jwtTokenProvider)
                 .validateToken(any());
+        given(refreshTokenCookieProvider.createInvalidCookie())
+                .willReturn(ResponseCookie.from("refreshToken", "").build());
 
         // when
         final ResultActions resultActions = performGet("/users/me");

@@ -108,7 +108,10 @@ public class AuthService {
 
     private void removeTokenAndThrowException(final RefreshToken refreshToken) {
         refreshTokenProvider.remove(refreshToken.getValue());
-        // TODO: 쿠키 제거
         throw InvalidTokenException.ofInvalid();
+    }
+
+    public void removeRefreshToken(final String refreshToken) {
+        refreshTokenProvider.remove(refreshToken);
     }
 }

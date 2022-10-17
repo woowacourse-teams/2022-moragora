@@ -25,7 +25,7 @@ class RefreshTokenCookieProviderTest {
                 .httpOnly(true)
                 .secure(true)
                 .sameSite(SameSite.NONE.attributeValue())
-                .path("/token/refresh")
+                .path("/token")
                 .build();
 
         // when

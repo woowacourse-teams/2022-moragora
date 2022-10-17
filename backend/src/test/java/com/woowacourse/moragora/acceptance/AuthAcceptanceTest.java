@@ -1,10 +1,14 @@
 package com.woowacourse.moragora.acceptance;
 
 import static com.woowacourse.moragora.support.fixture.UserFixtures.AZPI;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.SUN;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.springframework.http.HttpStatus.OK;
 
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
@@ -18,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 @DisplayName("인증 관련 기능")
@@ -41,7 +44,7 @@ class AuthAcceptanceTest extends AcceptanceTest {
         final ValidatableResponse response = post("/login", loginRequest);
 
         // then
-        response.statusCode(HttpStatus.OK.value())
+        response.statusCode(OK.value())
                 .body("accessToken", notNullValue())
                 .cookie("refreshToken", notNullValue());
     }
@@ -61,7 +64,7 @@ class AuthAcceptanceTest extends AcceptanceTest {
         final ValidatableResponse response = post("/login", loginRequest);
 
         // then
-        response.statusCode(HttpStatus.BAD_REQUEST.value())
+        response.statusCode(BAD_REQUEST.value())
                 .body("message", equalTo("이메일이나 비밀번호가 틀렸습니다."));
     }
 
@@ -84,7 +87,7 @@ class AuthAcceptanceTest extends AcceptanceTest {
                 .then().log().all();
 
         // then
-        response.statusCode(HttpStatus.OK.value())
+        response.statusCode(OK.value())
                 .cookie("refreshToken", notNullValue())
                 .body("accessToken", notNullValue());
     }
@@ -93,11 +96,11 @@ class AuthAcceptanceTest extends AcceptanceTest {
     @Test
     void refresh_accessToken() {
         // given
-        given(serverTimeManager.getDateAndTime())
-                .willReturn(LocalDateTime.now());
         final User user = AZPI.create();
         signUp(user);
 
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(LocalDateTime.now());
         final LoginRequest loginRequest = new LoginRequest(user.getEmail(), "1234asdf!");
         final ExtractableResponse<Response> loginResponse = post("/login", loginRequest).extract();
         final Map<String, String> cookies = loginResponse.cookies();
@@ -110,8 +113,31 @@ class AuthAcceptanceTest extends AcceptanceTest {
                 .then().log().all();
 
         // then
-        response.statusCode(HttpStatus.OK.value())
+        response.statusCode(OK.value())
                 .cookie("refreshToken", notNullValue())
                 .body("accessToken", notNullValue());
+    }
+
+    @DisplayName("로그아웃시 쿠키를 제거하고 상태코드 204를 반환한다.")
+    @Test
+    void logout() {
+        // given
+        final User user = SUN.create();
+        signUp(user);
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(LocalDateTime.now());
+        final LoginRequest loginRequest = new LoginRequest(user.getEmail(), "1234asdf!");
+        final ExtractableResponse<Response> loginResponse = post("/login", loginRequest).extract();
+
+        // when
+        final ValidatableResponse response = RestAssured.given().log().all()
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .cookies(loginResponse.cookies())
+                .when().post("/token/logout")
+                .then().log().all();
+
+        // then
+        response.statusCode(NO_CONTENT.value())
+                .cookie("refreshToken", "");
     }
 }
