@@ -114,7 +114,7 @@ const EmailConfirmModal: React.FC<
           </S.ConfirmButton>
         )}
       </S.Form>
-      <S.CloseButton onClick={onDismiss}>Ⅹ</S.CloseButton>
+      <S.CloseButton onClick={onDismiss}>ⅹ</S.CloseButton>
     </S.Layout>
   );
 };
