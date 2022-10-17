@@ -1,7 +1,8 @@
 import { DefaultBodyType, rest } from 'msw';
 import users from 'mocks/fixtures/users';
 import meetings from 'mocks/fixtures/meetings';
-import beacons, { Beacon } from 'mocks/fixtures/beacons';
+import beacons from 'mocks/fixtures/beacons';
+import { Beacon } from 'types/beaconType';
 import { DELAY } from 'mocks/configs';
 import { extractIdFromHeader } from 'mocks/utils';
 import { Attendance } from 'types/attendanceType';
@@ -166,7 +167,7 @@ export default [
       }
 
       const beacons: Beacon[] = tempBeacons.filter(
-        (beacon) => Number(meeting) === beacon.meetingId
+        (beacon) => meeting.id === beacon.meetingId
       );
       const distances = beacons.map((beacon) => {
         return {

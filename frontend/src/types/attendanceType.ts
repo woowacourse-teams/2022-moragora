@@ -20,7 +20,6 @@ export type PostUserAttendanceRequestBody = {
 export type PostUserGeolocationAttendanceRequestBody = {
   meetingId: number;
   userId: User['id'];
-  accessToken: User['accessToken'];
   latitude: number;
   longitude: number;
 };

@@ -4,9 +4,9 @@ const beacons: Beacon[] = [
   {
     id: 1,
     meetingId: 1,
-    latitude: 0,
-    longitude: 0,
-    radius: 0,
+    latitude: 37.5151486,
+    longitude: 127.1030335,
+    radius: 50,
     address: '주소',
   },
 ];
