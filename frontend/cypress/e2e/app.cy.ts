@@ -83,6 +83,7 @@ describe('모임', () => {
       password: 'newuserpw1!',
       passwordConfirm: 'newuserpw1!',
       nickname: '신규회원',
+      code: '123456',
     };
     const newMeeting = {
       name: '새로운 모임',
@@ -93,6 +94,8 @@ describe('모임', () => {
       cy.get('a[class*="-RegisterLink"]').should('exist').click();
       cy.get('input[name="email"]').type(newUser.email);
       cy.get('button[class*="-EmailCheckButton"]').click();
+      cy.get('input[name="code"]').type(newUser.code);
+      cy.get('button[class*="-ConfirmButton"]').click();
       cy.get('input[name="password"]').type(newUser.password);
       cy.get('input[name="passwordConfirm"]').type(newUser.passwordConfirm);
       cy.get('input[name="nickname"]').type(newUser.nickname).type('{enter}');
