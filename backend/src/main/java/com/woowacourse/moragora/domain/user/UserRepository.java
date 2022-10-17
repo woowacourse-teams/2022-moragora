@@ -14,7 +14,7 @@ public interface UserRepository extends Repository<User, Long> {
 
     List<User> findByIdIn(final List<Long> ids);
 
-    Optional<User> findByEmail(final String email);
+    boolean existsByEmail(final String email);
 
     Optional<User> findByEmailAndProvider(final String email, final Provider provider);
 

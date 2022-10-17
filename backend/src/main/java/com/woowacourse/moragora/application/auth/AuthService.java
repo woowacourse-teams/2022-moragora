@@ -116,7 +116,7 @@ public class AuthService {
     }
 
     private void checkEmailExist(final String email) {
-        if (userRepository.findByEmail(email).isPresent()) {
+        if (userRepository.existsByEmail(email)) {
             throw new EmailDuplicatedException();
         }
     }
