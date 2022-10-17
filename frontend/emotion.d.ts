@@ -19,9 +19,18 @@ type Colors =
   | 'tint'
   | 'transparent';
 
+type ZIndex =
+  | 'surface'
+  | 'slightly-float'
+  | 'footer'
+  | 'header'
+  | 'modal'
+  | 'modal-background';
+
 declare module '@emotion/react' {
   export interface Theme {
     colors: Record<Colors, string>;
     media: MediaQuery<ScreenSize>;
+    zIndex: Record<ZIndex, number>;
   }
 }
