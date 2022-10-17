@@ -332,7 +332,7 @@ export default [
       }
 
       const timer = new Date();
-      timer.setMinutes(timer.getMinutes() + 1);
+      timer.setMinutes(timer.getMinutes() + 5);
       emailExpiredTime = timer.getTime();
 
       return res(
