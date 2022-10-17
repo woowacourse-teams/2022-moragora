@@ -82,7 +82,20 @@ export const BeaconListBox = styled.div`
 export const BeaconListLengthBox = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin: 1rem 0;
+  gap: 1rem;
+`;
+
+export const BeaconCountParagraph = styled.p`
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: ${({ theme: { colors } }) => colors['white']};
+  flex: 1;
+`;
+
+export const BeaconCountMaximumSpan = styled.span`
+  color: ${({ theme: { colors } }) => colors['subtle-light']};
 `;
 
 export const BeaconList = styled.ul`

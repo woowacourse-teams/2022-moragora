@@ -15,6 +15,7 @@ import { UserQueryWithKeywordResponse } from 'types/userType';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { createMeetingApi } from 'apis/meetingApis';
 import { createBeaconsApi } from 'apis/beaconApis';
+import DialogButton from 'components/@shared/DialogButton';
 
 const MAX_SELECTED_USER_COUNT = 30;
 
@@ -160,6 +161,7 @@ const MeetingCreatePage = () => {
           isShow={!isParticipantSelected}
           message="참여자가 선택되지 않았습니다."
         />
+        <S.Label>비콘 등록하기</S.Label>
         <S.MapSection>
           <S.Map id="map" ref={mapContainerRef}>
             <S.MapOverlay
@@ -173,10 +175,17 @@ const MeetingCreatePage = () => {
 
           <S.BeaconListBox>
             <S.BeaconListLengthBox>
-              <span>비콘 개수: {beacons.length}</span>
-              <button type="button" onClick={removeBeacons}>
-                reset
-              </button>
+              <S.BeaconCountParagraph>
+                비콘 개수: {beacons.length}{' '}
+                <S.BeaconCountMaximumSpan>/ 3</S.BeaconCountMaximumSpan>
+              </S.BeaconCountParagraph>
+              <DialogButton
+                type="button"
+                onClick={removeBeacons}
+                variant="confirm"
+              >
+                리셋
+              </DialogButton>
             </S.BeaconListLengthBox>
             <S.BeaconList>
               {beacons.map(({ id, position, address, radius }) => (
