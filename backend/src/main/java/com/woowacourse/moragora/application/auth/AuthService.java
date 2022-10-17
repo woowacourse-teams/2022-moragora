@@ -75,7 +75,7 @@ public class AuthService {
     @Transactional
     public TokenResponse refreshTokens(final String oldToken) {
         final RefreshToken refreshToken = refreshTokenProvider.findRefreshToken(oldToken)
-                .orElseThrow(InvalidTokenException::ofInvalid);
+                .orElseThrow(InvalidTokenException::new);
         validateRefreshTokenExpiration(refreshToken);
         validateUserExists(refreshToken);
 
@@ -116,6 +116,6 @@ public class AuthService {
 
     private void removeTokenAndThrowException(final RefreshToken refreshToken) {
         refreshTokenProvider.remove(refreshToken.getValue());
-        throw InvalidTokenException.ofInvalid();
+        throw new InvalidTokenException();
     }
 }

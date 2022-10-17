@@ -5,6 +5,7 @@ import static org.springframework.http.HttpHeaders.SET_COOKIE;
 import com.woowacourse.moragora.dto.response.ErrorResponse;
 import com.woowacourse.moragora.dto.response.TokenErrorResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.ExpiredTokenException;
 import com.woowacourse.moragora.exception.InvalidTokenException;
 import com.woowacourse.moragora.presentation.auth.RefreshTokenCookieProvider;
 import java.util.List;
@@ -35,12 +36,16 @@ public class ControllerAdvice {
     }
 
     @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<ErrorResponse> handleTokenException(final HttpServletResponse response,
-                                                              final InvalidTokenException exception) {
-        if (exception.getStatus().equals("invalid")) {
-            final ResponseCookie responseCookie = refreshTokenCookieProvider.createInvalidCookie();
-            response.addHeader(SET_COOKIE, responseCookie.toString());
-        }
+    public ResponseEntity<ErrorResponse> handleInvalidTokenException(final HttpServletResponse response,
+                                                                     final InvalidTokenException exception) {
+        final ResponseCookie responseCookie = refreshTokenCookieProvider.createInvalidCookie();
+        response.addHeader(SET_COOKIE, responseCookie.toString());
+        return ResponseEntity.status(exception.getHttpStatus())
+                .body(new TokenErrorResponse(exception.getMessage(), exception.getStatus()));
+    }
+
+    @ExceptionHandler(ExpiredTokenException.class)
+    public ResponseEntity<ErrorResponse> handleExpiredTokenException(final ExpiredTokenException exception) {
         return ResponseEntity.status(exception.getHttpStatus())
                 .body(new TokenErrorResponse(exception.getMessage(), exception.getStatus()));
     }

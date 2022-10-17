@@ -247,7 +247,7 @@ class UserControllerTest extends ControllerTest {
     @Test
     void findMe_ifNotLoggedIn() throws Exception {
         // given
-        doThrow(InvalidTokenException.ofInvalid())
+        doThrow(new InvalidTokenException())
                 .when(jwtTokenProvider)
                 .validateToken(any());
         given(refreshTokenCookieProvider.createInvalidCookie())

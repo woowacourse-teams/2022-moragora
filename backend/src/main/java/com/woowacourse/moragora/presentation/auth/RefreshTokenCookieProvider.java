@@ -38,7 +38,7 @@ public class RefreshTokenCookieProvider {
         final Cookie cookie = Arrays.stream(cookies)
                 .filter(it -> it.getName().equals(REFRESH_TOKEN))
                 .findAny()
-                .orElseThrow(InvalidTokenException::ofInvalid);
+                .orElseThrow(InvalidTokenException::new);
 
         return cookie.getValue();
     }

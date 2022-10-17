@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.application.auth;
 
+import com.woowacourse.moragora.exception.ExpiredTokenException;
 import com.woowacourse.moragora.exception.InvalidTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -48,9 +49,9 @@ public class JwtTokenProvider {
         try {
             parseClaimsJws(token);
         } catch (final ExpiredJwtException e) {
-            throw new InvalidTokenException("expired", "만료된 토큰입니다");
+            throw new ExpiredTokenException();
         } catch (final JwtException | IllegalArgumentException e) {
-            throw InvalidTokenException.ofInvalid();
+            throw new InvalidTokenException();
         }
     }
 
