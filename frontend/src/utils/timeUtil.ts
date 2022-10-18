@@ -86,6 +86,8 @@ export const getTimestampDiff = (
 
   const minute = Math.floor((aheadTimestamp - behindTimestamp) / 1000 / 60);
   const second = Math.floor(((aheadTimestamp - behindTimestamp) / 1000) % 60);
+  const leftPaddedMinute = minute.toString().padStart(2, '0');
+  const leftPaddedSecond = second.toString().padStart(2, '0');
 
-  return `${('0' + minute).slice(-2)}:${('0' + second).slice(-2)}`;
+  return `${leftPaddedMinute}:${leftPaddedSecond}`;
 };
