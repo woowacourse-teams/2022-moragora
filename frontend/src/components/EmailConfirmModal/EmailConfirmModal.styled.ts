@@ -16,8 +16,6 @@ export const Layout = styled.div`
 `;
 
 export const Paragraph = styled.p`
-  display: flex;
-  flex-direction: column;
   font-weight: 700;
   font-size: 1.25rem;
 `;

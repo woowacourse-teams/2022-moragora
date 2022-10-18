@@ -86,8 +86,9 @@ const EmailConfirmModal: React.FC<
   return (
     <S.Layout>
       <S.Paragraph>
-        <span>이메일로 전송된</span>
-        <span>인증번호 6자리를 입력해주세요.</span>
+        이메일로 전송된
+        <br />
+        인증번호 6자리를 입력해주세요.
       </S.Paragraph>
       <S.Form onSubmit={handleSubmit}>
         <S.InputBox>
