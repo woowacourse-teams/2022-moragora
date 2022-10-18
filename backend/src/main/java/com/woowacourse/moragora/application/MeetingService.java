@@ -18,6 +18,7 @@ import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.response.event.EventResponse;
+import com.woowacourse.moragora.dto.response.meeting.MeetingActiveResponse;
 import com.woowacourse.moragora.dto.response.meeting.MeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingsResponse;
@@ -114,7 +115,8 @@ public class MeetingService {
         validateUserExists(assignedUserId);
         validateAssignee(loginId, assignedUserId);
 
-        final Participant assignedParticipant = participantRepository.findByMeetingIdAndUserId(meetingId, assignedUserId)
+        final Participant assignedParticipant = participantRepository
+                .findByMeetingIdAndUserId(meetingId, assignedUserId)
                 .orElseThrow(ParticipantNotFoundException::new);
         final Participant masterParticipant = participantRepository.findByMeetingIdAndUserId(meetingId, loginId)
                 .orElseThrow(ParticipantNotFoundException::new);
@@ -154,6 +156,18 @@ public class MeetingService {
         participantRepository.deleteByIdIn(participantIds);
         eventRepository.deleteByMeetingId(meeting.getId());
         meetingRepository.deleteById(meeting.getId());
+    }
+
+    public MeetingActiveResponse checkActive(final Long meetingId) {
+        validateMeetingExists(meetingId);
+
+        final Optional<Event> event = eventRepository.findByMeetingIdAndDate(meetingId, serverTimeManager.getDate());
+
+        if (event.isEmpty() || !serverTimeManager.isAttendanceOpen(event.get().getStartTime())) {
+            return new MeetingActiveResponse(false);
+        }
+
+        return new MeetingActiveResponse(true);
     }
 
     /**
@@ -248,6 +262,7 @@ public class MeetingService {
             throw new MeetingNotFoundException();
         }
     }
+
     private void validateUserExists(final Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new UserNotFoundException();
