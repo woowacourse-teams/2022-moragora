@@ -92,7 +92,7 @@ class AuthAcceptanceTest extends AcceptanceTest {
                 .body("accessToken", notNullValue());
     }
 
-    @DisplayName("Access token 재발급 요청 시 새로운 Access token과 상태 코드 200을 반환한다.")
+    @DisplayName("Access token 재발급 요청 시 쿠키의 Refresh token을 활용해 새로운 Access token과 상태 코드 200을 반환한다.")
     @Test
     void refresh_accessToken() {
         // given
