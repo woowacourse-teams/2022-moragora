@@ -197,7 +197,7 @@ public class AcceptanceTest {
         given(randomCodeGenerator.generateAuthCode())
                 .willReturn(code);
 
-        final ValidatableResponse validatableResponse = post("/emails/send", request);
+        final ValidatableResponse validatableResponse = post("/email/send", request);
         return validatableResponse.extract().sessionId();
     }
 
@@ -209,7 +209,7 @@ public class AcceptanceTest {
 
         final String sessionId = saveVerificationAndGetSessionId(email, code);
         final EmailVerifyRequest request = new EmailVerifyRequest(email, code);
-        postWithSession("/emails/verify", request, sessionId);
+        postWithSession("/email/verify", request, sessionId);
 
         return sessionId;
     }

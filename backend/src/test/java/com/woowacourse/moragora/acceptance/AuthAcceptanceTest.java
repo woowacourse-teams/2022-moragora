@@ -101,7 +101,7 @@ class AuthAcceptanceTest extends AcceptanceTest {
                 .willReturn(dateTime);
 
         // when
-        final ValidatableResponse response = post("/emails/send", request);
+        final ValidatableResponse response = post("/email/send", request);
 
         // then
         response.statusCode(HttpStatus.OK.value())
@@ -122,7 +122,7 @@ class AuthAcceptanceTest extends AcceptanceTest {
         final String sessionId = saveVerificationAndGetSessionId(email, verifyCode);
 
         // when
-        final ValidatableResponse response = postWithSession("/emails/verify", request, sessionId);
+        final ValidatableResponse response = postWithSession("/email/verify", request, sessionId);
 
         // then
         response.statusCode(HttpStatus.NO_CONTENT.value());
@@ -142,7 +142,7 @@ class AuthAcceptanceTest extends AcceptanceTest {
         final String sessionId = saveVerificationAndGetSessionId(email, verifyCode);
 
         // when
-        final ValidatableResponse response = postWithSession("/emails/verify", request, sessionId);
+        final ValidatableResponse response = postWithSession("/email/verify", request, sessionId);
 
         // then
         response.statusCode(HttpStatus.BAD_REQUEST.value())
@@ -161,7 +161,7 @@ class AuthAcceptanceTest extends AcceptanceTest {
                 .willReturn(dateTime);
 
         // when
-        final ValidatableResponse response = post("/emails/verify", request);
+        final ValidatableResponse response = post("/email/verify", request);
 
         // then
         response.statusCode(HttpStatus.NOT_FOUND.value())

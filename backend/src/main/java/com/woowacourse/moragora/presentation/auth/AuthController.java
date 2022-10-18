@@ -38,14 +38,14 @@ public class AuthController {
         return ResponseEntity.ok(loginResponse);
     }
 
-    @PostMapping("/emails/send")
+    @PostMapping("/email/send")
     public ResponseEntity<ExpiredTimeResponse> sendEmail(@RequestBody @Valid final EmailRequest emailRequest,
                                                          final HttpSession session) {
         final ExpiredTimeResponse response = authService.sendAuthCode(emailRequest, session);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/emails/verify")
+    @PostMapping("/email/verify")
     public ResponseEntity<Void> verifyCode(@RequestBody @Valid final EmailVerifyRequest emailVerifyRequest,
                                           @SessionAttribute(name = SessionAttributeNames.AUTH_CODE,
                                                   required = false) final AuthCode authCode,

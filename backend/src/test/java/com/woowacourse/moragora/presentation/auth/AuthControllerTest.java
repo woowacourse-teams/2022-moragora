@@ -133,12 +133,12 @@ class AuthControllerTest extends ControllerTest {
                 .willReturn(response);
 
         // when
-        final ResultActions resultActions = performPost("/emails/send", new EmailRequest(email));
+        final ResultActions resultActions = performPost("/email/send", new EmailRequest(email));
 
         // then
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("expiredTime").value(response.getExpiredTime()))
-                .andDo(document("auth/emails-send",
+                .andDo(document("auth/email-send",
                         preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("expiredTime").type(JsonFieldType.NUMBER)
@@ -157,12 +157,12 @@ class AuthControllerTest extends ControllerTest {
                 .willThrow(new EmailDuplicatedException());
 
         // when
-        final ResultActions resultActions = performPost("/emails/send", new EmailRequest(email));
+        final ResultActions resultActions = performPost("/email/send", new EmailRequest(email));
 
         // then
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message").value(message))
-                .andDo(document("auth/emails-send-duplicated",
+                .andDo(document("auth/email-send-duplicated",
                         preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("message").type(JsonFieldType.STRING).description(message)
@@ -180,7 +180,7 @@ class AuthControllerTest extends ControllerTest {
                 .verifyAuthCode(any(EmailVerifyRequest.class), any(AuthCode.class), any(HttpSession.class));
 
         // when
-        final ResultActions resultActions = performPost("/emails/verify", new EmailVerifyRequest(email, verifyCode));
+        final ResultActions resultActions = performPost("/email/verify", new EmailVerifyRequest(email, verifyCode));
 
         // then
         resultActions.andExpect(status().isNoContent());
