@@ -61,3 +61,5 @@ export type EmailCodeVerifyRequestBody = {
   email: User['email'];
   verifyCode: string;
 };
+
+export type AccessTokenRefreshResponseBody = Pick<User, 'accessToken'>;
