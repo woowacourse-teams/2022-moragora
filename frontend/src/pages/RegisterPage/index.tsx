@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import * as S from './RegisterPage.styled';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
@@ -13,7 +12,6 @@ import ModalPortal from 'components/ModalPortal';
 import EmailConfirmModal from 'components/EmailConfirmModal';
 
 const RegisterPage = () => {
-  const navigate = useNavigate();
   const { login } = useContext(userContext) as UserContextValues;
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
   const [isModalOpened, setIsModalOpened] = useState(false);
@@ -25,8 +23,22 @@ const RegisterPage = () => {
       setExpiredTimestamp(expiredTime);
       setIsModalOpened(true);
     },
-    onError: () => {
-      alert('이메일 인증하기를 실패했습니다.');
+    onError: ({ message }) => {
+      const status = message.split(': ')[0];
+
+      switch (status) {
+        case '409': {
+          alert('이미 존재하는 이메일 입니다.');
+          break;
+        }
+        case '500': {
+          alert('이메일 발송에 실패했습니다.');
+          break;
+        }
+        default: {
+          alert('이메일 인증하기를 실패했습니다.');
+        }
+      }
     },
   });
 
