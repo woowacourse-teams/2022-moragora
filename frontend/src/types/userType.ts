@@ -54,3 +54,10 @@ export type UserCoffeeStatsResponseBody = {
     coffeeCount: number;
   })[];
 };
+
+export type UserEmailSendRequestBody = Pick<User, 'email'>;
+
+export type EmailCodeVerifyRequestBody = {
+  email: User['email'];
+  verifyCode: string;
+};

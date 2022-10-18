@@ -8,6 +8,8 @@ import {
   UserUpdateNicknameRequestBody,
   UserUpdatePasswordRequestBody,
   GoogleLoginRequestBody,
+  UserEmailSendRequestBody,
+  EmailCodeVerifyRequestBody,
 } from 'types/userType';
 import {
   AttendancesResponseBody,
@@ -15,12 +17,24 @@ import {
 } from 'types/attendanceType';
 import request from '../utils/request';
 
-export const checkEmailApi = (email: User['email']) => () =>
-  request<{ isExist: boolean }>(`/users/check-email?email=${email}`, {
-    method: 'GET',
+export const postEmailSendApi = (payload: UserEmailSendRequestBody) =>
+  request<{ expiredTime: number }>(`/email/send`, {
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    body: JSON.stringify(payload),
+    credentials: 'include',
+  });
+
+export const postVerifyCodeAPi = (payload: EmailCodeVerifyRequestBody) =>
+  request(`/email/verify`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+    credentials: 'include',
   });
 
 export const submitRegisterApi = async (payload: UserRegisterRequestBody) => {
@@ -30,6 +44,7 @@ export const submitRegisterApi = async (payload: UserRegisterRequestBody) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(payload),
+    credentials: 'include',
   });
 
   const { nickname, ...loginRequestBody } = payload;
