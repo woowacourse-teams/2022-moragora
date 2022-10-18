@@ -10,6 +10,7 @@ import {
   GoogleLoginRequestBody,
   UserEmailSendRequestBody,
   EmailCodeVerifyRequestBody,
+  AccessTokenRefreshResponseBody,
 } from 'types/userType';
 import {
   AttendancesResponseBody,
@@ -89,6 +90,7 @@ export const googleLoginApi = async ({ code }: GoogleLoginRequestBody) => {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
     }
   );
 
@@ -253,3 +255,21 @@ export const unregisterApi =
       body: JSON.stringify(payload),
     });
   };
+
+export const accessTokenRefreshApi = () =>
+  request<AccessTokenRefreshResponseBody>('/token/refresh', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+  });
+
+export const logoutApi = ({}) =>
+  request(`/token/logout`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+  });
