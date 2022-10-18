@@ -7,7 +7,6 @@ export const Layout = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow: hidden;
 `;
 
 export const SpinnerBox = styled.div`
@@ -93,7 +92,6 @@ export const UserListSection = styled.section`
 
 export const UserListBox = styled.div`
   display: flex;
-  overflow-y: hidden;
 `;
 
 export const UserList = styled.ul`
@@ -105,8 +103,6 @@ export const UserList = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  overflow-x: hidden;
-  overflow-y: scroll;
 `;
 
 export const Paragraph = styled.p``;

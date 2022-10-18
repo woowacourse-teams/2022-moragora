@@ -3,13 +3,17 @@ import { NavLink } from 'react-router-dom';
 
 export const Nav = styled.nav`
   position: fixed;
-  inset: calc(100vh - 4rem) 0 0 0;
+  height: 4rem;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
   border-top: 1px solid ${({ theme: { colors } }) => colors['background']};
   padding: 0 1rem;
   background-color: ${({ theme: { colors } }) => colors['white']};
+  z-index: ${({ theme: { zIndex } }) => zIndex['footer']};
 `;
 
 export const MenuNavLink = styled(NavLink)`

@@ -10,7 +10,7 @@ export const QueryResultList = styled.ul`
   position: absolute;
   width: 100%;
   max-height: 12rem;
-  z-index: 10;
+  z-index: ${({ theme: { zIndex } }) => zIndex['slightly-float']};
 
   display: flex;
   flex-direction: column;
@@ -62,7 +62,7 @@ export const AddedMembersListItem = styled.li<{ caption: string }>`
       border-radius: 0.1rem;
       font-size: 0.75rem;
       color: white;
-      z-index: 10;
+      z-index: ${({ theme: { zIndex } }) => zIndex['slightly-float']};
     }
   }
 `;
