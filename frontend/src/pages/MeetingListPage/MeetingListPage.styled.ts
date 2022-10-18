@@ -5,7 +5,6 @@ export const Layout = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 `;
 
 export const SpinnerBox = styled.div`
@@ -82,7 +81,6 @@ export const MeetingList = styled.ul`
 export const CoffeeStackSection = styled.section`
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 `;
 
 export const CoffeeStackList = styled.ul`
@@ -94,8 +92,6 @@ export const CoffeeStackList = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  overflow-x: hidden;
-  overflow-y: scroll;
 `;
 
 export const EmptyStateBox = styled.div`

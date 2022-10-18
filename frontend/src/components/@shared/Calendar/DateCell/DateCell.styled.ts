@@ -56,7 +56,7 @@ export const Layout = styled.div<{
       border-radius: 0.1rem;
       font-size: 0.75rem;
       color: white;
-      z-index: 10;
+      z-index: ${({ theme: { zIndex } }) => zIndex['slightly-float']};
     }
   }
 `;
