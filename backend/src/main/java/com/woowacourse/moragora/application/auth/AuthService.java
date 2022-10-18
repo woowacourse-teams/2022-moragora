@@ -5,7 +5,7 @@ import static com.woowacourse.moragora.domain.user.Provider.GOOGLE;
 
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.auth.AuthCode;
-import com.woowacourse.moragora.domain.auth.RandomCodeGenerator;
+import com.woowacourse.moragora.support.RandomCodeGenerator;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.participant.ParticipantRepository;
 import com.woowacourse.moragora.domain.user.User;

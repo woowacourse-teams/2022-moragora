@@ -1,4 +1,4 @@
-package com.woowacourse.moragora.domain.auth;
+package com.woowacourse.moragora.support;
 
 import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.stereotype.Component;

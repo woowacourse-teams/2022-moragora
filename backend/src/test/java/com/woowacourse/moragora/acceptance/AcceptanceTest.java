@@ -4,7 +4,7 @@ import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.application.AttendanceScheduler;
 import com.woowacourse.moragora.application.ServerTimeManager;
-import com.woowacourse.moragora.domain.auth.RandomCodeGenerator;
+import com.woowacourse.moragora.support.RandomCodeGenerator;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
