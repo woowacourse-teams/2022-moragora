@@ -25,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
+import com.woowacourse.moragora.dto.request.meeting.BeaconsRequest;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
@@ -37,7 +38,6 @@ import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
-import com.woowacourse.moragora.support.ValidList;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -45,7 +45,6 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.restdocs.payload.JsonFieldType;
@@ -518,28 +517,89 @@ class MeetingControllerTest extends ControllerTest {
     /**
      * 위치 기반 서비스
      */
-
-    // add_throwsException_ifUserIdsDuplicate
-    @DisplayName("(위치 기반) 비콘 등록시 유효성 검증을 통과하지 못한 필드가 있을 경우 예외를 반환한다.")
-    @ParameterizedTest
-    @CsvSource(delimiterString = " | ", value = {
-            "필수 입력 값이 누락됐습니다. | \t | 100",
-            "비콘 주소는 50자를 초과할 수 없습니다. | " + LENGTH_50_LETTER + "a" + " | 100",
-            "비콘의 반경은 최소 50m 이상이어야 합니다. | 잠실나루 | 10"
-    })
-    void attendWithBeaconBase_throwsException_ifNotValidated(final String validationMessage, final String address, final Integer radius) throws Exception {
+    @DisplayName("비콘 등록시 주소가 비어있을 경우 예외를 반환한다.")
+    @Test
+    void attendWithBeaconBase_throwsException_ifEmptyAddress() throws Exception {
         // given
-        final BeaconRequest beaconRequest = new BeaconRequest(address, 37.0, 127.0, radius);
-        final ValidList<BeaconRequest> requestBody = ValidList.of(beaconRequest);
+        final BeaconRequest beaconRequest = new BeaconRequest("", 37.0, 127.0, 100);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
         validateToken("1");
 
         // when
-        final ResultActions resultActions = performPost("/meetings/1/beacons", requestBody);
+        final ResultActions resultActions = performPost("/meetings/1/beacons", beaconsRequest);
 
         // then
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
-                        .value(validationMessage));
+                        .value("필수 입력 값이 누락됐습니다."));
     }
 
+    @DisplayName("비콘 등록시 주소 길이가 50자를 넘으면 예외를 반환한다.")
+    @Test
+    void attendWithBeaconBase_throwsException_ifExceedAddressLength() throws Exception {
+        // given
+        final String exceed50LengthLetter = LENGTH_50_LETTER + "a";
+        final BeaconRequest beaconRequest = new BeaconRequest(exceed50LengthLetter, 37.0, 127.0, 100);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/1/beacons", beaconsRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("비콘 주소는 50자를 초과할 수 없습니다."));
+    }
+
+    @DisplayName("비콘 등록시 비콘의 최소 반경 미만일 경우 예외를 반환한다.")
+    @Test
+    void attendWithBeaconBase_throwsException_ifUnderBeaconMinRadius() throws Exception {
+        // given
+        final BeaconRequest beaconRequest = new BeaconRequest("잠실나루", 37.0, 127.0, 10);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/1/beacons", beaconsRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("비콘의 반경은 최소 50m 이상이어야 합니다."));
+    }
+
+    @DisplayName("비콘 등록시 위도가 91을 초과할 경우 예외를 반환한다.")
+    @Test
+    void attendWithBeaconBase_throwsException_ifExceedLatitudeMax() throws Exception {
+        // given
+        final BeaconRequest beaconRequest = new BeaconRequest("잠실나루", 90.1, 127.0, 100);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/1/beacons", beaconsRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("위도는 +90(북위)에서 -90(남위)사이의 숫자를 넘길 수 없습니다"));
+    }
+
+    @DisplayName("비콘 등록시 동경이 180을 초과할 경우 예외를 반환한다.")
+    @Test
+    void attendWithBeaconBase_throwsException_ifExceedLongitudeMax() throws Exception {
+        // given
+        final BeaconRequest beaconRequest = new BeaconRequest("잠실나루", 37.0, 180.1, 100);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/1/beacons", beaconsRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("경도는 +180(서경)에서 -180(동경)사이의 숫자를 넘길 수 없습니다"));
+    }
 }

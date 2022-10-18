@@ -2,10 +2,7 @@ package com.woowacourse.moragora.presentation;
 
 import com.woowacourse.moragora.application.MeetingService;
 import com.woowacourse.moragora.application.auth.MasterAuthorization;
-import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
-import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceRequest;
-import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceResponse;
-import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceSuccessResponse;
+import com.woowacourse.moragora.dto.request.meeting.BeaconsRequest;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
@@ -13,7 +10,6 @@ import com.woowacourse.moragora.dto.response.meeting.MeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingsResponse;
 import com.woowacourse.moragora.presentation.auth.Authentication;
 import com.woowacourse.moragora.presentation.auth.AuthenticationPrincipal;
-import com.woowacourse.moragora.support.ValidList;
 import java.net.URI;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -91,29 +87,10 @@ public class MeetingController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * 위치 기반 :: 비콘 생성
-     */
     @PostMapping("/{meetingId}/beacons")
     public ResponseEntity<Void> addBeacons(@PathVariable final Long meetingId,
-                                           @RequestBody @Valid final ValidList<BeaconRequest> requestBody) {
-        meetingService.saveBeacons(meetingId, requestBody);
+                                           @RequestBody @Valid final BeaconsRequest beaconsRequest) {
+        meetingService.addBeacons(meetingId, beaconsRequest.getBeaconsRequest());
         return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * 위치 기반 :: 출석 체크
-     */
-    @PostMapping("/{meetingId}/users/{userId}/attendances/today/geolocation")
-    public ResponseEntity<GeoLocationAttendanceResponse> attendWithBeaconBase(@PathVariable final Long meetingId,
-                                                                              @PathVariable final Long userId,
-                                                                              @RequestBody final GeoLocationAttendanceRequest requestBody) {
-        final GeoLocationAttendanceResponse responseBody =
-                meetingService.attendWithGeoLocation(meetingId, userId, requestBody);
-
-        if (responseBody instanceof GeoLocationAttendanceSuccessResponse) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.badRequest().body(responseBody);
     }
 }

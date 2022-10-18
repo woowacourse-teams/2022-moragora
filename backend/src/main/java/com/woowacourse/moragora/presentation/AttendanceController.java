@@ -2,6 +2,7 @@ package com.woowacourse.moragora.presentation;
 
 import com.woowacourse.moragora.application.AttendanceService;
 import com.woowacourse.moragora.application.auth.MasterAuthorization;
+import com.woowacourse.moragora.dto.request.meeting.GeolocationAttendanceRequest;
 import com.woowacourse.moragora.dto.request.user.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.response.attendance.AttendancesResponse;
 import com.woowacourse.moragora.dto.response.meeting.CoffeeStatsResponse;
@@ -54,6 +55,14 @@ public class AttendanceController {
     public ResponseEntity<Void> useCoffeeStack(@PathVariable final Long meetingId,
                                                @AuthenticationPrincipal final Long loginId) {
         attendanceService.disableUsedTardy(meetingId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/users/{userId}/attendances/today/geolocation")
+    public ResponseEntity<Void> attendWithBeaconBase(@PathVariable final Long meetingId,
+                                                                              @PathVariable final Long userId,
+                                                                              @RequestBody final GeolocationAttendanceRequest geoAttendanceRequest) {
+        attendanceService.attendWithGeoLocation(meetingId, userId, geoAttendanceRequest);
         return ResponseEntity.noContent().build();
     }
 }

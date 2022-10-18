@@ -42,10 +42,13 @@ public class Beacon {
 
     private String address;
 
+    /** 위도 */
     private Double latitude;
 
+    /** 경도 */
     private Double longitude;
 
+    /** 비콘의 반직경 :: 출석을 할 수 있는 범위를 나타냄 */
     private Integer radius;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -82,10 +85,6 @@ public class Beacon {
         this.longitude = longitude;
     }
 
-    public void mapMeeting(final Meeting meeting) {
-        this.meeting = meeting;
-    }
-
     /**
      * 구면 좌표계 상의 두 지점 사이의 거리를 구합니다. (by Haversine Formula)
      * <p>
@@ -94,7 +93,6 @@ public class Beacon {
      * Haversine을 풀어 놓은 공식을 사용한다
      */
     public double calculateDistance(final Beacon other) {
-
         final double thisLatCos = cos(this.latitude * TO_RADIAN);
         final double otherLatCos = cos(other.latitude * TO_RADIAN);
 
@@ -111,8 +109,6 @@ public class Beacon {
     }
 
     public boolean isInRadius(final Beacon other) {
-        final double distance = calculateDistance(other);
-
-        return distance <= radius;
+        return calculateDistance(other) <= radius;
     }
 }

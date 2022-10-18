@@ -6,18 +6,22 @@ import com.woowacourse.moragora.domain.attendance.MeetingAttendances;
 import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.event.EventRepository;
+import com.woowacourse.moragora.domain.geolocation.Beacon;
+import com.woowacourse.moragora.domain.geolocation.BeaconRepository;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.meeting.MeetingRepository;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.participant.ParticipantRepository;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.domain.user.UserRepository;
+import com.woowacourse.moragora.dto.request.meeting.GeolocationAttendanceRequest;
 import com.woowacourse.moragora.dto.request.user.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.response.attendance.AttendanceResponse;
 import com.woowacourse.moragora.dto.response.attendance.AttendancesResponse;
 import com.woowacourse.moragora.dto.response.meeting.CoffeeStatsResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.attendance.InvalidCoffeeTimeException;
+import com.woowacourse.moragora.exception.beacon.NotInBeaconRangeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.AttendanceNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
@@ -42,6 +46,7 @@ public class AttendanceService {
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
+    private final BeaconRepository beaconRepository;
     private final ServerTimeManager serverTimeManager;
 
     public AttendanceService(final MeetingRepository meetingRepository,
@@ -49,12 +54,14 @@ public class AttendanceService {
                              final ParticipantRepository participantRepository,
                              final AttendanceRepository attendanceRepository,
                              final UserRepository userRepository,
+                             final BeaconRepository beaconRepository,
                              final ServerTimeManager serverTimeManager) {
         this.meetingRepository = meetingRepository;
         this.eventRepository = eventRepository;
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
+        this.beaconRepository = beaconRepository;
         this.serverTimeManager = serverTimeManager;
     }
 
@@ -116,6 +123,23 @@ public class AttendanceService {
         meetingAttendances.disableAttendances();
     }
 
+    @Transactional
+    public void attendWithGeoLocation(final Long meetingId,
+                                      final Long userId,
+                                      final GeolocationAttendanceRequest geoAttendanceRequest) {
+        validateMeetingExist(meetingId);
+        validateUserExist(userId);
+
+        final Beacon attendCoordinate = geoAttendanceRequest.toEntity();
+        final List<Beacon> beacons = beaconRepository.findAllByMeetingId(meetingId);
+        final boolean attendanceFail = beacons.stream()
+                .noneMatch(beacon -> beacon.isInRadius(attendCoordinate));
+
+        if (attendanceFail) {
+            throw new NotInBeaconRangeException();
+        }
+    }
+
     private void validateAttendanceTime(final Event event) {
         final LocalTime entranceTime = event.getStartTime();
 
@@ -136,6 +160,18 @@ public class AttendanceService {
     private void validateEnoughTardyCountToDisable(final MeetingAttendances attendances) {
         if (!attendances.isTardyStackFull()) {
             throw new InvalidCoffeeTimeException();
+        }
+    }
+
+    private void validateMeetingExist(final Long meetingId) {
+        if (!meetingRepository.existsById(meetingId)) {
+            throw new MeetingNotFoundException();
+        }
+    }
+
+    private void validateUserExist(final Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException();
         }
     }
 }

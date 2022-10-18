@@ -10,6 +10,8 @@ public interface UserRepository extends Repository<User, Long> {
 
     User save(final User user);
 
+    boolean existsById(final Long userId);
+
     Optional<User> findById(final Long id);
 
     List<User> findByIdIn(final List<Long> ids);
@@ -20,6 +22,4 @@ public interface UserRepository extends Repository<User, Long> {
     List<User> findByNicknameOrEmailLike(@Param("keyword") final String keyword);
 
     void delete(final User user);
-
-    boolean existsById(final Long userId);
 }
