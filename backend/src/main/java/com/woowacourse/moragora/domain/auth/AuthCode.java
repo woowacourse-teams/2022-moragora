@@ -13,17 +13,12 @@ import org.springframework.mail.SimpleMailMessage;
 public class AuthCode {
 
     private static final int AUTH_CODE_LENGTH = 6;
-
     private static final int AUTH_CODE_EXPIRE_MINUTE = 5;
-
     private static final String AUTH_CODE_SUBJECT = "체크메이트 인증코드입니다.";
-
     private static final String AUTH_CODE_PREFIX = "인증 코드 : ";
 
     private String email;
-
     private String code;
-
     private long expiredTime;
 
     public AuthCode(final String email, final String code, final LocalDateTime dateTime) {

@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -195,7 +194,7 @@ public class AcceptanceTest {
 
     protected String saveVerificationAndGetSessionId(final String email, final String code) {
         final EmailRequest request = new EmailRequest(email);
-        BDDMockito.given(randomCodeGenerator.generateAuthCode())
+        given(randomCodeGenerator.generateAuthCode())
                 .willReturn(code);
 
         final ValidatableResponse validatableResponse = post("/emails/send", request);
