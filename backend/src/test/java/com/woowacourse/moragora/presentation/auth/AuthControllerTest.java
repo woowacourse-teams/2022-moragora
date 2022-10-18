@@ -10,17 +10,22 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
-import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.presentation.ControllerTest;
+import javax.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 class AuthControllerTest extends ControllerTest {
 
@@ -31,10 +36,13 @@ class AuthControllerTest extends ControllerTest {
         final String email = "kun@email.com";
         final String password = "1234asdfg!";
         final LoginRequest loginRequest = new LoginRequest(email, password);
-        final String accessToken = "fake_token";
+        final String accessToken = "fake_access_token";
+        final String refreshToken = "fake_refresh_token";
 
-        given(authService.createToken(any(LoginRequest.class)))
-                .willReturn(new LoginResponse(accessToken));
+        given(authService.login(any(LoginRequest.class)))
+                .willReturn(new TokenResponse(accessToken, refreshToken));
+        given(refreshTokenCookieProvider.create(refreshToken))
+                .willReturn(ResponseCookie.from("refreshToken", refreshToken).build());
 
         // when
         final ResultActions resultActions = performPost("/login", loginRequest);
@@ -42,6 +50,7 @@ class AuthControllerTest extends ControllerTest {
         // then
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("accessToken").value(accessToken))
+                .andExpect(cookie().value("refreshToken", refreshToken))
                 .andDo(document("auth/login",
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint()),
@@ -63,7 +72,7 @@ class AuthControllerTest extends ControllerTest {
         final String password = "1234asdfa!!";
         final LoginRequest loginRequest = new LoginRequest(email, password);
 
-        given(authService.createToken(any(LoginRequest.class)))
+        given(authService.login(any(LoginRequest.class)))
                 .willThrow(new AuthenticationFailureException());
         final String message = "이메일이나 비밀번호가 틀렸습니다.";
 
@@ -90,13 +99,13 @@ class AuthControllerTest extends ControllerTest {
     @Test
     void loginWithGoogle() throws Exception {
         // given
-        final String email = "kun@email.com";
-        final String password = "1234asdfg!";
-        final LoginRequest loginRequest = new LoginRequest(email, password);
-        final String accessToken = "fake_token";
+        final String accessToken = "fake_access_token";
+        final String refreshToken = "fake_refresh_token";
 
         given(authService.loginWithGoogle(anyString()))
-                .willReturn(new LoginResponse(accessToken));
+                .willReturn(new TokenResponse(accessToken, refreshToken));
+        given(refreshTokenCookieProvider.create(refreshToken))
+                .willReturn(ResponseCookie.from("refreshToken", refreshToken).build());
 
         // when
         final ResultActions resultActions = performPost("/login/oauth2/google?code=any");
@@ -104,10 +113,60 @@ class AuthControllerTest extends ControllerTest {
         // then
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("accessToken").value(accessToken))
+                .andExpect(cookie().value("refreshToken", refreshToken))
                 .andDo(document("auth/login-google",
                         preprocessResponse(prettyPrint()),
                         responseFields(
                                 fieldWithPath("accessToken").type(JsonFieldType.STRING).description(accessToken)
                         )));
+    }
+
+    @DisplayName("Access token을 재발급한다.")
+    @Test
+    void refresh_accessToken() throws Exception {
+        // given
+        final String newAccessToken = "new_access_token";
+        final String newRefreshToken = "new_refresh_token";
+
+        given(refreshTokenCookieProvider.extractRefreshToken(any()))
+                .willReturn("refresh_token");
+        given(authService.refreshTokens("refresh_token"))
+                .willReturn(new TokenResponse(newAccessToken, newRefreshToken));
+        given(refreshTokenCookieProvider.create(newRefreshToken))
+                .willReturn(ResponseCookie.from("refreshToken", newRefreshToken).build());
+
+        // when
+        final ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/token/refresh")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .cookie(new Cookie("refreshToken", "refresh_token")))
+                .andDo(print());
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("accessToken").value(newAccessToken))
+                .andExpect(cookie().value("refreshToken", newRefreshToken))
+                .andDo(document("auth/refresh-tokens",
+                        preprocessResponse(prettyPrint()),
+                        responseFields(
+                                fieldWithPath("accessToken").type(JsonFieldType.STRING).description(newAccessToken)
+                        )));
+    }
+
+
+    @DisplayName("로그아웃에 성공한다.")
+    @Test
+    void logout() throws Exception {
+        // given
+        given(refreshTokenCookieProvider.createInvalidCookie())
+                .willReturn(ResponseCookie.from("refreshToken", "").build());
+
+        // when
+        final ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post("/token/logout")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .cookie(new Cookie("refreshToken", "refresh_token")))
+                .andDo(print());
+
+        // then
+        resultActions.andExpect(status().isNoContent());
     }
 }
