@@ -1,6 +1,6 @@
 package com.woowacourse.moragora.presentation.auth;
 
-import com.woowacourse.moragora.exception.InvalidTokenException;
+import com.woowacourse.moragora.exception.auth.EmptyTokenException;
 import java.time.Duration;
 import java.util.Arrays;
 import javax.servlet.http.Cookie;
@@ -35,10 +35,11 @@ public class RefreshTokenCookieProvider {
     }
 
     public String extractRefreshToken(final Cookie[] cookies) {
+        validateCookiesNotEmpty(cookies);
         final Cookie cookie = Arrays.stream(cookies)
                 .filter(it -> it.getName().equals(REFRESH_TOKEN))
                 .findAny()
-                .orElseThrow(InvalidTokenException::new);
+                .orElseThrow(EmptyTokenException::new);
 
         return cookie.getValue();
     }
@@ -49,5 +50,11 @@ public class RefreshTokenCookieProvider {
                 .secure(true)
                 .path("/token")
                 .sameSite(SameSite.NONE.attributeValue());
+    }
+
+    private void validateCookiesNotEmpty(final Cookie[] cookies) {
+        if (cookies == null) {
+            throw new EmptyTokenException();
+        }
     }
 }

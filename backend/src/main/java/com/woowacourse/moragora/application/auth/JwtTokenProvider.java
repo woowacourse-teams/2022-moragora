@@ -1,7 +1,7 @@
 package com.woowacourse.moragora.application.auth;
 
-import com.woowacourse.moragora.exception.ExpiredTokenException;
-import com.woowacourse.moragora.exception.InvalidTokenException;
+import com.woowacourse.moragora.exception.auth.ExpiredTokenException;
+import com.woowacourse.moragora.exception.auth.InvalidTokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;

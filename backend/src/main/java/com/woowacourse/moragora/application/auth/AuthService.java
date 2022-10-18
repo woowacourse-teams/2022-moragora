@@ -12,7 +12,7 @@ import com.woowacourse.moragora.domain.user.UserRepository;
 import com.woowacourse.moragora.domain.user.password.RawPassword;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
-import com.woowacourse.moragora.exception.InvalidTokenException;
+import com.woowacourse.moragora.exception.auth.InvalidTokenException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
