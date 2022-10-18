@@ -91,7 +91,7 @@ public class AuthService {
     }
 
     private TokenResponse createTokenResponse(final Long userId) {
-        final String accessToken = jwtTokenProvider.createToken(String.valueOf(userId));
+        final String accessToken = jwtTokenProvider.create(String.valueOf(userId));
         final String refreshToken = refreshTokenProvider.create(userId, serverTimeManager.getDateAndTime());
 
         return new TokenResponse(accessToken, refreshToken);
