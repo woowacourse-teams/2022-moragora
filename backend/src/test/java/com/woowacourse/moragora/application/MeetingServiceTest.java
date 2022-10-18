@@ -679,4 +679,40 @@ class MeetingServiceTest {
         // then
         assertThat(meetingActiveResponse.getIsActive()).isTrue();
     }
+
+    @DisplayName("미팅이 비활성화 상태임을 확인한다(시간 검사)")
+    @Test
+    void checkInActive_byTime() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        final LocalDate date = LocalDate.of(2022, 8, 1);
+        final LocalTime time = LocalTime.of(10, 5);
+        final LocalDateTime now = LocalDateTime.of(date, time);
+        serverTimeManager.refresh(now);
+
+        // when
+        final MeetingActiveResponse meetingActiveResponse = meetingService.checkActive(meeting.getId());
+
+        // then
+        assertThat(meetingActiveResponse.getIsActive()).isFalse();
+    }
+
+    @DisplayName("미팅이 비활성화 상태임을 확인한다(날짜 검사)")
+    @Test
+    void checkInActive_byDate() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        final LocalDate date = LocalDate.of(2022, 8, 2);
+        final LocalTime time = LocalTime.of(10, 4);
+        final LocalDateTime now = LocalDateTime.of(date, time);
+        serverTimeManager.refresh(now);
+
+        // when
+        final MeetingActiveResponse meetingActiveResponse = meetingService.checkActive(meeting.getId());
+
+        // then
+        assertThat(meetingActiveResponse.getIsActive()).isFalse();
+    }
 }
