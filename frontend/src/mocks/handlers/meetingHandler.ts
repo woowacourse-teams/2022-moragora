@@ -10,7 +10,7 @@ import {
   MeetingMasterAssignRequestBody,
 } from 'types/meetingType';
 import { DELAY } from 'mocks/configs';
-import { extractIdFromHeader } from 'mocks/utils';
+import { checkExpiredToken, extractIdFromHeader } from 'mocks/utils';
 
 type MeetingPathParams = {
   meetingId: string;
@@ -25,6 +25,13 @@ export default [
       return res(
         ctx.status(401),
         ctx.json({ message: '유효하지 않은 토큰입니다.' })
+      );
+    }
+
+    if (checkExpiredToken(token.expiredTimestamp)) {
+      return res(
+        ctx.status(401),
+        ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
       );
     }
 
@@ -72,6 +79,13 @@ export default [
         return res(
           ctx.status(401),
           ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -134,6 +148,13 @@ export default [
         );
       }
 
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
+        );
+      }
+
       const user = users.find(({ id }) => id === token.id);
 
       if (!user) {
@@ -176,6 +197,13 @@ export default [
         );
       }
 
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
+        );
+      }
+
       const user = users.find(({ id }) => id === token.id);
 
       if (!user) {
@@ -214,6 +242,13 @@ export default [
         return res(
           ctx.status(401),
           ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -261,6 +296,13 @@ export default [
         );
       }
 
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
+        );
+      }
+
       const targetMeeting = meetings.find(
         (meeting) => meeting.id === Number(token.id)
       );
@@ -299,6 +341,13 @@ export default [
         );
       }
 
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
+        );
+      }
+
       return res(ctx.status(204), ctx.delay(DELAY));
     }
   ),
@@ -313,6 +362,13 @@ export default [
         return res(
           ctx.status(401),
           ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -361,6 +417,13 @@ export default [
         return res(
           ctx.status(401),
           ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 

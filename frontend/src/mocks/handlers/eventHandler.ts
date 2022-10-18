@@ -2,7 +2,7 @@ import { DefaultBodyType, rest } from 'msw';
 import users from 'mocks/fixtures/users';
 import events from 'mocks/fixtures/events';
 import { DELAY } from 'mocks/configs';
-import { extractIdFromHeader } from 'mocks/utils';
+import { checkExpiredToken, extractIdFromHeader } from 'mocks/utils';
 import {
   EventCreateRequestBody,
   DeleteEventsRequestBody,
@@ -27,6 +27,13 @@ export default [
         return res(
           ctx.status(401),
           ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -90,6 +97,13 @@ export default [
         );
       }
 
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
+        );
+      }
+
       const user = users.find(({ id }) => id === token.id);
 
       if (!user) {
@@ -116,6 +130,13 @@ export default [
         return res(
           ctx.status(401),
           ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -150,6 +171,13 @@ export default [
         return res(
           ctx.status(401),
           ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
