@@ -1,7 +1,9 @@
 package com.woowacourse.moragora.presentation.auth;
 
+import static com.woowacourse.moragora.constant.SessionAttributeNames.AUTH_CODE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
@@ -15,14 +17,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.woowacourse.moragora.domain.auth.AuthCode;
+import com.woowacourse.moragora.dto.request.auth.EmailRequest;
+import com.woowacourse.moragora.dto.request.auth.EmailVerifyRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
+import com.woowacourse.moragora.dto.response.auth.ExpiredTimeResponse;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
+import com.woowacourse.moragora.exception.user.EmailDuplicatedException;
 import com.woowacourse.moragora.presentation.ControllerTest;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import javax.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -165,6 +175,78 @@ class AuthControllerTest extends ControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .cookie(new Cookie("refreshToken", "refresh_token")))
                 .andDo(print());
+
+        // then
+        resultActions.andExpect(status().isNoContent());
+    }
+
+    @DisplayName("이메일 인증번호를 전송하고 만료시간을 보내준다.")
+    @Test
+    void sendEmail() throws Exception {
+        // given
+        final String email = "ghd700@daum.net";
+        final LocalDateTime expiredDate = LocalDateTime.of(2022, 10, 12, 13, 0);
+        final long expiredTime = Timestamp.valueOf(expiredDate.plusMinutes(5)).getTime();
+
+        final AuthCode authCode = new AuthCode(email, "123456", expiredDate);
+        final ExpiredTimeResponse response = new ExpiredTimeResponse(expiredTime);
+
+        given(authService.sendAuthCode(any(EmailRequest.class)))
+                .willReturn(authCode);
+
+        // when
+        final ResultActions resultActions = performPost("/email/send", new EmailRequest(email));
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("expiredTime").value(response.getExpiredTime()))
+                .andDo(document("auth/email-send",
+                        preprocessResponse(prettyPrint()),
+                        responseFields(
+                                fieldWithPath("expiredTime").type(JsonFieldType.NUMBER)
+                                        .description(response.getExpiredTime())
+                        )));
+    }
+
+    @DisplayName("중복된 이메일로 인증번호 전송을 요청하면 예외가 발생한다.")
+    @Test
+    void sendEmail_throwsException_whenEmailDuplicated() throws Exception {
+        // given
+        final String email = "ghd700@daum.net";
+        final String message = "이미 존재하는 이메일입니다.";
+
+        given(authService.sendAuthCode(any(EmailRequest.class)))
+                .willThrow(new EmailDuplicatedException());
+
+        // when
+        final ResultActions resultActions = performPost("/email/send", new EmailRequest(email));
+
+        // then
+        resultActions.andExpect(status().isConflict())
+                .andExpect(jsonPath("message").value(message))
+                .andDo(document("auth/email-send-duplicated",
+                        preprocessResponse(prettyPrint()),
+                        responseFields(
+                                fieldWithPath("message").type(JsonFieldType.STRING).description(message)
+                        )));
+    }
+
+    @DisplayName("인증번호를 검증한다.")
+    @Test
+    void verifyCode() throws Exception {
+        // given
+        final String email = "ghd700@daum.net";
+        final String verifyCode = "000000";
+        final MockHttpSession mockHttpSession = new MockHttpSession();
+        final AuthCode authCode = new AuthCode(email, verifyCode, LocalDateTime.now());
+
+        mockHttpSession.setAttribute(AUTH_CODE, authCode);
+        given(authService.verifyAuthCode(any(EmailVerifyRequest.class), eq(authCode)))
+                .willReturn(email);
+
+        // when
+        final ResultActions resultActions = performPostWithSession("/email/verify",
+                new EmailVerifyRequest(email, verifyCode), mockHttpSession);
 
         // then
         resultActions.andExpect(status().isNoContent());

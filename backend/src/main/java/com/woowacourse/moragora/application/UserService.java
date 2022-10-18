@@ -15,10 +15,10 @@ import com.woowacourse.moragora.dto.request.user.NicknameRequest;
 import com.woowacourse.moragora.dto.request.user.PasswordRequest;
 import com.woowacourse.moragora.dto.request.user.UserDeleteRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
-import com.woowacourse.moragora.dto.response.user.EmailCheckResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
 import com.woowacourse.moragora.dto.response.user.UsersResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.auth.AuthCodeException;
 import com.woowacourse.moragora.exception.global.NoParameterException;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.exception.user.InvalidPasswordException;
@@ -47,20 +47,21 @@ public class UserService {
     }
 
     @Transactional
-    public Long create(final UserRequest userRequest) {
-        validateUserExistsByEmailAndProvider(userRequest.getEmail());
-        final User user = new User(userRequest.getEmail(), EncodedPassword.fromRawValue(userRequest.getPassword()),
-                userRequest.getNickname());
+    public Long create(final UserRequest userRequest, final String verifiedEmail) {
+        final String email = userRequest.getEmail();
+
+        validateUserExistsByEmailAndProvider(email);
+        confirmEmailVerification(email, verifiedEmail);
+
+        final User user = userRequest.toEntity();
         final User savedUser = userRepository.save(user);
         return savedUser.getId();
     }
 
-    public EmailCheckResponse isEmailExist(final String email) {
-        if (email.isBlank()) {
-            throw new NoParameterException();
+    private void confirmEmailVerification(final String email, final String verifitedEmail) {
+        if (!email.equals(verifitedEmail)) {
+            throw new AuthCodeException("인증되지 않은 이메일입니다.");
         }
-        final boolean isExist = userRepository.findByEmailAndProvider(email, CHECKMATE).isPresent();
-        return new EmailCheckResponse(isExist);
     }
 
     public UsersResponse searchByKeyword(final String keyword) {
