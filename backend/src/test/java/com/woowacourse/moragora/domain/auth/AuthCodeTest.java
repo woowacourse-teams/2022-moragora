@@ -1,12 +1,12 @@
 package com.woowacourse.moragora.domain.auth;
 
-import static com.woowacourse.moragora.domain.auth.AuthCode.*;
+import static com.woowacourse.moragora.domain.auth.AuthCode.AUTH_CODE_EXPIRE_MINUTE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.auth.AuthCodeException;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,7 +50,7 @@ class AuthCodeTest {
         final AuthCode authCode = new AuthCode(email, code, dateTime);
 
         assertThatThrownBy(() -> authCode.verify("wrong@email.com", code, dateTime))
-                .isInstanceOf(ClientRuntimeException.class)
+                .isInstanceOf(AuthCodeException.class)
                 .hasMessage("인증을 요청하지 않은 이메일입니다.");
     }
 
@@ -63,7 +63,7 @@ class AuthCodeTest {
         final AuthCode authCode = new AuthCode(email, code, dateTime);
 
         assertThatThrownBy(() -> authCode.verify(email, "wrong", dateTime))
-                .isInstanceOf(ClientRuntimeException.class)
+                .isInstanceOf(AuthCodeException.class)
                 .hasMessage("인증코드가 올바르지 않습니다.");
     }
 
@@ -77,7 +77,7 @@ class AuthCodeTest {
 
         assertThatThrownBy(
                 () -> authCode.verify(email, code, dateTime.plusMinutes(AUTH_CODE_EXPIRE_MINUTE + 1)))
-                .isInstanceOf(ClientRuntimeException.class)
+                .isInstanceOf(AuthCodeException.class)
                 .hasMessage("인증코드가 만료되었습니다.");
     }
 }
