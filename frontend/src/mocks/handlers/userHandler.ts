@@ -47,7 +47,7 @@ export default [
 
       if (users.some((user) => user.email === email)) {
         return res(
-          ctx.status(400),
+          ctx.status(409),
           ctx.json({
             message: '중복된 이메일입니다.',
           }),
