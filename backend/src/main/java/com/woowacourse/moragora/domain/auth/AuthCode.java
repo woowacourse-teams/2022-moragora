@@ -1,11 +1,10 @@
 package com.woowacourse.moragora.domain.auth;
 
-import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.auth.AuthCodeException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 
 @NoArgsConstructor
@@ -37,13 +36,13 @@ public class AuthCode {
 
     public void verify(final String email, final String code, final LocalDateTime dateTime) {
         if (!this.email.equals(email)) {
-            throw new ClientRuntimeException("인증을 요청하지 않은 이메일입니다.", HttpStatus.BAD_REQUEST);
+            throw new AuthCodeException("인증을 요청하지 않은 이메일입니다.");
         }
         if (!this.code.equals(code)) {
-            throw new ClientRuntimeException("인증코드가 올바르지 않습니다.", HttpStatus.BAD_REQUEST);
+            throw new AuthCodeException("인증코드가 올바르지 않습니다.");
         }
         if (toTimeStamp(dateTime) > this.expiredTime) {
-            throw new ClientRuntimeException("인증코드가 만료되었습니다.", HttpStatus.BAD_REQUEST);
+            throw new AuthCodeException("인증코드가 만료되었습니다.");
         }
     }
 

@@ -18,6 +18,7 @@ import com.woowacourse.moragora.dto.request.user.UserRequest;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
 import com.woowacourse.moragora.dto.response.user.UsersResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.auth.AuthCodeException;
 import com.woowacourse.moragora.exception.global.NoParameterException;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
 import com.woowacourse.moragora.exception.user.InvalidPasswordException;
@@ -59,7 +60,7 @@ public class UserService {
 
     private void confirmEmailVerification(final String email, final String verifitedEmail) {
         if (!email.equals(verifitedEmail)) {
-            throw new ClientRuntimeException("인증되지 않은 이메일입니다.", BAD_REQUEST);
+            throw new AuthCodeException("인증되지 않은 이메일입니다.");
         }
     }
 
