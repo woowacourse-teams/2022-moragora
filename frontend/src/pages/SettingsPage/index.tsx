@@ -6,10 +6,14 @@ import ModalWindow from 'components/@shared/ModalWindow';
 import { userContext } from 'contexts/userContext';
 import Avatar from 'components/@shared/Avatar';
 import MenuLink from 'components/@shared/MenuLink';
+import useMutation from 'hooks/useMutation';
+import { logoutApi } from 'apis/userApis';
 
 const SettingsPage = () => {
   const userState = useContext(userContext);
   const [isModalOpened, setIsModalOpened] = useState(false);
+
+  const logoutMutation = useMutation(logoutApi, {});
 
   const handleOpen = () => {
     setIsModalOpened(true);
@@ -20,6 +24,7 @@ const SettingsPage = () => {
   };
 
   const handleConfirm = () => {
+    logoutMutation.mutate({});
     userState?.logout();
   };
 
