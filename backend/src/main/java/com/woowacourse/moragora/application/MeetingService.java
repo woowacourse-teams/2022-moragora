@@ -17,11 +17,6 @@ import com.woowacourse.moragora.domain.query.QueryRepository;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.domain.user.UserRepository;
 import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
-import com.woowacourse.moragora.dto.request.meeting.BeaconResponse;
-import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceFailResponse;
-import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceRequest;
-import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceResponse;
-import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceSuccessResponse;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
@@ -37,7 +32,6 @@ import com.woowacourse.moragora.exception.participant.ParticipantNotFoundExcepti
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -51,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MeetingService {
 
+    public static final int MAX_BEACON_SIZE = 3;
     private final MeetingRepository meetingRepository;
     private final EventRepository eventRepository;
     private final ParticipantRepository participantRepository;
@@ -169,50 +164,23 @@ public class MeetingService {
     }
 
     @Transactional
-    public void saveBeacons(final Long meetingId, final List<BeaconRequest> beaconsRequest) {
-        final Meeting meeting = meetingRepository.findById(meetingId).orElseThrow(MeetingNotFoundException::new);
+    public void addBeacons(final Long meetingId, final List<BeaconRequest> beaconsRequest) {
+        final Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
 
-        if (beaconsRequest.size() > 3) {
+        if (validateMaximumBeacon(beaconsRequest)) {
             throw new BeaconNumberExceedException();
         }
 
         final List<Beacon> beacons = beaconsRequest.stream()
-                .map(BeaconRequest::toEntity)
+                .map((BeaconRequest beaconRequest) -> beaconRequest.toEntity(meeting))
                 .collect(Collectors.toList());
 
-        for (final Beacon beacon : beacons) {
-            beacon.mapMeeting(meeting);
-            beaconRepository.save(beacon);
-        }
+        beaconRepository.saveAll(beacons);
     }
 
-    @Transactional
-    public GeoLocationAttendanceResponse attendWithGeoLocation(final Long meetingId, final Long userId, final GeoLocationAttendanceRequest body) {
-        meetingRepository.findById(meetingId).orElseThrow(MeetingNotFoundException::new);
-        userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-
-        final Double latitude = body.getLatitude();
-        final Double longitude = body.getLongitude();
-        final Beacon attendCoordinate = new Beacon(latitude, longitude);
-
-        final List<Beacon> beacons = beaconRepository.findAllByMeetingId(meetingId);
-
-        return geoLocationAttendanceResponses(attendCoordinate, beacons);
-    }
-
-    private GeoLocationAttendanceResponse geoLocationAttendanceResponses(final Beacon attendCoordinate, final List<Beacon> beacons) {
-        final boolean isAttendanceSuccess = beacons.stream()
-                .anyMatch(beacon -> beacon.isInRadius(attendCoordinate));
-        if (isAttendanceSuccess) {
-            return new GeoLocationAttendanceSuccessResponse();
-        }
-
-        final List<BeaconResponse> beaconResponses = beacons.stream()
-                .map(beacon -> new BeaconResponse(beacon, beacon.calculateDistance(attendCoordinate)))
-                .sorted(Comparator.comparing(BeaconResponse::getDistance))
-                .collect(Collectors.toList());
-
-        return new GeoLocationAttendanceFailResponse(beaconResponses);
+    private boolean validateMaximumBeacon(final List<BeaconRequest> beaconsRequest) {
+        return beaconsRequest.size() > MAX_BEACON_SIZE;
     }
 
     /**

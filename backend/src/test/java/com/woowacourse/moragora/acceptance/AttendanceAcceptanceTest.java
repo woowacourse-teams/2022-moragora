@@ -7,9 +7,11 @@ import static com.woowacourse.moragora.support.fixture.UserFixtures.FORKY;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.NO_MASTER;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.PHILLZ;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.SUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.createUsers;
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,6 +20,9 @@ import static org.mockito.BDDMockito.given;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
+import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
+import com.woowacourse.moragora.dto.request.meeting.BeaconsRequest;
+import com.woowacourse.moragora.dto.request.meeting.GeolocationAttendanceRequest;
 import com.woowacourse.moragora.dto.request.user.UserAttendanceRequest;
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
@@ -288,5 +293,58 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .body("userCoffeeStats.find{it.id == " + userIds.get(4) + "}.coffeeCount", equalTo(1))
                 .body("userCoffeeStats.find{it.id == " + userIds.get(5) + "}.coffeeCount", equalTo(1))
                 .body("userCoffeeStats.find{it.id == " + userIds.get(6) + "}.coffeeCount", equalTo(1));
+    }
+
+    @DisplayName("위치 기반으로 출석을 해서 성공할 경우 204를 반환한다.")
+    @Test
+    void attendWithBeaconBase_ifAttendSuccess() {
+        // given
+        final User master = MASTER.create();
+        final String masterToken = signUpAndGetToken(master);
+        final User user = PHILLZ.create();
+        final Long userId = signUp(user);
+        final String token = login(user);
+        final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
+        // create beacon
+        final BeaconRequest beaconRequest = new BeaconRequest("루터회관", 37.5153, 127.103, 50);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+        final String beaconUri = String.format("/meetings/%d/beacons", meetingId);
+        post(beaconUri, beaconsRequest, masterToken);
+
+        // when
+        final GeolocationAttendanceRequest geoLocationAttendanceRequest = new GeolocationAttendanceRequest(37.5154, 127.1031);
+        final String attendanceUri = String.format("/meetings/%d/users/%d/attendances/today/geolocation", meetingId, userId);
+        final ValidatableResponse response = post(attendanceUri, geoLocationAttendanceRequest, token);
+
+        // then
+        response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("위치 기반으로 출석을 해서 성공할 경우 400을 반환한다.")
+    @Test
+    void attendWithBeaconBase_throwsException_ifAttendFail() {
+        // given
+        final User master = MASTER.create();
+        final String masterToken = signUpAndGetToken(master);
+        final User user = PHILLZ.create();
+        final Long userId = signUp(user);
+        final String token = login(user);
+        final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
+
+        final BeaconRequest beaconRequest1 = new BeaconRequest("서울역", 37.54788, 126.99712, 50);
+        final BeaconRequest beaconRequest2 = new BeaconRequest("루터회관", 37.5153, 127.103, 50);
+        final BeaconRequest beaconRequest3 = new BeaconRequest("선릉역", 37.50450, 127.048982, 50);
+        final List<BeaconRequest> requestBody = List.of(beaconRequest1, beaconRequest2, beaconRequest3);
+        final String beaconUri = String.format("/meetings/%d/beacons", meetingId);
+        post(beaconUri, requestBody, masterToken);
+
+        // when
+        final var attendanceRequest = new GeolocationAttendanceRequest(37.5138, 127.1012); // 잠실역 8번
+        final String attendanceUri = String.format("/meetings/%d/users/%d/attendances/today/geolocation", meetingId, userId);
+        final ValidatableResponse response = post(attendanceUri, attendanceRequest, token);
+
+        // then
+        response.statusCode(HttpStatus.BAD_REQUEST.value())
+                .body("message", equalTo("비콘의 출석 반경 이내에 있지 않습니다."));
     }
 }

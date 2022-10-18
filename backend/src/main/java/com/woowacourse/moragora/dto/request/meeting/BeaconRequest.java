@@ -1,6 +1,8 @@
 package com.woowacourse.moragora.dto.request.meeting;
 
 import com.woowacourse.moragora.domain.geolocation.Beacon;
+import com.woowacourse.moragora.domain.meeting.Meeting;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import lombok.Builder;
@@ -8,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.Range;
 
 @NoArgsConstructor
 @Getter
@@ -21,8 +24,10 @@ public class BeaconRequest {
     @Length(max = MAX_ADDRESS_LENGTH, message = "비콘 주소는 " + MAX_ADDRESS_LENGTH + "자를 초과할 수 없습니다.")
     private String address;
 
+    @Range(max = 90, min = -90, message = "위도는 +90(북위)에서 -90(남위)사이의 숫자를 넘길 수 없습니다")
     private Double latitude;
 
+    @Range(max = 180, min = -180, message = "경도는 +180(서경)에서 -180(동경)사이의 숫자를 넘길 수 없습니다")
     private Double longitude;
 
     @Min(value = 50, message = "비콘의 반경은 최소 " + MAX_ADDRESS_LENGTH + "m 이상이어야 합니다.")
@@ -36,12 +41,13 @@ public class BeaconRequest {
         this.radius = radius;
     }
 
-    public Beacon toEntity() {
+    public Beacon toEntity(final Meeting meeting) {
         return Beacon.builder()
                 .address(address)
                 .latitude(latitude)
                 .longitude(longitude)
                 .radius(radius)
+                .meeting(meeting)
                 .build();
     }
 }

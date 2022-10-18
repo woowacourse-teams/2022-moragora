@@ -20,7 +20,7 @@ import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
-import com.woowacourse.moragora.dto.request.meeting.GeoLocationAttendanceRequest;
+import com.woowacourse.moragora.dto.request.meeting.BeaconsRequest;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
@@ -222,9 +222,9 @@ class MeetingAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.NO_CONTENT.value());
     }
 
-    @DisplayName("위치 기반 미팅을 저장한다 (정상)")
+    @DisplayName("위치 기반 미팅에서 비콘을 저장하고 응답으로 204를 반환한다.")
     @Test
-    void meeting_save_with_geolocation_base() {
+    void addBeacons() {
         // given
         final User master = MASTER.create();
         final String masterToken = signUpAndGetToken(master);
@@ -233,66 +233,13 @@ class MeetingAcceptanceTest extends AcceptanceTest {
         final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
 
         final BeaconRequest beaconRequest = new BeaconRequest("서울시 송파구", 37.33, 126.58, 50);
-        final List<BeaconRequest> requestBody = List.of(beaconRequest);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
 
         // when
         final String uri = String.format("/meetings/%d/beacons", meetingId);
-        final ValidatableResponse response = post(uri, requestBody, masterToken);
+        final ValidatableResponse response = post(uri, beaconsRequest, masterToken);
 
         // then
         response.statusCode(HttpStatus.NO_CONTENT.value());
-    }
-
-    @DisplayName("위치 정보 기반 출석 : 성공")
-    @Test
-    void attend_with_geolocation_success() {
-        // given
-        final User master = MASTER.create();
-        final String masterToken = signUpAndGetToken(master);
-        final User user = PHILLZ.create();
-        final Long userId = signUp(user);
-        final String token = login(user);
-        final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
-
-        final BeaconRequest beaconRequest = new BeaconRequest("루터회관", 37.5153, 127.103, 50);
-        final List<BeaconRequest> requestBody = List.of(beaconRequest);
-        final String beaconUri = String.format("/meetings/%d/beacons", meetingId);
-        post(beaconUri, requestBody, masterToken);
-
-        // when
-        final GeoLocationAttendanceRequest geoLocationAttendanceRequest = new GeoLocationAttendanceRequest(37.5154, 127.1031);
-        final String attendanceUri = String.format("/meetings/%d/users/%d/attendances/today/geolocation", meetingId, userId);
-        final ValidatableResponse response = post(attendanceUri, geoLocationAttendanceRequest, token);
-
-        // then
-        response.statusCode(HttpStatus.NO_CONTENT.value());
-    }
-
-    @DisplayName("위치 정보 기반 출석 : 실패")
-    @Test
-    void attend_with_geolocation_fail() {
-        // given
-        final User master = MASTER.create();
-        final String masterToken = signUpAndGetToken(master);
-        final User user = PHILLZ.create();
-        final Long userId = signUp(user);
-        final String token = login(user);
-        final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
-
-        final BeaconRequest beaconRequest1 = new BeaconRequest("서울역", 37.54788, 126.99712, 50);
-        final BeaconRequest beaconRequest2 = new BeaconRequest("루터회관", 37.5153, 127.103, 50);
-        final BeaconRequest beaconRequest3 = new BeaconRequest("선릉역", 37.50450, 127.048982, 50);
-        final List<BeaconRequest> requestBody = List.of(beaconRequest1, beaconRequest2, beaconRequest3);
-        final String beaconUri = String.format("/meetings/%d/beacons", meetingId);
-        post(beaconUri, requestBody, masterToken);
-
-        // when
-        final var attendanceRequest = new GeoLocationAttendanceRequest(37.5138, 127.1012); // 잠실역 8번
-        final String attendanceUri = String.format("/meetings/%d/users/%d/attendances/today/geolocation", meetingId, userId);
-        final ValidatableResponse response = post(attendanceUri, attendanceRequest, token);
-
-        // then
-        response.statusCode(HttpStatus.BAD_REQUEST.value())
-                .body("beacons.address", contains("루터회관", "선릉역", "서울역"));
     }
 }
