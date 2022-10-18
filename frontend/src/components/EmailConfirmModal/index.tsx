@@ -97,10 +97,11 @@ const EmailConfirmModal: React.FC<
             placeholder={isTimeOver ? '인증시간 만료' : '123456'}
             disabled={isTimeOver}
             name="code"
-            required={true}
             onChange={handleInputChange}
             onKeyDown={handleInputKeyDown}
             value={code}
+            required
+            autoFocus
           />
           <S.ExpiredTimeParagraph>{remainTime}</S.ExpiredTimeParagraph>
         </S.InputBox>
