@@ -7,7 +7,7 @@ public interface RefreshTokenRepository extends Repository<RefreshToken, String>
 
     RefreshToken save(final RefreshToken refreshToken);
 
-    Optional<RefreshToken> findByValue(final String key);
+    Optional<RefreshToken> findByUuid(final String uuid);
 
-    void deleteByValue(final String oldToken);
+    void deleteByUuid(final String uuid);
 }

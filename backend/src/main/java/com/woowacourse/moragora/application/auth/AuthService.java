@@ -115,7 +115,7 @@ public class AuthService {
     }
 
     private void removeTokenAndThrowException(final RefreshToken refreshToken) {
-        refreshTokenProvider.remove(refreshToken.getValue());
+        refreshTokenProvider.remove(refreshToken.getUuid());
         throw new InvalidTokenException();
     }
 }

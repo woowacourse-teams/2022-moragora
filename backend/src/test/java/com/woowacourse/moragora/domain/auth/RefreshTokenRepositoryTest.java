@@ -36,8 +36,8 @@ class RefreshTokenRepositoryTest {
         final RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshToken);
 
         // when
-        final Optional<RefreshToken> foundRefreshToken = refreshTokenRepository.findByValue(
-                savedRefreshToken.getValue());
+        final Optional<RefreshToken> foundRefreshToken = refreshTokenRepository.findByUuid(
+                savedRefreshToken.getUuid());
 
         // then
         assertThat(foundRefreshToken.get()).usingRecursiveComparison()
@@ -52,11 +52,11 @@ class RefreshTokenRepositoryTest {
         final RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshToken);
 
         // when
-        refreshTokenRepository.deleteByValue(savedRefreshToken.getValue());
+        refreshTokenRepository.deleteByUuid(savedRefreshToken.getUuid());
 
         // then
-        final Optional<RefreshToken> foundRefreshToken = refreshTokenRepository.findByValue(
-                savedRefreshToken.getValue());
+        final Optional<RefreshToken> foundRefreshToken = refreshTokenRepository.findByUuid(
+                savedRefreshToken.getUuid());
         assertThat(foundRefreshToken).isEmpty();
     }
 }

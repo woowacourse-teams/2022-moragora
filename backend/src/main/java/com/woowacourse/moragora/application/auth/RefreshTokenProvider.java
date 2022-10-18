@@ -30,15 +30,15 @@ public class RefreshTokenProvider {
         final RefreshToken refreshToken = new RefreshToken(value, userId, expiredAt);
         final RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshToken);
 
-        return savedRefreshToken.getValue();
+        return savedRefreshToken.getUuid();
     }
 
     public Optional<RefreshToken> findRefreshToken(final String key) {
-        return refreshTokenRepository.findByValue(key);
+        return refreshTokenRepository.findByUuid(key);
     }
 
     @Transactional
     public void remove(final String oldToken) {
-        refreshTokenRepository.deleteByValue(oldToken);
+        refreshTokenRepository.deleteByUuid(oldToken);
     }
 }
