@@ -2,8 +2,6 @@ package com.woowacourse.moragora.application.auth;
 
 import static com.woowacourse.moragora.domain.user.Provider.CHECKMATE;
 import static com.woowacourse.moragora.domain.user.Provider.GOOGLE;
-import static com.woowacourse.moragora.constant.SessionAttributeNames.AUTH_CODE;
-import static com.woowacourse.moragora.constant.SessionAttributeNames.VERIFIED_EMAIL;
 
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.auth.AuthCode;
@@ -16,7 +14,6 @@ import com.woowacourse.moragora.domain.user.password.RawPassword;
 import com.woowacourse.moragora.dto.request.auth.EmailRequest;
 import com.woowacourse.moragora.dto.request.auth.EmailVerifyRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
-import com.woowacourse.moragora.dto.response.auth.ExpiredTimeResponse;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
@@ -26,7 +23,6 @@ import com.woowacourse.moragora.exception.user.EmailDuplicatedException;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
 import com.woowacourse.moragora.support.AsyncMailSender;
 import com.woowacourse.moragora.support.JwtTokenProvider;
-import javax.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,7 +83,7 @@ public class AuthService {
         return participant.getIsMaster();
     }
 
-    public ExpiredTimeResponse sendAuthCode(final EmailRequest emailRequest, final HttpSession httpSession) {
+    public AuthCode sendAuthCode(final EmailRequest emailRequest) {
         final String email = emailRequest.getEmail();
         checkEmailExist(email);
 
@@ -95,19 +91,16 @@ public class AuthService {
         final AuthCode authCode = new AuthCode(email, code, serverTimeManager.getDateAndTime());
         mailSender.send(authCode.toMailMessage());
 
-        httpSession.setAttribute(AUTH_CODE, authCode);
-        httpSession.removeAttribute(VERIFIED_EMAIL);
-        return new ExpiredTimeResponse(authCode.getExpiredTime());
+        return authCode;
     }
 
-    public void verifyAuthCode(final EmailVerifyRequest request, final AuthCode authCode,
-                               final HttpSession httpSession) {
+    public String verifyAuthCode(final EmailVerifyRequest request, final AuthCode authCode) {
         checkAuthCode(authCode);
         final String email = request.getEmail();
         final String verifyCode = request.getVerifyCode();
 
         authCode.verify(email, verifyCode, serverTimeManager.getDateAndTime());
-        httpSession.setAttribute(VERIFIED_EMAIL, email);
+        return email;
     }
 
     private User saveGoogleUser(final GoogleProfileResponse profileResponse) {

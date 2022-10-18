@@ -1,9 +1,10 @@
 package com.woowacourse.moragora.presentation.auth;
 
+import static com.woowacourse.moragora.constant.SessionAttributeNames.AUTH_CODE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
@@ -25,9 +26,9 @@ import com.woowacourse.moragora.exception.user.EmailDuplicatedException;
 import com.woowacourse.moragora.presentation.ControllerTest;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import javax.servlet.http.HttpSession;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -125,12 +126,14 @@ class AuthControllerTest extends ControllerTest {
     void sendEmail() throws Exception {
         // given
         final String email = "ghd700@daum.net";
-        final long expiredTime = Timestamp.valueOf(
-                LocalDateTime.of(2022, 10, 12, 13, 0).plusMinutes(5)).getTime();
+        final LocalDateTime expiredDate = LocalDateTime.of(2022, 10, 12, 13, 0);
+        final long expiredTime = Timestamp.valueOf(expiredDate.plusMinutes(5)).getTime();
+
+        final AuthCode authCode = new AuthCode(email, "123456", expiredDate);
         final ExpiredTimeResponse response = new ExpiredTimeResponse(expiredTime);
 
-        given(authService.sendAuthCode(any(EmailRequest.class), any(HttpSession.class)))
-                .willReturn(response);
+        given(authService.sendAuthCode(any(EmailRequest.class)))
+                .willReturn(authCode);
 
         // when
         final ResultActions resultActions = performPost("/email/send", new EmailRequest(email));
@@ -153,7 +156,7 @@ class AuthControllerTest extends ControllerTest {
         final String email = "ghd700@daum.net";
         final String message = "이미 존재하는 이메일입니다.";
 
-        given(authService.sendAuthCode(any(EmailRequest.class), any(HttpSession.class)))
+        given(authService.sendAuthCode(any(EmailRequest.class)))
                 .willThrow(new EmailDuplicatedException());
 
         // when
@@ -171,16 +174,20 @@ class AuthControllerTest extends ControllerTest {
 
     @DisplayName("인증번호를 검증한다.")
     @Test
-    void verifyEmail() throws Exception {
+    void verifyCode() throws Exception {
         // given
         final String email = "ghd700@daum.net";
         final String verifyCode = "000000";
+        final MockHttpSession mockHttpSession = new MockHttpSession();
+        final AuthCode authCode = new AuthCode(email, verifyCode, LocalDateTime.now());
 
-        doNothing().when(authService)
-                .verifyAuthCode(any(EmailVerifyRequest.class), any(AuthCode.class), any(HttpSession.class));
+        mockHttpSession.setAttribute(AUTH_CODE, authCode);
+        given(authService.verifyAuthCode(any(EmailVerifyRequest.class), eq(authCode)))
+                .willReturn(email);
 
         // when
-        final ResultActions resultActions = performPost("/email/verify", new EmailVerifyRequest(email, verifyCode));
+        final ResultActions resultActions = performPostWithSession("/email/verify",
+                new EmailVerifyRequest(email, verifyCode), mockHttpSession);
 
         // then
         resultActions.andExpect(status().isNoContent());

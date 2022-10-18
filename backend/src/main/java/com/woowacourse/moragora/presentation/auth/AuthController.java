@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.presentation.auth;
 
 import static com.woowacourse.moragora.constant.SessionAttributeNames.AUTH_CODE;
+import static com.woowacourse.moragora.constant.SessionAttributeNames.VERIFIED_EMAIL;
 
 import com.woowacourse.moragora.application.auth.AuthService;
 import com.woowacourse.moragora.domain.auth.AuthCode;
@@ -42,15 +43,20 @@ public class AuthController {
     @PostMapping("/email/send")
     public ResponseEntity<ExpiredTimeResponse> sendEmail(@RequestBody @Valid final EmailRequest emailRequest,
                                                          final HttpSession session) {
-        final ExpiredTimeResponse response = authService.sendAuthCode(emailRequest, session);
-        return ResponseEntity.ok(response);
+        final AuthCode authCode = authService.sendAuthCode(emailRequest);
+
+        session.setAttribute(AUTH_CODE, authCode);
+        session.removeAttribute(VERIFIED_EMAIL);
+
+        return ResponseEntity.ok(new ExpiredTimeResponse(authCode.getExpiredTime()));
     }
 
     @PostMapping("/email/verify")
     public ResponseEntity<Void> verifyCode(@RequestBody @Valid final EmailVerifyRequest emailVerifyRequest,
                                            @SessionAttribute(name = AUTH_CODE, required = false) final AuthCode authCode,
                                            final HttpSession session) {
-        authService.verifyAuthCode(emailVerifyRequest, authCode, session);
+        final String email = authService.verifyAuthCode(emailVerifyRequest, authCode);
+        session.setAttribute(VERIFIED_EMAIL, email);
         return ResponseEntity.noContent().build();
     }
 }
