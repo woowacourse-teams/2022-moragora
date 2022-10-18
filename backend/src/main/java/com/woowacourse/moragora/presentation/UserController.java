@@ -1,7 +1,8 @@
 package com.woowacourse.moragora.presentation;
 
+import static com.woowacourse.moragora.constant.SessionAttributeNames.VERIFIED_EMAIL;
+
 import com.woowacourse.moragora.application.UserService;
-import com.woowacourse.moragora.constant.SessionAttributeNames;
 import com.woowacourse.moragora.dto.request.user.NicknameRequest;
 import com.woowacourse.moragora.dto.request.user.PasswordRequest;
 import com.woowacourse.moragora.dto.request.user.UserDeleteRequest;
@@ -36,8 +37,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<Void> signUp(@RequestBody @Valid final UserRequest userRequest,
-                                       @SessionAttribute(name = SessionAttributeNames.VERIFIED_EMAIL,
-                                               required = false) final String verifiedEmail,
+                                       @SessionAttribute(name = VERIFIED_EMAIL, required = false) final String verifiedEmail,
                                        final HttpSession httpSession) {
         final Long id = userService.create(userRequest, verifiedEmail);
         httpSession.invalidate();

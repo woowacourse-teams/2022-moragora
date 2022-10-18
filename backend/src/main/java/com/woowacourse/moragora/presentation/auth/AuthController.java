@@ -1,5 +1,7 @@
 package com.woowacourse.moragora.presentation.auth;
 
+import static com.woowacourse.moragora.constant.SessionAttributeNames.AUTH_CODE;
+
 import com.woowacourse.moragora.application.auth.AuthService;
 import com.woowacourse.moragora.domain.auth.AuthCode;
 import com.woowacourse.moragora.dto.request.auth.EmailRequest;
@@ -7,7 +9,6 @@ import com.woowacourse.moragora.dto.request.auth.EmailVerifyRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.response.auth.ExpiredTimeResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
-import com.woowacourse.moragora.constant.SessionAttributeNames;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -47,9 +48,8 @@ public class AuthController {
 
     @PostMapping("/email/verify")
     public ResponseEntity<Void> verifyCode(@RequestBody @Valid final EmailVerifyRequest emailVerifyRequest,
-                                          @SessionAttribute(name = SessionAttributeNames.AUTH_CODE,
-                                                  required = false) final AuthCode authCode,
-                                          final HttpSession session) {
+                                           @SessionAttribute(name = AUTH_CODE, required = false) final AuthCode authCode,
+                                           final HttpSession session) {
         authService.verifyAuthCode(emailVerifyRequest, authCode, session);
         return ResponseEntity.noContent().build();
     }
