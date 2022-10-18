@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.domain.auth;
 
+import static com.woowacourse.moragora.domain.auth.AuthCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -74,7 +75,8 @@ class AuthCodeTest {
         final LocalDateTime dateTime = LocalDateTime.now();
         final AuthCode authCode = new AuthCode(email, code, dateTime);
 
-        assertThatThrownBy(() -> authCode.verify(email, code, dateTime.plusMinutes(6)))
+        assertThatThrownBy(
+                () -> authCode.verify(email, code, dateTime.plusMinutes(AUTH_CODE_EXPIRE_MINUTE + 1)))
                 .isInstanceOf(ClientRuntimeException.class)
                 .hasMessage("인증코드가 만료되었습니다.");
     }
