@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.presentation;
 
 import com.woowacourse.moragora.application.UserService;
+import com.woowacourse.moragora.constant.SessionAttributeNames;
 import com.woowacourse.moragora.dto.request.user.NicknameRequest;
 import com.woowacourse.moragora.dto.request.user.PasswordRequest;
 import com.woowacourse.moragora.dto.request.user.UserDeleteRequest;

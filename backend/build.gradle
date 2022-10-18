@@ -139,7 +139,8 @@ jacocoTestCoverageVerification {
                 minimum = 0.80
             }
 
-            excludes = ['*infrastructure*', '*support*', '*config*', '*dto*', '*exception*', '*logging*', '*Application*', '*SessionAttributeNames']
+            excludes = ['*infrastructure*', '*support*', '*config*', '*dto*', '*exception*', '*logging*', '*Application*',
+                        '*SessionAttributeNames', '*Patterns', '*ValidationMessages']
         }
     }
 }

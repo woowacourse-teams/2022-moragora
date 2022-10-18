@@ -1,4 +1,4 @@
-package com.woowacourse.moragora.presentation;
+package com.woowacourse.moragora.constant;
 
 public class SessionAttributeNames {
 

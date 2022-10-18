@@ -2,8 +2,8 @@ package com.woowacourse.moragora.application.auth;
 
 import static com.woowacourse.moragora.domain.user.Provider.CHECKMATE;
 import static com.woowacourse.moragora.domain.user.Provider.GOOGLE;
-import static com.woowacourse.moragora.presentation.SessionAttributeNames.AUTH_CODE;
-import static com.woowacourse.moragora.presentation.SessionAttributeNames.VERIFIED_EMAIL;
+import static com.woowacourse.moragora.constant.SessionAttributeNames.AUTH_CODE;
+import static com.woowacourse.moragora.constant.SessionAttributeNames.VERIFIED_EMAIL;
 
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.auth.AuthCode;

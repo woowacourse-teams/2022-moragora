@@ -1,5 +1,7 @@
 package com.woowacourse.moragora.dto.request.auth;
 
+import com.woowacourse.moragora.constant.Patterns;
+import com.woowacourse.moragora.constant.ValidationMessages;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -13,12 +15,11 @@ import org.hibernate.validator.constraints.Length;
 public class EmailVerifyRequest {
 
     private static final int CODE_LENGTH = 6;
-    private static final String MISSING_REQUIRED_INPUT = "필수 입력 값이 누락됐습니다.";
 
-    @Email(regexp = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$", message = "입력 형식이 올바르지 않습니다.")
+    @Email(regexp = Patterns.EMAIL, message = ValidationMessages.INVALID_FORMAT)
     private String email;
 
-    @NotBlank(message = MISSING_REQUIRED_INPUT)
+    @NotBlank(message = ValidationMessages.MISSING_REQUIRED_INPUT)
     @Length(min = CODE_LENGTH, max = CODE_LENGTH, message = "인증 번호는 " + CODE_LENGTH + "자 입니다.")
     private String verifyCode;
 

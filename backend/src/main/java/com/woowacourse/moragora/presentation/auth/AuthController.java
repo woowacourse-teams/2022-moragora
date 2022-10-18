@@ -7,7 +7,7 @@ import com.woowacourse.moragora.dto.request.auth.EmailVerifyRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.response.auth.ExpiredTimeResponse;
 import com.woowacourse.moragora.dto.response.user.LoginResponse;
-import com.woowacourse.moragora.presentation.SessionAttributeNames;
+import com.woowacourse.moragora.constant.SessionAttributeNames;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;

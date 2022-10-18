@@ -1,7 +1,7 @@
 package com.woowacourse.moragora.application.auth;
 
-import static com.woowacourse.moragora.presentation.SessionAttributeNames.AUTH_CODE;
-import static com.woowacourse.moragora.presentation.SessionAttributeNames.VERIFIED_EMAIL;
+import static com.woowacourse.moragora.constant.SessionAttributeNames.AUTH_CODE;
+import static com.woowacourse.moragora.constant.SessionAttributeNames.VERIFIED_EMAIL;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.PHILLZ;
