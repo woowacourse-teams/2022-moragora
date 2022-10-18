@@ -52,8 +52,7 @@ public class UserService {
         validateUserExistsByEmailAndProvider(email);
         confirmEmailVerification(email, verifiedEmail);
 
-        final User user = new User(userRequest.getEmail(), EncodedPassword.fromRawValue(userRequest.getPassword()),
-                userRequest.getNickname());
+        final User user = userRequest.toEntity();
         final User savedUser = userRepository.save(user);
         return savedUser.getId();
     }
