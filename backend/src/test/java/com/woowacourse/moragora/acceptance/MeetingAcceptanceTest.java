@@ -14,8 +14,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-import com.woowacourse.moragora.application.AttendanceScheduler;
-import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
@@ -30,8 +28,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 @DisplayName("모임 관련 기능")
@@ -90,7 +86,6 @@ class MeetingAcceptanceTest extends AcceptanceTest {
                 .body("attendedEventCount", equalTo(0))
                 .body("isLoginUserMaster", equalTo(true))
                 .body("isCoffeeTime", equalTo(false))
-                .body("isActive", equalTo(false))
                 .body("users.id", equalTo(ids))
                 .body("users.nickname", equalTo(getNicknamesIncludingMaster()))
                 .body("users.email", equalTo(getEmailsIncludingMaster()));

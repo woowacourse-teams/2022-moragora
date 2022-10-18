@@ -4,7 +4,6 @@ import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.application.AttendanceScheduler;
 import com.woowacourse.moragora.application.ServerTimeManager;
-import com.woowacourse.moragora.support.RandomCodeGenerator;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
@@ -18,6 +17,7 @@ import com.woowacourse.moragora.dto.request.user.UserRequest;
 import com.woowacourse.moragora.infrastructure.GoogleClient;
 import com.woowacourse.moragora.support.AsyncMailSender;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
+import com.woowacourse.moragora.support.RandomCodeGenerator;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -34,6 +34,9 @@ import org.springframework.http.MediaType;
 
 @SpringBootTest(properties = "spring.session.store-type=none", webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AcceptanceTest {
+
+    @LocalServerPort
+    int port;
 
     @MockBean
     protected ServerTimeManager serverTimeManager;
@@ -52,9 +55,6 @@ public class AcceptanceTest {
 
     @Autowired
     private DatabaseCleanUp databaseCleanUp;
-
-    @LocalServerPort
-    int port;
 
     @BeforeEach
     public void setUp() {
@@ -150,6 +150,8 @@ public class AcceptanceTest {
     }
 
     protected String login(final User user) {
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(LocalDateTime.now());
         final LoginRequest loginRequest = new LoginRequest(user.getEmail(), "1234asdf!");
         final ExtractableResponse<Response> response = post("/login", loginRequest).extract();
 

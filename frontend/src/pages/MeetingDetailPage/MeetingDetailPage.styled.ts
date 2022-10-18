@@ -33,7 +33,7 @@ export const TabNavBox = styled.div`
   height: 3rem;
   background-color: ${({ theme: { colors } }) => colors['surface']};
   box-shadow: 0 0.1rem 0.1rem ${({ theme: { colors } }) => colors['background']};
-  z-index: 10;
+  z-index: ${({ theme: { zIndex } }) => zIndex['slightly-float']};
 `;
 
 export const TabNav = styled.nav`
@@ -46,7 +46,7 @@ export const TabNav = styled.nav`
 export const TabNavLink = styled(NavLink)`
   text-decoration: none;
   color: ${({ theme: { colors } }) => colors['subtle-light']};
-  z-index: 1;
+  z-index: ${({ theme: { zIndex } }) => zIndex['slightly-float']};
 
   transition: all 300ms ease-out;
 
