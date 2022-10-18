@@ -162,12 +162,9 @@ public class MeetingService {
         validateMeetingExists(meetingId);
 
         final Optional<Event> event = eventRepository.findByMeetingIdAndDate(meetingId, serverTimeManager.getDate());
+        final boolean isActive = event.isPresent() && serverTimeManager.isAttendanceOpen(event.get().getStartTime());
 
-        if (event.isEmpty() || !serverTimeManager.isAttendanceOpen(event.get().getStartTime())) {
-            return new MeetingActiveResponse(false);
-        }
-
-        return new MeetingActiveResponse(true);
+        return new MeetingActiveResponse(isActive);
     }
 
     /**
