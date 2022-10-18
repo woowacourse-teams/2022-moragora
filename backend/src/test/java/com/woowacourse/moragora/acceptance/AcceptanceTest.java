@@ -1,5 +1,7 @@
 package com.woowacourse.moragora.acceptance;
 
+import static org.mockito.BDDMockito.given;
+
 import com.woowacourse.moragora.application.AttendanceScheduler;
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.event.Event;
@@ -16,6 +18,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -127,6 +130,8 @@ public class AcceptanceTest {
     }
 
     protected String login(final User user) {
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(LocalDateTime.now());
         final LoginRequest loginRequest = new LoginRequest(user.getEmail(), "1234asdf!");
         final ExtractableResponse<Response> response = post("/login", loginRequest).extract();
 

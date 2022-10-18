@@ -27,6 +27,7 @@ import com.woowacourse.moragora.dto.response.user.EmailCheckResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
 import com.woowacourse.moragora.dto.response.user.UsersResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.auth.InvalidTokenException;
 import com.woowacourse.moragora.exception.global.NoParameterException;
 import com.woowacourse.moragora.exception.user.InvalidPasswordException;
 import java.util.List;
@@ -37,6 +38,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -244,12 +246,26 @@ class UserControllerTest extends ControllerTest {
     @DisplayName("로그인하지 않은 상태에서 회원의 정보를 조회하면 예외가 발생한다.")
     @Test
     void findMe_ifNotLoggedIn() throws Exception {
-        // given, when
+        // given
+        doThrow(new InvalidTokenException())
+                .when(jwtTokenProvider)
+                .validateToken(any());
+        given(refreshTokenCookieProvider.createInvalidCookie())
+                .willReturn(ResponseCookie.from("refreshToken", "").build());
+
+        // when
         final ResultActions resultActions = performGet("/users/me");
 
         // then
         resultActions.andExpect(status().isUnauthorized())
-                .andDo(document("user/find-my-info-unauthorized"));
+                .andDo(document("user/find-my-info-unauthorized",
+                        responseFields(
+                                fieldWithPath("message").type(JsonFieldType.STRING)
+                                        .description("유효하지 않은 토큰입니다."),
+                                fieldWithPath("tokenStatus").type(JsonFieldType.STRING)
+                                        .description("invalid")
+                        )
+                ));
     }
 
     @DisplayName("로그인한 회원의 닉네임을 수정한다.")
