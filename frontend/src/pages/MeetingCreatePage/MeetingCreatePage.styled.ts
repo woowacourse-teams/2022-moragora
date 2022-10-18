@@ -68,7 +68,7 @@ export const MapOverlay = styled.div`
 
   transition: all 0.5s;
 
-  & .loading {
+  &.loading {
     visibility: visible;
     opacity: 1;
   }

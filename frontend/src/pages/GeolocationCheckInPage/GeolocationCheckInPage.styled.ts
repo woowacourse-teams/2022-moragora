@@ -96,3 +96,58 @@ export const EmptyStateParagraph = styled.p`
 export const ButtonBox = styled.div`
   padding: 0.75rem;
 `;
+
+export const MapSection = styled.section`
+  width: 100%;
+  height: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+`;
+
+export const Map = styled.div`
+  width: 100%;
+  height: 400px;
+`;
+
+export const MapOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  z-index: ${({ theme: { zIndex } }) => zIndex['slightly-float']};
+  color: white;
+  backdrop-filter: blur(0.5rem) brightness(90%);
+  visibility: hidden;
+  opacity: 0;
+
+  transition: all 0.5s;
+
+  &.loading {
+    visibility: visible;
+    opacity: 1;
+  }
+`;
+
+export const MapUserMarker = styled.svg`
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -100%);
+  z-index: ${({ theme: { zIndex } }) => zIndex['slightly-float']};
+  color: ${({ theme: { colors } }) => colors['primary']};
+  visibility: visible;
+  opacity: 1;
+  transition: all 0.5s ease-out;
+
+  &.loading {
+    transform: translate(-50%, -200%);
+    visibility: hidden;
+    opacity: 0;
+  }
+`;

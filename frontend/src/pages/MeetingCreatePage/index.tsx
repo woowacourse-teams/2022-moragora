@@ -163,12 +163,8 @@ const MeetingCreatePage = () => {
         />
         <S.Label>비콘 등록하기</S.Label>
         <S.MapSection>
-          <S.Map id="map" ref={mapContainerRef}>
-            <S.MapOverlay
-              id="map-overlay"
-              ref={mapOverlayRef}
-              className="loading"
-            >
+          <S.Map ref={mapContainerRef}>
+            <S.MapOverlay ref={mapOverlayRef} className="loading">
               Loading...
             </S.MapOverlay>
           </S.Map>

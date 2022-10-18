@@ -396,7 +396,11 @@ const useKakaoMap = (
     return () => {
       removeBeacons();
     };
-  }, [defaultPosition.latitude, defaultPosition.longitude]);
+  }, [
+    defaultPosition.latitude,
+    defaultPosition.longitude,
+    mapContainerRef.current,
+  ]);
 
   return {
     beacons,

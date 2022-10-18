@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 
-const useGeolocation = (defaultPosition: GeolocationPosition | null = null) => {
-  const [currentPosition, setCurrentPosition] =
-    useState<GeolocationPosition | null>(defaultPosition);
+const useGeolocation = (defaultPosition?: GeolocationPosition) => {
+  const [currentPosition, setCurrentPosition] = useState<
+    GeolocationPosition | undefined
+  >(defaultPosition);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error>();
 
