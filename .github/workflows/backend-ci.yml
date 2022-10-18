@@ -35,27 +35,3 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
-
-      - name: Add comment when test fail
-        uses: mikepenz/action-junit-report@v3
-        if: always()
-        with:
-          report_paths: '**/build/test-results/test/TEST-*.xml'
-          token: ${{ github.token }}
-
-      - name: Add test results to PR
-        uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
-        with:
-          report_paths: '**/build/test-results/test/TEST-*.xml'
-          token: ${{ github.token }}
-
-      - name: Add Coverage to PR
-        id: jacoco
-        uses: madrapps/jacoco-report@v1.3
-        with:
-          title: 📝 Test Coverage Report
-          paths: ${{ github.workspace }}/backend/build/reports/jacoco/test/jacocoTestReport.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 80
