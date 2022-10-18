@@ -51,7 +51,9 @@ const RegisterPage = () => {
   const handleEmailCheckButtonClick: React.MouseEventHandler<
     HTMLButtonElement
   > = () => {
-    emailSendMutation.mutate({ email: values['email'] as string });
+    if (typeof values['email'] === 'string') {
+      emailSendMutation.mutate({ email: values['email'] });
+    }
   };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
