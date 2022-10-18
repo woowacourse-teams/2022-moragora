@@ -303,7 +303,7 @@ export default [
   ),
 
   rest.post<UserEmailSendRequestBody>(
-    `${process.env.API_SERVER_HOST}/emails/send`,
+    `${process.env.API_SERVER_HOST}/email/send`,
     (req, res, ctx) => {
       const { email } = req.body;
 
@@ -346,7 +346,7 @@ export default [
   ),
 
   rest.post<EmailCodeVerifyRequestBody>(
-    `${process.env.API_SERVER_HOST}/emails/verify`,
+    `${process.env.API_SERVER_HOST}/email/verify`,
     (req, res, ctx) => {
       const { email, verifyCode } = req.body;
       const authCode = '123456';

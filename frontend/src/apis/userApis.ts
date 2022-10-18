@@ -18,7 +18,7 @@ import {
 import request from '../utils/request';
 
 export const postEmailSendApi = (payload: UserEmailSendRequestBody) =>
-  request<{ expiredTime: number }>(`/emails/send`, {
+  request<{ expiredTime: number }>(`/email/send`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ export const postEmailSendApi = (payload: UserEmailSendRequestBody) =>
   });
 
 export const postVerifyCodeAPi = (payload: EmailCodeVerifyRequestBody) =>
-  request(`/emails/verify`, {
+  request(`/email/verify`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
