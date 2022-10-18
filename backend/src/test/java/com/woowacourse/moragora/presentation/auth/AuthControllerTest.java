@@ -163,7 +163,7 @@ class AuthControllerTest extends ControllerTest {
         final ResultActions resultActions = performPost("/email/send", new EmailRequest(email));
 
         // then
-        resultActions.andExpect(status().isBadRequest())
+        resultActions.andExpect(status().isConflict())
                 .andExpect(jsonPath("message").value(message))
                 .andDo(document("auth/email-send-duplicated",
                         preprocessResponse(prettyPrint()),

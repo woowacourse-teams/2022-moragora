@@ -8,6 +8,6 @@ public class EmailDuplicatedException extends ClientRuntimeException {
     private static final String MESSAGE = "이미 존재하는 이메일입니다.";
 
     public EmailDuplicatedException() {
-        super(MESSAGE, HttpStatus.BAD_REQUEST);
+        super(MESSAGE, HttpStatus.CONFLICT);
     }
 }
