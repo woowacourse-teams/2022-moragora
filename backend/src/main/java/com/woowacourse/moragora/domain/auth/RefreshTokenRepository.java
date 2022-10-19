@@ -1,13 +1,6 @@
 package com.woowacourse.moragora.domain.auth;
 
-import java.util.Optional;
-import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface RefreshTokenRepository extends Repository<RefreshToken, String> {
-
-    RefreshToken save(final RefreshToken refreshToken);
-
-    Optional<RefreshToken> findByUuid(final String uuid);
-
-    void deleteByUuid(final String uuid);
+public interface RefreshTokenRepository extends CrudRepository<RefreshToken, String> {
 }

@@ -4,22 +4,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 
-@DataJpaTest
+@SpringBootTest
 class RefreshTokenRepositoryTest {
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
+    @AfterEach
+    void tearDown() {
+        refreshTokenRepository.deleteAll();
+    }
+
     @DisplayName("Refresh token을 DB에 저장한다.")
     @Test
     void save() {
         // given
-        final RefreshToken refreshToken = new RefreshToken("refresh_token", 1L, LocalDateTime.now());
+        final RefreshToken refreshToken = new RefreshToken("uuid_1", 1L, LocalDateTime.now());
 
         // when
         final RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshToken);
@@ -36,7 +42,7 @@ class RefreshTokenRepositoryTest {
         final RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshToken);
 
         // when
-        final Optional<RefreshToken> foundRefreshToken = refreshTokenRepository.findByUuid(
+        final Optional<RefreshToken> foundRefreshToken = refreshTokenRepository.findById(
                 savedRefreshToken.getUuid());
 
         // then
@@ -52,10 +58,10 @@ class RefreshTokenRepositoryTest {
         final RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshToken);
 
         // when
-        refreshTokenRepository.deleteByUuid(savedRefreshToken.getUuid());
+        refreshTokenRepository.deleteById(savedRefreshToken.getUuid());
 
         // then
-        final Optional<RefreshToken> foundRefreshToken = refreshTokenRepository.findByUuid(
+        final Optional<RefreshToken> foundRefreshToken = refreshTokenRepository.findById(
                 savedRefreshToken.getUuid());
         assertThat(foundRefreshToken).isEmpty();
     }
