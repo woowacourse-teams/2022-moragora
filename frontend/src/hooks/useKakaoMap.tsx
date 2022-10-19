@@ -207,9 +207,9 @@ const useKakaoMap = (
     const drawingController = drawingControllerRef.current;
     const map = mapRef.current;
 
-    if (!clickable) {
-      return;
-    }
+    //  if (!clickable) {
+    //    return;
+    //  }
 
     if (drawingController.isDrawing) {
       addArea(mouseEvent);

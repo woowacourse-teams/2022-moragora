@@ -63,8 +63,8 @@ const MeetingCreatePage = () => {
       beaconCreateMutation.mutate({
         meetingId: id,
         beacons: beacons.map((beacon) => ({
-          latitude: beacon.position.La,
-          longitude: beacon.position.Ma,
+          latitude: beacon.position.Ma,
+          longitude: beacon.position.La,
           radius: beacon.radius,
           address: beacon.address.address_name,
         })),
