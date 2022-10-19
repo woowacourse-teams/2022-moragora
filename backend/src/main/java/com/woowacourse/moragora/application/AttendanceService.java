@@ -21,7 +21,6 @@ import com.woowacourse.moragora.dto.response.attendance.AttendancesResponse;
 import com.woowacourse.moragora.dto.response.meeting.CoffeeStatsResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.attendance.InvalidCoffeeTimeException;
-import com.woowacourse.moragora.exception.beacon.NotInBeaconRangeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.AttendanceNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
@@ -136,7 +135,7 @@ public class AttendanceService {
                 .noneMatch(beacon -> beacon.isInRadius(attendCoordinate));
 
         if (attendanceFail) {
-            throw new NotInBeaconRangeException();
+            throw new ClientRuntimeException("비콘의 출석 반경 이내에 있지 않습니다.", HttpStatus.BAD_REQUEST);
         }
     }
 
