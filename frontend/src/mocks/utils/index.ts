@@ -82,5 +82,5 @@ export const checkExpiredToken = (expiredTimestamp?: number) => {
     return false;
   }
 
-  expiredTimestamp <= Date.now();
+  return expiredTimestamp <= Date.now();
 };
