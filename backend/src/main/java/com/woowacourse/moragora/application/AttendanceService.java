@@ -136,7 +136,7 @@ public class AttendanceService {
                 .noneMatch(beacon -> beacon.isInRadius(attendCoordinate));
 
         if (attendanceFail) {
-            throw new NotInBeaconRangeException();
+            throw new ClientRuntimeException("비콘의 출석 반경 이내에 있지 않습니다.", HttpStatus.BAD_REQUEST);
         }
     }
 
