@@ -11,15 +11,25 @@ import { CalendarProvider } from 'contexts/calendarContext';
 import useQuery from 'hooks/useQuery';
 import { getLoginUserDataApi, accessTokenRefreshApi } from 'apis/userApis';
 import useInterceptor from 'hooks/useInterceptor';
+import { TokenStatus } from 'types/userType';
 
 const App = () => {
   const userState = useContext(userContext) as UserContextValues;
 
   useInterceptor({
-    onError: (response) => {
+    onError: (response, body) => {
       switch (response.status) {
         case 401: {
-          userState?.logout();
+          if (body.tokenStatus === TokenStatus['invalid']) {
+            userState.logout();
+            return;
+          }
+
+          if (body.tokenStatus === TokenStatus['expired']) {
+            refreshQuery.refetch();
+            return;
+          }
+
           break;
         }
       }
@@ -27,30 +37,32 @@ const App = () => {
   });
 
   const refreshQuery = useQuery(['refresh'], accessTokenRefreshApi, {
-    onSuccess: () => {},
+    onSuccess: ({ body: { accessToken } }) => {
+      userState.setAccessToken(accessToken);
+    },
   });
 
-  const { isLoading } = useQuery(
+  const getLoginUserDataQuery = useQuery(
     ['loginUserData'],
     getLoginUserDataApi(userState.accessToken),
     {
       enabled: !!userState.accessToken,
       onSuccess: ({ body }) => {
         if (userState.accessToken) {
-          userState.login(body, userState?.accessToken);
+          userState.login(body, userState.accessToken);
         }
       },
       onError: (error) => {
         const statusCode = error.message.split(': ')[0];
 
         if (statusCode === '404') {
-          userState?.logout();
+          userState.logout();
         }
       },
     }
   );
 
-  if (isLoading) {
+  if (refreshQuery.isLoading || getLoginUserDataQuery.isLoading) {
     return (
       <AppLayout>
         <Body>

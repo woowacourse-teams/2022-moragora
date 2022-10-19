@@ -265,7 +265,7 @@ export const accessTokenRefreshApi = () =>
     credentials: 'include',
   });
 
-export const logoutApi = ({}) =>
+export const logoutApi = () =>
   request(`/token/logout`, {
     method: 'POST',
     headers: {
