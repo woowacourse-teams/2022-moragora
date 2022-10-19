@@ -112,13 +112,13 @@ export const googleLoginApi = async ({ code }: GoogleLoginRequestBody) => {
 };
 
 export const getAttendancesApi =
-  (accessToken: User['accessToken'], id?: number) => () => {
-    if (!accessToken || !id) {
+  (accessToken: User['accessToken'], meetingId?: number) => () => {
+    if (!accessToken || !meetingId) {
       throw new Error('출석 정보 요청 중 에러가 발생했습니다.');
     }
 
     return request<AttendancesResponseBody>(
-      `/meetings/${id}/attendances/today`,
+      `/meetings/${meetingId}/attendances/today`,
       {
         method: 'GET',
         headers: {

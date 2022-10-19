@@ -4,7 +4,7 @@ import { QUERY_STATUS } from 'consts';
 import { QueryOptions } from 'types/queryType';
 
 const useQuery = <TData = any>(
-  key: string[],
+  key: (string | number)[],
   queryFn: () => Promise<TData>,
   {
     onSuccess,
@@ -109,7 +109,7 @@ const useQuery = <TData = any>(
     if (enabled && refetchOnMount) {
       refetch();
     }
-  }, [enabled]);
+  }, [enabled, joinedKey]);
 
   return { data, error, status, isLoading, isError, isSuccess, refetch };
 };

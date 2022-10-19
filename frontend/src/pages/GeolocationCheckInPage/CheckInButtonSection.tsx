@@ -24,7 +24,7 @@ const CheckInButtonSection = ({
 }: CheckInButtonSectionProps) => {
   const { accessToken, user } = useContext(userContext) as UserContextValues;
   const attendancesQuery = useQuery(
-    ['attendances'],
+    ['attendances', meeting.id],
     getAttendancesApi(accessToken, meeting.id),
     {
       enabled: !!meeting,
@@ -40,6 +40,7 @@ const CheckInButtonSection = ({
       },
       onError: () => {
         alert('출석을 실패했습니다.');
+        refetchMeetingList();
       },
     }
   );
@@ -50,9 +51,9 @@ const CheckInButtonSection = ({
   const isCheckInable = !!currentPosition && userAttendanceStatus === 'none';
 
   const handleCheckInClick = () => {
-    if (meeting && user && currentPosition) {
+    if (user && currentPosition) {
       geolocationCheckInMutation.mutate({
-        meetingId: meeting?.id,
+        meetingId: meeting.id,
         userId: user.id,
         latitude: currentPosition.coords.latitude,
         longitude: currentPosition.coords.longitude,

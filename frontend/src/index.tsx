@@ -6,10 +6,10 @@ import { theme } from 'styles/themes/theme';
 import GlobalStyles from 'styles/GlobalStyles';
 import { UserContextProvider } from 'contexts/userContext';
 
-if (process.env.NODE_ENV === 'development') {
-  const { worker } = require('./mocks/browser');
-  worker.start();
-}
+// if (process.env.NODE_ENV === 'development') {
+//   const { worker } = require('./mocks/browser');
+//   worker.start();
+// }
 
 ReactDOM.render(
   <BrowserRouter>

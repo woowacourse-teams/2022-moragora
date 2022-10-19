@@ -1,6 +1,6 @@
 import * as S from './AttendanceSection.styled';
 import { getAttendancesApi } from 'apis/userApis';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import useQuery from 'hooks/useQuery';
 import { MeetingListResponseBody } from 'types/meetingType';
@@ -19,16 +19,12 @@ const AttendanceSection: React.FC<AttendanceSectionProps> = ({
   const { accessToken } = useContext(userContext) as UserContextValues;
 
   const attendancesQuery = useQuery(
-    ['attendances'],
-    getAttendancesApi(currentMeeting.id, accessToken),
+    ['attendances', currentMeeting.id],
+    getAttendancesApi(accessToken, currentMeeting.id),
     {
       enabled: false,
     }
   );
-
-  useEffect(() => {
-    attendancesQuery.refetch();
-  }, [currentMeeting]);
 
   if (attendancesQuery.isLoading) {
     return (
