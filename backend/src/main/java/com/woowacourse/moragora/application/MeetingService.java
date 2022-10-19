@@ -21,6 +21,7 @@ import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.response.event.EventResponse;
+import com.woowacourse.moragora.dto.response.meeting.MeetingActiveResponse;
 import com.woowacourse.moragora.dto.response.meeting.MeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingsResponse;
@@ -121,7 +122,8 @@ public class MeetingService {
         validateUserExists(assignedUserId);
         validateAssignee(loginId, assignedUserId);
 
-        final Participant assignedParticipant = participantRepository.findByMeetingIdAndUserId(meetingId, assignedUserId)
+        final Participant assignedParticipant = participantRepository
+                .findByMeetingIdAndUserId(meetingId, assignedUserId)
                 .orElseThrow(ParticipantNotFoundException::new);
         final Participant masterParticipant = participantRepository.findByMeetingIdAndUserId(meetingId, loginId)
                 .orElseThrow(ParticipantNotFoundException::new);
@@ -183,8 +185,17 @@ public class MeetingService {
         return beaconsRequest.size() > MAX_BEACON_SIZE;
     }
 
+    public MeetingActiveResponse checkActive(final Long meetingId) {
+        validateMeetingExists(meetingId);
+
+        final Optional<Event> event = eventRepository.findByMeetingIdAndDate(meetingId, serverTimeManager.getDate());
+        final boolean isActive = event.isPresent() && serverTimeManager.isAttendanceOpen(event.get().getStartTime());
+
+        return new MeetingActiveResponse(isActive);
+    }
+
     /**
-     * 참가자 userIds 내부에 loginId가 있는지 검증해야 userIds.size()가 0인지 검증이 정상적으로 이루어집니다
+     * 참가자 userIds 내부에 loginId가 있는지 검증해야 userIds.size()가 0인지 검증이 정상적으로 이루어집니다.
      */
     private void validateUserIds(final List<Long> userIds, final Long loginId) {
         if (Set.copyOf(userIds).size() != userIds.size()) {

@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.acceptance;
 
+import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT_WITHOUT_DATE;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.F12;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
@@ -116,8 +117,6 @@ class MeetingAcceptanceTest extends AcceptanceTest {
                 .willReturn(event.getDate());
         given(serverTimeManager.isAttendanceOpen(LocalTime.of(10, 0)))
                 .willReturn(true);
-        given(serverTimeManager.isAttendanceClosed(any(LocalTime.class)))
-                .willReturn(false);
         given(serverTimeManager.calculateOpenTime(event.getStartTime()))
                 .willReturn(LocalTime.of(9, 30));
         given(serverTimeManager.calculateAttendanceCloseTime(event.getStartTime()))
@@ -220,6 +219,32 @@ class MeetingAcceptanceTest extends AcceptanceTest {
 
         // then
         response.statusCode(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("현재 미팅이 체크인 활성화 상태인지 확인하고 상태코드 200을 반환한다.")
+    @Test
+    void isActive() {
+        // given
+        given(serverTimeManager.getDate())
+                .willReturn(LocalDate.of(2022, 8, 1));
+        given(serverTimeManager.isAttendanceOpen(any()))
+                .willReturn(true);
+
+        final User master = MASTER.create();
+        final String masterToken = signUpAndGetToken(master);
+        final List<Long> userIds = saveUsers(createUsers());
+
+        final Meeting meeting = MORAGORA.create();
+
+        final int meetingId = saveMeeting(masterToken, userIds, meeting);
+        final Event event = EVENT1.create(meeting);
+        saveEvents(masterToken, List.of(event), (long) meetingId);
+
+        // when
+        final ValidatableResponse response = get("/meetings/" + meetingId + "/active", masterToken);
+
+        // then
+        response.statusCode(HttpStatus.OK.value());
     }
 
     @DisplayName("위치 기반 미팅에서 비콘을 저장하고 응답으로 204를 반환한다.")

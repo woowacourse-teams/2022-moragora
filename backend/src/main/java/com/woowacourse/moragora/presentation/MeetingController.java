@@ -6,6 +6,7 @@ import com.woowacourse.moragora.dto.request.meeting.BeaconsRequest;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
+import com.woowacourse.moragora.dto.response.meeting.MeetingActiveResponse;
 import com.woowacourse.moragora.dto.response.meeting.MeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingsResponse;
 import com.woowacourse.moragora.presentation.auth.Authentication;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Validated
 @RestController
 @RequestMapping("/meetings")
 @Authentication
@@ -92,5 +92,11 @@ public class MeetingController {
                                            @RequestBody @Valid final BeaconsRequest beaconsRequest) {
         meetingService.addBeacons(meetingId, beaconsRequest.getBeacons());
         return ResponseEntity.created(URI.create("/meetings/" + meetingId + "/beacons")).build();
+    }
+
+    @GetMapping("/{meetingId}/active")
+    public ResponseEntity<MeetingActiveResponse> checkActive(@PathVariable final Long meetingId) {
+        final MeetingActiveResponse meetingActiveResponse = meetingService.checkActive(meetingId);
+        return ResponseEntity.ok(meetingActiveResponse);
     }
 }

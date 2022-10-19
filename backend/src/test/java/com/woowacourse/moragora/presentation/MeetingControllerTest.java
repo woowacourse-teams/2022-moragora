@@ -30,6 +30,7 @@ import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.response.event.EventResponse;
+import com.woowacourse.moragora.dto.response.meeting.MeetingActiveResponse;
 import com.woowacourse.moragora.dto.response.meeting.MeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingsResponse;
@@ -341,7 +342,7 @@ class MeetingControllerTest extends ControllerTest {
                                 fieldWithPath("meetings[].upcomingEvent.attendanceOpenTime").type(JsonFieldType.STRING)
                                         .description("09:30"),
                                 fieldWithPath("meetings[].upcomingEvent.attendanceClosedTime").type(
-                                                JsonFieldType.STRING)
+                                        JsonFieldType.STRING)
                                         .description("10:05"),
                                 fieldWithPath("meetings[].upcomingEvent.meetingStartTime").type(JsonFieldType.STRING)
                                         .description("10:00"),
@@ -601,5 +602,26 @@ class MeetingControllerTest extends ControllerTest {
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message")
                         .value("경도는 +180(서경)에서 -180(동경)사이의 숫자를 넘길 수 없습니다"));
+    }
+
+    @DisplayName("미팅이 체크인 활성화 상태인지 확인한다.")
+    @Test
+    void isActive() throws Exception {
+        // given
+        validateToken("1");
+
+        final MeetingActiveResponse meetingActiveResponse = new MeetingActiveResponse(true);
+        given(meetingService.checkActive(eq(1L)))
+                .willReturn(meetingActiveResponse);
+
+        // when, then
+        performGet("/meetings/1/active")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isActive", equalTo(true)))
+                .andDo(document("meeting/active", preprocessResponse(prettyPrint()),
+                        responseFields(
+                                fieldWithPath("isActive").type(JsonFieldType.BOOLEAN).description(true)
+                        )
+                ));
     }
 }

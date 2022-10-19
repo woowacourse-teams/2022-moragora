@@ -20,6 +20,7 @@ import com.woowacourse.moragora.dto.response.user.UsersResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.global.InvalidFormatException;
 import com.woowacourse.moragora.exception.global.NoParameterException;
+import com.woowacourse.moragora.exception.user.EmailDuplicatedException;
 import com.woowacourse.moragora.exception.user.InvalidPasswordException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
@@ -73,8 +74,7 @@ class UserServiceTest {
 
         // when, then
         assertThatThrownBy(() -> userService.create(userRequest, SUN.getEmail()))
-                .isInstanceOf(ClientRuntimeException.class)
-                .hasMessage("이미 사용중인 이메일입니다.");
+                .isInstanceOf(EmailDuplicatedException.class);
     }
 
     @DisplayName("인증되지 않은 이메일로 회원가입을 하면 예외가 발생한다.")
