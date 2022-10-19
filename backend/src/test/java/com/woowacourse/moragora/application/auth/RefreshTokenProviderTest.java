@@ -1,6 +1,8 @@
 package com.woowacourse.moragora.application.auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.byLessThan;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.woowacourse.moragora.domain.auth.RefreshToken;
 import java.time.LocalDateTime;
@@ -33,8 +35,13 @@ class RefreshTokenProviderTest {
         // then
         final RefreshToken expected = new RefreshToken(key, 1L, now.plus(validityInMilliseconds, ChronoUnit.MILLIS));
         final Optional<RefreshToken> foundRefreshToken = refreshTokenProvider.findRefreshToken(key);
-        assertThat(foundRefreshToken.get()).usingRecursiveComparison()
-                .isEqualTo(expected);
+        assertAll(
+                () -> assertThat(foundRefreshToken.get()).usingRecursiveComparison()
+                        .ignoringFields("expiredAt")
+                        .isEqualTo(expected),
+                () -> assertThat(foundRefreshToken.get().getExpiredAt())
+                        .isCloseTo(expected.getExpiredAt(), byLessThan(1, ChronoUnit.SECONDS))
+        );
     }
 
     @DisplayName("Refresh token을 삭제한다. ")
