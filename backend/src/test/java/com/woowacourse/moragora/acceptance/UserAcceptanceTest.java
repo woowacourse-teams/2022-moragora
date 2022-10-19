@@ -28,44 +28,16 @@ class UserAcceptanceTest extends AcceptanceTest {
     @Test
     void signUp() {
         // given
-        final UserRequest userRequest = new UserRequest("kun@naver.com", "1234smart!", "kun");
+        final String email = "kun@naver.com";
+        final String sessionId = verifyEmailAndGetSessionId(email);
+        final UserRequest userRequest = new UserRequest(email, "1234smart!", "kun");
 
         // when
-        final ValidatableResponse response = post("/users", userRequest);
+        final ValidatableResponse response = postWithSession("/users", userRequest, sessionId);
 
         // then
         response.statusCode(HttpStatus.CREATED.value())
                 .header("Location", notNullValue());
-    }
-
-    @DisplayName("가입되지 않은 이메일에 대해 중복 확인을 요청하면 false와 상태코드 200을 반환받는다.")
-    @Test
-    void checkEmail_ifExists() {
-        // given
-        final String email = "someUniqueEmail@unique.email";
-
-        // when
-        final ValidatableResponse response = get("/users/check-email?email=" + email);
-
-        // then
-        response.statusCode(HttpStatus.OK.value())
-                .body("isExist", equalTo(false));
-    }
-
-    @DisplayName("존재하는 이메일에 대해 중복 확인을 요청하면 true와 상태코드 200을 반환받는다.")
-    @Test
-    void checkEmail_IfNotExist() {
-        // given
-        final String email = "kun@naver.com";
-        final UserRequest userRequest = new UserRequest(email, "1234smart!", "kun");
-        post("/users", userRequest);
-
-        // when
-        final ValidatableResponse response = get("/users/check-email?email=" + email);
-
-        // then
-        response.statusCode(HttpStatus.OK.value())
-                .body("isExist", equalTo(true));
     }
 
     @DisplayName("키워드를 입력하면 그 키워드가 포함된 유저 목록과 상태코드 200을 반환한다.")
