@@ -57,8 +57,8 @@ public class UserService {
         return savedUser.getId();
     }
 
-    private void confirmEmailVerification(final String email, final String verifitedEmail) {
-        if (!email.equals(verifitedEmail)) {
+    private void confirmEmailVerification(final String email, final String verifiedEmail) {
+        if (!email.equals(verifiedEmail)) {
             throw new AuthCodeException("인증되지 않은 이메일입니다.");
         }
     }
