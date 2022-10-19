@@ -5,6 +5,7 @@ import com.woowacourse.moragora.application.auth.MasterAuthorization;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
+import com.woowacourse.moragora.dto.response.meeting.MeetingActiveResponse;
 import com.woowacourse.moragora.dto.response.meeting.MeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingsResponse;
 import com.woowacourse.moragora.presentation.auth.Authentication;
@@ -82,5 +83,11 @@ public class MeetingController {
                                        @AuthenticationPrincipal final Long loginId) {
         meetingService.deleteMeeting(meetingId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{meetingId}/active")
+    public ResponseEntity<MeetingActiveResponse> checkActive(@PathVariable final Long meetingId) {
+        final MeetingActiveResponse meetingActiveResponse = meetingService.checkActive(meetingId);
+        return ResponseEntity.ok(meetingActiveResponse);
     }
 }

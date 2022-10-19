@@ -28,6 +28,7 @@ import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.response.event.EventResponse;
+import com.woowacourse.moragora.dto.response.meeting.MeetingActiveResponse;
 import com.woowacourse.moragora.dto.response.meeting.MeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingsResponse;
@@ -40,6 +41,7 @@ import com.woowacourse.moragora.exception.participant.ParticipantNotFoundExcepti
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -407,7 +409,6 @@ class MeetingServiceTest {
         dataSupport.saveParticipant(user, meeting1, true);
         dataSupport.saveParticipant(user, meeting2, true);
         final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting1));
-        final Event event2 = dataSupport.saveEvent(EVENT1.create(meeting1));
 
         final LocalTime entranceTime = event1.getStartTime();
         final EventResponse upcomingEvent = EventResponse.of(event1, entranceTime.minusMinutes(30),
@@ -659,5 +660,59 @@ class MeetingServiceTest {
         // when, then
         assertThatThrownBy(() -> meetingService.findById(99L, user.getId()))
                 .isInstanceOf(MeetingNotFoundException.class);
+    }
+
+    @DisplayName("미팅이 활성화 상태인지 확인한다.")
+    @Test
+    void checkActive() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        final LocalDate date = LocalDate.of(2022, 8, 1);
+        final LocalTime time = LocalTime.of(10, 4);
+        final LocalDateTime now = LocalDateTime.of(date, time);
+        serverTimeManager.refresh(now);
+
+        // when
+        final MeetingActiveResponse meetingActiveResponse = meetingService.checkActive(meeting.getId());
+
+        // then
+        assertThat(meetingActiveResponse.getIsActive()).isTrue();
+    }
+
+    @DisplayName("미팅이 비활성화 상태임을 확인한다(시간 검사)")
+    @Test
+    void checkInActive_byTime() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        final LocalDate date = LocalDate.of(2022, 8, 1);
+        final LocalTime time = LocalTime.of(10, 5);
+        final LocalDateTime now = LocalDateTime.of(date, time);
+        serverTimeManager.refresh(now);
+
+        // when
+        final MeetingActiveResponse meetingActiveResponse = meetingService.checkActive(meeting.getId());
+
+        // then
+        assertThat(meetingActiveResponse.getIsActive()).isFalse();
+    }
+
+    @DisplayName("미팅이 비활성화 상태임을 확인한다(날짜 검사)")
+    @Test
+    void checkInActive_byDate() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        dataSupport.saveEvent(EVENT1.create(meeting));
+        final LocalDate date = LocalDate.of(2022, 8, 2);
+        final LocalTime time = LocalTime.of(10, 4);
+        final LocalDateTime now = LocalDateTime.of(date, time);
+        serverTimeManager.refresh(now);
+
+        // when
+        final MeetingActiveResponse meetingActiveResponse = meetingService.checkActive(meeting.getId());
+
+        // then
+        assertThat(meetingActiveResponse.getIsActive()).isFalse();
     }
 }

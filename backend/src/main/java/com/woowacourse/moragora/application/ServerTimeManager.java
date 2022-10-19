@@ -28,11 +28,6 @@ public class ServerTimeManager {
         return dateTime.isBetween(attendanceOpenTime, attendanceClosedTime);
     }
 
-    public boolean isAttendanceClosed(final LocalTime meetingStartTime) {
-        final LocalTime closingTime = meetingStartTime.plusMinutes(ATTENDANCE_END_INTERVAL);
-        return dateTime.isAfter(closingTime);
-    }
-
     public boolean isAfter(final LocalTime localTime) {
         return dateTime.isAfter(localTime);
     }

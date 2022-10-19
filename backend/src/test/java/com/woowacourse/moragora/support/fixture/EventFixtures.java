@@ -11,16 +11,6 @@ public enum EventFixtures {
     EVENT2(LocalDate.of(2022, 8, 2), LocalTime.of(10, 0), LocalTime.of(18, 0)),
     EVENT3(LocalDate.of(2022, 8, 3), LocalTime.of(10, 0), LocalTime.of(18, 0)),
     EVENT4(LocalDate.of(2022, 8, 4), LocalTime.of(10, 0), LocalTime.of(18, 0)),
-    EVENT5(LocalDate.of(2022, 8, 5), LocalTime.of(10, 0), LocalTime.of(18, 0)),
-    EVENT6(LocalDate.of(2022, 8, 6), LocalTime.of(10, 0), LocalTime.of(18, 0)),
-    EVENT7(LocalDate.of(2022, 8, 7), LocalTime.of(10, 0), LocalTime.of(18, 0)),
-    EVENT8(LocalDate.of(2022, 8, 8), LocalTime.of(10, 0), LocalTime.of(18, 0)),
-    EVENT9(LocalDate.of(2022, 8, 9), LocalTime.of(10, 0), LocalTime.of(18, 0)),
-    EVENT10(LocalDate.of(2022, 8, 10), LocalTime.of(10, 0), LocalTime.of(18, 0)),
-    EVENT11(LocalDate.of(2022, 8, 11), LocalTime.of(10, 0), LocalTime.of(18, 0)),
-    EVENT12(LocalDate.of(2022, 8, 12), LocalTime.of(10, 0), LocalTime.of(18, 0)),
-    EVENT13(LocalDate.of(2022, 8, 13), LocalTime.of(10, 0), LocalTime.of(18, 0)),
-    EVENT14(LocalDate.of(2022, 8, 14), LocalTime.of(10, 0), LocalTime.of(18, 0)),
     EVENT_WITHOUT_DATE(null, LocalTime.of(10, 0), LocalTime.of(18, 0));
 
     private final LocalDate date;
