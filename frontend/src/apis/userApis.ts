@@ -112,8 +112,8 @@ export const googleLoginApi = async ({ code }: GoogleLoginRequestBody) => {
 };
 
 export const getAttendancesApi =
-  (id: number | undefined, accessToken: User['accessToken']) => () => {
-    if (!id || !accessToken) {
+  (accessToken: User['accessToken'], id?: number) => () => {
+    if (!accessToken || !id) {
       throw new Error('출석 정보 요청 중 에러가 발생했습니다.');
     }
 

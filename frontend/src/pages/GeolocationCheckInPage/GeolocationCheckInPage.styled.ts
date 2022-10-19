@@ -93,10 +93,6 @@ export const EmptyStateParagraph = styled.p`
   animation-fill-mode: forwards;
 `;
 
-export const ButtonBox = styled.div`
-  padding: 0.75rem;
-`;
-
 export const MapSection = styled.section`
   width: 100%;
   height: auto;

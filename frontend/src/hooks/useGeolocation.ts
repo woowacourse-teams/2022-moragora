@@ -30,10 +30,10 @@ const useGeolocation = (defaultPosition?: GeolocationPosition) => {
       if (err instanceof Error) {
         setError(err);
       }
-    } finally {
+
       setIsLoading(false);
     }
-  }, []);
+  }, [navigator.geolocation]);
 
   return { currentPosition, isLoading, error };
 };

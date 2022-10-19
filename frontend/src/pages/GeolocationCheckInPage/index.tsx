@@ -7,25 +7,22 @@ import ErrorIcon from 'components/@shared/ErrorIcon';
 import ReloadButton from 'components/@shared/ReloadButton';
 import CheckMeetingItem from 'components/CheckMeetingItem';
 import useQuery from 'hooks/useQuery';
-import useMutation from 'hooks/useMutation';
 import { MeetingListResponseBody } from 'types/meetingType';
 import emptyInboxSVG from 'assets/empty-inbox.svg';
-import { postUserGeolocationAttendanceApi } from 'apis/userApis';
 import useGeolocation from 'hooks/useGeolocation';
-import Button from 'components/@shared/Button';
 import useKakaoMap from 'hooks/useKakaoMap';
+import CheckInButtonSection from './CheckInButtonSection';
 
 const GeolocationCheckInPage = () => {
   const [currentMeeting, setCurrentMeeting] = useState<
     MeetingListResponseBody['meetings'][0] | null
   >(null);
-  const { accessToken, user } = useContext(userContext) as UserContextValues;
+  const { accessToken } = useContext(userContext) as UserContextValues;
   const { currentPosition, isLoading } = useGeolocation();
   const { mapContainerRef, setControllable, panTo } = useKakaoMap();
   const mapOverlayRef = useRef<HTMLDivElement>(null);
   const mapUserMarkerRef = useRef<SVGSVGElement>(null);
 
-  console.log(isLoading);
   const meetingListQuery = useQuery(
     ['meetingList'],
     getMeetingListApi(accessToken),
@@ -37,18 +34,8 @@ const GeolocationCheckInPage = () => {
           setCurrentMeeting(activeMeeting);
         }
       },
-    }
-  );
-
-  const geolocationCheckInMutation = useMutation(
-    postUserGeolocationAttendanceApi({ accessToken }),
-    {
-      onSuccess: () => {
-        alert('출석에 성공했습니다.');
-        meetingListQuery.refetch();
-      },
       onError: () => {
-        alert('출석을 실패했습니다.');
+        alert('모임 정보를 가져오는데 실패했습니다.');
       },
     }
   );
@@ -57,17 +44,6 @@ const GeolocationCheckInPage = () => {
     meeting: MeetingListResponseBody['meetings'][0]
   ) => {
     setCurrentMeeting(meeting);
-  };
-
-  const handleCheckInClick = () => {
-    if (currentMeeting && user && currentPosition) {
-      geolocationCheckInMutation.mutate({
-        meetingId: currentMeeting?.id,
-        userId: user.id,
-        latitude: currentPosition.coords.latitude,
-        longitude: currentPosition.coords.longitude,
-      });
-    }
   };
 
   useEffect(() => {
@@ -172,11 +148,11 @@ const GeolocationCheckInPage = () => {
             ))}
         </S.MeetingList>
       </S.CheckTimeSection>
-      <S.ButtonBox>
-        <Button type="button" onClick={handleCheckInClick}>
-          출석하기
-        </Button>
-      </S.ButtonBox>
+      <CheckInButtonSection
+        meeting={currentMeeting}
+        currentPosition={currentPosition}
+        refetchMeetingList={meetingListQuery.refetch}
+      />
     </S.Layout>
   );
 };

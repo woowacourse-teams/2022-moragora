@@ -30,6 +30,7 @@ const useKakaoMap = (
   const mapRef = useRef<kakao.maps.Map | null>(null);
   const geocoderRef = useRef(new kakao.maps.services.Geocoder());
   const [beacons, setBeacons] = useState<Beacon[]>([]);
+  const [clickable, setClickable] = useState(false);
   const drawingControllerRef = useRef<{
     isDrawing: boolean;
     centerPosition: any | null;
@@ -68,6 +69,8 @@ const useKakaoMap = (
       mapRef.current.setDraggable(controllable);
       mapRef.current.setZoomable(controllable);
     }
+
+    setClickable(controllable);
   }, []);
 
   const addArea = async (mouseEvent: kakao.maps.event.MouseEvent) => {
@@ -203,6 +206,10 @@ const useKakaoMap = (
   const handleClick = (mouseEvent: kakao.maps.event.MouseEvent) => {
     const drawingController = drawingControllerRef.current;
     const map = mapRef.current;
+
+    if (!clickable) {
+      return;
+    }
 
     if (drawingController.isDrawing) {
       addArea(mouseEvent);
