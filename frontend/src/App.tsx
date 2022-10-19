@@ -28,7 +28,6 @@ const App = () => {
 
           if (body.tokenStatus === TokenStatus['expired']) {
             refreshQuery.refetch();
-            queryClient.reQueryAllCache();
             return;
           }
 
@@ -41,6 +40,7 @@ const App = () => {
   const refreshQuery = useQuery(['refresh'], accessTokenRefreshApi, {
     onSuccess: ({ body: { accessToken } }) => {
       userState.setAccessToken(accessToken);
+      queryClient.reQueryAllCache();
     },
   });
 

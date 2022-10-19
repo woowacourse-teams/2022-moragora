@@ -27,7 +27,7 @@ export default [
       return res(
         ctx.status(401),
         ctx.json({
-          message: '유효하지 않은 토큰입니다',
+          message: '유효하지 않거나 만료된 토큰입니다',
           tokenStatus: 'invalid',
         }),
         ctx.delay(DELAY)
