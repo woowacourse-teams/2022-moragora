@@ -23,8 +23,6 @@ export default [
       );
     }
 
-    console.log(checkExpiredToken(expiredTimestamp), expiredTimestamp);
-
     if (!isValidToken || checkExpiredToken(expiredTimestamp)) {
       return res(
         ctx.status(401),
