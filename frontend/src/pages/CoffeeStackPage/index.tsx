@@ -6,7 +6,7 @@ import CoffeeStackItem from 'components/CoffeeStackItem';
 import ModalPortal from 'components/ModalPortal';
 import CoffeeStackModal from 'components/CoffeeStackModal';
 import CoffeeStackProgress from 'components/CoffeeStackProgress';
-import { userContext, UserContextValues } from 'contexts/userContext';
+import { userContext } from 'contexts/userContext';
 import { getMeetingData, postEmptyCoffeeStackApi } from 'apis/meetingApis';
 import useMutation from 'hooks/useMutation';
 import { getUpcomingEventApi } from 'apis/eventApis';
@@ -14,7 +14,7 @@ import { QueryState } from 'types/queryType';
 
 const CoffeeStackPage = () => {
   const { id } = useParams();
-  const { accessToken } = useContext(userContext) as UserContextValues;
+  const userState = useContext(userContext);
 
   if (!id) {
     return <Navigate to={'/error'} />;
@@ -48,7 +48,10 @@ const CoffeeStackPage = () => {
   };
 
   const handleConfirm = () => {
-    emptyCoffeeStackMutation.mutate({ id, accessToken });
+    emptyCoffeeStackMutation.mutate({
+      id,
+      accessToken: userState?.user?.accessToken,
+    });
   };
 
   return (

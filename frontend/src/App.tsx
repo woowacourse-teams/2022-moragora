@@ -6,22 +6,20 @@ import Header from 'components/layouts/Header';
 import Footer from 'components/layouts/Footer';
 import Body from 'components/layouts/Body';
 import Spinner from 'components/@shared/Spinner';
-import { userContext, UserContextValues } from 'contexts/userContext';
+import { userContext } from 'contexts/userContext';
 import { CalendarProvider } from 'contexts/calendarContext';
 import useQuery from 'hooks/useQuery';
 import { getLoginUserDataApi } from 'apis/userApis';
 import useInterceptor from 'hooks/useInterceptor';
 
 const App = () => {
-  const { login, logout, accessToken } = useContext(
-    userContext
-  ) as UserContextValues;
+  const userState = useContext(userContext);
 
   useInterceptor({
     onError: (response) => {
       switch (response.status) {
         case 401: {
-          logout();
+          userState?.logout();
           break;
         }
       }
@@ -30,19 +28,19 @@ const App = () => {
 
   const { isLoading } = useQuery(
     ['loginUserData'],
-    getLoginUserDataApi(accessToken),
+    getLoginUserDataApi(userState?.user?.accessToken),
     {
-      enabled: !!accessToken,
+      enabled: !!userState?.user?.accessToken,
       onSuccess: ({ body }) => {
-        if (accessToken) {
-          login(body, accessToken);
+        if (userState?.user?.accessToken) {
+          userState.login(body, userState.user.accessToken);
         }
       },
       onError: (error) => {
         const statusCode = error.message.split(': ')[0];
 
         if (statusCode === '404') {
-          logout();
+          userState?.logout();
         }
       },
     }

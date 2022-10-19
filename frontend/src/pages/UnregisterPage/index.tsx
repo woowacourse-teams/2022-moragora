@@ -4,18 +4,18 @@ import useForm from 'hooks/useForm';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
 import Button from 'components/@shared/Button';
-import { userContext, UserContextValues } from 'contexts/userContext';
+import { userContext } from 'contexts/userContext';
 import useMutation from 'hooks/useMutation';
 import { unregisterApi } from 'apis/userApis';
 
 const UnregisterPage = () => {
-  const userState = useContext(userContext) as UserContextValues;
-  const confirmMessage = `${userState.user?.email}/delete`;
+  const userState = useContext(userContext);
+  const confirmMessage = `${userState?.user?.email}/delete`;
   const passwordUpdateMutation = useMutation(
-    unregisterApi(userState.accessToken),
+    unregisterApi(userState?.user?.accessToken ?? ''),
     {
       onSuccess: () => {
-        userState.logout();
+        userState?.logout();
         alert('회원 탈퇴되었습니다.');
       },
       onError: (e) => {

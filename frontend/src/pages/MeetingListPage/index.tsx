@@ -10,12 +10,12 @@ import ReloadButton from 'components/@shared/ReloadButton';
 import useQuery from 'hooks/useQuery';
 import useTimer from 'hooks/useTimer';
 import NoSearchResultIconSVG from 'assets/NoSearchResult.svg';
-import { userContext, UserContextValues } from 'contexts/userContext';
+import { userContext } from 'contexts/userContext';
 import { getMeetingListApi } from 'apis/meetingApis';
 import { getServerTime } from 'apis/common';
 
 const MeetingListPage = () => {
-  const { accessToken } = useContext(userContext) as UserContextValues;
+  const userState = useContext(userContext);
   const { data: serverTimeResponse } = useQuery(['serverTime'], getServerTime);
 
   const {
@@ -23,7 +23,10 @@ const MeetingListPage = () => {
     refetch,
     isLoading,
     isError,
-  } = useQuery(['meetingList'], getMeetingListApi(accessToken));
+  } = useQuery(
+    ['meetingList'],
+    getMeetingListApi(userState?.user?.accessToken)
+  );
 
   const { currentTimestamp } = useTimer(
     serverTimeResponse?.body.serverTime || Date.now()

@@ -33,7 +33,7 @@ export const createMeetingApi =
   };
 
 export const getMeetingData =
-  (id: string | undefined, accessToken: User['accessToken']) => async () => {
+  (id: string | undefined, accessToken?: User['accessToken']) => async () => {
     if (!id || !accessToken) {
       throw new Error('미팅 정보 요청 중 에러가 발생했습니다.');
     }
@@ -48,7 +48,7 @@ export const getMeetingData =
   };
 
 export const getMeetingListApi =
-  (accessToken: User['accessToken']) => async () => {
+  (accessToken?: User['accessToken']) => async () => {
     if (!accessToken) {
       throw new Error('미팅 목록 요청 중 에러가 발생했습니다.');
     }
@@ -67,7 +67,7 @@ export const postEmptyCoffeeStackApi = ({
   accessToken,
 }: {
   id: string;
-  accessToken: User['accessToken'];
+  accessToken?: User['accessToken'];
 }) => {
   if (!accessToken) {
     throw new Error('커피 비우기 요청 중 에러가 발생했습니다.');
@@ -83,7 +83,7 @@ export const postEmptyCoffeeStackApi = ({
 };
 
 export const updateMeetingNameApi =
-  (meetingId: string, accessToken: User['accessToken']) =>
+  (meetingId: string, accessToken?: User['accessToken']) =>
   (payload: MeetingNameUpdateRequestBody) =>
     request(`/meetings/${meetingId}`, {
       method: 'PUT',
@@ -95,7 +95,7 @@ export const updateMeetingNameApi =
     });
 
 export const assignMasterApi =
-  (meetingId: number, accessToken: User['accessToken']) =>
+  (meetingId: number, accessToken?: User['accessToken']) =>
   (payload: MeetingMasterAssignRequestBody) =>
     request(`/meetings/${meetingId}/master`, {
       method: 'PUT',
@@ -107,7 +107,7 @@ export const assignMasterApi =
     });
 
 export const deleteMeetingApi =
-  (meetingId: string, accessToken: User['accessToken']) => () =>
+  (meetingId: string, accessToken?: User['accessToken']) => () =>
     request<{}>(`/meetings/${meetingId}`, {
       method: 'DELETE',
       headers: {
@@ -117,7 +117,7 @@ export const deleteMeetingApi =
     });
 
 export const leaveMeetingApi =
-  (meetingId: string, accessToken: User['accessToken']) => () =>
+  (meetingId: string, accessToken?: User['accessToken']) => () =>
     request<{}>(`/meetings/${meetingId}/me`, {
       method: 'DELETE',
       headers: {

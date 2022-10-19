@@ -16,7 +16,7 @@ type AttendanceSectionProps = {
 const AttendanceSection: React.FC<AttendanceSectionProps> = ({
   currentMeeting,
 }) => {
-  const { accessToken } = useContext(userContext) as UserContextValues;
+  const userState = useContext(userContext);
 
   const attendancesQuery = useQuery(
     ['attendances', currentMeeting.id],

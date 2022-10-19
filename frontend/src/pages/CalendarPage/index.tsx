@@ -7,7 +7,7 @@ import Calendar from 'components/@shared/Calendar';
 import DialogButton from 'components/@shared/DialogButton';
 import Input from 'components/@shared/Input';
 import { CalendarContext } from 'contexts/calendarContext';
-import { userContext, UserContextValues } from 'contexts/userContext';
+import { userContext } from 'contexts/userContext';
 import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
 import useQuery from 'hooks/useQuery';
@@ -26,7 +26,7 @@ import { MeetingEvent } from 'types/eventType';
 
 const CalendarPage = () => {
   const { id: meetingId } = useParams();
-  const user = useContext(userContext) as UserContextValues;
+  const userState = useContext(userContext);
 
   if (!meetingId) {
     return <Navigate to="/error" />;
@@ -41,7 +41,7 @@ const CalendarPage = () => {
 
   const eventsQuery = useQuery(
     ['events'],
-    getEventsApi(meetingId, user.accessToken),
+    getEventsApi(meetingId, userState?.user?.accessToken),
     {
       onSuccess: ({ body: { events } }) => {
         setSavedEvents(events);
@@ -53,7 +53,7 @@ const CalendarPage = () => {
   );
 
   const createEventsMutation = useMutation(
-    createEventsApi(meetingId, user.accessToken),
+    createEventsApi(meetingId, userState?.user?.accessToken),
     {
       onSuccess: () => {
         eventsQuery.refetch();
@@ -66,7 +66,7 @@ const CalendarPage = () => {
   );
 
   const removeEventsMutation = useMutation(
-    deleteEventsApi(meetingId, user.accessToken),
+    deleteEventsApi(meetingId, userState?.user?.accessToken),
     {
       onSuccess: () => {
         eventsQuery.refetch();

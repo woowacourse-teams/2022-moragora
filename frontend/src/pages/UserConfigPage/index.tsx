@@ -15,7 +15,7 @@ const UserConfigPage = () => {
     userState.user?.nickname ?? 'unknown'
   );
   const nicknameUpdateMutation = useMutation(
-    updateNicknameApi(userState.accessToken),
+    updateNicknameApi(userState.user?.accessToken ?? ''),
     {
       onMutate: ({ nickname }) => {
         setNickname(nickname);

@@ -180,7 +180,7 @@ export const postUserGeolocationAttendanceApi =
   };
 
 export const getLoginUserDataApi =
-  (accessToken: User['accessToken']) => async () => {
+  (accessToken?: User['accessToken']) => async () => {
     if (!accessToken) {
       throw new Error('내 정보를 가져오는 중 에러가 발생했습니다.');
     }
@@ -195,7 +195,7 @@ export const getLoginUserDataApi =
   };
 
 export const getUserCoffeeStatsApi =
-  (id: string | undefined, accessToken: User['accessToken']) => async () => {
+  (id: string | undefined, accessToken?: User['accessToken']) => async () => {
     if (!accessToken) {
       throw new Error('유저별 커피정보를 불러오는 중 에러가 발생했습니다.');
     }
@@ -210,7 +210,7 @@ export const getUserCoffeeStatsApi =
   };
 
 export const updateNicknameApi =
-  (accessToken: User['accessToken']) =>
+  (accessToken?: User['accessToken']) =>
   async (payload: UserUpdateNicknameRequestBody) => {
     if (!accessToken) {
       throw new Error('닉네임 변경 중 에러가 발생했습니다.');
@@ -227,7 +227,7 @@ export const updateNicknameApi =
   };
 
 export const updatePasswordApi =
-  (accessToken: User['accessToken']) =>
+  (accessToken?: User['accessToken']) =>
   async (payload: UserUpdatePasswordRequestBody) => {
     if (!accessToken) {
       throw new Error('비밀번호 변경 중 에러가 발생했습니다.');
@@ -244,7 +244,7 @@ export const updatePasswordApi =
   };
 
 export const unregisterApi =
-  (accessToken: User['accessToken']) =>
+  (accessToken?: User['accessToken']) =>
   async (payload: { password: User['password'] }) => {
     return request('/users/me', {
       method: 'DELETE',

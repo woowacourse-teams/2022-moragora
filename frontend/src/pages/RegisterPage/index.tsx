@@ -3,7 +3,7 @@ import * as S from './RegisterPage.styled';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
 import Button from 'components/@shared/Button';
-import { userContext, UserContextValues } from 'contexts/userContext';
+import { userContext } from 'contexts/userContext';
 import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
 import { UserRegisterRequestBody } from 'types/userType';
@@ -12,7 +12,7 @@ import ModalPortal from 'components/ModalPortal';
 import EmailConfirmModal from 'components/EmailConfirmModal';
 
 const RegisterPage = () => {
-  const { login } = useContext(userContext) as UserContextValues;
+  const userState = useContext(userContext);
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
   const [isModalOpened, setIsModalOpened] = useState(false);
   const [expiredTimestamp, setExpiredTimestamp] = useState(0);
@@ -44,7 +44,7 @@ const RegisterPage = () => {
 
   const registerMutation = useMutation(submitRegisterApi, {
     onSuccess: ({ body: userData, accessToken }) => {
-      login(userData, accessToken);
+      userState?.login(userData, accessToken);
     },
     onError: () => {
       alert('회원가입을 실패했습니다.');

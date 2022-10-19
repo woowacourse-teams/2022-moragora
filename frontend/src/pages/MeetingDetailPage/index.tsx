@@ -4,7 +4,7 @@ import * as S from './MeetingDetailPage.styled';
 import useQuery from 'hooks/useQuery';
 import { getUpcomingEventApi } from 'apis/eventApis';
 import { getMeetingData } from 'apis/meetingApis';
-import { userContext, UserContextValues } from 'contexts/userContext';
+import { userContext } from 'contexts/userContext';
 import ReloadButton from 'components/@shared/ReloadButton';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import Spinner from 'components/@shared/Spinner';
@@ -16,23 +16,27 @@ const MeetingDetailPage = () => {
     return <Navigate to={'/error'} />;
   }
 
-  const { accessToken } = useContext(userContext) as UserContextValues;
+  const userState = useContext(userContext);
   const [totalTardyCount, setTotalTardyCount] = useState(0);
   const [upcomingEventNotExist, setUpcomingEventNotExist] = useState(false);
 
-  const meetingQuery = useQuery(['meeting'], getMeetingData(id, accessToken), {
-    onSuccess: ({ body: { users } }) => {
-      const totalTardyCount = users.reduce(
-        (total, user) => total + user.tardyCount,
-        0
-      );
-      setTotalTardyCount(totalTardyCount);
-    },
-  });
+  const meetingQuery = useQuery(
+    ['meeting'],
+    getMeetingData(id, userState?.user?.accessToken),
+    {
+      onSuccess: ({ body: { users } }) => {
+        const totalTardyCount = users.reduce(
+          (total, user) => total + user.tardyCount,
+          0
+        );
+        setTotalTardyCount(totalTardyCount);
+      },
+    }
+  );
 
   const upcomingEventQuery = useQuery(
     ['upcomingEvent'],
-    getUpcomingEventApi(id, accessToken),
+    getUpcomingEventApi(id, userState?.user?.accessToken),
     {
       enabled: meetingQuery.isSuccess,
       onError: (error) => {

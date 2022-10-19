@@ -12,7 +12,7 @@ import useGeolocation from 'hooks/useGeolocation';
 import useKakaoMap from 'hooks/useKakaoMap';
 import BeaconItem from 'components/BeaconItem';
 import { UserQueryWithKeywordResponse } from 'types/userType';
-import { userContext, UserContextValues } from 'contexts/userContext';
+import { userContext } from 'contexts/userContext';
 import { createMeetingApi } from 'apis/meetingApis';
 import { createBeaconsApi } from 'apis/beaconApis';
 import DialogButton from 'components/@shared/DialogButton';
@@ -21,7 +21,7 @@ const MAX_SELECTED_USER_COUNT = 30;
 
 const MeetingCreatePage = () => {
   const navigate = useNavigate();
-  const { accessToken } = useContext(userContext) as UserContextValues;
+  const userState = useContext(userContext);
   const { errors, isSubmitting, onSubmit, register } = useForm();
   const {
     queryResult,

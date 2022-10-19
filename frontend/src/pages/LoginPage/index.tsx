@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import * as S from './LoginPage.styled';
 import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
-import { userContext, UserContextValues } from 'contexts/userContext';
+import { userContext } from 'contexts/userContext';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
 import Button from 'components/@shared/Button';
@@ -13,13 +13,13 @@ import GoogleLoginButton from 'components/GoogleLoginButton';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useContext(userContext) as UserContextValues;
+  const userState = useContext(userContext);
   const code = new URLSearchParams(location.search).get('code');
   const { errors, isSubmitting, onSubmit, register } = useForm();
 
   const { mutate: loginMutate } = useMutation(submitLoginApi, {
     onSuccess: ({ body, accessToken }) => {
-      login(body, accessToken);
+      userState?.login(body, accessToken);
       navigate('/');
     },
     onError: () => {
@@ -29,7 +29,7 @@ const LoginPage = () => {
 
   const { mutate: googleLoginMutate } = useMutation(googleLoginApi, {
     onSuccess: ({ body, accessToken }) => {
-      login(body, accessToken);
+      userState?.login(body, accessToken);
     },
     onError: () => {
       alert('구글 로그인을 실패했습니다.');

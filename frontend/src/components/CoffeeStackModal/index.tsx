@@ -5,7 +5,7 @@ import useQuery from 'hooks/useQuery';
 import DialogButton from 'components/@shared/DialogButton';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
-import { userContext, UserContextValues } from 'contexts/userContext';
+import { userContext } from 'contexts/userContext';
 import { getUserCoffeeStatsApi } from 'apis/userApis';
 import coffeeIcon from 'assets/coffee.svg';
 import { css } from '@emotion/react';
@@ -17,16 +17,20 @@ type CoffeeStackModalProps = {
 
 const CoffeeStackModal = ({ onDismiss, onConfirm }: CoffeeStackModalProps) => {
   const { id } = useParams();
-  const { accessToken } = useContext(userContext) as UserContextValues;
+  const userState = useContext(userContext);
   const {
     isLoading,
     isError,
     data: userCoffeeStatsResponse,
-  } = useQuery(['userCoffeeStats'], getUserCoffeeStatsApi(id, accessToken), {
-    onError: () => {
-      alert('유저별 커피정보를 불러오는 중 에러가 발생했습니다.');
-    },
-  });
+  } = useQuery(
+    ['userCoffeeStats'],
+    getUserCoffeeStatsApi(id, userState?.user?.accessToken),
+    {
+      onError: () => {
+        alert('유저별 커피정보를 불러오는 중 에러가 발생했습니다.');
+      },
+    }
+  );
 
   if (isLoading) {
     return (
