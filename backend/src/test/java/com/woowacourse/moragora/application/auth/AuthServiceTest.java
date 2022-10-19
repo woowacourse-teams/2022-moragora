@@ -181,6 +181,26 @@ class AuthServiceTest {
                 .isEqualTo(expectedResponse);
     }
 
+    @DisplayName("자체 회원가입된 이메일로 구글 로그인을 할 경우 기존의 User id를 반환한다.")
+    @Test
+    void loginWithGoogle_whenExistSameEmail() {
+        // given
+        final User user = dataSupport.saveUser(KUN.create());
+        given(googleClient.getIdToken(anyString()))
+                .willReturn("something");
+        given(googleClient.getProfileResponse(anyString()))
+                .willReturn(new GoogleProfileResponse(user.getEmail(), user.getNickname()));
+        final String expected = String.valueOf(user.getId());
+
+        // when
+        final TokenResponse tokenResponse = authService.loginWithGoogle("code");
+        final String accessToken = tokenResponse.getAccessToken();
+        final String payload = jwtTokenProvider.getPayload(accessToken);
+
+        // then
+        assertThat(payload).isEqualTo(expected);
+    }
+
     @DisplayName("Refresh token이 유효할 경우 새로운 access token과 refresh token을 발급한다.")
     @ParameterizedTest
     @ValueSource(longs = {0, 4, 7})

@@ -73,7 +73,7 @@ public class AuthService {
     public TokenResponse loginWithGoogle(final String code) {
         final String googleIdToken = googleClient.getIdToken(code);
         final GoogleProfileResponse profileResponse = googleClient.getProfileResponse(googleIdToken);
-        final User user = userRepository.findByEmailAndProvider(profileResponse.getEmail(), GOOGLE)
+        final User user = userRepository.findByEmail(profileResponse.getEmail())
                 .orElseGet(() -> saveGoogleUser(profileResponse));
 
         return createTokenResponse(user.getId());
