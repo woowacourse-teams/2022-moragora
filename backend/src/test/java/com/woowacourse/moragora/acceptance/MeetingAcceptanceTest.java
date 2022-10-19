@@ -18,6 +18,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 import com.woowacourse.moragora.domain.event.Event;
+import com.woowacourse.moragora.domain.geolocation.Beacon;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
@@ -267,5 +268,32 @@ class MeetingAcceptanceTest extends AcceptanceTest {
         // then
         response.statusCode(HttpStatus.CREATED.value())
                 .header("Location", notNullValue());
+    }
+
+    @DisplayName("위치 기반 미팅에서 비콘을 조회하면 비콘들과 함께 상태코드 200을 반환하다.")
+    @Test
+    void showBeacons() {
+        // given
+        final User master = MASTER.create();
+        final String masterToken = signUpAndGetToken(master);
+        final User user = PHILLZ.create();
+        final Long userId = signUp(user);
+        final String userToken = login(user);
+        final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
+
+        final BeaconRequest beaconRequest1 = new BeaconRequest("서울역", 37.54788, 126.99712, 50);
+        final BeaconRequest beaconRequest2 = new BeaconRequest("루터회관", 37.5153, 127.103, 50);
+        final BeaconRequest beaconRequest3 = new BeaconRequest("선릉역", 37.50450, 127.048982, 50);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest1, beaconRequest2, beaconRequest3));
+        final String beaconUri = String.format("/meetings/%d/beacons", meetingId);
+        post(beaconUri, beaconsRequest, masterToken);
+
+        // when
+        final String uri = String.format("/meetings/%d/beacons", meetingId);
+        final ValidatableResponse response = get(uri, userToken);
+
+        // then
+        response.statusCode(HttpStatus.OK.value())
+                .body("beacons.address", containsInAnyOrder("서울역", "루터회관", "선릉역"));
     }
 }

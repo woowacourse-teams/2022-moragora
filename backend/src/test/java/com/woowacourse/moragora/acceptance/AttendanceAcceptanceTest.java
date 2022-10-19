@@ -349,9 +349,9 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         final BeaconRequest beaconRequest1 = new BeaconRequest("서울역", 37.54788, 126.99712, 50);
         final BeaconRequest beaconRequest2 = new BeaconRequest("루터회관", 37.5153, 127.103, 50);
         final BeaconRequest beaconRequest3 = new BeaconRequest("선릉역", 37.50450, 127.048982, 50);
-        final List<BeaconRequest> requestBody = List.of(beaconRequest1, beaconRequest2, beaconRequest3);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest1, beaconRequest2, beaconRequest3));
         final String beaconUri = String.format("/meetings/%d/beacons", meetingId);
-        post(beaconUri, requestBody, masterToken);
+        post(beaconUri, beaconsRequest, masterToken);
 
         // when
         final var attendanceRequest = new GeolocationAttendanceRequest(37.5138, 127.1012); // 잠실역 8번

@@ -181,6 +181,14 @@ public class MeetingService {
         beaconRepository.saveAll(beacons);
     }
 
+    public List<Beacon> showBeacons(final Long meetingId) {
+        validateMeetingExists(meetingId);
+
+        final List<Beacon> beacons = beaconRepository.findAllByMeetingId(meetingId);
+
+        return beacons;
+    }
+
     private boolean validateMaximumBeacon(final List<BeaconRequest> beaconsRequest) {
         return beaconsRequest.size() > MAX_BEACON_SIZE;
     }
@@ -268,12 +276,12 @@ public class MeetingService {
                 .extractAttendancesByParticipant(participant);
         return participantAttendances.countTardy();
     }
-
     private void validateAssignee(final Long loginId, final Long participantId) {
         if (Objects.equals(loginId, participantId)) {
             throw new ClientRuntimeException("스스로에게 마스터 권한을 넘길 수 없습니다.", HttpStatus.BAD_REQUEST);
         }
     }
+
     private void validateNotMaster(final Participant participant) {
         if (Boolean.TRUE.equals(participant.getIsMaster())) {
             throw new ClientRuntimeException("마스터는 모임을 나갈 수 없습니다.", HttpStatus.FORBIDDEN);
