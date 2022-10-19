@@ -9,7 +9,7 @@ import { css } from '@emotion/react';
 import * as S from './MeetingConfigPage.styled';
 import Button from 'components/@shared/Button';
 import Input from 'components/@shared/Input';
-import { userContext } from 'contexts/userContext';
+import { userContext, UserContextValues } from 'contexts/userContext';
 import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
 import {
@@ -27,7 +27,7 @@ import { MeetingNameUpdateRequestBody } from 'types/meetingType';
 const MeetingConfigPage = () => {
   const navigate = useNavigate();
   const { id: meetingId } = useParams();
-  const userState = useContext(userContext);
+  const userState = useContext(userContext) as UserContextValues;
 
   if (!meetingId) {
     return <Navigate to="/error" />;
@@ -41,7 +41,7 @@ const MeetingConfigPage = () => {
     upcomingEventNotExist: boolean;
   }>();
   const meetingNameUpdateMutation = useMutation(
-    updateMeetingNameApi(meetingId, userState?.user?.accessToken),
+    updateMeetingNameApi(meetingId, userState.accessToken),
     {
       onSuccess: () => {
         meetingQuery.refetch();
@@ -53,7 +53,7 @@ const MeetingConfigPage = () => {
     }
   );
   const meetingDeleteMutation = useMutation(
-    deleteMeetingApi(meetingId, userState?.user?.accessToken),
+    deleteMeetingApi(meetingId, userState.accessToken),
     {
       onSuccess: () => {
         alert('모임이 삭제되었습니다.');
@@ -65,7 +65,7 @@ const MeetingConfigPage = () => {
     }
   );
   const meetingLeaveMutation = useMutation(
-    leaveMeetingApi(meetingId, userState?.user?.accessToken),
+    leaveMeetingApi(meetingId, userState.accessToken),
     {
       onSuccess: () => {
         alert('모임을 나갔습니다.');

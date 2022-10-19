@@ -13,7 +13,7 @@ export type AttendancesResponseBody = {
 export type PostUserAttendanceRequestBody = {
   meetingId: number;
   userId: User['id'];
-  accessToken?: User['accessToken'];
+  accessToken: User['accessToken'];
   isPresent: boolean;
 };
 

@@ -9,12 +9,12 @@ import { getUpcomingEventApi } from 'apis/eventApis';
 import { ArrayElement } from 'types/utilityType';
 import { MeetingResponseBody } from 'types/meetingType';
 import useMutation from 'hooks/useMutation';
-import { userContext } from 'contexts/userContext';
+import { userContext, UserContextValues } from 'contexts/userContext';
 
 type SelectedParticipant = ArrayElement<MeetingResponseBody['users']>;
 
 const MasterAssignSection = () => {
-  const userState = useContext(userContext);
+  const userState = useContext(userContext) as UserContextValues;
   const [isDropdownOpened, setIsDropdownOpened] = useState(false);
   const [isModalOpened, setIsModalOpened] = useState(false);
   const { meetingQuery } = useOutletContext<{
@@ -30,7 +30,7 @@ const MasterAssignSection = () => {
   const masterAssignMutation = useMutation(
     assignMasterApi(
       meetingQuery.data?.body.id as number,
-      userState?.user?.accessToken
+      userState.accessToken
     ),
     {
       onSuccess: () => {

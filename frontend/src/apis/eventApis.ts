@@ -7,7 +7,7 @@ import {
 import { User } from 'types/userType';
 
 export const getEventsApi =
-  (meetingId: string, accessToken?: User['accessToken']) => () =>
+  (meetingId: string, accessToken: User['accessToken']) => () =>
     request<{ events: MeetingEvent[] }>(`/meetings/${meetingId}/events`, {
       method: 'GET',
       headers: {
@@ -17,7 +17,7 @@ export const getEventsApi =
     });
 
 export const createEventsApi =
-  (meetingId: string, accessToken?: User['accessToken']) =>
+  (meetingId: string, accessToken: User['accessToken']) =>
   (payload: EventCreateRequestBody) =>
     request<{}>(`/meetings/${meetingId}/events`, {
       method: 'POST',
@@ -29,7 +29,7 @@ export const createEventsApi =
     });
 
 export const deleteEventsApi =
-  (meetingId: string, accessToken?: User['accessToken']) =>
+  (meetingId: string, accessToken: User['accessToken']) =>
   (payload: DeleteEventsRequestBody) =>
     request<{}>(`/meetings/${meetingId}/events`, {
       method: 'DELETE',
@@ -41,7 +41,7 @@ export const deleteEventsApi =
     });
 
 export const getUpcomingEventApi =
-  (meetingId: string, accessToken?: User['accessToken']) => () =>
+  (meetingId: string, accessToken: User['accessToken']) => () =>
     request<MeetingEvent>(`/meetings/${meetingId}/events/upcoming`, {
       method: 'GET',
       headers: {

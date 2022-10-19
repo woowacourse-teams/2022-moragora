@@ -6,7 +6,8 @@ import { User } from 'types/userType';
 type UserContextData = Omit<User, 'password'>;
 
 export type UserContextValues = {
-  user: UserContextData | null;
+  user: Omit<UserContextData, 'accessToken'> | null;
+  accessToken: UserContextData['accessToken'];
   getLoginUserData: () => Promise<void>;
   login: (
     user: NonNullable<Omit<UserContextData, 'accessToken'>>,
@@ -21,9 +22,12 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
   const [user, setUser] = useState<UserContextValues['user']>(null);
+  const [accessToken, setAccessToken] =
+    useState<UserContextValues['accessToken']>(null);
 
   const login: UserContextValues['login'] = (user, accessToken) => {
-    setUser({ ...user, accessToken });
+    setUser({ ...user });
+    setAccessToken(accessToken);
   };
 
   const logout = () => {
@@ -32,13 +36,13 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
 
   const getUserDataQuery = useQuery(
     ['loginUserData'],
-    getLoginUserDataApi(user?.accessToken),
+    getLoginUserDataApi(accessToken),
     {
-      enabled: !!user?.accessToken,
+      enabled: !!accessToken,
       refetchOnMount: false,
       onSuccess: ({ body }) => {
-        if (user?.accessToken) {
-          login(body, user.accessToken);
+        if (accessToken) {
+          login(body, accessToken);
         }
       },
     }
@@ -48,6 +52,7 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
     <userContext.Provider
       value={{
         user,
+        accessToken,
         getLoginUserData: getUserDataQuery.refetch,
         login,
         logout,

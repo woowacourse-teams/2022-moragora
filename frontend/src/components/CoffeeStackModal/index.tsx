@@ -1,14 +1,14 @@
 import { useContext } from 'react';
+import { css } from '@emotion/react';
 import { useParams } from 'react-router-dom';
 import * as S from './CoffeeStackModal.styled';
 import useQuery from 'hooks/useQuery';
 import DialogButton from 'components/@shared/DialogButton';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
-import { userContext } from 'contexts/userContext';
+import { userContext, UserContextValues } from 'contexts/userContext';
 import { getUserCoffeeStatsApi } from 'apis/userApis';
 import coffeeIcon from 'assets/coffee.svg';
-import { css } from '@emotion/react';
 
 type CoffeeStackModalProps = {
   onConfirm: React.MouseEventHandler;
@@ -17,14 +17,14 @@ type CoffeeStackModalProps = {
 
 const CoffeeStackModal = ({ onDismiss, onConfirm }: CoffeeStackModalProps) => {
   const { id } = useParams();
-  const userState = useContext(userContext);
+  const userState = useContext(userContext) as UserContextValues;
   const {
     isLoading,
     isError,
     data: userCoffeeStatsResponse,
   } = useQuery(
     ['userCoffeeStats'],
-    getUserCoffeeStatsApi(id, userState?.user?.accessToken),
+    getUserCoffeeStatsApi(id, userState.accessToken),
     {
       onError: () => {
         alert('유저별 커피정보를 불러오는 중 에러가 발생했습니다.');

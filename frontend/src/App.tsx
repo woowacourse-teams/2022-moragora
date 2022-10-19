@@ -6,14 +6,14 @@ import Header from 'components/layouts/Header';
 import Footer from 'components/layouts/Footer';
 import Body from 'components/layouts/Body';
 import Spinner from 'components/@shared/Spinner';
-import { userContext } from 'contexts/userContext';
+import { userContext, UserContextValues } from 'contexts/userContext';
 import { CalendarProvider } from 'contexts/calendarContext';
 import useQuery from 'hooks/useQuery';
-import { getLoginUserDataApi } from 'apis/userApis';
+import { getLoginUserDataApi, accessTokenRefreshApi } from 'apis/userApis';
 import useInterceptor from 'hooks/useInterceptor';
 
 const App = () => {
-  const userState = useContext(userContext);
+  const userState = useContext(userContext) as UserContextValues;
 
   useInterceptor({
     onError: (response) => {
@@ -26,14 +26,18 @@ const App = () => {
     },
   });
 
+  const refreshQuery = useQuery(['refresh'], accessTokenRefreshApi, {
+    onSuccess: () => {},
+  });
+
   const { isLoading } = useQuery(
     ['loginUserData'],
-    getLoginUserDataApi(userState?.user?.accessToken),
+    getLoginUserDataApi(userState.accessToken),
     {
-      enabled: !!userState?.user?.accessToken,
+      enabled: !!userState.accessToken,
       onSuccess: ({ body }) => {
-        if (userState?.user?.accessToken) {
-          userState.login(body, userState.user.accessToken);
+        if (userState.accessToken) {
+          userState.login(body, userState?.accessToken);
         }
       },
       onError: (error) => {
