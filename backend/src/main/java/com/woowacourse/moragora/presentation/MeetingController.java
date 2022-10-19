@@ -90,7 +90,7 @@ public class MeetingController {
     @PostMapping("/{meetingId}/beacons")
     public ResponseEntity<Void> addBeacons(@PathVariable final Long meetingId,
                                            @RequestBody @Valid final BeaconsRequest beaconsRequest) {
-        meetingService.addBeacons(meetingId, beaconsRequest.getBeaconsRequest());
-        return ResponseEntity.noContent().build();
+        meetingService.addBeacons(meetingId, beaconsRequest.getBeacons());
+        return ResponseEntity.created(URI.create("/meetings/" + meetingId + "/beacons")).build();
     }
 }

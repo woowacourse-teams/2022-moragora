@@ -240,6 +240,7 @@ class MeetingAcceptanceTest extends AcceptanceTest {
         final ValidatableResponse response = post(uri, beaconsRequest, masterToken);
 
         // then
-        response.statusCode(HttpStatus.NO_CONTENT.value());
+        response.statusCode(HttpStatus.CREATED.value())
+                .header("Location", notNullValue());
     }
 }

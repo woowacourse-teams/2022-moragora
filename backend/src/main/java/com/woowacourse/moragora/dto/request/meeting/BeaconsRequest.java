@@ -13,9 +13,9 @@ import lombok.ToString;
 public class BeaconsRequest {
 
     @Valid
-    private List<BeaconRequest> beaconsRequest = new ArrayList<>();
+    private List<BeaconRequest> beacons = new ArrayList<>();
 
-    public BeaconsRequest(final List<BeaconRequest> beaconsRequest) {
-        this.beaconsRequest = beaconsRequest;
+    public BeaconsRequest(final List<BeaconRequest> beacons) {
+        this.beacons = beacons;
     }
 }
