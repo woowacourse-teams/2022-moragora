@@ -30,7 +30,7 @@ public class StatusCheckController {
     private <T> T getBean(final Class<T> beanType) {
         try {
             return applicationContext.getBean(beanType);
-        } catch (BeansException e) {
+        } catch (final BeansException e) {
             return null;
         }
     }
