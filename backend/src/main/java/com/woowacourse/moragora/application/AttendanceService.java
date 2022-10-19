@@ -128,15 +128,23 @@ public class AttendanceService {
                                       final GeolocationAttendanceRequest geoAttendanceRequest) {
         validateMeetingExist(meetingId);
         validateUserExist(userId);
-
+        final LocalDate today = serverTimeManager.getDate();
+        final Participant participant = participantRepository.findByMeetingIdAndUserId(meetingId, userId)
+                .orElseThrow(ParticipantNotFoundException::new);
+        final Event event = eventRepository.findByMeetingIdAndDate(meetingId, today)
+                .orElseThrow(EventNotFoundException::new);
         final Beacon attendCoordinate = geoAttendanceRequest.toEntity();
         final List<Beacon> beacons = beaconRepository.findAllByMeetingId(meetingId);
         final boolean attendanceFail = beacons.stream()
                 .noneMatch(beacon -> beacon.isInRadius(attendCoordinate));
-
+        validateAttendanceTime(event);
+        final Attendance attendance = attendanceRepository
+                .findByParticipantIdAndEventId(participant.getId(), event.getId())
+                .orElseThrow(AttendanceNotFoundException::new);
         if (attendanceFail) {
             throw new ClientRuntimeException("비콘의 출석 반경 이내에 있지 않습니다.", HttpStatus.BAD_REQUEST);
         }
+        attendance.changeAttendanceStatus(Status.PRESENT);
     }
 
     private void validateAttendanceTime(final Event event) {

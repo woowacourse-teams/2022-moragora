@@ -1,6 +1,7 @@
 package com.woowacourse.moragora.acceptance;
 
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT1;
+import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT2;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT_WITHOUT_DATE;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.FORKY;
@@ -136,7 +137,6 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         // then
         response.statusCode(HttpStatus.NOT_FOUND.value())
                 .body("message", equalTo("오늘의 일정이 존재하지 않아 출석부를 조회할 수 없습니다."));
-
     }
 
     @DisplayName("미팅 참가자의 출석을 업데이트하면 상태코드 204을 반환한다.")
@@ -297,12 +297,21 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
     @Test
     void attendWithBeaconBase_ifAttendSuccess() {
         // given
+        given(serverTimeManager.getDate())
+                .willReturn(LocalDate.of(2022, 8, 1));
+        given(serverTimeManager.isAttendanceOpen(any(LocalTime.class)))
+                .willReturn(true);
+
         final User master = MASTER.create();
         final String masterToken = signUpAndGetToken(master);
         final User user = PHILLZ.create();
         final Long userId = signUp(user);
         final String token = login(user);
-        final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(masterToken, List.of(userId), meeting);
+        final Event event = EVENT1.create(meeting);
+        saveEvents(masterToken, List.of(event), (long) meetingId);
+
         // create beacon
         final BeaconRequest beaconRequest = new BeaconRequest("루터회관", 37.5153, 127.103, 50);
         final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
@@ -318,16 +327,24 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         response.statusCode(HttpStatus.NO_CONTENT.value());
     }
 
-    @DisplayName("위치 기반으로 출석을 해서 성공할 경우 400을 반환한다.")
+    @DisplayName("위치 기반으로 출석을 해서 실패할 경우 400을 반환한다.")
     @Test
     void attendWithBeaconBase_throwsException_ifAttendFail() {
         // given
+        given(serverTimeManager.getDate())
+                .willReturn(LocalDate.of(2022, 8, 1));
+        given(serverTimeManager.isAttendanceOpen(any(LocalTime.class)))
+                .willReturn(true);
+
         final User master = MASTER.create();
         final String masterToken = signUpAndGetToken(master);
         final User user = PHILLZ.create();
         final Long userId = signUp(user);
         final String token = login(user);
-        final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
+        final Meeting meeting = MORAGORA.create();
+        final int meetingId = saveMeeting(masterToken, List.of(userId), meeting);
+        final Event event = EVENT1.create(meeting);
+        saveEvents(masterToken, List.of(event), (long) meetingId);
 
         final BeaconRequest beaconRequest1 = new BeaconRequest("서울역", 37.54788, 126.99712, 50);
         final BeaconRequest beaconRequest2 = new BeaconRequest("루터회관", 37.5153, 127.103, 50);
