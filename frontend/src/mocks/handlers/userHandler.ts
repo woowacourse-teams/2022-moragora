@@ -124,13 +124,15 @@ export default [
 
       const targetUser = users[users.length - 1];
       const accessToken = generateAccessToken(targetUser.id);
+      const refreshToken = generateRefreshToken(targetUser.id);
 
       targetUser.accessToken = accessToken;
 
       return res(
         ctx.status(200),
+        ctx.cookie('refreshToken', refreshToken),
         ctx.json({
-          accessToken: targetUser.accessToken,
+          accessToken,
         }),
         ctx.delay(DELAY)
       );
@@ -204,7 +206,10 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
         );
       }
 
@@ -239,7 +244,10 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
         );
       }
 
@@ -294,7 +302,10 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
         );
       }
 

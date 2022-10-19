@@ -26,7 +26,10 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
         );
       }
 
@@ -93,7 +96,10 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
         );
       }
 
@@ -129,7 +135,10 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
         );
       }
 
@@ -170,7 +179,10 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
         );
       }
 
