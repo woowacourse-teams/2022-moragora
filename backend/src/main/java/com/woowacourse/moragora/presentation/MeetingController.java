@@ -2,7 +2,6 @@ package com.woowacourse.moragora.presentation;
 
 import com.woowacourse.moragora.application.MeetingService;
 import com.woowacourse.moragora.application.auth.MasterAuthorization;
-import com.woowacourse.moragora.domain.geolocation.Beacon;
 import com.woowacourse.moragora.dto.request.meeting.BeaconsRequest;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
@@ -14,10 +13,8 @@ import com.woowacourse.moragora.dto.response.meeting.MyMeetingsResponse;
 import com.woowacourse.moragora.presentation.auth.Authentication;
 import com.woowacourse.moragora.presentation.auth.AuthenticationPrincipal;
 import java.net.URI;
-import java.util.List;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -99,8 +96,7 @@ public class MeetingController {
 
     @GetMapping("/{meetingId}/beacons")
     public ResponseEntity<BeaconsResponse> showBeacons(@PathVariable final Long meetingId) {
-        final List<Beacon> beacons = meetingService.showBeacons(meetingId);
-        final BeaconsResponse beaconsResponse = new BeaconsResponse(beacons);
+        final BeaconsResponse beaconsResponse = meetingService.showBeacons(meetingId);
         return ResponseEntity.ok(beaconsResponse);
     }
 

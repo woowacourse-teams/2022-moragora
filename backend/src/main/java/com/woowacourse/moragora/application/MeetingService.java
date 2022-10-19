@@ -21,6 +21,7 @@ import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.response.event.EventResponse;
+import com.woowacourse.moragora.dto.response.meeting.BeaconsResponse;
 import com.woowacourse.moragora.dto.response.meeting.MeetingActiveResponse;
 import com.woowacourse.moragora.dto.response.meeting.MeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingResponse;
@@ -181,12 +182,12 @@ public class MeetingService {
         beaconRepository.saveAll(beacons);
     }
 
-    public List<Beacon> showBeacons(final Long meetingId) {
+    public BeaconsResponse showBeacons(final Long meetingId) {
         validateMeetingExists(meetingId);
 
         final List<Beacon> beacons = beaconRepository.findAllByMeetingId(meetingId);
 
-        return beacons;
+        return new BeaconsResponse(beacons);
     }
 
     private boolean validateMaximumBeacon(final List<BeaconRequest> beaconsRequest) {

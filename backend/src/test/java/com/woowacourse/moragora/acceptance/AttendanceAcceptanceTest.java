@@ -1,7 +1,6 @@
 package com.woowacourse.moragora.acceptance;
 
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT1;
-import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT2;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT_WITHOUT_DATE;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.FORKY;
@@ -12,7 +11,6 @@ import static com.woowacourse.moragora.support.fixture.UserFixtures.PHILLZ;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.SUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.createUsers;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
@@ -346,6 +344,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         final Event event = EVENT1.create(meeting);
         saveEvents(masterToken, List.of(event), (long) meetingId);
 
+        // create beacon
         final BeaconRequest beaconRequest1 = new BeaconRequest("서울역", 37.54788, 126.99712, 50);
         final BeaconRequest beaconRequest2 = new BeaconRequest("루터회관", 37.5153, 127.103, 50);
         final BeaconRequest beaconRequest3 = new BeaconRequest("선릉역", 37.50450, 127.048982, 50);
