@@ -140,7 +140,7 @@ jacocoTestCoverageVerification {
             }
 
             excludes = ['*infrastructure*', '*support*', '*config*', '*dto*', '*exception*', '*logging*', '*Application*',
-                        '*ControllerAdvice', '*SessionAttributeNames', '*Patterns', '*ValidationMessages']
+                        '*ControllerAdvice', '*SessionAttributeNames', '*Patterns', '*ValidationMessages', '*StatusCheckController']
         }
     }
 }
