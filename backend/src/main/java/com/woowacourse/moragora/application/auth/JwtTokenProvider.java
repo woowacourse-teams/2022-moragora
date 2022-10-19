@@ -1,6 +1,9 @@
-package com.woowacourse.moragora.support;
+package com.woowacourse.moragora.application.auth;
 
+import com.woowacourse.moragora.exception.auth.ExpiredTokenException;
+import com.woowacourse.moragora.exception.auth.InvalidTokenException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -24,7 +27,7 @@ public class JwtTokenProvider {
         this.validityInMilliseconds = validityInMilliseconds;
     }
 
-    public String createToken(final String payload) {
+    public String create(final String payload) {
         final Date now = new Date();
         final Date validity = new Date(now.getTime() + validityInMilliseconds);
 
@@ -42,12 +45,13 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    public boolean validateToken(final String token) {
+    public void validateToken(final String token) {
         try {
-            final Jws<Claims> claims = parseClaimsJws(token);
-            return !claims.getBody().getExpiration().before(new Date());
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            parseClaimsJws(token);
+        } catch (final ExpiredJwtException e) {
+            throw new ExpiredTokenException();
+        } catch (final JwtException | IllegalArgumentException e) {
+            throw new InvalidTokenException();
         }
     }
 

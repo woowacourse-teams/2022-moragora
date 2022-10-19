@@ -45,14 +45,12 @@ include::{snippets}/auth/login-fail/http-response.adoc[]
 
 include::{snippets}/auth/login-fail/request-fields.adoc[]
 
-=== Reponse fields
+=== Response fields
 
 include::{snippets}/auth/login-fail/response-fields.adoc[]
 
-
-
 [[login-google]]
-== 로그인
+== 구글 로그인
 
 [[login-google]]
 === HTTP request
@@ -62,6 +60,22 @@ include::{snippets}/auth/login-google/http-request.adoc[]
 === HTTP response
 
 include::{snippets}/auth/login-google/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/auth/login-google/response-fields.adoc[]
+
+[[refresh-tokens]]
+== 토크 갱신
+
+[[refresh-tokens]]
+=== HTTP request
+
+include::{snippets}/auth/refresh-tokens/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/auth/refresh-tokens/http-response.adoc[]
 
 === Response fields
 
