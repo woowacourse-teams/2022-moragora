@@ -36,8 +36,8 @@ export const extractIdFromHeader = (
   isValidToken: boolean;
 } => {
   const authorization = req.headers.get('Authorization');
-  const accessToken = authorization?.trim().replace('Bearer', '');
-  const isValidToken = /\w_\d_\d/.test(accessToken || '');
+  const accessToken = authorization?.trim().replace('Bearer ', '');
+  const isValidToken = /\w+_\d+_\d+/.test(accessToken ?? '');
 
   if (!accessToken) {
     return {
@@ -61,7 +61,7 @@ export const extractIdFromCookie = (
   isExist: boolean;
 } => {
   const { refreshToken } = req.cookies;
-  const isValidToken = /\w_refresh_\d_\d/.test(refreshToken);
+  const isValidToken = /\w+_refresh_\d+_\d+/.test(refreshToken);
 
   if (!refreshToken) {
     return {
