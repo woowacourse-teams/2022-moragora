@@ -18,8 +18,17 @@ const GeolocationCheckInPage = () => {
     MeetingListResponseBody['meetings'][0] | null
   >(null);
   const { accessToken } = useContext(userContext) as UserContextValues;
-  const { currentPosition, isLoading } = useGeolocation();
   const { mapContainerRef, setControllable, panTo } = useKakaoMap();
+  const { isLoading, currentPosition } = useGeolocation({
+    onWatchSuccess: (position) => {
+      panTo(position.coords.latitude, position.coords.longitude);
+      console.log(
+        'pan to',
+        position.coords.latitude,
+        position.coords.longitude
+      );
+    },
+  });
   const mapOverlayRef = useRef<HTMLDivElement>(null);
   const mapUserMarkerRef = useRef<SVGSVGElement>(null);
 
