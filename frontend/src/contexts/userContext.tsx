@@ -36,6 +36,7 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
   const logout = async () => {
     await logoutApi();
     setUser(null);
+    setAccessToken(null);
   };
 
   const getUserDataQuery = useQuery(
