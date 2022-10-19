@@ -12,6 +12,7 @@ import useQuery from 'hooks/useQuery';
 import { getLoginUserDataApi, accessTokenRefreshApi } from 'apis/userApis';
 import useInterceptor from 'hooks/useInterceptor';
 import { TokenStatus } from 'types/userType';
+import { queryClient } from 'contexts/queryClient';
 
 const App = () => {
   const userState = useContext(userContext) as UserContextValues;
@@ -27,6 +28,7 @@ const App = () => {
 
           if (body.tokenStatus === TokenStatus['expired']) {
             refreshQuery.refetch();
+            queryClient.reQueryAllCache();
             return;
           }
 
