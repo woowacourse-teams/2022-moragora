@@ -2,7 +2,7 @@ import { Interceptor } from 'types/requestType';
 
 export const interceptor: Interceptor = {
   onSuccess: (response) => {},
-  onError: (response) => {},
+  onError: (response, body) => {},
   set: function (onSuccess, onError) {
     if (onSuccess) this.onSuccess = onSuccess;
     if (onError) this.onError = onError;
@@ -23,13 +23,13 @@ const request =
     if (!res.ok) {
       const body = (await res.json().catch(() => ({}))) as ErrorBody;
 
-      interceptor.onError(res);
+      interceptor.onError(res, body);
 
       throw new Error(`${res.status}: ${body.message}`);
     }
-    interceptor.onSuccess(res);
-
     const body = (await res.json().catch(() => ({}))) as SuccessBody;
+
+    interceptor.onSuccess(res);
 
     return { headers: res.headers, status: res.status, body };
   };

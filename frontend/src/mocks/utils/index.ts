@@ -4,13 +4,13 @@ import { TOKEN_PREFIX } from 'mocks/configs';
 const extractIdFromToken = (token: string) => Number(token.split('_')[1]);
 
 const extractExpiredTimestampFromAccessToken = (token: string) =>
-  Number(token.split('_'.slice(-1)));
+  Number(token.split('_').slice(-1));
 
 const extractIdFromRefreshToken = (token: string) =>
   Number(token.split('_')[2]);
 
 const extractExpiredTimestampFromRefreshToken = (token: string) =>
-  Number(token.split('_'.slice(-1)));
+  Number(token.split('_').slice(-1));
 
 export const generateAccessToken = (id: number) => {
   const timer = new Date();

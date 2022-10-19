@@ -35,7 +35,7 @@ const useQuerySelectItems = <T extends { id: number }>(
 
       if (!res.ok) {
         if (TOKEN_ERROR_STATUS_CODES.includes(res.status)) {
-          userState?.logout();
+          userState.logout();
         }
 
         throw new Error('회원 조회를 실패했습니다.');

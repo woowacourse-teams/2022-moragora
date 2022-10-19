@@ -1,5 +1,5 @@
 import React, { createContext, useState } from 'react';
-import { getLoginUserDataApi } from 'apis/userApis';
+import { getLoginUserDataApi, logoutApi } from 'apis/userApis';
 import useQuery from 'hooks/useQuery';
 import { User } from 'types/userType';
 
@@ -14,6 +14,9 @@ export type UserContextValues = {
     accessToken: NonNullable<UserContextData['accessToken']>
   ) => void;
   logout: () => void;
+  setAccessToken: React.Dispatch<
+    React.SetStateAction<UserContextData['accessToken']>
+  >;
 };
 
 const userContext = createContext<UserContextValues | null>(null);
@@ -30,7 +33,8 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
     setAccessToken(accessToken);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await logoutApi();
     setUser(null);
   };
 
@@ -53,6 +57,7 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
       value={{
         user,
         accessToken,
+        setAccessToken,
         getLoginUserData: getUserDataQuery.refetch,
         login,
         logout,

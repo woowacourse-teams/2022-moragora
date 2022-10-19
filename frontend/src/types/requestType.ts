@@ -1,7 +1,16 @@
-export type InterceptHandler = (response: Response) => void;
+import { ErrorResponseBody } from './userType';
+
+export type SuccessInterceptHandler = (res: Response) => void;
+export type ErrorInterceptHandler = (
+  res: Response,
+  body: ErrorResponseBody
+) => void;
 
 export type Interceptor = {
-  onSuccess: InterceptHandler;
-  onError: InterceptHandler;
-  set: (onSuccess?: InterceptHandler, onError?: InterceptHandler) => void;
+  onSuccess: SuccessInterceptHandler;
+  onError: ErrorInterceptHandler;
+  set: (
+    onSuccess?: SuccessInterceptHandler,
+    onError?: ErrorInterceptHandler
+  ) => void;
 };
