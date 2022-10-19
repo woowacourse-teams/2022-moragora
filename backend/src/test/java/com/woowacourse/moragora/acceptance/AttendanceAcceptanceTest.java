@@ -175,9 +175,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(true);
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 1);
-
-        given(serverTimeManager.isAttendanceClosed(any(LocalTime.class)))
-                .willReturn(false);
+        
         given(serverTimeManager.getDate())
                 .willReturn(dateTime.toLocalDate());
         given(serverTimeManager.getDateAndTime())

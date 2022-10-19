@@ -7,11 +7,14 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import com.woowacourse.moragora.domain.user.User;
+import com.woowacourse.moragora.dto.request.auth.EmailRequest;
+import com.woowacourse.moragora.dto.request.auth.EmailVerifyRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
@@ -19,6 +22,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
@@ -35,7 +39,8 @@ class AuthAcceptanceTest extends AcceptanceTest {
         final String email = "kun@naver.com";
         final String password = "1234smart!";
         final UserRequest userRequest = new UserRequest(email, password, "kun");
-        post("/users", userRequest);
+        final String sessionId = verifyEmailAndGetSessionId(email);
+        postWithSession("/users", userRequest, sessionId);
 
         final LoginRequest loginRequest = new LoginRequest(email, password);
         given(serverTimeManager.getDateAndTime())
@@ -158,5 +163,85 @@ class AuthAcceptanceTest extends AcceptanceTest {
         // then
         response.statusCode(UNAUTHORIZED.value())
                 .body("tokenStatus", equalTo("empty"));
+    }
+
+    @DisplayName("이메일 인증 요청 시 인증코드를 생성해 메일을 전송하고 session에 인증 정보들을 보관한다.")
+    @Test
+    void sendEmail() {
+        // given
+        final String email = "kun@naver.com";
+        final EmailRequest request = new EmailRequest(email);
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 10, 10, 10, 10);
+        final long expected = Timestamp.valueOf(dateTime.plusMinutes(5)).getTime();
+
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime);
+
+        // when
+        final ValidatableResponse response = post("/email/send", request);
+
+        // then
+        response.statusCode(OK.value())
+                .body("expiredTime", equalTo(expected));
+    }
+
+    @DisplayName("인증번호 검증 요청 시 유효한 인증번호이면 상태코드 204를 반환한다.")
+    @Test
+    void verifyEmail() {
+        // given
+        final String email = "kun@naver.com";
+        final String verifyCode = "000000";
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 10, 10, 10, 10);
+        final EmailVerifyRequest request = new EmailVerifyRequest(email, verifyCode);
+
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime);
+        final String sessionId = saveVerificationAndGetSessionId(email, verifyCode);
+
+        // when
+        final ValidatableResponse response = postWithSession("/email/verify", request, sessionId);
+
+        // then
+        response.statusCode(NO_CONTENT.value());
+    }
+
+    @DisplayName("인증번호 검증 요청 시 잘못된 코드이면 상태코드 400을 반환한다.")
+    @Test
+    void verifyEmail_throwsException_ifWrongEmail() {
+        // given
+        final String email = "kun@naver.com";
+        final String verifyCode = "000000";
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 10, 10, 10, 10);
+        final EmailVerifyRequest request = new EmailVerifyRequest(email, "123456");
+
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime);
+        final String sessionId = saveVerificationAndGetSessionId(email, verifyCode);
+
+        // when
+        final ValidatableResponse response = postWithSession("/email/verify", request, sessionId);
+
+        // then
+        response.statusCode(BAD_REQUEST.value())
+                .body("message", equalTo("인증코드가 올바르지 않습니다."));
+    }
+
+    @DisplayName("인증번호 검증 요청 시 인증 정보가 없으면 상태코드 404를 반환한다.")
+    @Test
+    void verifyEmail_throwsException_ifVerificationNotFound() {
+        // given
+        final String email = "kun@naver.com";
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 10, 10, 10, 10);
+        final EmailVerifyRequest request = new EmailVerifyRequest(email, "123456");
+
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(dateTime);
+
+        // when
+        final ValidatableResponse response = post("/email/verify", request);
+
+        // then
+        response.statusCode(NOT_FOUND.value())
+                .body("message", equalTo("인증 정보가 존재하지 않습니다."));
     }
 }
