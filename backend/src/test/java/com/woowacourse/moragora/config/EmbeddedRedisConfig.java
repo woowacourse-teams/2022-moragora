@@ -33,7 +33,7 @@ public class EmbeddedRedisConfig {
         int availablePort = isRedisRunning() ? findAvailablePort() : redisPort;
 
         if (isArm()) {
-            redisServer = new RedisServer(Objects.requireNonNull(getRedisFileForArcMac()), availablePort);
+            redisServer = new RedisServer(Objects.requireNonNull(getRedisFileForArmArch()), availablePort);
         }
         if (!isArm()) {
             redisServer = new RedisServer(availablePort);
@@ -49,9 +49,9 @@ public class EmbeddedRedisConfig {
         return Objects.equals(System.getProperty("os.arch"), "aarch64");
     }
 
-    private File getRedisFileForArcMac() {
+    private File getRedisFileForArmArch() {
         try {
-            return new ClassPathResource("binary/redis/redis-server-6.2.5-mac-arm64").getFile();
+            return new ClassPathResource("binary/redis/redis-server-6.2.5-arm64").getFile();
         } catch (Exception e) {
             throw new RuntimeException("Embedded Redis 설정에 실패했습니다.");
         }
