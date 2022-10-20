@@ -112,7 +112,7 @@ public class AttendanceService {
         final List<Participant> participants = participantRepository.findByMeetingId(meetingId);
         final int numberOfParticipants = participants.size();
 
-        final PageRequest pageRequest = PageRequest.of(0, numberOfParticipants);
+        final PageRequest pageRequest = PageRequest.ofSize(numberOfParticipants);
         final List<Attendance> attendances = coffeeStatRepository.findCoffeeStatsLimitParticipant(
                 pageRequest, participants);
 
