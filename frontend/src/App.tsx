@@ -41,6 +41,7 @@ const App = () => {
             refreshQuery.refetch();
           }
 
+          userState.setInitialized(true);
           break;
         }
         default:
@@ -76,7 +77,7 @@ const App = () => {
     }
   );
 
-  if (getLoginUserDataQuery.isLoading) {
+  if (getLoginUserDataQuery.isLoading || !userState.initialized) {
     return (
       <AppLayout>
         <Body>

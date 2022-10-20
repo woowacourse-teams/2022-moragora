@@ -9,6 +9,8 @@ type UserContextData = Omit<User, 'password'>;
 export type UserContextValues = {
   user: Omit<UserContextData, 'accessToken'> | null;
   accessToken: UserContextData['accessToken'];
+  initialized: boolean;
+  setInitialized: React.Dispatch<React.SetStateAction<boolean>>;
   updateAccessToken: (token: UserContextData['accessToken']) => void;
   getLoginUserData: () => Promise<void>;
   login: (
@@ -23,6 +25,7 @@ const userContext = createContext<UserContextValues | null>(null);
 const UserContextProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
+  const [initialized, setInitialized] = useState(false);
   const [user, setUser] = useState<UserContextValues['user']>(null);
   const [accessToken, setAccessToken] =
     useState<UserContextValues['accessToken']>(null);
@@ -62,6 +65,8 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
       value={{
         user,
         accessToken,
+        initialized,
+        setInitialized,
         updateAccessToken,
         getLoginUserData: getUserDataQuery.refetch,
         login,
