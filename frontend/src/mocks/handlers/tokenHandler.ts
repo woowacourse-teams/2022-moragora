@@ -1,3 +1,4 @@
+import { rest } from 'msw';
 import { DELAY } from 'mocks/configs';
 import {
   checkExpiredToken,
@@ -5,7 +6,6 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from 'mocks/utils';
-import { rest } from 'msw';
 
 export default [
   rest.get(`${process.env.API_SERVER_HOST}/token/refresh`, (req, res, ctx) => {

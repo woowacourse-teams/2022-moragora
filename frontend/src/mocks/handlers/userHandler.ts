@@ -132,7 +132,7 @@ export default [
         ctx.status(200),
         ctx.cookie('refreshToken', refreshToken),
         ctx.json({
-          accessToken,
+          accessToken: targetUser.accessToken,
         }),
         ctx.delay(DELAY)
       );

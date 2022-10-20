@@ -6,7 +6,7 @@ const useContextValues = <ContextValues>(
   const values = useContext(context);
 
   if (!values) {
-    throw new Error('Not Exist Context');
+    return;
   }
 
   return values;
