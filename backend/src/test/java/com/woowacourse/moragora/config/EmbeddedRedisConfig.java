@@ -34,6 +34,7 @@ public class EmbeddedRedisConfig {
 
         if (isArm()) {
             redisServer = new RedisServer(Objects.requireNonNull(getRedisFileForArmArch()), availablePort);
+            log.info(redisServer.toString());
         }
         if (!isArm()) {
             redisServer = new RedisServer(availablePort);
