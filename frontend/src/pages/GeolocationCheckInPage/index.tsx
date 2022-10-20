@@ -122,6 +122,9 @@ const GeolocationCheckInPage = () => {
         <S.EmptyStateBox>
           <S.EmptyStateImage src={emptyInboxSVG} alt="empty inbox" />
           <S.EmptyStateTitle>출석 가능한 모임이 없어요.</S.EmptyStateTitle>
+          <S.EmptyStateParagraph>
+            출석 시간을 확인해주세요.
+          </S.EmptyStateParagraph>
         </S.EmptyStateBox>
       </S.Layout>
     );
