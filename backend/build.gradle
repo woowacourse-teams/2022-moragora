@@ -93,8 +93,56 @@ task copyDocument(type: Copy) {
     into file("src/main/resources/static/docs")
 }
 
+bootJar {
+    dependsOn copyDocument
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
 jacoco {
     toolVersion = "0.8.7"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        csv.enabled false
+        html.enabled true
+    }
+
+    finalizedBy 'jacocoTestCoverageVerification'
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            enabled = true
+            element = 'CLASS'
+
+            limit {
+                counter = 'INSTRUCTION'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+
+            excludes = ['*infrastructure*', '*support*', '*config*', '*dto*', '*exception*', '*logging*', '*Application*',
+                        '*ControllerAdvice', '*SessionAttributeNames', '*Patterns', '*ValidationMessages', '*StatusCheckController']
+        }
+    }
 }
 
 sonarqube {
