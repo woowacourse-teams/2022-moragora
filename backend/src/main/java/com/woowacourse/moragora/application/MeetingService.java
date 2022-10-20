@@ -46,7 +46,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MeetingService {
 
-    public static final int MAX_BEACON_SIZE = 3;
+    private static final int MAX_BEACON_SIZE = 3;
+
     private final MeetingRepository meetingRepository;
     private final EventRepository eventRepository;
     private final ParticipantRepository participantRepository;
@@ -61,7 +62,8 @@ public class MeetingService {
                           final ParticipantRepository participantRepository,
                           final AttendanceRepository attendanceRepository,
                           final UserRepository userRepository,
-                          final BeaconRepository beaconRepository, final QueryRepository queryRepository,
+                          final BeaconRepository beaconRepository,
+                          final QueryRepository queryRepository,
                           final ServerTimeManager serverTimeManager) {
         this.meetingRepository = meetingRepository;
         this.eventRepository = eventRepository;
@@ -274,6 +276,7 @@ public class MeetingService {
             throw new ClientRuntimeException("스스로에게 마스터 권한을 넘길 수 없습니다.", HttpStatus.BAD_REQUEST);
         }
     }
+
     private void validateNotMaster(final Participant participant) {
         if (Boolean.TRUE.equals(participant.getIsMaster())) {
             throw new ClientRuntimeException("마스터는 모임을 나갈 수 없습니다.", HttpStatus.FORBIDDEN);

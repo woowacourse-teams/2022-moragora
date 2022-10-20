@@ -60,8 +60,8 @@ public class AttendanceController {
 
     @PostMapping("/users/{userId}/attendances/today/geolocation")
     public ResponseEntity<Void> attendWithBeaconBase(@PathVariable final Long meetingId,
-                                                                              @PathVariable final Long userId,
-                                                                              @RequestBody final GeolocationAttendanceRequest geoAttendanceRequest) {
+                                                     @PathVariable final Long userId,
+                                                     @RequestBody final GeolocationAttendanceRequest geoAttendanceRequest) {
         attendanceService.attendWithGeoLocation(meetingId, userId, geoAttendanceRequest);
         return ResponseEntity.noContent().build();
     }

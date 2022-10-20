@@ -1,5 +1,7 @@
 package com.woowacourse.moragora.dto.request.meeting;
 
+import static com.woowacourse.moragora.constant.ValidationMessages.MISSING_REQUIRED_INPUT;
+
 import com.woowacourse.moragora.domain.geolocation.Beacon;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import javax.validation.constraints.Max;
@@ -18,7 +20,6 @@ import org.hibernate.validator.constraints.Range;
 public class BeaconRequest {
 
     private static final int MAX_ADDRESS_LENGTH = 50;
-    private static final String MISSING_REQUIRED_INPUT = "필수 입력 값이 누락됐습니다.";
 
     @NotBlank(message = MISSING_REQUIRED_INPUT)
     @Length(max = MAX_ADDRESS_LENGTH, message = "비콘 주소는 " + MAX_ADDRESS_LENGTH + "자를 초과할 수 없습니다.")

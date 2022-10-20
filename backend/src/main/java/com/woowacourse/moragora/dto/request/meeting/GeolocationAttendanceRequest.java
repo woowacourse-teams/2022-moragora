@@ -10,8 +10,8 @@ import lombok.ToString;
 @Getter
 public class GeolocationAttendanceRequest {
 
-    private Double latitude;
-    private Double longitude;
+    private double latitude;
+    private double longitude;
 
     public GeolocationAttendanceRequest(final Double latitude, final Double longitude) {
         this.latitude = latitude;
