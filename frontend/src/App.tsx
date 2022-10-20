@@ -30,29 +30,28 @@ const App = () => {
       },
     }),
     onError: (response, body) => {
-      switch (response.status) {
-        case 401: {
-          if (body.tokenStatus === TokenStatus['invalid']) {
-            userState.logout();
-            return;
-          }
-
-          if (body.tokenStatus === TokenStatus['expired']) {
-            refreshQuery.refetch();
-          }
-
-          userState.setInitialized(true);
-          break;
-        }
-        default:
-          break;
+      if (response.status !== 401) {
+        return;
       }
+
+      if (body.tokenStatus === TokenStatus['invalid']) {
+        userState.logout();
+        return;
+      }
+
+      if (body.tokenStatus === TokenStatus['expired']) {
+        refreshQuery.refetch();
+        return;
+      }
+
+      userState.setInitialized(true);
     },
   });
 
   const refreshQuery = useQuery(['refresh'], accessTokenRefreshApi, {
     onSuccess: ({ body: { accessToken } }) => {
       userState.updateAccessToken(accessToken);
+      userState.setInitialized(true);
       queryClient.reQueryCache();
     },
   });
