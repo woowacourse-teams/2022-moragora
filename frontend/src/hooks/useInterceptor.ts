@@ -20,7 +20,6 @@ const useInterceptor = ({
   onError,
 }: Partial<UseInterceptor>) => {
   useEffect(() => {
-    console.log(accessToken);
     if (accessToken !== undefined) {
       interceptor.accessToken = accessToken;
     }

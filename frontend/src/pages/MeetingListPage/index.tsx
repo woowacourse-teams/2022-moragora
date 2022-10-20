@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { css } from '@emotion/react';
 import * as S from './MeetingListPage.styled';
 import MeetingItem from 'components/MeetingItem';
@@ -12,8 +12,10 @@ import useTimer from 'hooks/useTimer';
 import NoSearchResultIconSVG from 'assets/NoSearchResult.svg';
 import { getMeetingListApi } from 'apis/meetingApis';
 import { getServerTime } from 'apis/common';
+import { userContext, UserContextValues } from 'contexts/userContext';
 
 const MeetingListPage = () => {
+  const userState = useContext(userContext) as UserContextValues;
   const { data: serverTimeResponse } = useQuery(['serverTime'], getServerTime);
 
   const {
@@ -21,7 +23,9 @@ const MeetingListPage = () => {
     refetch,
     isLoading,
     isError,
-  } = useQuery(['meetingList'], getMeetingListApi());
+  } = useQuery(['meetingList'], getMeetingListApi(), {
+    enabled: !!userState.accessToken,
+  });
 
   const { currentTimestamp } = useTimer(
     serverTimeResponse?.body.serverTime || Date.now()
