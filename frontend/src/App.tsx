@@ -50,7 +50,7 @@ const App = () => {
 
   const refreshQuery = useQuery(['refresh'], accessTokenRefreshApi, {
     onSuccess: ({ body: { accessToken } }) => {
-      userState.updateAccessToken(accessToken);
+      userState.setAccessToken(accessToken);
       userState.setInitialized(true);
       queryClient.reQueryCache();
     },

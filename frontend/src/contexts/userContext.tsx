@@ -11,7 +11,9 @@ export type UserContextValues = {
   accessToken: UserContextData['accessToken'];
   initialized: boolean;
   setInitialized: React.Dispatch<React.SetStateAction<boolean>>;
-  updateAccessToken: (token: UserContextData['accessToken']) => void;
+  setAccessToken: React.Dispatch<
+    React.SetStateAction<UserContextValues['accessToken']>
+  >;
   getLoginUserData: () => Promise<void>;
   login: (
     user: NonNullable<Omit<UserContextData, 'accessToken'>>,
@@ -58,10 +60,6 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
     logoutMutation.mutate({});
   };
 
-  const updateAccessToken: UserContextValues['updateAccessToken'] = (token) => {
-    setAccessToken(token);
-  };
-
   return (
     <userContext.Provider
       value={{
@@ -69,7 +67,7 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
         accessToken,
         initialized,
         setInitialized,
-        updateAccessToken,
+        setAccessToken,
         getLoginUserData: getUserDataQuery.refetch,
         login,
         logout,
