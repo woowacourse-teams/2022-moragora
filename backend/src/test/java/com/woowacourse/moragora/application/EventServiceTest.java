@@ -188,15 +188,7 @@ class EventServiceTest {
         serverTimeManager.refresh(now);
 
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
-        final Event event = EVENT1.create(meeting);
-        final EventsRequest eventsRequest = new EventsRequest(List.of(
-                EventRequest.builder()
-                        .meetingStartTime(event.getStartTime())
-                        .meetingEndTime(event.getEndTime())
-                        .date(event.getDate())
-                        .build()
-        ));
-        eventService.save(eventsRequest, meeting.getId());
+        final Event event = dataSupport.saveEvent(EVENT1.create(meeting));
 
         final LocalTime afterOpenTime = LocalTime.of(10, 2);
         serverTimeManager.refresh(LocalDateTime.of(date, afterOpenTime));
