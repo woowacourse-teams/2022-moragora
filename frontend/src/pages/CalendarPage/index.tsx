@@ -48,8 +48,8 @@ const CalendarPage = () => {
   }>();
 
   const eventsQuery = useQuery(['events'], getEventsApi(meetingId), {
-    onSuccess: ({ body: { events } }) => {
-      setSavedEvents(events);
+    onSuccess: ({ body: { events: queriedEvents } }) => {
+      setSavedEvents(queriedEvents);
     },
     onError: (error) => {
       alert(error.message);
