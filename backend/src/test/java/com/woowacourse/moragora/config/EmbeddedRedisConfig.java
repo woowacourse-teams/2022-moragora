@@ -33,7 +33,10 @@ public class EmbeddedRedisConfig {
         int availablePort = isRedisRunning() ? findAvailablePort() : redisPort;
 
         if (isArm()) {
-            redisServer = new RedisServer(Objects.requireNonNull(getRedisFileForArmArch()), availablePort);
+            final File redisFileForArmArch = getRedisFileForArmArch();
+            log.info(redisFileForArmArch.getName());
+
+            redisServer = new RedisServer(Objects.requireNonNull(redisFileForArmArch), availablePort);
             log.info(redisServer.toString());
         }
         if (!isArm()) {
@@ -52,7 +55,7 @@ public class EmbeddedRedisConfig {
 
     private File getRedisFileForArmArch() {
         try {
-            return new ClassPathResource("binary/redis/redis-server-6.2.5-arm64").getFile();
+            return new ClassPathResource("binary/redis/redis-server-7.0.5-arm64").getFile();
         } catch (Exception e) {
             throw new RuntimeException("Embedded Redis 설정에 실패했습니다.");
         }
