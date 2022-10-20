@@ -4,7 +4,6 @@ import MeetingListPage from 'pages/MeetingListPage';
 import CoffeeStackPage from 'pages/CoffeeStackPage';
 import RegisterPage from 'pages/RegisterPage';
 import LoginPage from 'pages/LoginPage';
-import Auth from './Auth';
 import SettingsPage from 'pages/SettingsPage';
 import NotFoundPage from 'pages/NotFoundPage';
 import MeetingDetailPage from 'pages/MeetingDetailPage';
@@ -15,6 +14,7 @@ import CheckInPage from 'pages/CheckInPage';
 import CalendarPage from 'pages/CalendarPage';
 import MeetingConfigPage from 'pages/MeetingConfigPage';
 import GeolocationCheckInPage from 'pages/GeolocationCheckInPage';
+import Auth from './Auth';
 
 const Router = () => {
   return useRoutes([
@@ -27,7 +27,7 @@ const Router = () => {
       ],
     },
     {
-      element: <Auth shouldLogin={true} />,
+      element: <Auth shouldLogin />,
       children: [
         {
           path: 'meeting',

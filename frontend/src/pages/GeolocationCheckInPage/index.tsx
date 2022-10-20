@@ -1,6 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
-import * as S from './GeolocationCheckInPage.styled';
-import { userContext, UserContextValues } from 'contexts/userContext';
+import { useEffect, useRef, useState } from 'react';
 import { getMeetingListApi } from 'apis/meetingApis';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
@@ -10,14 +8,14 @@ import { MeetingListResponseBody } from 'types/meetingType';
 import emptyInboxSVG from 'assets/empty-inbox.svg';
 import useGeolocation from 'hooks/useGeolocation';
 import useKakaoMap from 'hooks/useKakaoMap';
-import CheckInButtonSection from './CheckInButtonSection';
 import CheckMeetingItem from 'components/CheckMeetingItem';
+import CheckInButtonSection from './CheckInButtonSection';
+import * as S from './GeolocationCheckInPage.styled';
 
 const GeolocationCheckInPage = () => {
   const [currentMeeting, setCurrentMeeting] = useState<
     MeetingListResponseBody['meetings'][0] | null
   >(null);
-  const { accessToken } = useContext(userContext) as UserContextValues;
   const { mapContainerRef, setControllable, panTo } = useKakaoMap();
   const { isLoading, currentPosition, permissionState } = useGeolocation({
     options: {
@@ -30,22 +28,18 @@ const GeolocationCheckInPage = () => {
   const mapOverlayRef = useRef<HTMLDivElement>(null);
   const mapUserMarkerRef = useRef<SVGSVGElement>(null);
 
-  const meetingListQuery = useQuery(
-    ['meetingList'],
-    getMeetingListApi(accessToken),
-    {
-      onSuccess: ({ body: { meetings } }) => {
-        const activeMeeting = meetings.find((meeting) => meeting.isActive);
+  const meetingListQuery = useQuery(['meetingList'], getMeetingListApi(), {
+    onSuccess: ({ body: { meetings } }) => {
+      const activeMeeting = meetings.find((meeting) => meeting.isActive);
 
-        if (activeMeeting) {
-          setCurrentMeeting(activeMeeting);
-        }
-      },
-      onError: () => {
-        alert('모임 정보를 가져오는데 실패했습니다.');
-      },
-    }
-  );
+      if (activeMeeting) {
+        setCurrentMeeting(activeMeeting);
+      }
+    },
+    onError: () => {
+      alert('모임 정보를 가져오는데 실패했습니다.');
+    },
+  });
 
   const handleMeetingItemClick = (
     meeting: MeetingListResponseBody['meetings'][0]

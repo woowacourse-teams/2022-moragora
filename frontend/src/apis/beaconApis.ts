@@ -1,9 +1,8 @@
 import request from 'utils/request';
-import { User } from 'types/userType';
 import { CreateBeaconsRequestBody } from 'types/beaconType';
 
 export const createBeaconsApi =
-  ({ accessToken }: { accessToken?: User['accessToken'] }) =>
+  () =>
   ({
     meetingId,
     ...payload
@@ -12,7 +11,6 @@ export const createBeaconsApi =
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(payload),
     });

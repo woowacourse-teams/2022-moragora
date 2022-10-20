@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { css } from '@emotion/react';
-import * as S from './MeetingCreatePage.styled';
 import Input from 'components/@shared/Input';
 import MemberAddInput from 'components/MemberAddInput';
 import InputHint from 'components/@shared/InputHint';
@@ -12,16 +11,15 @@ import useGeolocation from 'hooks/useGeolocation';
 import useKakaoMap from 'hooks/useKakaoMap';
 import BeaconItem from 'components/BeaconItem';
 import { UserQueryWithKeywordResponse } from 'types/userType';
-import { userContext, UserContextValues } from 'contexts/userContext';
 import { createMeetingApi } from 'apis/meetingApis';
 import { createBeaconsApi } from 'apis/beaconApis';
 import DialogButton from 'components/@shared/DialogButton';
+import * as S from './MeetingCreatePage.styled';
 
 const MAX_SELECTED_USER_COUNT = 30;
 
 const MeetingCreatePage = () => {
   const navigate = useNavigate();
-  const { accessToken } = useContext(userContext) as UserContextValues;
   const { errors, isSubmitting, onSubmit, register } = useForm();
   const {
     queryResult,
@@ -47,7 +45,7 @@ const MeetingCreatePage = () => {
   } = useKakaoMap();
   const mapOverlayRef = useRef<HTMLDivElement>(null);
 
-  const beaconCreateMutation = useMutation(createBeaconsApi({ accessToken }), {
+  const beaconCreateMutation = useMutation(createBeaconsApi(), {
     onSuccess: () => {
       alert('모임 생성을 완료했습니다.');
       navigate(`/meeting/${meetingIdRef.current}`);
@@ -57,7 +55,7 @@ const MeetingCreatePage = () => {
     },
   });
 
-  const meetingCreateMutation = useMutation(createMeetingApi({ accessToken }), {
+  const meetingCreateMutation = useMutation(createMeetingApi, {
     onSuccess: ({ body: { id } }) => {
       meetingIdRef.current = id;
       beaconCreateMutation.mutate({
@@ -90,9 +88,7 @@ const MeetingCreatePage = () => {
       userIds,
     };
 
-    meetingCreateMutation.mutate({
-      formDataObject,
-    });
+    meetingCreateMutation.mutate(formDataObject);
   };
 
   useEffect(() => {

@@ -1,13 +1,12 @@
-import * as S from './AttendanceSection.styled';
 import { getAttendancesApi } from 'apis/userApis';
 import React, { useContext } from 'react';
-import { userContext, UserContextValues } from 'contexts/userContext';
 import useQuery from 'hooks/useQuery';
 import { MeetingListResponseBody } from 'types/meetingType';
 import Spinner from 'components/@shared/Spinner';
 import { css } from '@emotion/react';
 import UserItem from 'components/UserItem';
 import emptyInboxSVG from 'assets/empty-inbox.svg';
+import * as S from './AttendanceSection.styled';
 
 type AttendanceSectionProps = {
   currentMeeting: MeetingListResponseBody['meetings'][0];
@@ -16,11 +15,12 @@ type AttendanceSectionProps = {
 const AttendanceSection: React.FC<AttendanceSectionProps> = ({
   currentMeeting,
 }) => {
-  const { accessToken } = useContext(userContext) as UserContextValues;
-
   const attendancesQuery = useQuery(
-    ['attendances', currentMeeting.id],
-    getAttendancesApi(accessToken, currentMeeting.id)
+    ['attendances'],
+    getAttendancesApi(currentMeeting.id),
+    {
+      enabled: false,
+    }
   );
 
   if (attendancesQuery.isLoading) {

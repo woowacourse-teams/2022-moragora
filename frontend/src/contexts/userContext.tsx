@@ -1,13 +1,15 @@
 import React, { createContext, useState } from 'react';
-import { getLoginUserDataApi } from 'apis/userApis';
+import { getLoginUserDataApi, logoutApi } from 'apis/userApis';
 import useQuery from 'hooks/useQuery';
 import { User } from 'types/userType';
+import useMutation from 'hooks/useMutation';
 
 type UserContextData = Omit<User, 'password'>;
 
 export type UserContextValues = {
-  user: UserContextData | null;
-  accessToken: User['accessToken'];
+  user: Omit<UserContextData, 'accessToken'> | null;
+  accessToken: UserContextData['accessToken'];
+  updateAccessToken: (token: UserContextData['accessToken']) => void;
   getLoginUserData: () => Promise<void>;
   login: (
     user: NonNullable<Omit<UserContextData, 'accessToken'>>,
@@ -22,41 +24,45 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
   const [user, setUser] = useState<UserContextValues['user']>(null);
-  const [accessToken, setAccessToken] = useState<
-    UserContextData['accessToken']
-  >(localStorage.getItem('accessToken'));
+  const [accessToken, setAccessToken] =
+    useState<UserContextValues['accessToken']>(null);
 
   const login: UserContextValues['login'] = (user, accessToken) => {
-    localStorage.setItem('accessToken', accessToken);
-    setUser({ ...user, accessToken });
-    setAccessToken(localStorage.getItem('accessToken'));
+    setUser({ ...user });
+    setAccessToken(accessToken);
   };
 
   const logout = () => {
-    localStorage.removeItem('accessToken');
-    setUser(null);
-    setAccessToken(null);
+    logoutMutation.mutate({});
   };
 
-  const getUserDataQuery = useQuery(
-    ['loginUserData'],
-    getLoginUserDataApi(accessToken),
-    {
-      enabled: !!accessToken,
-      refetchOnMount: false,
-      onSuccess: ({ body }) => {
-        if (accessToken) {
-          login(body, accessToken);
-        }
-      },
-    }
-  );
+  const updateAccessToken: UserContextValues['updateAccessToken'] = (token) => {
+    setAccessToken(token);
+  };
+
+  const logoutMutation = useMutation(logoutApi, {
+    onSuccess: () => {
+      setUser(null);
+      setAccessToken(null);
+    },
+  });
+
+  const getUserDataQuery = useQuery(['loginUserData'], getLoginUserDataApi(), {
+    enabled: !!accessToken,
+    refetchOnMount: false,
+    onSuccess: ({ body }) => {
+      if (accessToken) {
+        login(body, accessToken);
+      }
+    },
+  });
 
   return (
     <userContext.Provider
       value={{
         user,
         accessToken,
+        updateAccessToken,
         getLoginUserData: getUserDataQuery.refetch,
         login,
         logout,

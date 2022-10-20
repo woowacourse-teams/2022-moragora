@@ -1,10 +1,10 @@
 import { rest } from 'msw';
-import CalendarPage from '.';
 import Header from 'components/layouts/Header';
 import { CalendarProvider } from 'contexts/calendarContext';
 import AppLayout from 'components/layouts/AppLayout';
 import Footer from 'components/layouts/Footer';
 import Body from 'components/layouts/Body';
+import CalendarPage from '.';
 
 export default {
   title: 'Pages/CalendarPage',

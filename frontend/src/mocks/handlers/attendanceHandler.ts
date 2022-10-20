@@ -4,7 +4,7 @@ import meetings from 'mocks/fixtures/meetings';
 import beacons from 'mocks/fixtures/beacons';
 import { Beacon } from 'types/beaconType';
 import { DELAY } from 'mocks/configs';
-import { extractIdFromHeader } from 'mocks/utils';
+import { checkExpiredToken, extractIdFromHeader } from 'mocks/utils';
 import { Attendance } from 'types/attendanceType';
 import { User } from 'types/userType';
 
@@ -24,8 +24,18 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' }),
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          }),
           ctx.delay(DELAY)
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -77,8 +87,18 @@ export default [
       if (!token.isValidToken || token.id !== Number(userId)) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' }),
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          }),
           ctx.delay(DELAY)
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 

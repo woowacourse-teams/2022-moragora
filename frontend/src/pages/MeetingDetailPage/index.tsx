@@ -1,43 +1,39 @@
-import { useContext, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Navigate, Outlet, useParams } from 'react-router-dom';
-import * as S from './MeetingDetailPage.styled';
 import useQuery from 'hooks/useQuery';
 import { getUpcomingEventApi } from 'apis/eventApis';
 import { getMeetingData } from 'apis/meetingApis';
-import { userContext, UserContextValues } from 'contexts/userContext';
 import ReloadButton from 'components/@shared/ReloadButton';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import Spinner from 'components/@shared/Spinner';
+import * as S from './MeetingDetailPage.styled';
 
 const MeetingDetailPage = () => {
   const { id } = useParams();
 
   if (!id) {
-    return <Navigate to={'/error'} />;
+    return <Navigate to="/error" />;
   }
 
-  const { accessToken } = useContext(userContext) as UserContextValues;
   const [totalTardyCount, setTotalTardyCount] = useState(0);
   const [upcomingEventNotExist, setUpcomingEventNotExist] = useState(false);
 
-  const meetingQuery = useQuery(['meeting'], getMeetingData(id, accessToken), {
+  const meetingQuery = useQuery(['meeting'], getMeetingData(id), {
     onSuccess: ({ body: { users } }) => {
-      const totalTardyCount = users.reduce(
-        (total, user) => total + user.tardyCount,
-        0
+      setTotalTardyCount(
+        users.reduce((total, user) => total + user.tardyCount, 0)
       );
-      setTotalTardyCount(totalTardyCount);
     },
   });
 
   const upcomingEventQuery = useQuery(
     ['upcomingEvent'],
-    getUpcomingEventApi(id, accessToken),
+    getUpcomingEventApi(id),
     {
       enabled: meetingQuery.isSuccess,
       onError: (error) => {
         setUpcomingEventNotExist(
-          parseInt(error.message.split(': ')[0]) === 404
+          parseInt(error.message.split(': ')[0], 10) === 404
         );
       },
     }
@@ -84,13 +80,13 @@ const MeetingDetailPage = () => {
       <S.Layout>
         <S.TabNavBox>
           <S.TabNav>
-            <S.TabNavLink to={'coffee-stack'} ref={bindTabRef('coffee-stack')}>
+            <S.TabNavLink to="coffee-stack" ref={bindTabRef('coffee-stack')}>
               커피스택
             </S.TabNavLink>
-            <S.TabNavLink to={'calendar'} ref={bindTabRef('calendar')}>
+            <S.TabNavLink to="calendar" ref={bindTabRef('calendar')}>
               일정
             </S.TabNavLink>
-            <S.TabNavLink to={'config'} ref={bindTabRef('config')}>
+            <S.TabNavLink to="config" ref={bindTabRef('config')}>
               설정
             </S.TabNavLink>
             <S.IndicatorBox tabPositions={tabPositionMap()}>
@@ -125,13 +121,13 @@ const MeetingDetailPage = () => {
     <S.Layout>
       <S.TabNavBox>
         <S.TabNav>
-          <S.TabNavLink to={'coffee-stack'} ref={bindTabRef('coffee-stack')}>
+          <S.TabNavLink to="coffee-stack" ref={bindTabRef('coffee-stack')}>
             커피스택
           </S.TabNavLink>
-          <S.TabNavLink to={'calendar'} ref={bindTabRef('calendar')}>
+          <S.TabNavLink to="calendar" ref={bindTabRef('calendar')}>
             일정
           </S.TabNavLink>
-          <S.TabNavLink to={'config'} ref={bindTabRef('config')}>
+          <S.TabNavLink to="config" ref={bindTabRef('config')}>
             설정
           </S.TabNavLink>
           <S.IndicatorBox tabPositions={tabPositionMap()}>
