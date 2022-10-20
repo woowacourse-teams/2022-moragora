@@ -553,24 +553,7 @@ class MeetingControllerTest extends ControllerTest {
                         .value("비콘 주소는 50자를 초과할 수 없습니다."));
     }
 
-    @DisplayName("비콘 등록시 비콘의 최소 반경 미만일 경우 예외를 반환한다.")
-    @Test
-    void attendWithBeaconBase_throwsException_ifUnderBeaconMinRadius() throws Exception {
-        // given
-        final BeaconRequest beaconRequest = new BeaconRequest("잠실나루", 37.0, 127.0, 10);
-        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
-        validateToken("1");
-
-        // when
-        final ResultActions resultActions = performPost("/meetings/1/beacons", beaconsRequest);
-
-        // then
-        resultActions.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message")
-                        .value("비콘의 반경은 최소 50m 이상이어야 합니다."));
-    }
-
-    @DisplayName("비콘 등록시 위도가 91을 초과할 경우 예외를 반환한다.")
+    @DisplayName("비콘 등록시 위도가 90을 초과할 경우 예외를 반환한다.")
     @Test
     void attendWithBeaconBase_throwsException_ifExceedLatitudeMax() throws Exception {
         // given

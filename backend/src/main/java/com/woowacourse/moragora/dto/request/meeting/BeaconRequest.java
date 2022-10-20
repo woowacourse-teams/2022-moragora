@@ -30,7 +30,6 @@ public class BeaconRequest {
     @Range(max = 180, min = -180, message = "경도는 +180(서경)에서 -180(동경)사이의 숫자를 넘길 수 없습니다")
     private Double longitude;
 
-    @Min(value = 50, message = "비콘의 반경은 최소 " + MAX_ADDRESS_LENGTH + "m 이상이어야 합니다.")
     private Integer radius;
 
     @Builder
