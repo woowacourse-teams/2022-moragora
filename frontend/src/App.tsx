@@ -1,6 +1,5 @@
 import { useContext } from 'react';
 import Router from 'router';
-import * as S from './App.styled';
 import AppLayout from 'components/layouts/AppLayout';
 import Header from 'components/layouts/Header';
 import Footer from 'components/layouts/Footer';
@@ -13,6 +12,7 @@ import { getLoginUserDataApi, accessTokenRefreshApi } from 'apis/userApis';
 import useInterceptor from 'hooks/useInterceptor';
 import { TokenStatus } from 'types/userType';
 import { queryClient } from 'contexts/queryClient';
+import * as S from './App.styled';
 
 const App = () => {
   const userState = useContext(userContext) as UserContextValues;
@@ -39,11 +39,12 @@ const App = () => {
 
           if (body.tokenStatus === TokenStatus['expired']) {
             refreshQuery.refetch();
-            return;
           }
 
           break;
         }
+        default:
+          break;
       }
     },
   });

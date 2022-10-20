@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Navigate, useOutletContext, useParams } from 'react-router-dom';
-import * as S from './CoffeeStackPage.styled';
 import DivideLine from 'components/@shared/DivideLine';
 import CoffeeStackItem from 'components/CoffeeStackItem';
 import ModalPortal from 'components/ModalPortal';
@@ -10,12 +9,13 @@ import { getMeetingData, postEmptyCoffeeStackApi } from 'apis/meetingApis';
 import useMutation from 'hooks/useMutation';
 import { getUpcomingEventApi } from 'apis/eventApis';
 import { QueryState } from 'types/queryType';
+import * as S from './CoffeeStackPage.styled';
 
 const CoffeeStackPage = () => {
   const { id } = useParams();
 
   if (!id) {
-    return <Navigate to={'/error'} />;
+    return <Navigate to="/error" />;
   }
 
   const [isModalOpened, setIsModalOpened] = useState(false);

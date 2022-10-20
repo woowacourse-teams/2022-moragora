@@ -1,5 +1,4 @@
 import React, { useContext, useEffect } from 'react';
-import * as S from './LoginPage.styled';
 import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
 import { userContext, UserContextValues } from 'contexts/userContext';
@@ -9,6 +8,7 @@ import Button from 'components/@shared/Button';
 import { UserLoginRequestBody } from 'types/userType';
 import { googleLoginApi, submitLoginApi } from 'apis/userApis';
 import GoogleLoginButton from 'components/GoogleLoginButton';
+import * as S from './LoginPage.styled';
 
 const LoginPage = () => {
   const userState = useContext(userContext) as UserContextValues;

@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { Navigate, useOutletContext, useParams } from 'react-router-dom';
 import { css } from '@emotion/react';
-import * as S from './CalendarPage.styled';
 import Button from 'components/@shared/Button';
 import Calendar from 'components/@shared/Calendar';
 import DialogButton from 'components/@shared/DialogButton';
@@ -22,6 +21,7 @@ import Spinner from 'components/@shared/Spinner';
 import { QueryState } from 'types/queryType';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import { MeetingEvent } from 'types/eventType';
+import * as S from './CalendarPage.styled';
 
 const CalendarPage = () => {
   const { id: meetingId } = useParams();
@@ -29,6 +29,16 @@ const CalendarPage = () => {
   if (!meetingId) {
     return <Navigate to="/error" />;
   }
+
+  const {
+    events,
+    selectedDates,
+    clearSelectedDates,
+    updateEvents,
+    setSavedEvents,
+  } = useContext(CalendarContext);
+
+  const { values, errors, onSubmit, register } = useForm();
 
   const { meetingQuery } = useOutletContext<{
     meetingQuery: QueryState<typeof getMeetingData>;
@@ -67,16 +77,7 @@ const CalendarPage = () => {
     },
   });
 
-  const {
-    events,
-    selectedDates,
-    clearSelectedDates,
-    updateEvents,
-    setSavedEvents,
-  } = useContext(CalendarContext);
-  const { values, errors, onSubmit, register } = useForm();
-
-  const handleupdateEventsSubmit: React.FormEventHandler<HTMLFormElement> = ({
+  const handleUpdateEventsSubmit: React.FormEventHandler<HTMLFormElement> = ({
     currentTarget,
   }) => {
     const formData = new FormData(currentTarget);
@@ -109,25 +110,21 @@ const CalendarPage = () => {
 
   if (eventsQuery.isLoading) {
     return (
-      <>
-        <S.Layout>
-          <S.SpinnerBox>
-            <Spinner />
-          </S.SpinnerBox>
-        </S.Layout>
-      </>
+      <S.Layout>
+        <S.SpinnerBox>
+          <Spinner />
+        </S.SpinnerBox>
+      </S.Layout>
     );
   }
 
   if (eventsQuery.isError) {
     return (
-      <>
-        <S.Layout>
-          <S.SpinnerBox>
-            <ErrorIcon />
-          </S.SpinnerBox>
-        </S.Layout>
-      </>
+      <S.Layout>
+        <S.SpinnerBox>
+          <ErrorIcon />
+        </S.SpinnerBox>
+      </S.Layout>
     );
   }
 
@@ -140,7 +137,7 @@ const CalendarPage = () => {
         <S.CalenderControlBox>
           <S.Form
             id="add-events-form"
-            {...onSubmit(handleupdateEventsSubmit)}
+            {...onSubmit(handleUpdateEventsSubmit)}
             css={css`
               padding: 0 0.75rem;
             `}

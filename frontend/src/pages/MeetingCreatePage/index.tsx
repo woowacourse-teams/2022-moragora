@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { css } from '@emotion/react';
-import * as S from './MeetingCreatePage.styled';
 import Input from 'components/@shared/Input';
 import MemberAddInput from 'components/MemberAddInput';
 import InputHint from 'components/@shared/InputHint';
@@ -15,6 +14,7 @@ import { UserQueryWithKeywordResponse } from 'types/userType';
 import { createMeetingApi } from 'apis/meetingApis';
 import { createBeaconsApi } from 'apis/beaconApis';
 import DialogButton from 'components/@shared/DialogButton';
+import * as S from './MeetingCreatePage.styled';
 
 const MAX_SELECTED_USER_COUNT = 30;
 

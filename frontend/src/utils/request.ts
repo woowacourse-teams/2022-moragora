@@ -5,7 +5,7 @@ export const interceptor: Interceptor = {
   onRequest: (url, options, accessToken) => ({ url, options }),
   onSuccess: (response) => {},
   onError: (response, body) => {},
-  set: function ({ onRequest, onSuccess, onError }) {
+  set({ onRequest, onSuccess, onError }) {
     if (onRequest) this.onRequest = onRequest;
     if (onSuccess) this.onSuccess = onSuccess;
     if (onError) this.onError = onError;

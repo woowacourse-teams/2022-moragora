@@ -39,6 +39,15 @@ export const postVerifyCodeAPi = (payload: EmailCodeVerifyRequestBody) =>
     credentials: 'include',
   });
 
+export const submitLoginApi = async (payload: UserLoginRequestBody) =>
+  request<UserLoginResponseBody>('/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
 export const submitRegisterApi = async (payload: UserRegisterRequestBody) => {
   await request<{ accessToken: string }>('/users', {
     method: 'POST',
@@ -53,15 +62,6 @@ export const submitRegisterApi = async (payload: UserRegisterRequestBody) => {
 
   return submitLoginApi(loginRequestBody);
 };
-
-export const submitLoginApi = async (payload: UserLoginRequestBody) =>
-  request<UserLoginResponseBody>('/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
 
 export const googleLoginApi = async ({ code }: GoogleLoginRequestBody) =>
   request<UserLoginResponseBody>(`/login/oauth2/google?code=${code}`, {
@@ -118,6 +118,15 @@ export const postUserGeolocationAttendanceApi =
     );
   };
 
+export const getLoginUserDataApi = () => async () => {
+  return request<GetLoginUserDataResponseBody>('/users/me', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+};
+
 export const getUserCoffeeStatsApi = (id: string | undefined) => async () => {
   return request<UserCoffeeStatsResponseBody>(`/meetings/${id}/coffees/use`, {
     method: 'GET',
@@ -169,7 +178,7 @@ export const accessTokenRefreshApi = () =>
     credentials: 'include',
   });
 
-export const logoutApi = ({}) =>
+export const logoutApi = () =>
   request(`/token/logout`, {
     method: 'POST',
     headers: {

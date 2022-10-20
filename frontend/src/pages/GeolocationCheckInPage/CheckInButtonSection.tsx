@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import Button from 'components/@shared/Button';
-import * as S from './CheckInButtonSection.styled';
 import useQuery from 'hooks/useQuery';
 import {
   getAttendancesApi,
@@ -9,6 +8,7 @@ import {
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { MeetingListResponseBody } from 'types/meetingType';
 import useMutation from 'hooks/useMutation';
+import * as S from './CheckInButtonSection.styled';
 
 type CheckInButtonSectionProps = React.HTMLAttributes<HTMLDivElement> & {
   meeting: MeetingListResponseBody['meetings'][0];

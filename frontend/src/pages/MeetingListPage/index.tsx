@@ -1,6 +1,5 @@
 import { useContext, useEffect } from 'react';
 import { css } from '@emotion/react';
-import * as S from './MeetingListPage.styled';
 import MeetingItem from 'components/MeetingItem';
 import MeetingItemSkeleton from 'components/MeetingItemSkeleton';
 import CoffeeStackItem from 'components/CoffeeStackItem';
@@ -13,6 +12,7 @@ import NoSearchResultIconSVG from 'assets/NoSearchResult.svg';
 import { getMeetingListApi } from 'apis/meetingApis';
 import { getServerTime } from 'apis/common';
 import { userContext, UserContextValues } from 'contexts/userContext';
+import * as S from './MeetingListPage.styled';
 
 const MeetingListPage = () => {
   const userState = useContext(userContext) as UserContextValues;

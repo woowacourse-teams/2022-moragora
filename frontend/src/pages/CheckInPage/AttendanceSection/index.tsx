@@ -1,4 +1,3 @@
-import * as S from './AttendanceSection.styled';
 import { getAttendancesApi } from 'apis/userApis';
 import React, { useContext } from 'react';
 import useQuery from 'hooks/useQuery';
@@ -7,6 +6,7 @@ import Spinner from 'components/@shared/Spinner';
 import { css } from '@emotion/react';
 import UserItem from 'components/UserItem';
 import emptyInboxSVG from 'assets/empty-inbox.svg';
+import * as S from './AttendanceSection.styled';
 
 type AttendanceSectionProps = {
   currentMeeting: MeetingListResponseBody['meetings'][0];

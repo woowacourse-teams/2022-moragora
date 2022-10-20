@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import * as S from './MasterAssignSection.styled';
 import ModalPortal from 'components/ModalPortal';
 import ModalWindow from 'components/@shared/ModalWindow';
 import { useOutletContext } from 'react-router-dom';
@@ -9,6 +8,7 @@ import { getUpcomingEventApi } from 'apis/eventApis';
 import { ArrayElement } from 'types/utilityType';
 import { MeetingResponseBody } from 'types/meetingType';
 import useMutation from 'hooks/useMutation';
+import * as S from './MasterAssignSection.styled';
 
 type SelectedParticipant = ArrayElement<MeetingResponseBody['users']>;
 

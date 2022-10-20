@@ -1,5 +1,4 @@
 import React from 'react';
-import * as S from './PasswordUpdatePage.styled';
 import useForm from 'hooks/useForm';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
@@ -7,6 +6,7 @@ import Button from 'components/@shared/Button';
 import useMutation from 'hooks/useMutation';
 import { updatePasswordApi } from 'apis/userApis';
 import { UserUpdatePasswordRequestBody } from 'types/userType';
+import * as S from './PasswordUpdatePage.styled';
 
 const PasswordUpdatePage = () => {
   const { errors, onSubmit, register, isSubmitting } = useForm();

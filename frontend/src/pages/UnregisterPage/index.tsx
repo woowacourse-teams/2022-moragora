@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import * as S from './UnregisterPage.styled';
 import useForm from 'hooks/useForm';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
@@ -7,6 +6,7 @@ import Button from 'components/@shared/Button';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import useMutation from 'hooks/useMutation';
 import { unregisterApi } from 'apis/userApis';
+import * as S from './UnregisterPage.styled';
 
 const UnregisterPage = () => {
   const userState = useContext(userContext) as UserContextValues;

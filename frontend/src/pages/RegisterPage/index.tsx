@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react';
-import * as S from './RegisterPage.styled';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
 import Button from 'components/@shared/Button';
@@ -10,6 +9,7 @@ import { UserRegisterRequestBody } from 'types/userType';
 import { postEmailSendApi, submitRegisterApi } from 'apis/userApis';
 import ModalPortal from 'components/ModalPortal';
 import EmailConfirmModal from 'components/EmailConfirmModal';
+import * as S from './RegisterPage.styled';
 
 const RegisterPage = () => {
   const userState = useContext(userContext);

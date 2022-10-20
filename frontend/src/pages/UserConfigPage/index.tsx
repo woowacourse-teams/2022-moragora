@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import * as S from './UserConfigPage.styled';
 import Avatar from 'components/@shared/Avatar';
 import MenuLink from 'components/@shared/MenuLink';
 import NicknameInput from 'components/NicknameInput';
@@ -7,6 +6,7 @@ import { userContext, UserContextValues } from 'contexts/userContext';
 import useMutation from 'hooks/useMutation';
 import { updateNicknameApi } from 'apis/userApis';
 import { AuthProvider } from 'types/userType';
+import * as S from './UserConfigPage.styled';
 
 const UserConfigPage = () => {
   const initialRendering = useRef(true);

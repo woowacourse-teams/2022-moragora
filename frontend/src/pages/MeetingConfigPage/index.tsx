@@ -6,7 +6,6 @@ import {
   useParams,
 } from 'react-router-dom';
 import { css } from '@emotion/react';
-import * as S from './MeetingConfigPage.styled';
 import Button from 'components/@shared/Button';
 import Input from 'components/@shared/Input';
 import useForm from 'hooks/useForm';
@@ -19,9 +18,10 @@ import {
 } from 'apis/meetingApis';
 import { getUpcomingEventApi } from 'apis/eventApis';
 import { QueryState } from 'types/queryType';
-import MasterAssignSection from './MasterAssignSection';
 import InputHint from 'components/@shared/InputHint';
 import { MeetingNameUpdateRequestBody } from 'types/meetingType';
+import MasterAssignSection from './MasterAssignSection';
+import * as S from './MeetingConfigPage.styled';
 
 const MeetingConfigPage = () => {
   const navigate = useNavigate();

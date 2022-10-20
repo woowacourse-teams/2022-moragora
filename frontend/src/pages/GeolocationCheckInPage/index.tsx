@@ -1,6 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
-import * as S from './GeolocationCheckInPage.styled';
-import { userContext, UserContextValues } from 'contexts/userContext';
+import { useEffect, useRef, useState } from 'react';
 import { getMeetingListApi } from 'apis/meetingApis';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
@@ -10,8 +8,9 @@ import { MeetingListResponseBody } from 'types/meetingType';
 import emptyInboxSVG from 'assets/empty-inbox.svg';
 import useGeolocation from 'hooks/useGeolocation';
 import useKakaoMap from 'hooks/useKakaoMap';
-import CheckInButtonSection from './CheckInButtonSection';
 import CheckMeetingItem from 'components/CheckMeetingItem';
+import CheckInButtonSection from './CheckInButtonSection';
+import * as S from './GeolocationCheckInPage.styled';
 
 const GeolocationCheckInPage = () => {
   const [currentMeeting, setCurrentMeeting] = useState<
