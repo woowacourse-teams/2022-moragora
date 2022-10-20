@@ -34,11 +34,11 @@ public class RefreshTokenProvider {
     }
 
     public Optional<RefreshToken> findRefreshToken(final String key) {
-        return refreshTokenRepository.findByUuid(key);
+        return refreshTokenRepository.findById(key);
     }
 
     @Transactional
     public void remove(final String oldToken) {
-        refreshTokenRepository.deleteByUuid(oldToken);
+        refreshTokenRepository.deleteById(oldToken);
     }
 }
