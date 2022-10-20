@@ -15,7 +15,7 @@ class RefreshTokenRepositoryTest {
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
-    @DisplayName("Refresh token을 DB에 저장한다.")
+    @DisplayName("Refresh token을 저장한다.")
     @Test
     void save() {
         // given
@@ -28,7 +28,7 @@ class RefreshTokenRepositoryTest {
         assertThat(savedRefreshToken).isNotNull();
     }
 
-    @DisplayName("Refresh token을 DB에서 찾아온다.")
+    @DisplayName("Refresh token을 찾아온다.")
     @Test
     void findByValue() {
         // given
@@ -44,7 +44,7 @@ class RefreshTokenRepositoryTest {
                 .isEqualTo(savedRefreshToken);
     }
 
-    @DisplayName("Refresh token을 DB에서 삭제한다.")
+    @DisplayName("Refresh token을 삭제한다.")
     @Test
     void deleteByValue() {
         // given
