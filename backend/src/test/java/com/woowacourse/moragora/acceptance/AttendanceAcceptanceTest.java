@@ -1,7 +1,6 @@
 package com.woowacourse.moragora.acceptance;
 
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT1;
-import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT2;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT_WITHOUT_DATE;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.FORKY;
@@ -12,7 +11,6 @@ import static com.woowacourse.moragora.support.fixture.UserFixtures.PHILLZ;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.SUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.createUsers;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
@@ -180,7 +178,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         final UserAttendanceRequest userAttendanceRequest = new UserAttendanceRequest(true);
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 1);
-        
+
         given(serverTimeManager.getDate())
                 .willReturn(dateTime.toLocalDate());
         given(serverTimeManager.getDateAndTime())
@@ -293,7 +291,7 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
                 .body("userCoffeeStats.find{it.id == " + userIds.get(6) + "}.coffeeCount", equalTo(1));
     }
 
-    @DisplayName("위치 기반으로 출석을 해서 성공할 경우 204를 반환한다.")
+    @DisplayName("위치 기반으로 출석을 해서 성공할 경우 출석 상태 PRESENT로 변경한다")
     @Test
     void attendWithBeaconBase_ifAttendSuccess() {
         // given
@@ -319,8 +317,10 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
         post(beaconUri, beaconsRequest, masterToken);
 
         // when
-        final GeolocationAttendanceRequest geoLocationAttendanceRequest = new GeolocationAttendanceRequest(37.5154, 127.1031);
-        final String attendanceUri = String.format("/meetings/%d/users/%d/attendances/today/geolocation", meetingId, userId);
+        final GeolocationAttendanceRequest geoLocationAttendanceRequest =
+                new GeolocationAttendanceRequest(37.5154, 127.1031);
+        final String attendanceUri =
+                String.format("/meetings/%d/users/%d/attendances/today/geolocation", meetingId, userId);
         final ValidatableResponse response = post(attendanceUri, geoLocationAttendanceRequest, token);
 
         // then
@@ -355,7 +355,8 @@ class AttendanceAcceptanceTest extends AcceptanceTest {
 
         // when
         final var attendanceRequest = new GeolocationAttendanceRequest(37.5138, 127.1012); // 잠실역 8번
-        final String attendanceUri = String.format("/meetings/%d/users/%d/attendances/today/geolocation", meetingId, userId);
+        final String attendanceUri = String.format("/meetings/%d/users/%d/attendances/today/geolocation", meetingId,
+                userId);
         final ValidatableResponse response = post(attendanceUri, attendanceRequest, token);
 
         // then

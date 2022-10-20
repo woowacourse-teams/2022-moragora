@@ -13,7 +13,7 @@ public class GeolocationAttendanceRequest {
     private double latitude;
     private double longitude;
 
-    public GeolocationAttendanceRequest(final Double latitude, final Double longitude) {
+    public GeolocationAttendanceRequest(final double latitude, final double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
     }

@@ -4,7 +4,6 @@ import static com.woowacourse.moragora.constant.ValidationMessages.MISSING_REQUI
 
 import com.woowacourse.moragora.domain.geolocation.Beacon;
 import com.woowacourse.moragora.domain.meeting.Meeting;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import lombok.Builder;

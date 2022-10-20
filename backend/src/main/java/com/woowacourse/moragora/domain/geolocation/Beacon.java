@@ -30,11 +30,10 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Beacon {
 
-    private static final double TO_RADIAN = Math.PI / 180.0;
-    private static final double TO_DEGREE = 180.0 / Math.PI;
     public static final int EARTH_RADIUS = 6371;
     public static final int TO_KILO_METER = 1_000;
-
+    private static final double TO_RADIAN = Math.PI / 180.0;
+    private static final double TO_DEGREE = 180.0 / Math.PI;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Include
@@ -42,13 +41,19 @@ public class Beacon {
 
     private String address;
 
-    /** 위도 */
-    private Double latitude;
+    /**
+     * 위도
+     */
+    private double latitude;
 
-    /** 경도 */
-    private Double longitude;
+    /**
+     * 경도
+     */
+    private double longitude;
 
-    /** 비콘의 반직경 :: 출석을 할 수 있는 범위를 나타냄 */
+    /**
+     * 비콘의 반직경 :: 출석을 할 수 있는 범위를 나타냄
+     */
     private Integer radius;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -58,8 +63,8 @@ public class Beacon {
     @Builder
     public Beacon(final Long id,
                   final String address,
-                  final Double latitude,
-                  final Double longitude,
+                  final double latitude,
+                  final double longitude,
                   final Integer radius,
                   final Meeting meeting) {
         this.id = id;
@@ -70,19 +75,11 @@ public class Beacon {
         this.meeting = meeting;
     }
 
-    public Beacon(final String address, final Double latitude, final Double longitude, final Integer radius) {
+    public Beacon(final String address, final double latitude, final double longitude, final Integer radius) {
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
         this.radius = radius;
-    }
-
-    /**
-     * 좌표 계산할 때 타겟이 되는 포지션에 주로 이 생성자를 사용하게 될 것
-     */
-    public Beacon(final Double latitude, final Double longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
     }
 
     /**
@@ -110,5 +107,9 @@ public class Beacon {
 
     public boolean isInRadius(final Beacon other) {
         return calculateDistance(other) <= radius;
+    }
+
+    public void mapMeeting(final Meeting meeting) {
+        this.meeting = meeting;
     }
 }
