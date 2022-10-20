@@ -46,10 +46,7 @@ public class EmbeddedRedisConfig {
         log.info("### OS ARCH ### = {} ", System.getProperty("os.arch"));
         log.info("### OS NAME ### = {} ", System.getProperty("os.name"));
 
-        return (Objects.equals(System.getProperty("os.arch"), "aarch64") &&
-                Objects.equals(System.getProperty("os.name"), "Mac OS X")) ||
-                (Objects.equals(System.getProperty("os.arch"), "arm64") &&
-                        Objects.equals(System.getProperty("os.name"), "Ubuntu 22.04.1 LTS"));
+        return Objects.equals(System.getProperty("os.arch"), "aarch64");
     }
 
     private File getRedisFileForArcMac() {
