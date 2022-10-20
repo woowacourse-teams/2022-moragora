@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.ReflectionUtils;
 import redis.embedded.RedisServer;
 
 @Profile("local")
@@ -29,19 +31,21 @@ public class EmbeddedRedisConfig {
 
 
     @PostConstruct
-    public void redisServer() throws IOException {
+    public void redisServer() throws IOException, IllegalAccessException {
         int availablePort = isRedisRunning() ? findAvailablePort() : redisPort;
 
-        if (isArm()) {
-            final File redisFileForArmArch = getRedisFileForArmArch();
-            log.info(redisFileForArmArch.getName());
+//        if (isArm()) {
+        final File redisFileForArmArch = getRedisFileForArmArch();
+        log.info(redisFileForArmArch.getName());
 
-            redisServer = new RedisServer(Objects.requireNonNull(redisFileForArmArch), availablePort);
-            log.info(redisServer.toString());
-        }
-        if (!isArm()) {
-            redisServer = new RedisServer(availablePort);
-        }
+        redisServer = new RedisServer(Objects.requireNonNull(redisFileForArmArch), availablePort);
+        final Field args = ReflectionUtils.findField(redisServer.getClass().getSuperclass(), "args");
+        args.setAccessible(true);
+        log.error("\n#######################\n############\n {}", args.get(redisServer).toString());
+//        }
+//        if (!isArm()) {
+//            redisServer = new RedisServer(availablePort);
+//        }
 
         redisServer.start();
     }
