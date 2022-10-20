@@ -8,6 +8,7 @@ import com.woowacourse.moragora.dto.response.attendance.AttendancesResponse;
 import com.woowacourse.moragora.dto.response.meeting.CoffeeStatsResponse;
 import com.woowacourse.moragora.presentation.auth.Authentication;
 import com.woowacourse.moragora.presentation.auth.AuthenticationPrincipal;
+import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,7 +62,7 @@ public class AttendanceController {
     @PostMapping("/users/{userId}/attendances/today/geolocation")
     public ResponseEntity<Void> attendWithBeaconBase(@PathVariable final Long meetingId,
                                                      @PathVariable final Long userId,
-                                                     @RequestBody final GeolocationAttendanceRequest geoAttendanceRequest) {
+                                                     @RequestBody @Valid final GeolocationAttendanceRequest geoAttendanceRequest) {
         attendanceService.attendWithGeoLocation(meetingId, userId, geoAttendanceRequest);
         return ResponseEntity.noContent().build();
     }
