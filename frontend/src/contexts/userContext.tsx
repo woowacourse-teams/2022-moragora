@@ -2,6 +2,7 @@ import React, { createContext, useState } from 'react';
 import { getLoginUserDataApi, logoutApi } from 'apis/userApis';
 import useQuery from 'hooks/useQuery';
 import { User } from 'types/userType';
+import useMutation from 'hooks/useMutation';
 
 type UserContextData = Omit<User, 'password'>;
 
@@ -31,15 +32,20 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
     setAccessToken(accessToken);
   };
 
-  const logout = async () => {
-    await logoutApi();
-    setUser(null);
-    setAccessToken(null);
+  const logout = () => {
+    logoutMutation.mutate({});
   };
 
   const updateAccessToken: UserContextValues['updateAccessToken'] = (token) => {
     setAccessToken(token);
   };
+
+  const logoutMutation = useMutation(logoutApi, {
+    onSuccess: () => {
+      setUser(null);
+      setAccessToken(null);
+    },
+  });
 
   const getUserDataQuery = useQuery(
     ['loginUserData'],
