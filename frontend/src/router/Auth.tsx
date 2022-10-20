@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { userContext, UserContextValues } from 'contexts/userContext';
 
@@ -7,14 +7,22 @@ type AuthProps = { shouldLogin: boolean };
 const Auth: React.FC<AuthProps> = ({ shouldLogin }) => {
   const navigate = useNavigate();
   const userState = useContext(userContext) as UserContextValues;
+  const initialized = useRef(true);
+  const initialPath = useRef(window.location.pathname);
 
   useEffect(() => {
     if (shouldLogin && !userState.accessToken) {
+      console.log('login');
       navigate('/login');
     }
 
     if (!shouldLogin && userState.accessToken) {
-      navigate('/');
+      if (initialized.current) {
+        navigate(initialPath.current);
+      } else {
+        initialized.current = false;
+        navigate('/');
+      }
     }
   }, [navigate, userState]);
 

@@ -55,23 +55,27 @@ const App = () => {
     },
   });
 
-  useQuery(['loginUserData'], getLoginUserDataApi(), {
-    enabled: !!userState.accessToken,
-    onSuccess: ({ body }) => {
-      if (userState.accessToken) {
-        userState.login(body, userState.accessToken);
-      }
-    },
-    onError: (error) => {
-      const statusCode = error.message.split(': ')[0];
+  const getLoginUserDataQuery = useQuery(
+    ['loginUserData'],
+    getLoginUserDataApi(),
+    {
+      enabled: !!userState.accessToken,
+      onSuccess: ({ body }) => {
+        if (userState.accessToken) {
+          userState.login(body, userState.accessToken);
+        }
+      },
+      onError: (error) => {
+        const statusCode = error.message.split(': ')[0];
 
-      if (statusCode === '404') {
-        userState.logout();
-      }
-    },
-  });
+        if (statusCode === '404') {
+          userState.logout();
+        }
+      },
+    }
+  );
 
-  if (refreshQuery.isLoading) {
+  if (getLoginUserDataQuery.isLoading) {
     return (
       <AppLayout>
         <Body>
