@@ -131,8 +131,8 @@ class MeetingTest {
         final Meeting meeting = new Meeting(1L, "체크메이트");
         final User user1 = new User(1L, "sun@gmail.com", fromRawValue("asdf1234!"), "sun", GOOGLE);
         final User user2 = new User(2L, "kun@gmail.com", fromRawValue("asdf1234!"), "kun", GOOGLE);
-        final Participant participant1 = new Participant(user1, meeting, true);
-        final Participant participant2 = new Participant(user2, meeting, false);
+        final Participant participant1 = new Participant(1L, user1, meeting, true);
+        final Participant participant2 = new Participant(2L, user2, meeting, false);
         participant1.mapMeeting(meeting);
         participant2.mapMeeting(meeting);
         participant1.allocateTardyCount(1L);
@@ -152,8 +152,8 @@ class MeetingTest {
         final Meeting meeting = new Meeting(1L, "체크메이트");
         final User user1 = new User(1L, "sun@gmail.com", fromRawValue("asdf1234!"), "sun", GOOGLE);
         final User user2 = new User(2L, "kun@gmail.com", fromRawValue("asdf1234!"), "kun", GOOGLE);
-        final Participant participant1 = new Participant(user1, meeting, true);
-        final Participant participant2 = new Participant(user2, meeting, false);
+        final Participant participant1 = new Participant(1L, user1, meeting, true);
+        final Participant participant2 = new Participant(2L, user2, meeting, false);
         participant1.mapMeeting(meeting);
         participant2.mapMeeting(meeting);
         participant1.allocateTardyCount(5L);

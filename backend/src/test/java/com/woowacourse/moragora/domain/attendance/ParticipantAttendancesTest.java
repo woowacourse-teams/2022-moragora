@@ -24,8 +24,8 @@ class ParticipantAttendancesTest {
         final User user1 = UserFixtures.KUN.create();
         final User user2 = UserFixtures.AZPI.create();
         final Meeting meeting = MeetingFixtures.MORAGORA.create();
-        final Participant participant1 = new Participant(user1, meeting, false);
-        final Participant participant2 = new Participant(user2, meeting, false);
+        final Participant participant1 = new Participant(1L, user1, meeting, false);
+        final Participant participant2 = new Participant(2L, user2, meeting, false);
         final Event event1 = EventFixtures.EVENT1.create(meeting);
         final Attendance attendance1 = new Attendance(Status.TARDY, false, participant1, event1);
         final Attendance attendance2 = new Attendance(Status.TARDY, false, participant2, event1);
