@@ -2,29 +2,62 @@ package com.woowacourse.moragora.config;
 
 import io.micrometer.core.instrument.util.StringUtils;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.ClassPathResource;
 import redis.embedded.RedisServer;
 
 @Profile("local")
 @Configuration
 public class EmbeddedRedisConfig {
 
+    private static final Logger log = LoggerFactory.getLogger(EmbeddedRedisConfig.class);
+
     private RedisServer redisServer;
 
     @Value("${spring.redis.port}")
     private int redisPort;
 
+
     @PostConstruct
     public void redisServer() throws IOException {
-        int port = isRedisRunning() ? findAvailablePort() : redisPort;
-        redisServer = new RedisServer(port);
+        int availablePort = isRedisRunning() ? findAvailablePort() : redisPort;
+
+        if (isArm()) {
+            redisServer = new RedisServer(Objects.requireNonNull(getRedisFileForArcMac()), availablePort);
+        }
+        if (!isArm()) {
+            redisServer = new RedisServer(availablePort);
+        }
+
         redisServer.start();
+    }
+
+    private boolean isArm() {
+        log.info("### OS ARCH ### = {} ", System.getProperty("os.arch"));
+        log.info("### OS NAME ### = {} ", System.getProperty("os.name"));
+
+        return (Objects.equals(System.getProperty("os.arch"), "aarch64") &&
+                Objects.equals(System.getProperty("os.name"), "Mac OS X")) ||
+                (Objects.equals(System.getProperty("os.arch"), "arm64") &&
+                        Objects.equals(System.getProperty("os.name"), "Ubuntu 22.04.1 LTS"));
+    }
+
+    private File getRedisFileForArcMac() {
+        try {
+            return new ClassPathResource("binary/redis/redis-server-6.2.5-mac-arm64").getFile();
+        } catch (Exception e) {
+            throw new RuntimeException("Embedded Redis 설정에 실패했습니다.");
+        }
     }
 
     @PreDestroy
