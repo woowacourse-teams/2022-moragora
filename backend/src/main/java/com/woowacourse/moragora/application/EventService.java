@@ -65,8 +65,8 @@ public class EventService {
 
     private List<Event> findExistingEvents(final EventsRequest request, final Long meetingId) {
         final List<LocalDate> datesToSearch = request.getEvents().stream()
-                .map(EventRequest::getDate).
-                collect(Collectors.toList());
+                .map(EventRequest::getDate)
+                .collect(Collectors.toList());
         return eventRepository.findByMeetingIdAndDateIn(meetingId, datesToSearch);
     }
 
@@ -79,7 +79,9 @@ public class EventService {
     }
 
     private void updateEvent(final List<Event> requestEvents, final List<Event> existingEvents) {
-        for (Event existingEvent : existingEvents) {
+        for (final Event existingEvent : existingEvents) {
+            validateTodayEventChangeable(existingEvent);
+
             final Optional<Event> searchedEvent = requestEvents.stream()
                     .filter(it -> it.isSameDate(existingEvent))
                     .findAny();
@@ -102,7 +104,7 @@ public class EventService {
 
     public EventResponse findUpcomingEvent(final Long meetingId) {
         final Event event = eventRepository.findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(
-                        meetingId, serverTimeManager.getDate())
+                meetingId, serverTimeManager.getDate())
                 .orElseThrow(EventNotFoundException::new);
 
         final LocalTime entranceTime = event.getStartTime();
@@ -176,5 +178,12 @@ public class EventService {
                 throw new ClientRuntimeException("과거의 일정을 생성할 수 없습니다.", HttpStatus.BAD_REQUEST);
             }
         });
+    }
+
+    private void validateTodayEventChangeable(final Event existingEvent) {
+        if (existingEvent.isSameDate(serverTimeManager.getDate())
+                && serverTimeManager.isAfter(existingEvent.getStartTime())) {
+            throw new ClientRuntimeException("일정이 시작된 후에는 변경할 수 없습니다.", HttpStatus.BAD_REQUEST);
+        }
     }
 }

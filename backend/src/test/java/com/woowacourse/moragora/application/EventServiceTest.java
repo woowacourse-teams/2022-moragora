@@ -153,7 +153,7 @@ class EventServiceTest {
                 .hasMessage("하루에 복수의 일정을 생성할 수 없습니다.");
     }
 
-    @DisplayName("오늘의 이벤트 생성 시, 이벤트 시작 시간이 현재 시간 이후일 경우 예외가 발생한다.")
+    @DisplayName("오늘의 이벤트 생성 시, 이벤트 시작 시간이 현재 시간 이전일 경우 예외가 발생한다.")
     @Test
     void save_throwsException_ifTodayEventStartTimeIsAfterNow() {
         // given
@@ -176,6 +176,44 @@ class EventServiceTest {
         assertThatThrownBy(() -> eventService.save(eventsRequest, meeting.getId()))
                 .isInstanceOf(ClientRuntimeException.class)
                 .hasMessage("과거의 일정을 생성할 수 없습니다.");
+    }
+
+    @DisplayName("일정이 시작된 이벤트를 수정 시 예외가 발생한다.")
+    @Test
+    void update_throwsException_ifTodayEventIsAlreadyStart() {
+        // given
+        final LocalDate date = LocalDate.of(2022, 8, 1);
+        final LocalTime time = LocalTime.of(9, 59);
+        final LocalDateTime now = LocalDateTime.of(date, time);
+        serverTimeManager.refresh(now);
+
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final Event event = EVENT1.create(meeting);
+        final EventsRequest eventsRequest = new EventsRequest(List.of(
+                EventRequest.builder()
+                        .meetingStartTime(event.getStartTime())
+                        .meetingEndTime(event.getEndTime())
+                        .date(event.getDate())
+                        .build()
+        ));
+        eventService.save(eventsRequest, meeting.getId());
+
+        final LocalTime afterOpenTime = LocalTime.of(10, 2);
+        serverTimeManager.refresh(LocalDateTime.of(date, afterOpenTime));
+
+        // when
+        final EventsRequest eventsRequestForUpdate = new EventsRequest(List.of(
+                EventRequest.builder()
+                        .meetingStartTime(event.getStartTime().plusMinutes(30))
+                        .meetingEndTime(event.getEndTime())
+                        .date(event.getDate())
+                        .build()
+        ));
+
+        // then
+        assertThatThrownBy(() -> eventService.save(eventsRequestForUpdate, meeting.getId()))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("일정이 시작된 후에는 변경할 수 없습니다.");
     }
 
 
