@@ -15,6 +15,9 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.response
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
+import com.woowacourse.moragora.dto.request.meeting.BeaconsRequest;
+import com.woowacourse.moragora.dto.request.meeting.GeolocationAttendanceRequest;
 import com.woowacourse.moragora.dto.request.user.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.response.attendance.AttendanceResponse;
 import com.woowacourse.moragora.dto.response.attendance.AttendancesResponse;
@@ -237,5 +240,37 @@ class AttendanceControllerTest extends ControllerTest {
                                 fieldWithPath("message").type(JsonFieldType.STRING)
                                         .description("오늘의 일정이 존재하지 않아 출석부를 조회할 수 없습니다.")
                         )));
+    }
+
+    @DisplayName("위치 기반 출석 요청시 위도는 90.1을 초과할 경우 예외를 반환한다.")
+    @Test
+    void attendWithBeaconBase_throwsException_ifExceedLatitudeMax() throws Exception {
+        // given
+        final GeolocationAttendanceRequest geoAttendanceRequest = new GeolocationAttendanceRequest(90.1, 127.0);
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/1/users/1/attendances/today/geolocation", geoAttendanceRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("위도는 +90(북위)에서 -90(남위)사이의 숫자를 넘길 수 없습니다"));
+    }
+
+    @DisplayName("위치 기반 출석 요청시 경도가 180.1을 초과할 경우 예외를 반환한다.")
+    @Test
+    void attendWithBeaconBase_throwsException_ifExceedLongitudeMax() throws Exception {
+        // given
+        final GeolocationAttendanceRequest geoAttendanceRequest = new GeolocationAttendanceRequest(37.0, 180.1);
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/1/users/1/attendances/today/geolocation", geoAttendanceRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("경도는 +180(서경)에서 -180(동경)사이의 숫자를 넘길 수 없습니다"));
     }
 }

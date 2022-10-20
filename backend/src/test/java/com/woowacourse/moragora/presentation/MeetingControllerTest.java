@@ -24,6 +24,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.woowacourse.moragora.domain.meeting.Meeting;
+import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
+import com.woowacourse.moragora.dto.request.meeting.BeaconsRequest;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
@@ -50,6 +52,9 @@ import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 class MeetingControllerTest extends ControllerTest {
+
+    private static final String LENGTH_50_LETTER =
+            "1abcdefghi" + "2abcdefghi" + "3abcdefghi" + "4abcdefghi" + "5abcdefghi";
 
     @DisplayName("미팅 방을 생성한다.")
     @Test
@@ -508,6 +513,78 @@ class MeetingControllerTest extends ControllerTest {
         // when, then
         performDelete("/meetings/1")
                 .andExpect(status().isForbidden());
+    }
+
+    /**
+     * 위치 기반 서비스
+     */
+    @DisplayName("비콘 등록시 주소가 비어있을 경우 예외를 반환한다.")
+    @Test
+    void attendWithBeaconBase_throwsException_ifEmptyAddress() throws Exception {
+        // given
+        final BeaconRequest beaconRequest = new BeaconRequest("", 37.0, 127.0, 100);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/1/beacons", beaconsRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("필수 입력 값이 누락됐습니다."));
+    }
+
+    @DisplayName("비콘 등록시 주소 길이가 50자를 넘으면 예외를 반환한다.")
+    @Test
+    void attendWithBeaconBase_throwsException_ifExceedAddressLength() throws Exception {
+        // given
+        final String exceed50LengthLetter = LENGTH_50_LETTER + "a";
+        final BeaconRequest beaconRequest = new BeaconRequest(exceed50LengthLetter, 37.0, 127.0, 100);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/1/beacons", beaconsRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("비콘 주소는 50자를 초과할 수 없습니다."));
+    }
+
+    @DisplayName("비콘 등록시 위도가 90을 초과할 경우 예외를 반환한다.")
+    @Test
+    void attendWithBeaconBase_throwsException_ifExceedLatitudeMax() throws Exception {
+        // given
+        final BeaconRequest beaconRequest = new BeaconRequest("잠실나루", 90.1, 127.0, 100);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/1/beacons", beaconsRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("위도는 +90(북위)에서 -90(남위)사이의 숫자를 넘길 수 없습니다"));
+    }
+
+    @DisplayName("비콘 등록시 동경이 180을 초과할 경우 예외를 반환한다.")
+    @Test
+    void attendWithBeaconBase_throwsException_ifExceedLongitudeMax() throws Exception {
+        // given
+        final BeaconRequest beaconRequest = new BeaconRequest("잠실나루", 37.0, 180.1, 100);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+        validateToken("1");
+
+        // when
+        final ResultActions resultActions = performPost("/meetings/1/beacons", beaconsRequest);
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message")
+                        .value("경도는 +180(서경)에서 -180(동경)사이의 숫자를 넘길 수 없습니다"));
     }
 
     @DisplayName("미팅이 체크인 활성화 상태인지 확인한다.")
