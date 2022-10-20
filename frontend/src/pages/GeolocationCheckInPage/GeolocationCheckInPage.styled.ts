@@ -96,15 +96,15 @@ export const EmptyStateParagraph = styled.p`
 export const MapSection = styled.section`
   width: 100%;
   height: auto;
-  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 0.75rem;
   overflow: hidden;
   margin-bottom: 1rem;
 `;
 
 export const Map = styled.div`
+  position: relative;
   width: 100%;
   height: 400px;
 `;
@@ -146,4 +146,19 @@ export const MapUserMarker = styled.svg`
     visibility: hidden;
     opacity: 0;
   }
+`;
+
+export const GeolocationUpdatedTimeParagraph = styled.p`
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.75rem;
+  color: ${({ theme: { colors } }) => colors['white']};
+  backdrop-filter: brightness(60%);
+  z-index: ${({ theme: { zIndex } }) => zIndex['slightly-float']};
+`;
+
+export const GeolocationUpdatedTimeSpan = styled.span`
+  color: ${({ theme: { colors } }) => colors['white']};
 `;

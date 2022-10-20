@@ -36,7 +36,8 @@ const MeetingCreatePage = () => {
   });
   const meetingIdRef = useRef<number | null>(null);
   const isParticipantSelected = selectedItems.length > 0;
-  const { currentPosition, isLoading } = useGeolocation();
+  const { currentPosition, isLoading, permissionState, requestPermission } =
+    useGeolocation();
   const {
     mapContainerRef,
     beacons,

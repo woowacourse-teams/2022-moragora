@@ -11,11 +11,12 @@ const useGeolocation = ({
   options,
   onWatchSuccess,
 }: Partial<GeolocationOptions> = {}) => {
+  const [permissionState, setPermissionState] = useState<PermissionState>();
   const [currentPosition, setCurrentPosition] = useState<
     GeolocationPosition | undefined
   >(defaultPosition);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | GeolocationPositionError>();
+  const [error, setError] = useState<GeolocationPositionError>();
   const watchId = useRef<ReturnType<Geolocation['watchPosition']>>();
 
   const clearWatch = () => {
@@ -26,14 +27,31 @@ const useGeolocation = ({
     navigator.geolocation.clearWatch(watchId.current);
   };
 
+  const requestPermission = () =>
+    new Promise<void>((resolve, reject) => {
+      navigator.permissions
+        .query({ name: 'geolocation' })
+        .then((result) => {
+          setPermissionState(result.state);
+
+          result.addEventListener('change', () => {
+            setPermissionState(result.state);
+          });
+
+          resolve();
+        })
+        .catch((reason) => {
+          reject(reason);
+        });
+    });
+
   const handleGetSuccess: PositionCallback = (position) => {
     setCurrentPosition(position);
-
     setIsLoading(false);
   };
 
   const handleGetError: PositionErrorCallback = (positionError) => {
-    throw positionError;
+    setError(positionError);
   };
 
   const handleWatchSuccess: PositionCallback = (position) => {
@@ -42,41 +60,53 @@ const useGeolocation = ({
   };
 
   const handleWatchError: PositionErrorCallback = (positionError) => {
-    throw positionError;
+    setError(positionError);
   };
 
   useEffect(() => {
     setIsLoading(true);
     clearWatch();
-
-    try {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          handleGetSuccess,
-          handleGetError,
-          options
-        );
-
-        if (onWatchSuccess) {
-          navigator.geolocation.watchPosition(
-            handleWatchSuccess,
-            handleWatchError,
+    requestPermission()
+      .then(() => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            handleGetSuccess,
+            handleGetError,
             options
           );
-        }
-      } else {
-        throw new Error('GEOLOCATION_NOT_AVAILABLE');
-      }
-    } catch (err) {
-      if ((err as typeof error)?.message) {
-        setError(err as typeof error);
-      }
 
-      setIsLoading(false);
-    }
+          if (onWatchSuccess) {
+            navigator.geolocation.watchPosition(
+              handleWatchSuccess,
+              handleWatchError,
+              options
+            );
+          }
+        } else {
+          throw new Error('GEOLOCATION_NOT_AVAILABLE');
+        }
+      })
+      .catch((reason) => {
+        if ((reason as typeof error)?.code) {
+          if ((reason as typeof error)?.code === 1) {
+            setPermissionState('denied');
+          }
+
+          setError(reason as typeof error);
+        }
+
+        setIsLoading(false);
+      });
   }, [navigator.geolocation]);
 
-  return { currentPosition, isLoading, error, clearWatch };
+  return {
+    currentPosition,
+    isLoading,
+    error,
+    permissionState,
+    clearWatch,
+    requestPermission,
+  };
 };
 
 export default useGeolocation;

@@ -5,13 +5,13 @@ import { getMeetingListApi } from 'apis/meetingApis';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import ReloadButton from 'components/@shared/ReloadButton';
-import CheckMeetingItem from 'components/CheckMeetingItem';
 import useQuery from 'hooks/useQuery';
 import { MeetingListResponseBody } from 'types/meetingType';
 import emptyInboxSVG from 'assets/empty-inbox.svg';
 import useGeolocation from 'hooks/useGeolocation';
 import useKakaoMap from 'hooks/useKakaoMap';
 import CheckInButtonSection from './CheckInButtonSection';
+import CheckMeetingItem from 'components/CheckMeetingItem';
 
 const GeolocationCheckInPage = () => {
   const [currentMeeting, setCurrentMeeting] = useState<
@@ -19,14 +19,12 @@ const GeolocationCheckInPage = () => {
   >(null);
   const { accessToken } = useContext(userContext) as UserContextValues;
   const { mapContainerRef, setControllable, panTo } = useKakaoMap();
-  const { isLoading, currentPosition } = useGeolocation({
+  const { isLoading, currentPosition, permissionState } = useGeolocation({
+    options: {
+      enableHighAccuracy: true,
+    },
     onWatchSuccess: (position) => {
       panTo(position.coords.latitude, position.coords.longitude);
-      console.log(
-        'pan to',
-        position.coords.latitude,
-        position.coords.longitude
-      );
     },
   });
   const mapOverlayRef = useRef<HTMLDivElement>(null);
@@ -80,6 +78,19 @@ const GeolocationCheckInPage = () => {
     currentPosition,
   ]);
 
+  if (permissionState !== 'granted') {
+    return (
+      <S.Layout>
+        <S.EmptyStateBox>
+          <S.EmptyStateTitle>위치 정보를 사용할 수 없어요.</S.EmptyStateTitle>
+          <S.EmptyStateParagraph>
+            브라우저의 위치 정보 접근 권한을 확인해주세요.
+          </S.EmptyStateParagraph>
+        </S.EmptyStateBox>
+      </S.Layout>
+    );
+  }
+
   if (meetingListQuery.isLoading) {
     return (
       <S.Layout>
@@ -123,6 +134,22 @@ const GeolocationCheckInPage = () => {
           <S.MapOverlay ref={mapOverlayRef} className="loading">
             Loading...
           </S.MapOverlay>
+          {currentPosition && (
+            <S.GeolocationUpdatedTimeParagraph className="loading">
+              <S.GeolocationUpdatedTimeSpan>
+                {new Date(currentPosition.timestamp).toLocaleTimeString(
+                  undefined,
+                  {
+                    hourCycle: 'h24',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                  }
+                )}
+              </S.GeolocationUpdatedTimeSpan>
+              에 업데이트 됨
+            </S.GeolocationUpdatedTimeParagraph>
+          )}
           <S.MapUserMarker
             ref={mapUserMarkerRef}
             width="2rem"

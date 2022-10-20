@@ -20,10 +20,7 @@ const AttendanceSection: React.FC<AttendanceSectionProps> = ({
 
   const attendancesQuery = useQuery(
     ['attendances', currentMeeting.id],
-    getAttendancesApi(accessToken, currentMeeting.id),
-    {
-      enabled: false,
-    }
+    getAttendancesApi(accessToken, currentMeeting.id)
   );
 
   if (attendancesQuery.isLoading) {
