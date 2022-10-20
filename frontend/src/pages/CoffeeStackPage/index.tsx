@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { Navigate, useOutletContext, useParams } from 'react-router-dom';
 import * as S from './CoffeeStackPage.styled';
 import DivideLine from 'components/@shared/DivideLine';
@@ -6,7 +6,6 @@ import CoffeeStackItem from 'components/CoffeeStackItem';
 import ModalPortal from 'components/ModalPortal';
 import CoffeeStackModal from 'components/CoffeeStackModal';
 import CoffeeStackProgress from 'components/CoffeeStackProgress';
-import { userContext, UserContextValues } from 'contexts/userContext';
 import { getMeetingData, postEmptyCoffeeStackApi } from 'apis/meetingApis';
 import useMutation from 'hooks/useMutation';
 import { getUpcomingEventApi } from 'apis/eventApis';
@@ -14,7 +13,6 @@ import { QueryState } from 'types/queryType';
 
 const CoffeeStackPage = () => {
   const { id } = useParams();
-  const userState = useContext(userContext) as UserContextValues;
 
   if (!id) {
     return <Navigate to={'/error'} />;

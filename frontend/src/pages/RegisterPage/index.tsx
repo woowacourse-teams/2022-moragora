@@ -43,8 +43,8 @@ const RegisterPage = () => {
   });
 
   const registerMutation = useMutation(submitRegisterApi, {
-    onSuccess: ({ body: userData, accessToken }) => {
-      userState?.login(userData, accessToken);
+    onSuccess: ({ body: { accessToken } }) => {
+      userState?.updateAccessToken(accessToken);
     },
     onError: () => {
       alert('회원가입을 실패했습니다.');

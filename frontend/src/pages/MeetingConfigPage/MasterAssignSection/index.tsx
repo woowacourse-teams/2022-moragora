@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import * as S from './MasterAssignSection.styled';
 import ModalPortal from 'components/ModalPortal';
 import ModalWindow from 'components/@shared/ModalWindow';
@@ -9,12 +9,10 @@ import { getUpcomingEventApi } from 'apis/eventApis';
 import { ArrayElement } from 'types/utilityType';
 import { MeetingResponseBody } from 'types/meetingType';
 import useMutation from 'hooks/useMutation';
-import { userContext, UserContextValues } from 'contexts/userContext';
 
 type SelectedParticipant = ArrayElement<MeetingResponseBody['users']>;
 
 const MasterAssignSection = () => {
-  const userState = useContext(userContext) as UserContextValues;
   const [isDropdownOpened, setIsDropdownOpened] = useState(false);
   const [isModalOpened, setIsModalOpened] = useState(false);
   const { meetingQuery } = useOutletContext<{

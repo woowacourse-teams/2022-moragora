@@ -1,10 +1,9 @@
-import { useContext, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Navigate, Outlet, useParams } from 'react-router-dom';
 import * as S from './MeetingDetailPage.styled';
 import useQuery from 'hooks/useQuery';
 import { getUpcomingEventApi } from 'apis/eventApis';
 import { getMeetingData } from 'apis/meetingApis';
-import { userContext, UserContextValues } from 'contexts/userContext';
 import ReloadButton from 'components/@shared/ReloadButton';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import Spinner from 'components/@shared/Spinner';
@@ -16,7 +15,6 @@ const MeetingDetailPage = () => {
     return <Navigate to={'/error'} />;
   }
 
-  const userState = useContext(userContext) as UserContextValues;
   const [totalTardyCount, setTotalTardyCount] = useState(0);
   const [upcomingEventNotExist, setUpcomingEventNotExist] = useState(false);
 

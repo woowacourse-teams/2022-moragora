@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import * as S from './CheckInPage.styled';
 import { getMeetingListApi } from 'apis/meetingApis';
 import Spinner from 'components/@shared/Spinner';
@@ -9,12 +9,15 @@ import useQuery from 'hooks/useQuery';
 import { MeetingListResponseBody } from 'types/meetingType';
 import emptyInboxSVG from 'assets/empty-inbox.svg';
 import AttendanceSection from './AttendanceSection';
+import { userContext, UserContextValues } from 'contexts/userContext';
 
 const CheckInPage = () => {
+  const userState = useContext(userContext) as UserContextValues;
   const [currentMeeting, setCurrentMeeting] =
     useState<MeetingListResponseBody['meetings'][0]>();
 
   const meetingListQuery = useQuery(['meetingList'], getMeetingListApi(), {
+    enabled: !!userState.accessToken,
     onSuccess: ({ body: { meetings } }) => {
       const activeMeeting = meetings.find((meeting) => meeting.isActive);
 

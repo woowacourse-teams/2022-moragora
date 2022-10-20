@@ -7,7 +7,6 @@ import Calendar from 'components/@shared/Calendar';
 import DialogButton from 'components/@shared/DialogButton';
 import Input from 'components/@shared/Input';
 import { CalendarContext } from 'contexts/calendarContext';
-import { userContext, UserContextValues } from 'contexts/userContext';
 import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
 import useQuery from 'hooks/useQuery';
@@ -26,7 +25,6 @@ import { MeetingEvent } from 'types/eventType';
 
 const CalendarPage = () => {
   const { id: meetingId } = useParams();
-  const userState = useContext(userContext) as UserContextValues;
 
   if (!meetingId) {
     return <Navigate to="/error" />;
