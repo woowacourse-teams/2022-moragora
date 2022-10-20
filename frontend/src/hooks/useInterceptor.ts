@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { interceptor } from 'utils/request';
 import type {
   ErrorInterceptHandler,
@@ -20,6 +20,7 @@ const useInterceptor = ({
   onError,
 }: Partial<UseInterceptor>) => {
   useEffect(() => {
+    console.log(accessToken);
     if (accessToken !== undefined) {
       interceptor.accessToken = accessToken;
     }

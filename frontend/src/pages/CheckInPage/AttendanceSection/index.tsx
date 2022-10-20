@@ -1,7 +1,6 @@
 import * as S from './AttendanceSection.styled';
 import { getAttendancesApi } from 'apis/userApis';
 import React, { useContext } from 'react';
-import { userContext, UserContextValues } from 'contexts/userContext';
 import useQuery from 'hooks/useQuery';
 import { MeetingListResponseBody } from 'types/meetingType';
 import Spinner from 'components/@shared/Spinner';
@@ -16,11 +15,12 @@ type AttendanceSectionProps = {
 const AttendanceSection: React.FC<AttendanceSectionProps> = ({
   currentMeeting,
 }) => {
-  const userState = useContext(userContext) as UserContextValues;
-
   const attendancesQuery = useQuery(
-    ['attendances', currentMeeting.id],
-    getAttendancesApi(accessToken, currentMeeting.id)
+    ['attendances'],
+    getAttendancesApi(currentMeeting.id),
+    {
+      enabled: false,
+    }
   );
 
   if (attendancesQuery.isLoading) {

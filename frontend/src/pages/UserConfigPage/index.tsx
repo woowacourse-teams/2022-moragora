@@ -14,22 +14,19 @@ const UserConfigPage = () => {
   const [nickname, setNickname] = useState(
     userState.user?.nickname ?? 'unknown'
   );
-  const nicknameUpdateMutation = useMutation(
-    updateNicknameApi(userState.user?.accessToken ?? ''),
-    {
-      onMutate: ({ nickname }) => {
-        setNickname(nickname);
-      },
-      onError: (e) => {
-        setNickname(userState.user?.nickname ?? 'unknown');
-        alert(e);
-      },
-      onSuccess: () => {
-        userState.getLoginUserData();
-        alert('닉네임이 변경되었습니다.');
-      },
-    }
-  );
+  const nicknameUpdateMutation = useMutation(updateNicknameApi(), {
+    onMutate: ({ nickname }) => {
+      setNickname(nickname);
+    },
+    onError: (e) => {
+      setNickname(userState.user?.nickname ?? 'unknown');
+      alert(e);
+    },
+    onSuccess: () => {
+      userState.getLoginUserData();
+      alert('닉네임이 변경되었습니다.');
+    },
+  });
 
   useEffect(() => {
     // 최초로 렌더링할 때 userContext가 로드되기까지 기다린 후 nickname을 업데이트한다.

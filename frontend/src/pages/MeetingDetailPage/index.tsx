@@ -20,23 +20,19 @@ const MeetingDetailPage = () => {
   const [totalTardyCount, setTotalTardyCount] = useState(0);
   const [upcomingEventNotExist, setUpcomingEventNotExist] = useState(false);
 
-  const meetingQuery = useQuery(
-    ['meeting'],
-    getMeetingData(id, userState.accessToken),
-    {
-      onSuccess: ({ body: { users } }) => {
-        const totalTardyCount = users.reduce(
-          (total, user) => total + user.tardyCount,
-          0
-        );
-        setTotalTardyCount(totalTardyCount);
-      },
-    }
-  );
+  const meetingQuery = useQuery(['meeting'], getMeetingData(id), {
+    onSuccess: ({ body: { users } }) => {
+      const totalTardyCount = users.reduce(
+        (total, user) => total + user.tardyCount,
+        0
+      );
+      setTotalTardyCount(totalTardyCount);
+    },
+  });
 
   const upcomingEventQuery = useQuery(
     ['upcomingEvent'],
-    getUpcomingEventApi(id, userState.accessToken),
+    getUpcomingEventApi(id),
     {
       enabled: meetingQuery.isSuccess,
       onError: (error) => {

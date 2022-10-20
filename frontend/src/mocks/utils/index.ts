@@ -14,7 +14,7 @@ const extractExpiredTimestampFromRefreshToken = (token: string) =>
 
 export const generateAccessToken = (id: number) => {
   const timer = new Date();
-  timer.setMinutes(timer.getMinutes() + 5);
+  timer.setMinutes(timer.getMinutes() + 1);
   const expiredTimestamp = timer.getTime();
 
   return `${TOKEN_PREFIX}_${id}_${expiredTimestamp}`;

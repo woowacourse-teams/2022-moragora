@@ -28,10 +28,7 @@ const MasterAssignSection = () => {
     useState<SelectedParticipant>();
 
   const masterAssignMutation = useMutation(
-    assignMasterApi(
-      meetingQuery.data?.body.id as number,
-      userState.accessToken
-    ),
+    assignMasterApi(meetingQuery.data?.body.id as number),
     {
       onSuccess: () => {
         meetingQuery.refetch();

@@ -39,45 +39,35 @@ const CalendarPage = () => {
     upcomingEventNotExist: boolean;
   }>();
 
-  const eventsQuery = useQuery(
-    ['events'],
-    getEventsApi(meetingId, userState.accessToken),
-    {
-      onSuccess: ({ body: { events } }) => {
-        setSavedEvents(events);
-      },
-      onError: (error) => {
-        alert(error.message);
-      },
-    }
-  );
+  const eventsQuery = useQuery(['events'], getEventsApi(meetingId), {
+    onSuccess: ({ body: { events } }) => {
+      setSavedEvents(events);
+    },
+    onError: (error) => {
+      alert(error.message);
+    },
+  });
 
-  const createEventsMutation = useMutation(
-    createEventsApi(meetingId, userState.accessToken),
-    {
-      onSuccess: () => {
-        eventsQuery.refetch();
-        alert('일정을 생성했습니다.');
-      },
-      onError: (error) => {
-        alert(error.message);
-      },
-    }
-  );
+  const createEventsMutation = useMutation(createEventsApi(meetingId), {
+    onSuccess: () => {
+      eventsQuery.refetch();
+      alert('일정을 생성했습니다.');
+    },
+    onError: (error) => {
+      alert(error.message);
+    },
+  });
 
-  const removeEventsMutation = useMutation(
-    deleteEventsApi(meetingId, userState.accessToken),
-    {
-      onSuccess: () => {
-        eventsQuery.refetch();
-        alert('일정을 삭제했습니다.');
-      },
-      onError: (error) => {
-        eventsQuery.refetch();
-        alert(error.message);
-      },
-    }
-  );
+  const removeEventsMutation = useMutation(deleteEventsApi(meetingId), {
+    onSuccess: () => {
+      eventsQuery.refetch();
+      alert('일정을 삭제했습니다.');
+    },
+    onError: (error) => {
+      eventsQuery.refetch();
+      alert(error.message);
+    },
+  });
 
   const {
     events,

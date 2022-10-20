@@ -41,7 +41,7 @@ const MeetingConfigPage = () => {
     upcomingEventNotExist: boolean;
   }>();
   const meetingNameUpdateMutation = useMutation(
-    updateMeetingNameApi(meetingId, userState.accessToken),
+    updateMeetingNameApi(meetingId),
     {
       onSuccess: () => {
         meetingQuery.refetch();
@@ -52,30 +52,24 @@ const MeetingConfigPage = () => {
       },
     }
   );
-  const meetingDeleteMutation = useMutation(
-    deleteMeetingApi(meetingId, userState.accessToken),
-    {
-      onSuccess: () => {
-        alert('모임이 삭제되었습니다.');
-        navigate('/');
-      },
-      onError: (e) => {
-        alert(e.message);
-      },
-    }
-  );
-  const meetingLeaveMutation = useMutation(
-    leaveMeetingApi(meetingId, userState.accessToken),
-    {
-      onSuccess: () => {
-        alert('모임을 나갔습니다.');
-        navigate('/');
-      },
-      onError: (e) => {
-        alert(e.message);
-      },
-    }
-  );
+  const meetingDeleteMutation = useMutation(deleteMeetingApi(meetingId), {
+    onSuccess: () => {
+      alert('모임이 삭제되었습니다.');
+      navigate('/');
+    },
+    onError: (e) => {
+      alert(e.message);
+    },
+  });
+  const meetingLeaveMutation = useMutation(leaveMeetingApi(meetingId), {
+    onSuccess: () => {
+      alert('모임을 나갔습니다.');
+      navigate('/');
+    },
+    onError: (e) => {
+      alert(e.message);
+    },
+  });
 
   const handleMeetingNameSubmitValid: React.FormEventHandler<
     HTMLFormElement

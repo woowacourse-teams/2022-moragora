@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import * as S from './PasswordUpdatePage.styled';
 import useForm from 'hooks/useForm';
 import Input from 'components/@shared/Input';
@@ -6,23 +6,18 @@ import InputHint from 'components/@shared/InputHint';
 import Button from 'components/@shared/Button';
 import useMutation from 'hooks/useMutation';
 import { updatePasswordApi } from 'apis/userApis';
-import { userContext, UserContextValues } from 'contexts/userContext';
 import { UserUpdatePasswordRequestBody } from 'types/userType';
 
 const PasswordUpdatePage = () => {
-  const userState = useContext(userContext) as UserContextValues;
   const { errors, onSubmit, register, isSubmitting } = useForm();
-  const passwordUpdateMutation = useMutation(
-    updatePasswordApi(userState.accessToken),
-    {
-      onSuccess: () => {
-        alert('비밀번호가 변경되었습니다.');
-      },
-      onError: (e) => {
-        alert(e);
-      },
-    }
-  );
+  const passwordUpdateMutation = useMutation(updatePasswordApi(), {
+    onSuccess: () => {
+      alert('비밀번호가 변경되었습니다.');
+    },
+    onError: (e) => {
+      alert(e);
+    },
+  });
 
   const handlePasswordSubmitValid: React.FormEventHandler<HTMLFormElement> = ({
     currentTarget,

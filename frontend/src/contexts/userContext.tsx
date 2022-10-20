@@ -47,19 +47,15 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
     },
   });
 
-  const getUserDataQuery = useQuery(
-    ['loginUserData'],
-    getLoginUserDataApi(accessToken),
-    {
-      enabled: !!accessToken,
-      refetchOnMount: false,
-      onSuccess: ({ body }) => {
-        if (accessToken) {
-          login(body, accessToken);
-        }
-      },
-    }
-  );
+  const getUserDataQuery = useQuery(['loginUserData'], getLoginUserDataApi(), {
+    enabled: !!accessToken,
+    refetchOnMount: false,
+    onSuccess: ({ body }) => {
+      if (accessToken) {
+        login(body, accessToken);
+      }
+    },
+  });
 
   return (
     <userContext.Provider

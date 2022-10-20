@@ -50,7 +50,6 @@ const CoffeeStackPage = () => {
   const handleConfirm = () => {
     emptyCoffeeStackMutation.mutate({
       id,
-      accessToken: userState.accessToken,
     });
   };
 

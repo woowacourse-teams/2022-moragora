@@ -22,17 +22,17 @@ const CheckInButtonSection = ({
   refetchMeetingList,
   ...props
 }: CheckInButtonSectionProps) => {
-  const { accessToken, user } = useContext(userContext) as UserContextValues;
+  const { user } = useContext(userContext) as UserContextValues;
   const attendancesQuery = useQuery(
     ['attendances', meeting.id],
-    getAttendancesApi(accessToken, meeting.id),
+    getAttendancesApi(meeting.id),
     {
       enabled: !!meeting,
     }
   );
 
   const geolocationCheckInMutation = useMutation(
-    postUserGeolocationAttendanceApi({ accessToken }),
+    postUserGeolocationAttendanceApi(),
     {
       onSuccess: () => {
         alert('출석에 성공했습니다.');

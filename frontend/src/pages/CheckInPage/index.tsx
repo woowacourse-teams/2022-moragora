@@ -1,6 +1,5 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import * as S from './CheckInPage.styled';
-import { userContext, UserContextValues } from 'contexts/userContext';
 import { getMeetingListApi } from 'apis/meetingApis';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
@@ -14,19 +13,14 @@ import AttendanceSection from './AttendanceSection';
 const CheckInPage = () => {
   const [currentMeeting, setCurrentMeeting] =
     useState<MeetingListResponseBody['meetings'][0]>();
-  const userState = useContext(userContext) as UserContextValues;
 
-  const meetingListQuery = useQuery(
-    ['meetingList'],
-    getMeetingListApi(userState.accessToken),
-    {
-      onSuccess: ({ body: { meetings } }) => {
-        const activeMeeting = meetings.find((meeting) => meeting.isActive);
+  const meetingListQuery = useQuery(['meetingList'], getMeetingListApi(), {
+    onSuccess: ({ body: { meetings } }) => {
+      const activeMeeting = meetings.find((meeting) => meeting.isActive);
 
-        setCurrentMeeting(activeMeeting ? activeMeeting : meetings[0]);
-      },
-    }
-  );
+      setCurrentMeeting(activeMeeting ? activeMeeting : meetings[0]);
+    },
+  });
 
   const handleMeetingItemClick = (
     meeting: MeetingListResponseBody['meetings'][0]

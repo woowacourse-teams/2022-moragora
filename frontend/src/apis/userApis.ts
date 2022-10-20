@@ -113,41 +113,26 @@ export const googleLoginApi = async ({ code }: GoogleLoginRequestBody) => {
   return { ...loginUserResponse, accessToken };
 };
 
-export const getAttendancesApi =
-  (accessToken: User['accessToken'], meetingId?: number) => () => {
-    if (!accessToken || !meetingId) {
-      throw new Error('출석 정보 요청 중 에러가 발생했습니다.');
-    }
-
-    return request<AttendancesResponseBody>(
-      `/meetings/${meetingId}/attendances/today`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-  };
+export const getAttendancesApi = (id: number | undefined) => () => {
+  return request<AttendancesResponseBody>(`/meetings/${id}/attendances/today`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+};
 
 export const postUserAttendanceApi = async ({
   meetingId,
   userId,
-  accessToken,
   isPresent,
 }: PostUserAttendanceRequestBody) => {
-  if (!accessToken) {
-    throw new Error('미팅 정보를 불러오는 중 에러가 발생했습니다.');
-  }
-
   return request<{}>(
     `/meetings/${meetingId}/users/${userId}/attendances/today`,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({ isPresent }),
     }
@@ -155,102 +140,62 @@ export const postUserAttendanceApi = async ({
 };
 
 export const postUserGeolocationAttendanceApi =
-  ({ accessToken }: { accessToken: User['accessToken'] }) =>
+  () =>
   async ({
     meetingId,
     userId,
     latitude,
     longitude,
   }: PostUserGeolocationAttendanceRequestBody) => {
-    if (!accessToken) {
-      throw new Error('미팅 정보를 불러오는 중 에러가 발생했습니다.');
-    }
-
     return request<{}>(
       `/meetings/${meetingId}/users/${userId}/attendances/today/geolocation`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ latitude, longitude }),
       }
     );
   };
 
-export const getLoginUserDataApi =
-  (accessToken: User['accessToken']) => async () => {
-    if (!accessToken) {
-      throw new Error('내 정보를 가져오는 중 에러가 발생했습니다.');
-    }
-
-    return request<GetLoginUserDataResponseBody>('/users/me', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-  };
-
-export const getUserCoffeeStatsApi =
-  (id: string | undefined, accessToken: User['accessToken']) => async () => {
-    if (!accessToken) {
-      throw new Error('유저별 커피정보를 불러오는 중 에러가 발생했습니다.');
-    }
-
-    return request<UserCoffeeStatsResponseBody>(`/meetings/${id}/coffees/use`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-  };
+export const getUserCoffeeStatsApi = (id: string | undefined) => async () => {
+  return request<UserCoffeeStatsResponseBody>(`/meetings/${id}/coffees/use`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+};
 
 export const updateNicknameApi =
-  (accessToken: User['accessToken']) =>
-  async (payload: UserUpdateNicknameRequestBody) => {
-    if (!accessToken) {
-      throw new Error('닉네임 변경 중 에러가 발생했습니다.');
-    }
-
+  () => async (payload: UserUpdateNicknameRequestBody) => {
     return request('/users/me/nickname', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(payload),
     });
   };
 
 export const updatePasswordApi =
-  (accessToken: User['accessToken']) =>
-  async (payload: UserUpdatePasswordRequestBody) => {
-    if (!accessToken) {
-      throw new Error('비밀번호 변경 중 에러가 발생했습니다.');
-    }
-
+  () => async (payload: UserUpdatePasswordRequestBody) => {
     return request('/users/me/password', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(payload),
     });
   };
 
 export const unregisterApi =
-  (accessToken: User['accessToken']) =>
-  async (payload: { password: User['password'] }) => {
+  () => async (payload: { password: User['password'] }) => {
     return request('/users/me', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(payload),
     });
