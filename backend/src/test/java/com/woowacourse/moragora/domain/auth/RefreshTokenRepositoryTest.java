@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +14,6 @@ class RefreshTokenRepositoryTest {
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
-
-    @AfterEach
-    void tearDown() {
-        refreshTokenRepository.deleteAll();
-    }
 
     @DisplayName("Refresh token을 DB에 저장한다.")
     @Test
