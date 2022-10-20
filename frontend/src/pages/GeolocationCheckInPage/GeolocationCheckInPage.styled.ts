@@ -30,8 +30,6 @@ export const ErrorBox = styled.div`
   gap: 2rem;
 `;
 
-export const EndedCheckTimeSection = styled.section``;
-
 export const CheckTimeSection = styled.section``;
 
 export const MeetingList = styled.ul`
@@ -93,4 +91,74 @@ export const EmptyStateParagraph = styled.p`
   animation: dissolve 1s;
   animation-delay: 0.75s;
   animation-fill-mode: forwards;
+`;
+
+export const MapSection = styled.section`
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+`;
+
+export const Map = styled.div`
+  position: relative;
+  width: 100%;
+  height: 400px;
+`;
+
+export const MapOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  z-index: ${({ theme: { zIndex } }) => zIndex['slightly-float']};
+  color: white;
+  backdrop-filter: blur(0.5rem) brightness(90%);
+  visibility: hidden;
+  opacity: 0;
+
+  transition: all 0.5s;
+
+  &.loading {
+    visibility: visible;
+    opacity: 1;
+  }
+`;
+
+export const MapUserMarker = styled.svg`
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -100%);
+  z-index: ${({ theme: { zIndex } }) => zIndex['slightly-float']};
+  color: ${({ theme: { colors } }) => colors['primary']};
+  visibility: visible;
+  opacity: 1;
+  transition: all 0.5s ease-out;
+
+  &.loading {
+    transform: translate(-50%, -200%);
+    visibility: hidden;
+    opacity: 0;
+  }
+`;
+
+export const GeolocationUpdatedTimeParagraph = styled.p`
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.75rem;
+  color: ${({ theme: { colors } }) => colors['white']};
+  backdrop-filter: brightness(60%);
+  z-index: ${({ theme: { zIndex } }) => zIndex['slightly-float']};
+`;
+
+export const GeolocationUpdatedTimeSpan = styled.span`
+  color: ${({ theme: { colors } }) => colors['white']};
 `;

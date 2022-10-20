@@ -14,7 +14,7 @@ const colors: Theme['colors'] = {
   transparent: 'transparent',
 };
 
-const SCREEN_SIZES = {
+export const SCREEN_SIZES = {
   xs: 480,
   sm: 768,
   md: 1024,

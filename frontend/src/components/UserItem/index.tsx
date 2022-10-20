@@ -6,7 +6,6 @@ import useMutation from 'hooks/useMutation';
 import { postUserAttendanceApi } from 'apis/userApis';
 import { ATTENDANCE_STATUS } from 'consts';
 import { Attendance } from 'types/attendanceType';
-import { css } from '@emotion/react';
 
 type UserItemProps = {
   user: Attendance;

@@ -14,6 +14,7 @@ import UnregisterPage from 'pages/UnregisterPage';
 import CheckInPage from 'pages/CheckInPage';
 import CalendarPage from 'pages/CalendarPage';
 import MeetingConfigPage from 'pages/MeetingConfigPage';
+import GeolocationCheckInPage from 'pages/GeolocationCheckInPage';
 
 const Router = () => {
   return useRoutes([
@@ -49,6 +50,10 @@ const Router = () => {
         {
           path: 'check-in',
           element: <CheckInPage />,
+        },
+        {
+          path: 'geolocation',
+          element: <GeolocationCheckInPage />,
         },
         {
           path: 'settings',

@@ -14,6 +14,7 @@ import {
 import {
   AttendancesResponseBody,
   PostUserAttendanceRequestBody,
+  PostUserGeolocationAttendanceRequestBody,
 } from 'types/attendanceType';
 import request from '../utils/request';
 
@@ -111,13 +112,13 @@ export const googleLoginApi = async ({ code }: GoogleLoginRequestBody) => {
 };
 
 export const getAttendancesApi =
-  (id: number | undefined, accessToken: User['accessToken']) => () => {
-    if (!id || !accessToken) {
+  (accessToken: User['accessToken'], meetingId?: number) => () => {
+    if (!accessToken || !meetingId) {
       throw new Error('출석 정보 요청 중 에러가 발생했습니다.');
     }
 
     return request<AttendancesResponseBody>(
-      `/meetings/${id}/attendances/today`,
+      `/meetings/${meetingId}/attendances/today`,
       {
         method: 'GET',
         headers: {
@@ -150,6 +151,31 @@ export const postUserAttendanceApi = async ({
     }
   );
 };
+
+export const postUserGeolocationAttendanceApi =
+  ({ accessToken }: { accessToken: User['accessToken'] }) =>
+  async ({
+    meetingId,
+    userId,
+    latitude,
+    longitude,
+  }: PostUserGeolocationAttendanceRequestBody) => {
+    if (!accessToken) {
+      throw new Error('미팅 정보를 불러오는 중 에러가 발생했습니다.');
+    }
+
+    return request<{}>(
+      `/meetings/${meetingId}/users/${userId}/attendances/today/geolocation`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ latitude, longitude }),
+      }
+    );
+  };
 
 export const getLoginUserDataApi =
   (accessToken: User['accessToken']) => async () => {
