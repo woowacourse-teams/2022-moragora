@@ -57,7 +57,6 @@ const useQuery = <TData = any>(
 
       const refetchData = await queryData();
 
-      queryClient.clearQueryCache();
       setData(refetchData);
       setStatus(QUERY_STATUS.SUCCESS);
       await onSuccess?.(refetchData);
@@ -68,7 +67,7 @@ const useQuery = <TData = any>(
         return;
       }
 
-      queryClient.addQueryCache(refetch);
+      queryClient.setQueryCache(refetch);
       setError(refetchError);
       await onError?.(refetchError);
 

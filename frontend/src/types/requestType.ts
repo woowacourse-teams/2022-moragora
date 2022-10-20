@@ -1,5 +1,13 @@
 import { ErrorResponseBody } from './userType';
 
+export type RequestInterceptHandler = (
+  url: string,
+  options: RequestInit,
+  accessToken: string | null
+) => {
+  url: string;
+  options: RequestInit;
+};
 export type SuccessInterceptHandler = (res: Response) => void;
 export type ErrorInterceptHandler = (
   res: Response,
@@ -7,10 +15,13 @@ export type ErrorInterceptHandler = (
 ) => void;
 
 export type Interceptor = {
+  accessToken: string | null;
+  onRequest: RequestInterceptHandler;
   onSuccess: SuccessInterceptHandler;
   onError: ErrorInterceptHandler;
-  set: (
-    onSuccess?: SuccessInterceptHandler,
-    onError?: ErrorInterceptHandler
-  ) => void;
+  set: (handler: {
+    onRequest?: RequestInterceptHandler;
+    onSuccess?: SuccessInterceptHandler;
+    onError?: ErrorInterceptHandler;
+  }) => void;
 };

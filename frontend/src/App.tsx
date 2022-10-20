@@ -18,6 +18,17 @@ const App = () => {
   const userState = useContext(userContext) as UserContextValues;
 
   useInterceptor({
+    accessToken: userState.accessToken,
+    onRequest: (url, options, accessToken) => ({
+      url,
+      options: {
+        ...options,
+        headers: {
+          ...options.headers,
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    }),
     onError: (response, body) => {
       switch (response.status) {
         case 401: {
@@ -40,13 +51,13 @@ const App = () => {
   const refreshQuery = useQuery(['refresh'], accessTokenRefreshApi, {
     onSuccess: ({ body: { accessToken } }) => {
       userState.updateAccessToken(accessToken);
-      queryClient.reQueryAllCache();
+      queryClient.reQueryCache();
     },
   });
 
   const getLoginUserDataQuery = useQuery(
     ['loginUserData'],
-    getLoginUserDataApi(userState.accessToken),
+    getLoginUserDataApi(),
     {
       enabled: !!userState.accessToken,
       onSuccess: ({ body }) => {

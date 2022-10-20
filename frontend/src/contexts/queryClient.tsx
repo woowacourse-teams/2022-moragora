@@ -3,20 +3,23 @@ import { QueryClient } from 'types/queryType';
 
 export const queryClient: QueryClient = {
   dataCache: {},
-  queryCache: [],
+  queryCache: null,
   invalidateQueries: function (key) {
     delete this.dataCache[key];
   },
   isCached: (key) =>
     Object.prototype.hasOwnProperty.call(queryClient.dataCache, key),
   clearQueryCache: function () {
-    this.queryCache = [];
+    this.queryCache = null;
   },
-  reQueryAllCache: function () {
-    this.queryCache.forEach(async (query) => await query());
+  reQueryCache: function () {
+    if (this.queryCache) {
+      this.queryCache();
+      this.clearQueryCache();
+    }
   },
-  addQueryCache: function (query: () => Promise<void>) {
-    this.queryCache.push(query);
+  setQueryCache: function (query: () => Promise<void>) {
+    this.queryCache = query;
   },
 };
 

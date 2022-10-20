@@ -6,12 +6,12 @@ export type QueryStatus = 'idle' | 'loading' | 'error' | 'success';
 
 export type QueryClient = {
   dataCache: Record<string, any>;
-  queryCache: (() => Promise<void>)[];
+  queryCache: (() => Promise<void>) | null;
   invalidateQueries: (key: string) => void;
   isCached: (key: string) => boolean;
   clearQueryCache: () => void;
-  reQueryAllCache: () => void;
-  addQueryCache: (query: () => Promise<void>) => void;
+  reQueryCache: () => void;
+  setQueryCache: (query: () => Promise<void>) => void;
 };
 
 export type QueryOptions<TData> = {

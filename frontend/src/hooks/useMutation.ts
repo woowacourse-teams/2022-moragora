@@ -33,7 +33,6 @@ const useMutation = <TData = any, TVariables extends Variables = Variables>(
 
       const mutateData = await mutationFn(variables);
 
-      queryClient.clearQueryCache();
       setData(mutateData);
       setStatus(MUTATION_STATUS.SUCCESS);
       await onSuccess?.(mutateData, variables);
@@ -44,7 +43,7 @@ const useMutation = <TData = any, TVariables extends Variables = Variables>(
         return;
       }
 
-      queryClient.addQueryCache(() => mutate(variables));
+      queryClient.setQueryCache(() => mutate(variables));
       setError(error);
       await onError?.(error, variables);
 
