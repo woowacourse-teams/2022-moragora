@@ -7,19 +7,19 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest;
 
-@DataJpaTest
+@DataRedisTest
 class RefreshTokenRepositoryTest {
 
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
-    @DisplayName("Refresh token을 DB에 저장한다.")
+    @DisplayName("Refresh token을 저장한다.")
     @Test
     void save() {
         // given
-        final RefreshToken refreshToken = new RefreshToken("refresh_token", 1L, LocalDateTime.now());
+        final RefreshToken refreshToken = new RefreshToken("uuid_1", 1L, LocalDateTime.now());
 
         // when
         final RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshToken);
@@ -28,7 +28,7 @@ class RefreshTokenRepositoryTest {
         assertThat(savedRefreshToken).isNotNull();
     }
 
-    @DisplayName("Refresh token을 DB에서 찾아온다.")
+    @DisplayName("Refresh token을 찾아온다.")
     @Test
     void findByValue() {
         // given
@@ -36,7 +36,7 @@ class RefreshTokenRepositoryTest {
         final RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshToken);
 
         // when
-        final Optional<RefreshToken> foundRefreshToken = refreshTokenRepository.findByUuid(
+        final Optional<RefreshToken> foundRefreshToken = refreshTokenRepository.findById(
                 savedRefreshToken.getUuid());
 
         // then
@@ -44,7 +44,7 @@ class RefreshTokenRepositoryTest {
                 .isEqualTo(savedRefreshToken);
     }
 
-    @DisplayName("Refresh token을 DB에서 삭제한다.")
+    @DisplayName("Refresh token을 삭제한다.")
     @Test
     void deleteByValue() {
         // given
@@ -52,10 +52,10 @@ class RefreshTokenRepositoryTest {
         final RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshToken);
 
         // when
-        refreshTokenRepository.deleteByUuid(savedRefreshToken.getUuid());
+        refreshTokenRepository.deleteById(savedRefreshToken.getUuid());
 
         // then
-        final Optional<RefreshToken> foundRefreshToken = refreshTokenRepository.findByUuid(
+        final Optional<RefreshToken> foundRefreshToken = refreshTokenRepository.findById(
                 savedRefreshToken.getUuid());
         assertThat(foundRefreshToken).isEmpty();
     }
