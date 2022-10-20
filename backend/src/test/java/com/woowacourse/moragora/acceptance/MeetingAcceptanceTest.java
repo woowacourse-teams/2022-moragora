@@ -6,6 +6,7 @@ import static com.woowacourse.moragora.support.fixture.MeetingFixtures.F12;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.MASTER;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.PHILLZ;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.createUsers;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.getEmailsIncludingMaster;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.getNicknamesIncludingMaster;
@@ -18,6 +19,8 @@ import static org.mockito.BDDMockito.given;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
+import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
+import com.woowacourse.moragora.dto.request.meeting.BeaconsRequest;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
@@ -241,5 +244,27 @@ class MeetingAcceptanceTest extends AcceptanceTest {
 
         // then
         response.statusCode(HttpStatus.OK.value());
+    }
+
+    @DisplayName("위치 기반 미팅에서 비콘을 저장하고 응답으로 204를 반환한다.")
+    @Test
+    void addBeacons() {
+        // given
+        final User master = MASTER.create();
+        final String masterToken = signUpAndGetToken(master);
+        final User user = PHILLZ.create();
+        final Long userId = signUp(user);
+        final int meetingId = saveMeeting(masterToken, List.of(userId), MORAGORA.create());
+
+        final BeaconRequest beaconRequest = new BeaconRequest("서울시 송파구", 37.33, 126.58, 50);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+
+        // when
+        final String uri = String.format("/meetings/%d/beacons", meetingId);
+        final ValidatableResponse response = post(uri, beaconsRequest, masterToken);
+
+        // then
+        response.statusCode(HttpStatus.CREATED.value())
+                .header("Location", notNullValue());
     }
 }

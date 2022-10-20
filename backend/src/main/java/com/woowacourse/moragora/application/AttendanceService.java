@@ -7,12 +7,15 @@ import com.woowacourse.moragora.domain.attendance.MeetingAttendances;
 import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.event.EventRepository;
+import com.woowacourse.moragora.domain.geolocation.Beacon;
+import com.woowacourse.moragora.domain.geolocation.BeaconRepository;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.meeting.MeetingRepository;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.participant.ParticipantRepository;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.domain.user.UserRepository;
+import com.woowacourse.moragora.dto.request.meeting.GeolocationAttendanceRequest;
 import com.woowacourse.moragora.dto.request.user.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.response.attendance.AttendanceResponse;
 import com.woowacourse.moragora.dto.response.attendance.AttendancesResponse;
@@ -46,6 +49,7 @@ public class AttendanceService {
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
     private final CoffeeStatRepository coffeeStatRepository;
+    private final BeaconRepository beaconRepository;
     private final ServerTimeManager serverTimeManager;
 
     public AttendanceService(final MeetingRepository meetingRepository,
@@ -54,6 +58,7 @@ public class AttendanceService {
                              final AttendanceRepository attendanceRepository,
                              final UserRepository userRepository,
                              final CoffeeStatRepository coffeeStatRepository,
+                             final BeaconRepository beaconRepository,
                              final ServerTimeManager serverTimeManager) {
         this.meetingRepository = meetingRepository;
         this.eventRepository = eventRepository;
@@ -61,6 +66,7 @@ public class AttendanceService {
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
         this.coffeeStatRepository = coffeeStatRepository;
+        this.beaconRepository = beaconRepository;
         this.serverTimeManager = serverTimeManager;
     }
 
@@ -109,7 +115,7 @@ public class AttendanceService {
     }
 
     public CoffeeStatsResponse countUsableCoffeeStack(final Long meetingId) {
-        validateMeetingExists(meetingId);
+        validateMeetingExist(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meetingId);
         final int numberOfParticipants = participants.size();
 
@@ -134,17 +140,36 @@ public class AttendanceService {
         meetingAttendances.disableAttendances();
     }
 
+    @Transactional
+    public void attendWithGeoLocation(final Long meetingId,
+                                      final Long userId,
+                                      final GeolocationAttendanceRequest geoAttendanceRequest) {
+        validateMeetingExist(meetingId);
+        validateUserExist(userId);
+        final LocalDate today = serverTimeManager.getDate();
+        final Participant participant = participantRepository.findByMeetingIdAndUserId(meetingId, userId)
+                .orElseThrow(ParticipantNotFoundException::new);
+        final Event event = eventRepository.findByMeetingIdAndDate(meetingId, today)
+                .orElseThrow(EventNotFoundException::new);
+        final Beacon attendCoordinate = geoAttendanceRequest.toEntity();
+        final List<Beacon> beacons = beaconRepository.findAllByMeetingId(meetingId);
+        final boolean attendanceFail = beacons.stream()
+                .noneMatch(beacon -> beacon.isInRadius(attendCoordinate));
+        validateAttendanceTime(event);
+        final Attendance attendance = attendanceRepository
+                .findByParticipantIdAndEventId(participant.getId(), event.getId())
+                .orElseThrow(AttendanceNotFoundException::new);
+        if (attendanceFail) {
+            throw new ClientRuntimeException("비콘의 출석 반경 이내에 있지 않습니다.", HttpStatus.BAD_REQUEST);
+        }
+        attendance.changeAttendanceStatus(Status.PRESENT);
+    }
+
     private void validateAttendanceTime(final Event event) {
         final LocalTime entranceTime = event.getStartTime();
 
         if (!serverTimeManager.isAttendanceOpen(entranceTime)) {
             throw new NotCheckInTimeException();
-        }
-    }
-
-    private void validateMeetingExists(final Long meetingId) {
-        if (!meetingRepository.existsById(meetingId)) {
-            throw new MeetingNotFoundException();
         }
     }
 
@@ -166,6 +191,18 @@ public class AttendanceService {
     private void validateEnoughTardyCountToDisable(final MeetingAttendances attendances) {
         if (!attendances.isTardyStackFull()) {
             throw new InvalidCoffeeTimeException();
+        }
+    }
+
+    private void validateMeetingExist(final Long meetingId) {
+        if (!meetingRepository.existsById(meetingId)) {
+            throw new MeetingNotFoundException();
+        }
+    }
+
+    private void validateUserExist(final Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException();
         }
     }
 }

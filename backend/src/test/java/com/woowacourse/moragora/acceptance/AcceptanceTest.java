@@ -177,12 +177,12 @@ public class AcceptanceTest {
 
         final ValidatableResponse response = post("/meetings", meetingRequest, token);
 
-        final String value = response
+        final String meetingId = response
                 .extract()
                 .header("Location")
                 .split("/meetings/")[1];
 
-        return Integer.parseInt(value);
+        return Integer.parseInt(meetingId);
     }
 
     protected void saveEvents(final String token, final List<Event> events, final Long meetingId) {

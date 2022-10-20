@@ -11,13 +11,16 @@ import static com.woowacourse.moragora.support.fixture.UserFixtures.PHILLZ;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.woowacourse.moragora.domain.attendance.Attendance;
 import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
+import com.woowacourse.moragora.domain.geolocation.Beacon;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.user.User;
+import com.woowacourse.moragora.dto.request.meeting.GeolocationAttendanceRequest;
 import com.woowacourse.moragora.dto.request.user.UserAttendanceRequest;
 import com.woowacourse.moragora.dto.response.attendance.AttendanceResponse;
 import com.woowacourse.moragora.dto.response.attendance.AttendancesResponse;
@@ -62,8 +65,9 @@ class AttendanceServiceTest {
     }
 
     @DisplayName("사용자들의 출석 여부를 변경한다.")
-    @Test
-    void updateAttendance() {
+    @ParameterizedTest
+    @CsvSource(value = {"true", "false"})
+    void updateAttendance(final boolean isPresent) {
         // given
         final User user = KUN.create();
         final Meeting meeting = MORAGORA.create();
@@ -74,7 +78,7 @@ class AttendanceServiceTest {
         serverTimeManager.refresh(dateTime);
         dataSupport.saveAttendance(participant, event, Status.TARDY);
 
-        final UserAttendanceRequest request = new UserAttendanceRequest(true);
+        final UserAttendanceRequest request = new UserAttendanceRequest(isPresent);
 
         // when, then
         assertThatCode(() -> attendanceService.updateAttendance(meeting.getId(), user.getId(), request))
@@ -267,5 +271,63 @@ class AttendanceServiceTest {
         assertThatCode(() -> attendanceService.findTodayAttendancesByMeeting(meeting.getId()))
                 .isInstanceOf(ClientRuntimeException.class)
                 .hasMessage("오늘의 일정이 존재하지 않아 출석부를 조회할 수 없습니다.");
+    }
+
+    @DisplayName("위치 기반 출석 성공시 출석 상태를 PRESENT로 변경한다.")
+    @Test
+    void attendWithGeoLocation() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final User user1 = dataSupport.saveUser(AZPI.create());
+        final Participant participant1 = dataSupport.saveParticipant(user1, meeting);
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        dataSupport.saveAttendance(participant1, event1, Status.NONE);
+        final Beacon beacon = new Beacon("루터회관", 37.5153, 127.103, 50);
+        dataSupport.saveBeacon(meeting, beacon);
+        final GeolocationAttendanceRequest geoAttendanceRequest =
+                new GeolocationAttendanceRequest(37.5154, 127.1031);
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 9, 55);
+        serverTimeManager.refresh(dateTime);
+
+        // when
+        attendanceService.attendWithGeoLocation(meeting.getId(), user1.getId(), geoAttendanceRequest);
+
+        // then
+        final AttendancesResponse attendances = attendanceService.findTodayAttendancesByMeeting(meeting.getId());
+
+        final List<AttendanceResponse> users = attendances.getUsers();
+
+        assertAll(
+                () -> assertThat(users.size()).isOne(),
+                () -> assertThat(users.get(0).getAttendanceStatus()).isEqualTo("present")
+        );
+    }
+
+    @DisplayName("위치 기반 출석 실패시 예외를 반환한다.")
+    @Test
+    void attendWithGeoLocation_throwsException_ifAttendFail() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final User user1 = dataSupport.saveUser(AZPI.create());
+        final User user2 = dataSupport.saveUser(PHILLZ.create());
+        final Participant participant1 = dataSupport.saveParticipant(user1, meeting);
+        final Participant participant2 = dataSupport.saveParticipant(user2, meeting);
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        dataSupport.saveAttendance(participant1, event1, Status.NONE);
+        dataSupport.saveAttendance(participant2, event1, Status.NONE);
+        final Beacon beacon = new Beacon("루터회관", 37.5153, 127.103, 50);
+        dataSupport.saveBeacon(meeting, beacon);
+        final GeolocationAttendanceRequest geoAttendanceRequest =
+                new GeolocationAttendanceRequest(37.6154, 127.6031);
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 9, 55);
+        serverTimeManager.refresh(dateTime);
+
+        // when, then
+        assertThatThrownBy(
+                () -> attendanceService.attendWithGeoLocation(meeting.getId(), user1.getId(), geoAttendanceRequest))
+                .isInstanceOf(ClientRuntimeException.class)
+                .hasMessage("비콘의 출석 반경 이내에 있지 않습니다.");
     }
 }
