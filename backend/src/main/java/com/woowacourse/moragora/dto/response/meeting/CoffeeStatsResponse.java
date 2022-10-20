@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.dto.response.meeting;
 
+import com.woowacourse.moragora.domain.attendance.Attendance;
 import com.woowacourse.moragora.domain.user.User;
 import java.util.List;
 import java.util.Map;
@@ -17,10 +18,12 @@ public class CoffeeStatsResponse {
         this.userCoffeeStats = List.copyOf(userCoffeeStats);
     }
 
-    public static CoffeeStatsResponse from(Map<User, Long> userCoffeeStats) {
-        final List<CoffeeStatResponse> coffeeStatResponses = userCoffeeStats.keySet().stream()
-                .map(user -> CoffeeStatResponse.of(user, userCoffeeStats.get(user)))
+    public static CoffeeStatsResponse from(final Map<User, List<Attendance>> coffeeStatsByUser) {
+        final List<CoffeeStatResponse> coffeeStatResponses = coffeeStatsByUser.entrySet().stream()
+                .map(entry -> new CoffeeStatResponse(entry.getKey().getId(), entry.getKey().getNickname(),
+                        (long) entry.getValue().size()))
                 .collect(Collectors.toList());
+
         return new CoffeeStatsResponse(coffeeStatResponses);
     }
 }
