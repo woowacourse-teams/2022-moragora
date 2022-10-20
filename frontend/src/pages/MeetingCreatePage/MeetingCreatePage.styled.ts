@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import Button from 'components/@shared/Button';
+import { SCREEN_SIZES } from 'styles/themes/theme';
 
 export const Layout = styled.div`
   display: flex;
@@ -11,7 +12,7 @@ export const Layout = styled.div`
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 `;
 
 export const FieldGroupBox = styled.div`
@@ -50,7 +51,11 @@ export const MapSection = styled.section`
 
 export const Map = styled.div`
   width: 100%;
-  height: 400px;
+  height: 300px;
+
+  @media only screen and (min-width: ${SCREEN_SIZES.md}px) {
+    height: 400px;
+  }
 `;
 
 export const MapOverlay = styled.div`
@@ -77,13 +82,13 @@ export const MapOverlay = styled.div`
 export const BeaconListBox = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 1rem;
 `;
 
 export const BeaconListLengthBox = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 1rem 0;
   gap: 1rem;
 `;
 
@@ -109,5 +114,10 @@ export const BeaconList = styled.ul`
 `;
 
 export const MeetingCreateButton = styled(Button)`
-  margin-top: 32px;
+  margin-top: 1rem;
+`;
+
+export const BeaconDescription = styled.p`
+  font-size: 0.75rem;
+  color: ${({ theme: { colors } }) => colors['subtle-dark']};
 `;

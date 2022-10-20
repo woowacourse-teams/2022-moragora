@@ -8,9 +8,9 @@ import InputHint from 'components/@shared/InputHint';
 import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
 import useQuerySelectItems from 'hooks/useQuerySelectItems';
-import useGeolocation from '../../hooks/useGeolocation';
-import useKakaoMap from '../../hooks/useKakaoMap';
-import BeaconItem from '../../components/BeaconItem';
+import useGeolocation from 'hooks/useGeolocation';
+import useKakaoMap from 'hooks/useKakaoMap';
+import BeaconItem from 'components/BeaconItem';
 import { UserQueryWithKeywordResponse } from 'types/userType';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { createMeetingApi } from 'apis/meetingApis';
@@ -36,8 +36,7 @@ const MeetingCreatePage = () => {
   });
   const meetingIdRef = useRef<number | null>(null);
   const isParticipantSelected = selectedItems.length > 0;
-  const { currentPosition, isLoading, permissionState, requestPermission } =
-    useGeolocation();
+  const { currentPosition, isLoading } = useGeolocation();
   const {
     mapContainerRef,
     beacons,
@@ -169,37 +168,40 @@ const MeetingCreatePage = () => {
               Loading...
             </S.MapOverlay>
           </S.Map>
-
-          <S.BeaconListBox>
-            <S.BeaconListLengthBox>
-              <S.BeaconCountParagraph>
-                비콘 개수: {beacons.length}{' '}
-                <S.BeaconCountMaximumSpan>/ 3</S.BeaconCountMaximumSpan>
-              </S.BeaconCountParagraph>
-              <DialogButton
-                type="button"
-                onClick={removeBeacons}
-                variant="confirm"
-              >
-                리셋
-              </DialogButton>
-            </S.BeaconListLengthBox>
-            <S.BeaconList>
-              {beacons.map(({ id, position, address, radius }) => (
-                <li key={id}>
-                  <BeaconItem
-                    id={id}
-                    position={position}
-                    address={address}
-                    radius={Math.round(radius)}
-                    panTo={panTo}
-                    remove={removeBeacon}
-                  />
-                </li>
-              ))}
-            </S.BeaconList>
-          </S.BeaconListBox>
         </S.MapSection>
+        <S.BeaconDescription>
+          원하는 위치를 클릭하세요. 출석 가능한 반경을 한번 더 클릭하면 비콘이
+          추가됩니다.
+        </S.BeaconDescription>
+        <S.BeaconListBox>
+          <S.BeaconListLengthBox>
+            <S.BeaconCountParagraph>
+              비콘 개수: {beacons.length}{' '}
+              <S.BeaconCountMaximumSpan>/ 3</S.BeaconCountMaximumSpan>
+            </S.BeaconCountParagraph>
+            <DialogButton
+              type="button"
+              onClick={removeBeacons}
+              variant="confirm"
+            >
+              리셋
+            </DialogButton>
+          </S.BeaconListLengthBox>
+          <S.BeaconList>
+            {beacons.map(({ id, position, address, radius }) => (
+              <li key={id}>
+                <BeaconItem
+                  id={id}
+                  position={position}
+                  address={address}
+                  radius={Math.round(radius)}
+                  panTo={panTo}
+                  remove={removeBeacon}
+                />
+              </li>
+            ))}
+          </S.BeaconList>
+        </S.BeaconListBox>
       </S.Form>
       <S.MeetingCreateButton
         form="meeting-create-form"
