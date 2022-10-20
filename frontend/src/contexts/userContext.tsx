@@ -30,19 +30,6 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
   const [accessToken, setAccessToken] =
     useState<UserContextValues['accessToken']>(null);
 
-  const login: UserContextValues['login'] = (user, accessToken) => {
-    setUser({ ...user });
-    setAccessToken(accessToken);
-  };
-
-  const logout = () => {
-    logoutMutation.mutate({});
-  };
-
-  const updateAccessToken: UserContextValues['updateAccessToken'] = (token) => {
-    setAccessToken(token);
-  };
-
   const logoutMutation = useMutation(logoutApi, {
     onSuccess: () => {
       setUser(null);
@@ -59,6 +46,21 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
       }
     },
   });
+
+  const login: UserContextValues['login'] = (user, accessToken) => {
+    setInitialized(true);
+    setUser({ ...user });
+    setAccessToken(accessToken);
+  };
+
+  const logout = () => {
+    setInitialized(true);
+    logoutMutation.mutate({});
+  };
+
+  const updateAccessToken: UserContextValues['updateAccessToken'] = (token) => {
+    setAccessToken(token);
+  };
 
   return (
     <userContext.Provider
