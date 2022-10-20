@@ -65,8 +65,9 @@ class AttendanceServiceTest {
     }
 
     @DisplayName("사용자들의 출석 여부를 변경한다.")
-    @Test
-    void updateAttendance() {
+    @ParameterizedTest
+    @CsvSource(value = {"true", "false"})
+    void updateAttendance(final boolean isPresent) {
         // given
         final User user = KUN.create();
         final Meeting meeting = MORAGORA.create();
@@ -77,7 +78,7 @@ class AttendanceServiceTest {
         serverTimeManager.refresh(dateTime);
         dataSupport.saveAttendance(participant, event, Status.TARDY);
 
-        final UserAttendanceRequest request = new UserAttendanceRequest(true);
+        final UserAttendanceRequest request = new UserAttendanceRequest(isPresent);
 
         // when, then
         assertThatCode(() -> attendanceService.updateAttendance(meeting.getId(), user.getId(), request))
@@ -272,7 +273,7 @@ class AttendanceServiceTest {
                 .hasMessage("오늘의 일정이 존재하지 않아 출석부를 조회할 수 없습니다.");
     }
 
-    @DisplayName("위치 기반으로 출석을 해서 성공할 경우 출석을 PRESENT로 변경한다.")
+    @DisplayName("위치 기반 출석 성공시 출석 상태를 PRESENT로 변경한다.")
     @Test
     void attendWithGeoLocation() {
         // given
@@ -303,7 +304,7 @@ class AttendanceServiceTest {
         );
     }
 
-    @DisplayName("위치 기반으로 출석을 해서 실패할 경우 예외를 반환한다.")
+    @DisplayName("위치 기반 출석 실패시 예외를 반환한다.")
     @Test
     void attendWithGeoLocation_throwsException_ifAttendFail() {
         // given
