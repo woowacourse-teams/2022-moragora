@@ -12,13 +12,13 @@ const Auth: React.FC<AuthProps> = ({ shouldLogin }) => {
 
   useEffect(() => {
     if (shouldLogin && !userState.accessToken) {
-      console.log('login');
       navigate('/login');
     }
 
     if (!shouldLogin && userState.accessToken) {
       if (initialized.current) {
         navigate(initialPath.current);
+        initialized.current = false;
       } else {
         initialized.current = false;
         navigate('/');
