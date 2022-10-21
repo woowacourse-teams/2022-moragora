@@ -26,11 +26,15 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
       <S.MeetingItemLink to={`/meeting/${meeting.id}`}>
         <S.Box>
           <S.MeetingBox>
-            <S.IconBox>
+            <S.IconBox
+              aria-label={`모임의 ${
+                meeting.isLoginUserMaster ? '마스터' : '참여자'
+              } ${meeting.isCoffeeTime && '커피스택 가득참'}`}
+            >
               {meeting.isLoginUserMaster ? (
                 <img
                   src={crownIcon}
-                  alt="마스터 icon"
+                  alt=""
                   css={css`
                     width: 1rem;
                     height: 1rem;
@@ -43,7 +47,6 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
                   viewBox="0 0 24 24"
                   fill="currentColor"
                   xmlns="http://www.w3.org/2000/svg"
-                  aria-label="참여자 icon"
                 >
                   <path
                     fillRule="evenodd"
@@ -104,7 +107,7 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
               {meeting.isCoffeeTime && (
                 <img
                   src={coffeeIcon}
-                  alt="coffee icon"
+                  alt=""
                   css={css`
                     width: 1rem;
                     height: 1rem;
