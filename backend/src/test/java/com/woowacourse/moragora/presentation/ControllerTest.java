@@ -13,24 +13,20 @@ import com.woowacourse.moragora.application.EventService;
 import com.woowacourse.moragora.application.MeetingService;
 import com.woowacourse.moragora.application.UserService;
 import com.woowacourse.moragora.application.auth.AuthService;
-import com.woowacourse.moragora.presentation.auth.AuthController;
-import com.woowacourse.moragora.support.JwtTokenProvider;
+import com.woowacourse.moragora.application.auth.JwtTokenProvider;
+import com.woowacourse.moragora.presentation.auth.RefreshTokenCookieProvider;
+import com.woowacourse.moragora.support.AsyncMailSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-@WebMvcTest(controllers = {
-        MeetingController.class,
-        AttendanceController.class,
-        EventController.class,
-        UserController.class,
-        AuthController.class,
-        CommonController.class})
+@WebMvcTest
 @AutoConfigureRestDocs
 public class ControllerTest {
 
@@ -56,10 +52,16 @@ public class ControllerTest {
     protected JwtTokenProvider jwtTokenProvider;
 
     @MockBean
+    protected RefreshTokenCookieProvider refreshTokenCookieProvider;
+
+    @MockBean
     protected QueryCountInspector queryCountInspector;
 
+    @MockBean
+    protected AsyncMailSender mailSender;
+
     @Autowired
-    private MockMvc mockMvc;
+    protected MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -67,6 +69,15 @@ public class ControllerTest {
 
     protected ResultActions performPost(final String uri, final Object request) throws Exception {
         return mockMvc.perform(post(uri)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print());
+    }
+
+    protected ResultActions performPostWithSession(final String uri, final Object request,
+                                                   final MockHttpSession session) throws Exception {
+        return mockMvc.perform(post(uri)
+                        .session(session)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andDo(print());
@@ -105,8 +116,6 @@ public class ControllerTest {
     }
 
     protected Long validateToken(final String id) {
-        given(jwtTokenProvider.validateToken(any()))
-                .willReturn(true);
         given(jwtTokenProvider.getPayload(any()))
                 .willReturn(id);
         return Long.valueOf(id);

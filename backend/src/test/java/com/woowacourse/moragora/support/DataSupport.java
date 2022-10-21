@@ -5,6 +5,8 @@ import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
 import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.event.EventRepository;
+import com.woowacourse.moragora.domain.geolocation.Beacon;
+import com.woowacourse.moragora.domain.geolocation.BeaconRepository;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.meeting.MeetingRepository;
 import com.woowacourse.moragora.domain.participant.Participant;
@@ -12,16 +14,18 @@ import com.woowacourse.moragora.domain.participant.ParticipantRepository;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.domain.user.UserRepository;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional
 public class DataSupport {
 
     private final UserRepository userRepository;
 
     private final MeetingRepository meetingRepository;
+    private BeaconRepository beaconRepository;
 
     private final ParticipantRepository participantRepository;
 
@@ -29,13 +33,12 @@ public class DataSupport {
 
     private final EventRepository eventRepository;
 
-    public DataSupport(final UserRepository userRepository,
-                       final MeetingRepository meetingRepository,
-                       final ParticipantRepository participantRepository,
-                       final AttendanceRepository attendanceRepository,
-                       final EventRepository eventRepository) {
+    public DataSupport(final UserRepository userRepository, final MeetingRepository meetingRepository,
+                       final BeaconRepository beaconRepository, final ParticipantRepository participantRepository,
+                       final AttendanceRepository attendanceRepository, final EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.meetingRepository = meetingRepository;
+        this.beaconRepository = beaconRepository;
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.eventRepository = eventRepository;
@@ -76,11 +79,14 @@ public class DataSupport {
         return meetingRepository.save(meeting);
     }
 
-    public Event saveEvent(final Event event) {
-        return eventRepository.save(event);
+    public List<Beacon> saveBeacon(final Meeting meeting, final Beacon... beacons) {
+        for (final Beacon beacon : beacons) {
+            beacon.mapMeeting(meeting);
+        }
+        return beaconRepository.saveAll(List.of(beacons));
     }
 
-    public Optional<Attendance> findAttendanceByParticipantAndEvent(final Participant participant, final Event event) {
-        return attendanceRepository.findByParticipantIdAndEventId(participant.getId(), event.getId());
+    public Event saveEvent(final Event event) {
+        return eventRepository.save(event);
     }
 }

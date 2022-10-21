@@ -1,59 +1,75 @@
 import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import * as S from './RegisterPage.styled';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
 import Button from 'components/@shared/Button';
-import { userContext, UserContextValues } from 'contexts/userContext';
+import { userContext } from 'contexts/userContext';
 import useForm from 'hooks/useForm';
-import useQuery from 'hooks/useQuery';
 import useMutation from 'hooks/useMutation';
 import { UserRegisterRequestBody } from 'types/userType';
-import { checkEmailApi, submitRegisterApi } from 'apis/userApis';
+import { postEmailSendApi, submitRegisterApi } from 'apis/userApis';
+import ModalPortal from 'components/ModalPortal';
+import EmailConfirmModal from 'components/EmailConfirmModal';
+import * as S from './RegisterPage.styled';
 
 const RegisterPage = () => {
-  const navigate = useNavigate();
-  const { login } = useContext(userContext) as UserContextValues;
+  const userState = useContext(userContext);
   const { values, errors, isSubmitting, onSubmit, register } = useForm();
-  const [isEmailExist, setIsEmailExist] = useState(true);
+  const [isModalOpened, setIsModalOpened] = useState(false);
+  const [expiredTimestamp, setExpiredTimestamp] = useState(0);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
 
-  const { refetch: checkEmailRefetch } = useQuery(
-    ['checkEmail'],
-    checkEmailApi(values['email'] as string),
-    {
-      enabled: false,
-      onSuccess: ({ body: { isExist } }) => {
-        setIsEmailExist(isExist);
-        const message = isExist
-          ? '중복된 이메일입니다.'
-          : '사용 가능한 이메일입니다.';
+  const emailSendMutation = useMutation(postEmailSendApi, {
+    onSuccess: ({ body: { expiredTime } }) => {
+      setExpiredTimestamp(expiredTime);
+      setIsModalOpened(true);
+    },
+    onError: ({ message }) => {
+      const status = message.split(': ')[0];
 
-        alert(message);
-      },
-      onError: () => {
-        alert('이메일 중복확인을 실패했습니다.');
-      },
-    }
-  );
+      switch (status) {
+        case '409': {
+          alert('이미 존재하는 이메일 입니다.');
+          break;
+        }
+        case '500': {
+          alert('이메일 발송에 실패했습니다.');
+          break;
+        }
+        default: {
+          alert('이메일 인증하기를 실패했습니다.');
+        }
+      }
+    },
+  });
 
-  const { mutate: registerMutate } = useMutation(submitRegisterApi, {
-    onSuccess: ({ body: userData, accessToken }) => {
-      login(userData, accessToken);
-      navigate('/');
+  const registerMutation = useMutation(submitRegisterApi, {
+    onSuccess: ({ body: { accessToken } }) => {
+      userState?.setAccessToken(accessToken);
     },
     onError: () => {
       alert('회원가입을 실패했습니다.');
     },
   });
 
-  const handleCheckEmailButtonClick: React.MouseEventHandler<
+  const handleModalClose = () => {
+    setIsModalOpened(false);
+  };
+
+  const handleEmailConfirmSuccess = () => {
+    setIsEmailVerified(true);
+    setIsModalOpened(false);
+  };
+
+  const handleEmailCheckButtonClick: React.MouseEventHandler<
     HTMLButtonElement
   > = () => {
-    checkEmailRefetch();
+    if (typeof values['email'] === 'string') {
+      emailSendMutation.mutate({ email: values['email'] });
+    }
   };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
-    if (isEmailExist) {
+    if (!isEmailVerified) {
       throw e;
     }
 
@@ -64,129 +80,145 @@ const RegisterPage = () => {
       formData.entries()
     ) as UserRegisterRequestBody;
 
-    await registerMutate(formDataObject);
+    await registerMutation.mutate(formDataObject);
   };
 
   return (
-    <S.Layout>
-      <S.Form id="register-form" {...onSubmit(handleSubmit)}>
-        <S.FieldBox>
-          <S.Label>
-            이메일
-            <S.EmailBox>
-              <S.EmailInput
-                type="email"
-                {...register('email', {
+    <>
+      {isModalOpened && (
+        <ModalPortal closePortal={handleModalClose}>
+          <EmailConfirmModal
+            email={values['email'] as string}
+            expiredTimestamp={expiredTimestamp}
+            onSuccess={handleEmailConfirmSuccess}
+            onDismiss={handleModalClose}
+            refetch={emailSendMutation.mutate}
+          />
+        </ModalPortal>
+      )}
+      <S.Layout>
+        <S.Form id="register-form" {...onSubmit(handleSubmit)}>
+          <S.FieldBox>
+            <S.Label>
+              이메일
+              <S.EmailBox>
+                <S.EmailInput
+                  type="email"
+                  {...register('email', {
+                    required: true,
+                    maxLength: 50,
+                    watch: true,
+                    onChange: () => {
+                      setIsEmailVerified(false);
+                    },
+                    readOnly: isEmailVerified,
+                  })}
+                  placeholder="이메일을 입력해주세요."
+                />
+                <S.EmailCheckButton
+                  type="button"
+                  variant="confirm"
+                  onClick={handleEmailCheckButtonClick}
+                  disabled={
+                    !values['email'] ||
+                    errors['email'] !== '' ||
+                    isEmailVerified
+                  }
+                >
+                  {isEmailVerified ? '인증완료' : '인증하기'}
+                </S.EmailCheckButton>
+              </S.EmailBox>
+            </S.Label>
+            <InputHint
+              isShow={Boolean(errors['email']) && errors['email'] !== ''}
+              message={errors['email']}
+            />
+          </S.FieldBox>
+          <S.FieldBox>
+            <S.Label>
+              비밀번호
+              <Input
+                type="password"
+                {...register('password', {
+                  pattern:
+                    '(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,30}',
+                  patternValidationMessage:
+                    '8에서 30자리 이하의 영어, 숫자, 특수문자로 입력해주세요.',
+                  onChange: (e, inputController) => {
+                    inputController['passwordConfirm'].checkValidity();
+                  },
+                  minLength: 8,
+                  maxLength: 30,
                   required: true,
-                  onChange: () => {
-                    setIsEmailExist(true);
-                  },
-                  maxLength: 50,
-                  watch: true,
                 })}
-                placeholder="이메일을 입력해주세요."
+                placeholder="8에서 30자리 이하의 영어, 숫자, 특수문자로 입력해주세요."
               />
-              <S.EmailCheckButton
-                type="button"
-                variant="confirm"
-                onClick={handleCheckEmailButtonClick}
-                disabled={
-                  !values['email'] || errors['email'] !== '' || !isEmailExist
-                }
-              >
-                중복확인
-              </S.EmailCheckButton>
-            </S.EmailBox>
-          </S.Label>
-          <InputHint
-            isShow={Boolean(errors['email']) && errors['email'] !== ''}
-            message={errors['email']}
-          />
-        </S.FieldBox>
-        <S.FieldBox>
-          <S.Label>
-            비밀번호
-            <Input
-              type="password"
-              {...register('password', {
-                pattern:
-                  '(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,30}',
-                patternValidationMessage:
-                  '8에서 30자리 이하의 영어, 숫자, 특수문자로 입력해주세요.',
-                onChange: (e, inputController) => {
-                  inputController['passwordConfirm'].checkValidity();
-                },
-                minLength: 8,
-                maxLength: 30,
-                required: true,
-              })}
-              placeholder="8에서 30자리 이하의 영어, 숫자, 특수문자로 입력해주세요."
+            </S.Label>
+            <InputHint
+              isShow={Boolean(errors['password']) && errors['password'] !== ''}
+              message={errors['password']}
             />
-          </S.Label>
-          <InputHint
-            isShow={Boolean(errors['password']) && errors['password'] !== ''}
-            message={errors['password']}
-          />
-        </S.FieldBox>
-        <S.FieldBox>
-          <S.Label>
-            비밀번호 확인
-            <Input
-              type="password"
-              {...register('passwordConfirm', {
-                customValidations: [
-                  {
-                    validate: (value, inputController) =>
-                      inputController['password'] &&
-                      inputController['passwordConfirm'] &&
-                      inputController['password'].element.value ===
-                        inputController['passwordConfirm'].element.value,
-                    validationMessage: '비밀번호가 다릅니다.',
-                  },
-                ],
-                required: true,
-              })}
+          </S.FieldBox>
+          <S.FieldBox>
+            <S.Label>
+              비밀번호 확인
+              <Input
+                type="password"
+                {...register('passwordConfirm', {
+                  customValidations: [
+                    {
+                      validate: (value, inputController) =>
+                        inputController['password'] &&
+                        inputController['passwordConfirm'] &&
+                        inputController['password'].element.value ===
+                          inputController['passwordConfirm'].element.value,
+                      validationMessage: '비밀번호가 다릅니다.',
+                    },
+                  ],
+                  required: true,
+                })}
+              />
+            </S.Label>
+            <InputHint
+              isShow={
+                Boolean(errors['passwordConfirm']) &&
+                errors['passwordConfirm'] !== ''
+              }
+              message={errors['passwordConfirm']}
             />
-          </S.Label>
-          <InputHint
-            isShow={
-              Boolean(errors['passwordConfirm']) &&
-              errors['passwordConfirm'] !== ''
-            }
-            message={errors['passwordConfirm']}
-          />
-        </S.FieldBox>
-        <S.FieldBox>
-          <S.Label>
-            닉네임
-            <Input
-              type="text"
-              {...register('nickname', {
-                maxLength: 15,
-                pattern: '([a-zA-Z0-9가-힣]){1,15}',
-                patternValidationMessage:
-                  '15자 이하의 영어, 한글, 숫자 조합으로 입력해주세요.',
-                required: true,
-              })}
-              placeholder="15자 이하의 영어, 한글, 숫자 조합으로 입력해주세요."
+          </S.FieldBox>
+          <S.FieldBox>
+            <S.Label>
+              닉네임
+              <Input
+                type="text"
+                {...register('nickname', {
+                  maxLength: 15,
+                  pattern: '([a-zA-Z0-9가-힣]){1,15}',
+                  patternValidationMessage:
+                    '15자 이하의 영어, 한글, 숫자 조합으로 입력해주세요.',
+                  required: true,
+                })}
+                placeholder="15자 이하의 영어, 한글, 숫자 조합으로 입력해주세요."
+              />
+            </S.Label>
+            <InputHint
+              isShow={Boolean(errors['nickname']) && errors['nickname'] !== ''}
+              message={errors['nickname']}
             />
-          </S.Label>
-          <InputHint
-            isShow={Boolean(errors['nickname']) && errors['nickname'] !== ''}
-            message={errors['nickname']}
-          />
-        </S.FieldBox>
-      </S.Form>
-      <S.ButtonBox>
-        <Button type="submit" form="register-form" disabled={isSubmitting}>
-          회원가입
-        </Button>
-        <S.LoginHintParagraph>
-          이미 가입된 계정이 있으신가요?
-          <S.LoginLink to="/login">로그인</S.LoginLink>
-        </S.LoginHintParagraph>
-      </S.ButtonBox>
-    </S.Layout>
+          </S.FieldBox>
+        </S.Form>
+        <S.ButtonBox>
+          <Button type="submit" form="register-form" disabled={isSubmitting}>
+            회원가입
+          </Button>
+          <S.LoginHintParagraph>
+            이미 가입된 계정이 있으신가요?
+            <S.LoginLink to="/login">로그인</S.LoginLink>
+          </S.LoginHintParagraph>
+        </S.ButtonBox>
+      </S.Layout>
+    </>
   );
 };
 

@@ -1,12 +1,11 @@
 package com.woowacourse.moragora.presentation.auth;
 
+import com.woowacourse.moragora.application.auth.JwtTokenProvider;
 import com.woowacourse.moragora.support.AuthorizationExtractor;
-import com.woowacourse.moragora.support.JwtTokenProvider;
 import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -24,30 +23,26 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(final HttpServletRequest request,
                              final HttpServletResponse response,
                              final Object handler) {
-        if (request.getMethod().equals((HttpMethod.OPTIONS.name()))) {
-            return true;
+        if (isNotOptionsMethod(request) && isAnnotated(handler)) {
+            validateToken(request);
         }
 
-        if (isNotAnnotated(handler)) {
-            return true;
-        }
-
-        if (!isValidToken(request)) {
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            return false;
-        }
         return true;
     }
 
-    private boolean isNotAnnotated(final Object handler) {
+    private boolean isNotOptionsMethod(final HttpServletRequest request) {
+        return HttpMethod.valueOf(request.getMethod()) != HttpMethod.OPTIONS;
+    }
+
+    private boolean isAnnotated(final Object handler) {
         final HandlerMethod handlerMethod = (HandlerMethod) handler;
         final Authentication classAnnotation = handlerMethod.getBeanType().getAnnotation(Authentication.class);
         final Authentication methodAnnotation = handlerMethod.getMethodAnnotation(Authentication.class);
-        return Objects.isNull(classAnnotation) && Objects.isNull(methodAnnotation);
+        return Objects.nonNull(classAnnotation) || Objects.nonNull(methodAnnotation);
     }
 
-    private boolean isValidToken(final HttpServletRequest request) {
+    private void validateToken(final HttpServletRequest request) {
         final String token = AuthorizationExtractor.extract(request);
-        return jwtTokenProvider.validateToken(token);
+        jwtTokenProvider.validateToken(token);
     }
 }

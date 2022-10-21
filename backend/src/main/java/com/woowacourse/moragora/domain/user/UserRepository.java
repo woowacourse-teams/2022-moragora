@@ -10,9 +10,15 @@ public interface UserRepository extends Repository<User, Long> {
 
     User save(final User user);
 
+    boolean existsById(final Long userId);
+
     Optional<User> findById(final Long id);
 
+    Optional<User> findByEmail(final String email);
+
     List<User> findByIdIn(final List<Long> ids);
+
+    boolean existsByEmail(final String email);
 
     Optional<User> findByEmailAndProvider(final String email, final Provider provider);
 

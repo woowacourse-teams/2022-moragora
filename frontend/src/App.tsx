@@ -1,6 +1,5 @@
 import { useContext } from 'react';
 import Router from 'router';
-import * as S from './App.styled';
 import AppLayout from 'components/layouts/AppLayout';
 import Header from 'components/layouts/Header';
 import Footer from 'components/layouts/Footer';
@@ -9,46 +8,75 @@ import Spinner from 'components/@shared/Spinner';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { CalendarProvider } from 'contexts/calendarContext';
 import useQuery from 'hooks/useQuery';
-import { getLoginUserDataApi } from 'apis/userApis';
+import { getLoginUserDataApi, accessTokenRefreshApi } from 'apis/userApis';
 import useInterceptor from 'hooks/useInterceptor';
+import { TokenStatus } from 'types/userType';
+import { queryClient } from 'contexts/queryClient';
+import * as S from './App.styled';
 
 const App = () => {
-  const { login, logout, accessToken } = useContext(
-    userContext
-  ) as UserContextValues;
+  const userState = useContext(userContext) as UserContextValues;
 
   useInterceptor({
-    onError: (response) => {
-      switch (response.status) {
-        case 401: {
-          logout();
-          break;
-        }
+    accessToken: userState.accessToken,
+    onRequest: (url, options, accessToken) => ({
+      url,
+      options: {
+        ...options,
+        headers: {
+          ...options.headers,
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    }),
+    onError: (response, body) => {
+      if (response.status !== 401) {
+        return;
       }
+
+      if (body.tokenStatus === TokenStatus['invalid']) {
+        userState.logout();
+        return;
+      }
+
+      if (body.tokenStatus === TokenStatus['expired']) {
+        refreshQuery.refetch();
+        return;
+      }
+
+      userState.setInitialized(true);
     },
   });
 
-  const { isLoading } = useQuery(
+  const refreshQuery = useQuery(['refresh'], accessTokenRefreshApi, {
+    onSuccess: ({ body: { accessToken } }) => {
+      userState.setAccessToken(accessToken);
+      userState.setInitialized(true);
+      queryClient.reQueryCache();
+    },
+  });
+
+  const getLoginUserDataQuery = useQuery(
     ['loginUserData'],
-    getLoginUserDataApi(accessToken),
+    getLoginUserDataApi(),
     {
-      enabled: !!accessToken,
+      enabled: !!userState.accessToken,
       onSuccess: ({ body }) => {
-        if (accessToken) {
-          login(body, accessToken);
+        if (userState.accessToken) {
+          userState.login(body, userState.accessToken);
         }
       },
       onError: (error) => {
         const statusCode = error.message.split(': ')[0];
 
         if (statusCode === '404') {
-          logout();
+          userState.logout();
         }
       },
     }
   );
 
-  if (isLoading) {
+  if (getLoginUserDataQuery.isLoading || !userState.initialized) {
     return (
       <AppLayout>
         <Body>

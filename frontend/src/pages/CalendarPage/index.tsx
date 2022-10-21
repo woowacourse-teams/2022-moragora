@@ -1,14 +1,8 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Navigate, useOutletContext, useParams } from 'react-router-dom';
-import { css } from '@emotion/react';
-import * as S from './CalendarPage.styled';
 import Button from 'components/@shared/Button';
 import Calendar from 'components/@shared/Calendar';
-import DialogButton from 'components/@shared/DialogButton';
-import Input from 'components/@shared/Input';
 import { CalendarContext } from 'contexts/calendarContext';
-import { userContext, UserContextValues } from 'contexts/userContext';
-import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
 import useQuery from 'hooks/useQuery';
 import { dateToFormattedString } from 'utils/timeUtil';
@@ -22,15 +16,31 @@ import { getMeetingData } from 'apis/meetingApis';
 import Spinner from 'components/@shared/Spinner';
 import { QueryState } from 'types/queryType';
 import ErrorIcon from 'components/@shared/ErrorIcon';
-import { MeetingEvent } from 'types/eventType';
+import * as S from './CalendarPage.styled';
+import TimePicker from 'components/@shared/TimePicker';
 
 const CalendarPage = () => {
   const { id: meetingId } = useParams();
-  const user = useContext(userContext) as UserContextValues;
 
   if (!meetingId) {
     return <Navigate to="/error" />;
   }
+
+  const currentDate = new Date();
+  const { selectedDates, clearSelectedDates, setSavedEvents } =
+    useContext(CalendarContext);
+  const [meetingStartTime, setMeetingStartTime] = useState<
+    Partial<{
+      hour: number;
+      minute: number;
+    }>
+  >();
+  const [meetingEndTime, setMeetingEndTime] = useState<
+    Partial<{
+      hour: number;
+      minute: number;
+    }>
+  >();
 
   const { meetingQuery } = useOutletContext<{
     meetingQuery: QueryState<typeof getMeetingData>;
@@ -39,70 +49,70 @@ const CalendarPage = () => {
     upcomingEventNotExist: boolean;
   }>();
 
-  const eventsQuery = useQuery(
-    ['events'],
-    getEventsApi(meetingId, user.accessToken),
-    {
-      onSuccess: ({ body: { events } }) => {
-        setSavedEvents(events);
-      },
-      onError: (error) => {
-        alert(error.message);
-      },
-    }
-  );
+  const eventsQuery = useQuery(['events'], getEventsApi(meetingId), {
+    onSuccess: ({ body: { events: queriedEvents } }) => {
+      setSavedEvents(queriedEvents);
+    },
+    onError: (error) => {
+      alert(error.message);
+    },
+  });
 
-  const createEventsMutation = useMutation(
-    createEventsApi(meetingId, user.accessToken),
-    {
-      onSuccess: () => {
-        eventsQuery.refetch();
-        alert('일정을 생성했습니다.');
-      },
-      onError: (error) => {
-        alert(error.message);
-      },
-    }
-  );
+  const createEventsMutation = useMutation(createEventsApi(meetingId), {
+    onSuccess: () => {
+      eventsQuery.refetch();
+      alert('일정을 생성했습니다.');
+    },
+    onError: (error) => {
+      alert(error.message);
+    },
+  });
 
-  const removeEventsMutation = useMutation(
-    deleteEventsApi(meetingId, user.accessToken),
-    {
-      onSuccess: () => {
-        eventsQuery.refetch();
-        alert('일정을 삭제했습니다.');
-      },
-      onError: (error) => {
-        eventsQuery.refetch();
-        alert(error.message);
-      },
-    }
-  );
+  const removeEventsMutation = useMutation(deleteEventsApi(meetingId), {
+    onSuccess: () => {
+      eventsQuery.refetch();
+      alert('일정을 삭제했습니다.');
+    },
+    onError: (error) => {
+      eventsQuery.refetch();
+      alert(error.message);
+    },
+  });
 
-  const {
-    events,
-    selectedDates,
-    clearSelectedDates,
-    updateEvents,
-    setSavedEvents,
-  } = useContext(CalendarContext);
-  const { values, errors, onSubmit, register } = useForm();
+  const handleUpdateEventsSubmit: React.FormEventHandler<HTMLFormElement> = (
+    e
+  ) => {
+    e.preventDefault();
 
-  const handleupdateEventsSubmit: React.FormEventHandler<HTMLFormElement> = ({
-    currentTarget,
-  }) => {
-    const formData = new FormData(currentTarget);
-    const formDataObject = Object.fromEntries(formData.entries()) as Pick<
-      MeetingEvent,
-      'meetingStartTime' | 'meetingEndTime'
-    >;
+    const formData = new FormData(e.currentTarget);
+    const formDataObject = Object.fromEntries(
+      formData.entries()
+    ) as unknown as {
+      'meetingStartTime-hour': number;
+      'meetingStartTime-minute': number;
+      'meetingEndTime-hour': number;
+      'meetingEndTime-minute': number;
+    };
+    const convertedTimeString = {
+      meetingStartTime: `${formDataObject['meetingStartTime-hour']
+        .toString()
+        .padStart(2, '0')}:${formDataObject['meetingStartTime-minute']
+        .toString()
+        .padStart(2, '0')}`,
+      meetingEndTime: `${formDataObject['meetingEndTime-hour']
+        .toString()
+        .padStart(2, '0')}:${formDataObject['meetingEndTime-minute']
+        .toString()
+        .padStart(2, '0')}`,
+    };
 
-    updateEvents(
-      selectedDates.map((date) => ({
+    createEventsMutation.mutate({
+      events: selectedDates.map((date) => ({
         date: dateToFormattedString(date),
-        ...formDataObject,
-      }))
-    );
+        ...convertedTimeString,
+      })),
+    });
+
     clearSelectedDates();
   };
 
@@ -113,122 +123,126 @@ const CalendarPage = () => {
     clearSelectedDates();
   };
 
-  const handleClickSaveEventsButtonClick = () => {
-    createEventsMutation.mutate({
-      events,
-    });
-  };
-
   if (eventsQuery.isLoading) {
     return (
-      <>
-        <S.Layout>
-          <S.SpinnerBox>
-            <Spinner />
-          </S.SpinnerBox>
-        </S.Layout>
-      </>
+      <S.Layout>
+        <S.SpinnerBox>
+          <Spinner />
+        </S.SpinnerBox>
+      </S.Layout>
     );
   }
 
   if (eventsQuery.isError) {
     return (
-      <>
-        <S.Layout>
-          <S.SpinnerBox>
-            <ErrorIcon />
-          </S.SpinnerBox>
-        </S.Layout>
-      </>
+      <S.Layout>
+        <S.SpinnerBox>
+          <ErrorIcon />
+        </S.SpinnerBox>
+      </S.Layout>
+    );
+  }
+
+  if (!meetingQuery.data?.body.isLoginUserMaster) {
+    return (
+      <S.Layout>
+        <S.CalendarBox>
+          <Calendar readOnly />
+        </S.CalendarBox>
+      </S.Layout>
     );
   }
 
   return (
     <S.Layout>
       <S.CalendarBox>
-        <Calendar readOnly={!meetingQuery.data?.body.isLoginUserMaster} />
+        <Calendar readOnly={false} />
       </S.CalendarBox>
-      {meetingQuery.data?.body.isLoginUserMaster && (
-        <S.CalenderControlBox>
-          <S.Form
-            id="add-events-form"
-            {...onSubmit(handleupdateEventsSubmit)}
-            css={css`
-              padding: 0 0.75rem;
-            `}
-          >
-            <S.FieldGroupBox>
-              <S.FieldBox>
-                <S.Label>
-                  시작 시간
-                  <Input
-                    type="time"
-                    {...register('meetingStartTime', {
-                      onClick: (e) => {
-                        const currentTarget =
-                          e.currentTarget as HTMLInputElement & {
-                            showPicker: () => void;
-                          };
-
-                        currentTarget.showPicker();
-                      },
-                      watch: true,
-                    })}
-                  />
-                </S.Label>
-              </S.FieldBox>
-              <S.FieldBox>
-                <S.Label>
-                  마감 시간
-                  <Input
-                    type="time"
-                    {...register('meetingEndTime', {
-                      onClick: (e) => {
-                        const currentTarget =
-                          e.currentTarget as HTMLInputElement & {
-                            showPicker: () => void;
-                          };
-
-                        currentTarget.showPicker();
-                      },
-                      watch: true,
-                    })}
-                    disabled={errors['meetingStartTime'] !== ''}
-                  />
-                </S.Label>
-              </S.FieldBox>
-              <DialogButton
-                variant="confirm"
-                css={css`
-                  height: 3rem;
-                  align-self: flex-end;
-                `}
+      <S.CalendarSideSection>
+        <S.CalendarControlTitle>일정 설정</S.CalendarControlTitle>
+        {selectedDates.length === 0 ? (
+          <S.CalendarControlHintParagraph>
+            날짜를 선택하여 일정을 추가, 수정하거나 삭제하세요.
+          </S.CalendarControlHintParagraph>
+        ) : (
+          <S.CalenderControlBox>
+            <S.Form id="add-events-form" onSubmit={handleUpdateEventsSubmit}>
+              <S.Label>추가/수정</S.Label>
+              <S.FieldGroupBox>
+                <S.FieldBox>
+                  <S.Label>
+                    시작 시간
+                    <TimePicker
+                      name="meetingStartTime"
+                      min={
+                        selectedDates.some(
+                          (date) =>
+                            date.toDateString() === currentDate.toDateString()
+                        )
+                          ? {
+                              hour: currentDate.getHours(),
+                              minute: currentDate.getMinutes(),
+                            }
+                          : undefined
+                      }
+                      max={{ hour: 23, minute: 40 }}
+                      value={meetingStartTime}
+                      onChange={(value) => {
+                        setMeetingStartTime((prev) => ({
+                          ...prev,
+                          ...value,
+                        }));
+                      }}
+                    />
+                  </S.Label>
+                </S.FieldBox>
+                <S.FieldBox>
+                  <S.Label>
+                    마감 시간
+                    <TimePicker
+                      name="meetingEndTime"
+                      min={
+                        selectedDates.some(
+                          (date) =>
+                            date.toDateString() === currentDate.toDateString()
+                        )
+                          ? {
+                              hour: currentDate.getHours(),
+                              minute: currentDate.getMinutes() + 10,
+                            }
+                          : undefined
+                      }
+                      value={meetingEndTime}
+                      onChange={(value) => {
+                        setMeetingEndTime((prev) => ({
+                          ...prev,
+                          ...value,
+                        }));
+                      }}
+                      disabled={!meetingStartTime}
+                    />
+                  </S.Label>
+                </S.FieldBox>
+              </S.FieldGroupBox>
+              <Button
                 type="submit"
-                form="add-events-form"
                 disabled={
-                  !values['meetingStartTime'] ||
-                  !values['meetingEndTime'] ||
-                  selectedDates.length === 0
+                  meetingStartTime?.hour === undefined ||
+                  meetingStartTime?.minute === undefined ||
+                  meetingEndTime?.hour === undefined ||
+                  meetingEndTime?.minute === undefined
                 }
               >
-                추가
-              </DialogButton>
-            </S.FieldGroupBox>
-          </S.Form>
-          <S.ButtonBox>
+                저장
+              </Button>
+            </S.Form>
+            <S.Label>삭제</S.Label>
             <Button type="button" onClick={handleRemoveEventsButtonClick}>
               삭제
             </Button>
-            <Button
-              type="button"
-              onClick={handleClickSaveEventsButtonClick}
-              disabled={events.length === 0}
-            >
-              저장
-            </Button>
-          </S.ButtonBox>
-        </S.CalenderControlBox>
-      )}
+          </S.CalenderControlBox>
+        )}
+      </S.CalendarSideSection>
     </S.Layout>
   );
 };

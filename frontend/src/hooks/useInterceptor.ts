@@ -1,16 +1,31 @@
 import { useEffect } from 'react';
 import { interceptor } from 'utils/request';
-import type { InterceptHandler } from 'types/requestType';
+import type {
+  ErrorInterceptHandler,
+  RequestInterceptHandler,
+  SuccessInterceptHandler,
+} from 'types/requestType';
 
 type UseInterceptor = {
-  onSuccess: InterceptHandler;
-  onError: InterceptHandler;
+  accessToken: string | null;
+  onRequest: RequestInterceptHandler;
+  onSuccess: SuccessInterceptHandler;
+  onError: ErrorInterceptHandler;
 };
 
-const useInterceptor = ({ onSuccess, onError }: Partial<UseInterceptor>) => {
+const useInterceptor = ({
+  accessToken,
+  onRequest,
+  onSuccess,
+  onError,
+}: Partial<UseInterceptor>) => {
   useEffect(() => {
-    interceptor.set(onSuccess, onError);
-  }, []);
+    if (accessToken !== undefined) {
+      interceptor.accessToken = accessToken;
+    }
+
+    interceptor.set({ onRequest, onSuccess, onError });
+  }, [accessToken, onRequest, onSuccess, onError]);
 };
 
 export default useInterceptor;
