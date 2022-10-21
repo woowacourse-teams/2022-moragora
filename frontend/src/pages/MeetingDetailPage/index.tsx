@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { Navigate, Outlet, useParams } from 'react-router-dom';
 import useQuery from 'hooks/useQuery';
 import { getUpcomingEventApi } from 'apis/eventApis';
@@ -7,6 +7,7 @@ import ReloadButton from 'components/@shared/ReloadButton';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import Spinner from 'components/@shared/Spinner';
 import * as S from './MeetingDetailPage.styled';
+import { CalendarContext } from 'contexts/calendarContext';
 
 const MeetingDetailPage = () => {
   const { id } = useParams();
@@ -17,6 +18,7 @@ const MeetingDetailPage = () => {
 
   const [totalTardyCount, setTotalTardyCount] = useState(0);
   const [upcomingEventNotExist, setUpcomingEventNotExist] = useState(false);
+  const { clearSelectedDates } = useContext(CalendarContext);
 
   const meetingQuery = useQuery(['meeting'], getMeetingData(id), {
     onSuccess: ({ body: { users } }) => {
@@ -64,6 +66,10 @@ const MeetingDetailPage = () => {
 
     return Object.values(positionMap);
   };
+
+  useEffect(() => {
+    clearSelectedDates();
+  }, [id]);
 
   if (meetingQuery.isLoading || upcomingEventQuery.isLoading) {
     return (
