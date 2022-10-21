@@ -17,7 +17,7 @@ const LoginPage = () => {
 
   const { mutate: loginMutate } = useMutation(submitLoginApi, {
     onSuccess: ({ body: { accessToken } }) => {
-      userState.updateAccessToken(accessToken);
+      userState.setAccessToken(accessToken);
     },
     onError: () => {
       alert('로그인을 실패했습니다.');
@@ -26,7 +26,7 @@ const LoginPage = () => {
 
   const { mutate: googleLoginMutate } = useMutation(googleLoginApi, {
     onSuccess: ({ body: { accessToken } }) => {
-      userState.updateAccessToken(accessToken);
+      userState.setAccessToken(accessToken);
     },
     onError: () => {
       alert('구글 로그인을 실패했습니다.');
