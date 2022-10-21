@@ -9,7 +9,11 @@ type UserContextData = Omit<User, 'password'>;
 export type UserContextValues = {
   user: Omit<UserContextData, 'accessToken'> | null;
   accessToken: UserContextData['accessToken'];
-  updateAccessToken: (token: UserContextData['accessToken']) => void;
+  initialized: boolean;
+  setInitialized: React.Dispatch<React.SetStateAction<boolean>>;
+  setAccessToken: React.Dispatch<
+    React.SetStateAction<UserContextValues['accessToken']>
+  >;
   getLoginUserData: () => Promise<void>;
   login: (
     user: NonNullable<Omit<UserContextData, 'accessToken'>>,
@@ -23,22 +27,10 @@ const userContext = createContext<UserContextValues | null>(null);
 const UserContextProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
+  const [initialized, setInitialized] = useState(false);
   const [user, setUser] = useState<UserContextValues['user']>(null);
   const [accessToken, setAccessToken] =
     useState<UserContextValues['accessToken']>(null);
-
-  const login: UserContextValues['login'] = (user, accessToken) => {
-    setUser({ ...user });
-    setAccessToken(accessToken);
-  };
-
-  const logout = () => {
-    logoutMutation.mutate({});
-  };
-
-  const updateAccessToken: UserContextValues['updateAccessToken'] = (token) => {
-    setAccessToken(token);
-  };
 
   const logoutMutation = useMutation(logoutApi, {
     onSuccess: () => {
@@ -57,12 +49,25 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
     },
   });
 
+  const login: UserContextValues['login'] = (user, accessToken) => {
+    setInitialized(true);
+    setUser({ ...user });
+    setAccessToken(accessToken);
+  };
+
+  const logout = () => {
+    setInitialized(true);
+    logoutMutation.mutate({});
+  };
+
   return (
     <userContext.Provider
       value={{
         user,
         accessToken,
-        updateAccessToken,
+        initialized,
+        setInitialized,
+        setAccessToken,
         getLoginUserData: getUserDataQuery.refetch,
         login,
         logout,
