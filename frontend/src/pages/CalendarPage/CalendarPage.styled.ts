@@ -1,9 +1,15 @@
 import styled from '@emotion/styled';
 
 export const Layout = styled.div`
-  width: 100%;
+  padding: 0.75rem;
+  margin: auto;
   display: flex;
+  gap: 1rem;
   flex-direction: column;
+
+  ${({ theme: { media } }) => media['md']`
+    flex-direction: row;
+  `}
 `;
 
 export const SpinnerBox = styled.div`
@@ -16,14 +22,27 @@ export const SpinnerBox = styled.div`
 export const CalendarBox = styled.div`
   display: flex;
   justify-content: center;
-  padding: 0.75rem;
+`;
+
+export const CalendarSideSection = styled.section`
+  ${({ theme: { media } }) => media['md']`
+    width: 350px;
+    flex-direction: row;
+  `}
+`;
+
+export const CalendarControlHintParagraph = styled.p`
+  color: ${({ theme: { colors } }) => colors['subtle-dark']};
+`;
+
+export const CalendarControlTitle = styled.h2`
+  margin-bottom: 1rem;
 `;
 
 export const CalenderControlBox = styled.div`
-  padding: 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 `;
 
 export const Form = styled.form`
@@ -34,7 +53,7 @@ export const Form = styled.form`
 
 export const FieldGroupBox = styled.div`
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
 `;
 
 export const FieldBox = styled.div`
@@ -49,6 +68,7 @@ export const Label = styled.label`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  color: ${({ theme: { colors } }) => colors['subtle-dark']};
 `;
 
 export const ButtonBox = styled.div`
