@@ -52,7 +52,7 @@ export const TitleBox = styled.div`
   padding: 0.75rem;
 `;
 
-export const Title = styled.h2`
+export const Title = styled.p`
   font-size: 1rem;
   font-weight: 300;
   color: ${({ theme: { colors } }) => colors['subtle-dark']};
