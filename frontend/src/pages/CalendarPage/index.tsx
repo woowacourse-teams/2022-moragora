@@ -1,12 +1,8 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Navigate, useOutletContext, useParams } from 'react-router-dom';
-import { css } from '@emotion/react';
 import Button from 'components/@shared/Button';
 import Calendar from 'components/@shared/Calendar';
-import DialogButton from 'components/@shared/DialogButton';
-import Input from 'components/@shared/Input';
 import { CalendarContext } from 'contexts/calendarContext';
-import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
 import useQuery from 'hooks/useQuery';
 import { dateToFormattedString } from 'utils/timeUtil';
@@ -20,8 +16,8 @@ import { getMeetingData } from 'apis/meetingApis';
 import Spinner from 'components/@shared/Spinner';
 import { QueryState } from 'types/queryType';
 import ErrorIcon from 'components/@shared/ErrorIcon';
-import { MeetingEvent } from 'types/eventType';
 import * as S from './CalendarPage.styled';
+import TimePicker from 'components/@shared/TimePicker';
 
 const CalendarPage = () => {
   const { id: meetingId } = useParams();
@@ -30,15 +26,21 @@ const CalendarPage = () => {
     return <Navigate to="/error" />;
   }
 
-  const {
-    events,
-    selectedDates,
-    clearSelectedDates,
-    updateEvents,
-    setSavedEvents,
-  } = useContext(CalendarContext);
-
-  const { values, errors, onSubmit, register } = useForm();
+  const currentDate = new Date();
+  const { selectedDates, clearSelectedDates, setSavedEvents } =
+    useContext(CalendarContext);
+  const [meetingStartTime, setMeetingStartTime] = useState<
+    Partial<{
+      hour: number;
+      minute: number;
+    }>
+  >();
+  const [meetingEndTime, setMeetingEndTime] = useState<
+    Partial<{
+      hour: number;
+      minute: number;
+    }>
+  >();
 
   const { meetingQuery } = useOutletContext<{
     meetingQuery: QueryState<typeof getMeetingData>;
@@ -77,21 +79,40 @@ const CalendarPage = () => {
     },
   });
 
-  const handleUpdateEventsSubmit: React.FormEventHandler<HTMLFormElement> = ({
-    currentTarget,
-  }) => {
-    const formData = new FormData(currentTarget);
-    const formDataObject = Object.fromEntries(formData.entries()) as Pick<
-      MeetingEvent,
-      'meetingStartTime' | 'meetingEndTime'
-    >;
+  const handleUpdateEventsSubmit: React.FormEventHandler<HTMLFormElement> = (
+    e
+  ) => {
+    e.preventDefault();
 
-    updateEvents(
-      selectedDates.map((date) => ({
+    const formData = new FormData(e.currentTarget);
+    const formDataObject = Object.fromEntries(
+      formData.entries()
+    ) as unknown as {
+      'meetingStartTime-hour': number;
+      'meetingStartTime-minute': number;
+      'meetingEndTime-hour': number;
+      'meetingEndTime-minute': number;
+    };
+    const convertedTimeString = {
+      meetingStartTime: `${formDataObject['meetingStartTime-hour']
+        .toString()
+        .padStart(2, '0')}:${formDataObject['meetingStartTime-minute']
+        .toString()
+        .padStart(2, '0')}`,
+      meetingEndTime: `${formDataObject['meetingEndTime-hour']
+        .toString()
+        .padStart(2, '0')}:${formDataObject['meetingEndTime-minute']
+        .toString()
+        .padStart(2, '0')}`,
+    };
+
+    createEventsMutation.mutate({
+      events: selectedDates.map((date) => ({
         date: dateToFormattedString(date),
-        ...formDataObject,
-      }))
-    );
+        ...convertedTimeString,
+      })),
+    });
+
     clearSelectedDates();
   };
 
@@ -100,12 +121,6 @@ const CalendarPage = () => {
       dates: selectedDates.map((date) => dateToFormattedString(date)),
     });
     clearSelectedDates();
-  };
-
-  const handleClickSaveEventsButtonClick = () => {
-    createEventsMutation.mutate({
-      events,
-    });
   };
 
   if (eventsQuery.isLoading) {
@@ -151,72 +166,72 @@ const CalendarPage = () => {
           </S.CalendarControlHintParagraph>
         ) : (
           <S.CalenderControlBox>
-            <S.Form
-              id="add-events-form"
-              {...onSubmit(handleUpdateEventsSubmit)}
-            >
+            <S.Form id="add-events-form" onSubmit={handleUpdateEventsSubmit}>
               <S.Label>추가/수정</S.Label>
               <S.FieldGroupBox>
                 <S.FieldBox>
                   <S.Label>
                     시작 시간
-                    <Input
-                      type="time"
-                      {...register('meetingStartTime', {
-                        onClick: (e) => {
-                          const currentTarget =
-                            e.currentTarget as HTMLInputElement & {
-                              showPicker: () => void;
-                            };
-
-                          currentTarget.showPicker();
-                        },
-                        watch: true,
-                      })}
+                    <TimePicker
+                      name="meetingStartTime"
+                      min={
+                        selectedDates.some(
+                          (date) =>
+                            date.toDateString() === currentDate.toDateString()
+                        )
+                          ? {
+                              hour: currentDate.getHours(),
+                              minute: currentDate.getMinutes(),
+                            }
+                          : undefined
+                      }
+                      max={{ hour: 23, minute: 40 }}
+                      value={meetingStartTime}
+                      onChange={(value) => {
+                        setMeetingStartTime((prev) => ({
+                          ...prev,
+                          ...value,
+                        }));
+                      }}
                     />
                   </S.Label>
                 </S.FieldBox>
                 <S.FieldBox>
                   <S.Label>
                     마감 시간
-                    <Input
-                      type="time"
-                      {...register('meetingEndTime', {
-                        onClick: (e) => {
-                          const currentTarget =
-                            e.currentTarget as HTMLInputElement & {
-                              showPicker: () => void;
-                            };
-
-                          currentTarget.showPicker();
-                        },
-                        watch: true,
-                      })}
-                      disabled={errors['meetingStartTime'] !== ''}
+                    <TimePicker
+                      name="meetingEndTime"
+                      min={
+                        selectedDates.some(
+                          (date) =>
+                            date.toDateString() === currentDate.toDateString()
+                        )
+                          ? {
+                              hour: currentDate.getHours(),
+                              minute: currentDate.getMinutes() + 10,
+                            }
+                          : undefined
+                      }
+                      value={meetingEndTime}
+                      onChange={(value) => {
+                        setMeetingEndTime((prev) => ({
+                          ...prev,
+                          ...value,
+                        }));
+                      }}
+                      disabled={!meetingStartTime}
                     />
                   </S.Label>
                 </S.FieldBox>
-                <DialogButton
-                  variant="confirm"
-                  css={css`
-                    height: 3rem;
-                    align-self: flex-end;
-                  `}
-                  type="submit"
-                  form="add-events-form"
-                  disabled={
-                    !values['meetingStartTime'] ||
-                    !values['meetingEndTime'] ||
-                    selectedDates.length === 0
-                  }
-                >
-                  추가
-                </DialogButton>
               </S.FieldGroupBox>
               <Button
-                type="button"
-                onClick={handleClickSaveEventsButtonClick}
-                disabled={events.length === 0}
+                type="submit"
+                disabled={
+                  meetingStartTime?.hour === undefined ||
+                  meetingStartTime?.minute === undefined ||
+                  meetingEndTime?.hour === undefined ||
+                  meetingEndTime?.minute === undefined
+                }
               >
                 저장
               </Button>

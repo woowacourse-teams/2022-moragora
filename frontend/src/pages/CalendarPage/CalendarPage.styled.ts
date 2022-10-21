@@ -68,6 +68,7 @@ export const Label = styled.label`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  color: ${({ theme: { colors } }) => colors['subtle-dark']};
 `;
 
 export const ButtonBox = styled.div`
