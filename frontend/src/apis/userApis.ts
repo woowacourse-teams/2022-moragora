@@ -46,6 +46,7 @@ export const submitLoginApi = async (payload: UserLoginRequestBody) =>
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(payload),
+    credentials: 'include',
   });
 
 export const submitRegisterApi = async (payload: UserRegisterRequestBody) => {
