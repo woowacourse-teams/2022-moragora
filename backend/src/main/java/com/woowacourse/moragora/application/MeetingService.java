@@ -6,6 +6,8 @@ import com.woowacourse.moragora.domain.attendance.MeetingAttendances;
 import com.woowacourse.moragora.domain.attendance.ParticipantAttendances;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.event.EventRepository;
+import com.woowacourse.moragora.domain.geolocation.Beacon;
+import com.woowacourse.moragora.domain.geolocation.BeaconRepository;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.meeting.MeetingRepository;
 import com.woowacourse.moragora.domain.participant.Participant;
@@ -14,6 +16,7 @@ import com.woowacourse.moragora.domain.participant.ParticipantRepository;
 import com.woowacourse.moragora.domain.query.QueryRepository;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.domain.user.UserRepository;
+import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
@@ -23,6 +26,7 @@ import com.woowacourse.moragora.dto.response.meeting.MeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingsResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
+import com.woowacourse.moragora.exception.beacon.BeaconNumberExceedException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import com.woowacourse.moragora.exception.participant.InvalidParticipantException;
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
@@ -42,11 +46,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class MeetingService {
 
+    private static final int MAX_BEACON_SIZE = 3;
+
     private final MeetingRepository meetingRepository;
     private final EventRepository eventRepository;
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
+    private final BeaconRepository beaconRepository;
     private final QueryRepository queryRepository;
     private final ServerTimeManager serverTimeManager;
 
@@ -55,6 +62,7 @@ public class MeetingService {
                           final ParticipantRepository participantRepository,
                           final AttendanceRepository attendanceRepository,
                           final UserRepository userRepository,
+                          final BeaconRepository beaconRepository,
                           final QueryRepository queryRepository,
                           final ServerTimeManager serverTimeManager) {
         this.meetingRepository = meetingRepository;
@@ -62,6 +70,7 @@ public class MeetingService {
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
+        this.beaconRepository = beaconRepository;
         this.queryRepository = queryRepository;
         this.serverTimeManager = serverTimeManager;
     }
@@ -155,7 +164,28 @@ public class MeetingService {
         attendanceRepository.deleteByParticipantIdIn(participantIds);
         participantRepository.deleteByIdIn(participantIds);
         eventRepository.deleteByMeetingId(meeting.getId());
+        beaconRepository.deleteByMeetingId(meeting.getId());
         meetingRepository.deleteById(meeting.getId());
+    }
+
+    @Transactional
+    public void addBeacons(final Long meetingId, final List<BeaconRequest> beaconsRequest) {
+        final Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+
+        if (validateMaximumBeacon(beaconsRequest)) {
+            throw new BeaconNumberExceedException();
+        }
+
+        final List<Beacon> beacons = beaconsRequest.stream()
+                .map((BeaconRequest beaconRequest) -> beaconRequest.toEntity(meeting))
+                .collect(Collectors.toList());
+
+        beaconRepository.saveAll(beacons);
+    }
+
+    private boolean validateMaximumBeacon(final List<BeaconRequest> beaconsRequest) {
+        return beaconsRequest.size() > MAX_BEACON_SIZE;
     }
 
     public MeetingActiveResponse checkActive(final Long meetingId) {

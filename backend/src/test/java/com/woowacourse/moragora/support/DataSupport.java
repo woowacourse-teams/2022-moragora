@@ -5,6 +5,8 @@ import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
 import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.event.EventRepository;
+import com.woowacourse.moragora.domain.geolocation.Beacon;
+import com.woowacourse.moragora.domain.geolocation.BeaconRepository;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.meeting.MeetingRepository;
 import com.woowacourse.moragora.domain.participant.Participant;
@@ -23,6 +25,7 @@ public class DataSupport {
     private final UserRepository userRepository;
 
     private final MeetingRepository meetingRepository;
+    private BeaconRepository beaconRepository;
 
     private final ParticipantRepository participantRepository;
 
@@ -30,13 +33,12 @@ public class DataSupport {
 
     private final EventRepository eventRepository;
 
-    public DataSupport(final UserRepository userRepository,
-                       final MeetingRepository meetingRepository,
-                       final ParticipantRepository participantRepository,
-                       final AttendanceRepository attendanceRepository,
-                       final EventRepository eventRepository) {
+    public DataSupport(final UserRepository userRepository, final MeetingRepository meetingRepository,
+                       final BeaconRepository beaconRepository, final ParticipantRepository participantRepository,
+                       final AttendanceRepository attendanceRepository, final EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.meetingRepository = meetingRepository;
+        this.beaconRepository = beaconRepository;
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.eventRepository = eventRepository;
@@ -75,6 +77,13 @@ public class DataSupport {
 
     public Meeting saveMeeting(final Meeting meeting) {
         return meetingRepository.save(meeting);
+    }
+
+    public List<Beacon> saveBeacon(final Meeting meeting, final Beacon... beacons) {
+        for (final Beacon beacon : beacons) {
+            beacon.mapMeeting(meeting);
+        }
+        return beaconRepository.saveAll(List.of(beacons));
     }
 
     public Event saveEvent(final Event event) {

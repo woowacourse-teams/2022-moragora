@@ -6,7 +6,7 @@ export default {
   component: MasterAssignSection,
 };
 
-function Template(args) {
+const Template = (args) => {
   return (
     <div
       css={css`
@@ -16,6 +16,6 @@ function Template(args) {
       <MasterAssignSection {...args} />
     </div>
   );
-}
+};
 
 export const Default = Template.bind({});

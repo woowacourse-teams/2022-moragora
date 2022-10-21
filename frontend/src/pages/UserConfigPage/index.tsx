@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import * as S from './UserConfigPage.styled';
 import Avatar from 'components/@shared/Avatar';
 import MenuLink from 'components/@shared/MenuLink';
 import NicknameInput from 'components/NicknameInput';
@@ -7,6 +6,7 @@ import { userContext, UserContextValues } from 'contexts/userContext';
 import useMutation from 'hooks/useMutation';
 import { updateNicknameApi } from 'apis/userApis';
 import { AuthProvider } from 'types/userType';
+import * as S from './UserConfigPage.styled';
 
 const UserConfigPage = () => {
   const initialRendering = useRef(true);
@@ -14,22 +14,19 @@ const UserConfigPage = () => {
   const [nickname, setNickname] = useState(
     userState.user?.nickname ?? 'unknown'
   );
-  const nicknameUpdateMutation = useMutation(
-    updateNicknameApi(userState.accessToken),
-    {
-      onMutate: ({ nickname }) => {
-        setNickname(nickname);
-      },
-      onError: (e) => {
-        setNickname(userState.user?.nickname ?? 'unknown');
-        alert(e);
-      },
-      onSuccess: () => {
-        userState.getLoginUserData();
-        alert('닉네임이 변경되었습니다.');
-      },
-    }
-  );
+  const nicknameUpdateMutation = useMutation(updateNicknameApi(), {
+    onMutate: ({ nickname }) => {
+      setNickname(nickname);
+    },
+    onError: (e) => {
+      setNickname(userState.user?.nickname ?? 'unknown');
+      alert(e);
+    },
+    onSuccess: () => {
+      userState.getLoginUserData();
+      alert('닉네임이 변경되었습니다.');
+    },
+  });
 
   useEffect(() => {
     // 최초로 렌더링할 때 userContext가 로드되기까지 기다린 후 nickname을 업데이트한다.

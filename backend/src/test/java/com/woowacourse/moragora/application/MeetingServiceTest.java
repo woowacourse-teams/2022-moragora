@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
+import com.woowacourse.moragora.domain.geolocation.Beacon;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.user.User;
@@ -637,6 +638,8 @@ class MeetingServiceTest {
         final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
         final Event event3 = dataSupport.saveEvent(EVENT3.create(meeting));
         final Event event4 = dataSupport.saveEvent(EVENT4.create(meeting));
+        final Beacon beacon = new Beacon("루터회관", 37.5153, 127.103, 50);
+        dataSupport.saveBeacon(meeting, beacon);
 
         dataSupport.saveAttendance(participant, event1, Status.NONE);
         dataSupport.saveAttendance(participant, event2, Status.NONE);

@@ -1,13 +1,11 @@
 import React, { useContext } from 'react';
 import { Navigate, useOutletContext, useParams } from 'react-router-dom';
 import { css } from '@emotion/react';
-import * as S from './CalendarPage.styled';
 import Button from 'components/@shared/Button';
 import Calendar from 'components/@shared/Calendar';
 import DialogButton from 'components/@shared/DialogButton';
 import Input from 'components/@shared/Input';
 import { CalendarContext } from 'contexts/calendarContext';
-import { userContext, UserContextValues } from 'contexts/userContext';
 import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
 import useQuery from 'hooks/useQuery';
@@ -23,61 +21,14 @@ import Spinner from 'components/@shared/Spinner';
 import { QueryState } from 'types/queryType';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import { MeetingEvent } from 'types/eventType';
+import * as S from './CalendarPage.styled';
 
 const CalendarPage = () => {
   const { id: meetingId } = useParams();
-  const user = useContext(userContext) as UserContextValues;
 
   if (!meetingId) {
     return <Navigate to="/error" />;
   }
-
-  const { meetingQuery } = useOutletContext<{
-    meetingQuery: QueryState<typeof getMeetingData>;
-    upcomingEventQuery: QueryState<typeof getUpcomingEventApi>;
-    totalTardyCount: number;
-    upcomingEventNotExist: boolean;
-  }>();
-
-  const eventsQuery = useQuery(
-    ['events'],
-    getEventsApi(meetingId, user.accessToken),
-    {
-      onSuccess: ({ body: { events } }) => {
-        setSavedEvents(events);
-      },
-      onError: (error) => {
-        alert(error.message);
-      },
-    }
-  );
-
-  const createEventsMutation = useMutation(
-    createEventsApi(meetingId, user.accessToken),
-    {
-      onSuccess: () => {
-        eventsQuery.refetch();
-        alert('일정을 생성했습니다.');
-      },
-      onError: (error) => {
-        alert(error.message);
-      },
-    }
-  );
-
-  const removeEventsMutation = useMutation(
-    deleteEventsApi(meetingId, user.accessToken),
-    {
-      onSuccess: () => {
-        eventsQuery.refetch();
-        alert('일정을 삭제했습니다.');
-      },
-      onError: (error) => {
-        eventsQuery.refetch();
-        alert(error.message);
-      },
-    }
-  );
 
   const {
     events,
@@ -86,9 +37,47 @@ const CalendarPage = () => {
     updateEvents,
     setSavedEvents,
   } = useContext(CalendarContext);
+
   const { values, errors, onSubmit, register } = useForm();
 
-  const handleupdateEventsSubmit: React.FormEventHandler<HTMLFormElement> = ({
+  const { meetingQuery } = useOutletContext<{
+    meetingQuery: QueryState<typeof getMeetingData>;
+    upcomingEventQuery: QueryState<typeof getUpcomingEventApi>;
+    totalTardyCount: number;
+    upcomingEventNotExist: boolean;
+  }>();
+
+  const eventsQuery = useQuery(['events'], getEventsApi(meetingId), {
+    onSuccess: ({ body: { events } }) => {
+      setSavedEvents(events);
+    },
+    onError: (error) => {
+      alert(error.message);
+    },
+  });
+
+  const createEventsMutation = useMutation(createEventsApi(meetingId), {
+    onSuccess: () => {
+      eventsQuery.refetch();
+      alert('일정을 생성했습니다.');
+    },
+    onError: (error) => {
+      alert(error.message);
+    },
+  });
+
+  const removeEventsMutation = useMutation(deleteEventsApi(meetingId), {
+    onSuccess: () => {
+      eventsQuery.refetch();
+      alert('일정을 삭제했습니다.');
+    },
+    onError: (error) => {
+      eventsQuery.refetch();
+      alert(error.message);
+    },
+  });
+
+  const handleUpdateEventsSubmit: React.FormEventHandler<HTMLFormElement> = ({
     currentTarget,
   }) => {
     const formData = new FormData(currentTarget);
@@ -121,25 +110,21 @@ const CalendarPage = () => {
 
   if (eventsQuery.isLoading) {
     return (
-      <>
-        <S.Layout>
-          <S.SpinnerBox>
-            <Spinner />
-          </S.SpinnerBox>
-        </S.Layout>
-      </>
+      <S.Layout>
+        <S.SpinnerBox>
+          <Spinner />
+        </S.SpinnerBox>
+      </S.Layout>
     );
   }
 
   if (eventsQuery.isError) {
     return (
-      <>
-        <S.Layout>
-          <S.SpinnerBox>
-            <ErrorIcon />
-          </S.SpinnerBox>
-        </S.Layout>
-      </>
+      <S.Layout>
+        <S.SpinnerBox>
+          <ErrorIcon />
+        </S.SpinnerBox>
+      </S.Layout>
     );
   }
 
@@ -152,7 +137,7 @@ const CalendarPage = () => {
         <S.CalenderControlBox>
           <S.Form
             id="add-events-form"
-            {...onSubmit(handleupdateEventsSubmit)}
+            {...onSubmit(handleUpdateEventsSubmit)}
             css={css`
               padding: 0 0.75rem;
             `}

@@ -1,6 +1,4 @@
 import { useContext, useState } from 'react';
-import * as S from './CheckInPage.styled';
-import { userContext, UserContextValues } from 'contexts/userContext';
 import { getMeetingListApi } from 'apis/meetingApis';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
@@ -9,24 +7,23 @@ import CheckMeetingItem from 'components/CheckMeetingItem';
 import useQuery from 'hooks/useQuery';
 import { MeetingListResponseBody } from 'types/meetingType';
 import emptyInboxSVG from 'assets/empty-inbox.svg';
+import { userContext, UserContextValues } from 'contexts/userContext';
 import AttendanceSection from './AttendanceSection';
+import * as S from './CheckInPage.styled';
 
 const CheckInPage = () => {
+  const userState = useContext(userContext) as UserContextValues;
   const [currentMeeting, setCurrentMeeting] =
     useState<MeetingListResponseBody['meetings'][0]>();
-  const { accessToken } = useContext(userContext) as UserContextValues;
 
-  const meetingListQuery = useQuery(
-    ['meetingList'],
-    getMeetingListApi(accessToken),
-    {
-      onSuccess: ({ body: { meetings } }) => {
-        const activeMeeting = meetings.find((meeting) => meeting.isActive);
+  const meetingListQuery = useQuery(['meetingList'], getMeetingListApi(), {
+    enabled: !!userState.accessToken,
+    onSuccess: ({ body: { meetings } }) => {
+      const activeMeeting = meetings.find((meeting) => meeting.isActive);
 
-        setCurrentMeeting(activeMeeting ? activeMeeting : meetings[0]);
-      },
-    }
-  );
+      setCurrentMeeting(activeMeeting || meetings[0]);
+    },
+  });
 
   const handleMeetingItemClick = (
     meeting: MeetingListResponseBody['meetings'][0]

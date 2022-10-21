@@ -1,7 +1,7 @@
 import { rest } from 'msw';
-import CoffeeStackPage from '.';
 import Header from 'components/layouts/Header';
 import AppLayout from 'components/layouts/AppLayout';
+import CoffeeStackPage from '.';
 
 export default {
   title: 'Pages/CoffeeStackPage',
