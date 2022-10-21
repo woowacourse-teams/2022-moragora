@@ -163,9 +163,9 @@ const MeetingListPage = () => {
           </S.DateParagraph>
         </S.DateBox>
       </S.TimeSection>
-      <S.MeetingListSection aria-labelledby="meeting-list">
+      <S.MeetingListSection>
         <S.TitleBox>
-          <S.Title id="meeting-list">참여 중인 모임</S.Title>
+          <S.Title>참여 중인 모임</S.Title>
           <S.PageLink aria-label="모임 생성하기" to="/meeting/create">
             생성하기
           </S.PageLink>
@@ -178,9 +178,9 @@ const MeetingListPage = () => {
           ))}
         </S.MeetingList>
       </S.MeetingListSection>
-      <S.CoffeeStackSection aria-labelledby="coffee-list">
+      <S.CoffeeStackSection>
         <S.TitleBox>
-          <S.Title aria-labelledby="coffee-list">나의 커피 스택</S.Title>
+          <S.Title>나의 커피 스택</S.Title>
         </S.TitleBox>
         <S.CoffeeStackList>
           {meetingListResponse?.body.meetings.map((meeting) => (
