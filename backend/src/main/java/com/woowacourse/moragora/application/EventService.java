@@ -80,12 +80,10 @@ public class EventService {
 
     private void updateEvent(final List<Event> requestEvents, final List<Event> existingEvents) {
         for (final Event existingEvent : existingEvents) {
-            validateTodayEventChangeable(existingEvent);
-
             final Optional<Event> searchedEvent = requestEvents.stream()
                     .filter(it -> it.isSameDate(existingEvent))
                     .findAny();
-            searchedEvent.ifPresent(existingEvent::updateTime);
+            searchedEvent.ifPresent(it -> existingEvent.updateTime(serverTimeManager.getDateAndTime(), it));
         }
     }
 
@@ -178,12 +176,5 @@ public class EventService {
                 throw new ClientRuntimeException("과거의 일정을 생성할 수 없습니다.", HttpStatus.BAD_REQUEST);
             }
         });
-    }
-
-    private void validateTodayEventChangeable(final Event existingEvent) {
-        if (existingEvent.isSameDate(serverTimeManager.getDate())
-                && serverTimeManager.isAfter(existingEvent.getStartTime())) {
-            throw new ClientRuntimeException("일정이 시작된 후에는 변경할 수 없습니다.", HttpStatus.BAD_REQUEST);
-        }
     }
 }
