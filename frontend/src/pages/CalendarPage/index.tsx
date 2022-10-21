@@ -128,92 +128,106 @@ const CalendarPage = () => {
     );
   }
 
+  if (!meetingQuery.data?.body.isLoginUserMaster) {
+    return (
+      <S.Layout>
+        <S.CalendarBox>
+          <Calendar readOnly />
+        </S.CalendarBox>
+      </S.Layout>
+    );
+  }
+
   return (
     <S.Layout>
       <S.CalendarBox>
-        <Calendar readOnly={!meetingQuery.data?.body.isLoginUserMaster} />
+        <Calendar readOnly={false} />
       </S.CalendarBox>
-      {meetingQuery.data?.body.isLoginUserMaster && (
-        <S.CalenderControlBox>
-          <S.Form
-            id="add-events-form"
-            {...onSubmit(handleUpdateEventsSubmit)}
-            css={css`
-              padding: 0 0.75rem;
-            `}
-          >
-            <S.FieldGroupBox>
-              <S.FieldBox>
-                <S.Label>
-                  시작 시간
-                  <Input
-                    type="time"
-                    {...register('meetingStartTime', {
-                      onClick: (e) => {
-                        const currentTarget =
-                          e.currentTarget as HTMLInputElement & {
-                            showPicker: () => void;
-                          };
+      <S.CalendarSideSection>
+        <S.CalendarControlTitle>일정 설정</S.CalendarControlTitle>
+        {selectedDates.length === 0 ? (
+          <S.CalendarControlHintParagraph>
+            날짜를 선택하여 일정을 추가, 수정하거나 삭제하세요.
+          </S.CalendarControlHintParagraph>
+        ) : (
+          <S.CalenderControlBox>
+            <S.Form
+              id="add-events-form"
+              {...onSubmit(handleUpdateEventsSubmit)}
+            >
+              <S.Label>추가/수정</S.Label>
+              <S.FieldGroupBox>
+                <S.FieldBox>
+                  <S.Label>
+                    시작 시간
+                    <Input
+                      type="time"
+                      {...register('meetingStartTime', {
+                        onClick: (e) => {
+                          const currentTarget =
+                            e.currentTarget as HTMLInputElement & {
+                              showPicker: () => void;
+                            };
 
-                        currentTarget.showPicker();
-                      },
-                      watch: true,
-                    })}
-                  />
-                </S.Label>
-              </S.FieldBox>
-              <S.FieldBox>
-                <S.Label>
-                  마감 시간
-                  <Input
-                    type="time"
-                    {...register('meetingEndTime', {
-                      onClick: (e) => {
-                        const currentTarget =
-                          e.currentTarget as HTMLInputElement & {
-                            showPicker: () => void;
-                          };
+                          currentTarget.showPicker();
+                        },
+                        watch: true,
+                      })}
+                    />
+                  </S.Label>
+                </S.FieldBox>
+                <S.FieldBox>
+                  <S.Label>
+                    마감 시간
+                    <Input
+                      type="time"
+                      {...register('meetingEndTime', {
+                        onClick: (e) => {
+                          const currentTarget =
+                            e.currentTarget as HTMLInputElement & {
+                              showPicker: () => void;
+                            };
 
-                        currentTarget.showPicker();
-                      },
-                      watch: true,
-                    })}
-                    disabled={errors['meetingStartTime'] !== ''}
-                  />
-                </S.Label>
-              </S.FieldBox>
-              <DialogButton
-                variant="confirm"
-                css={css`
-                  height: 3rem;
-                  align-self: flex-end;
-                `}
-                type="submit"
-                form="add-events-form"
-                disabled={
-                  !values['meetingStartTime'] ||
-                  !values['meetingEndTime'] ||
-                  selectedDates.length === 0
-                }
+                          currentTarget.showPicker();
+                        },
+                        watch: true,
+                      })}
+                      disabled={errors['meetingStartTime'] !== ''}
+                    />
+                  </S.Label>
+                </S.FieldBox>
+                <DialogButton
+                  variant="confirm"
+                  css={css`
+                    height: 3rem;
+                    align-self: flex-end;
+                  `}
+                  type="submit"
+                  form="add-events-form"
+                  disabled={
+                    !values['meetingStartTime'] ||
+                    !values['meetingEndTime'] ||
+                    selectedDates.length === 0
+                  }
+                >
+                  추가
+                </DialogButton>
+              </S.FieldGroupBox>
+              <Button
+                type="button"
+                onClick={handleClickSaveEventsButtonClick}
+                disabled={events.length === 0}
               >
-                추가
-              </DialogButton>
-            </S.FieldGroupBox>
-          </S.Form>
-          <S.ButtonBox>
+                저장
+              </Button>
+            </S.Form>
+            <S.Label>삭제</S.Label>
             <Button type="button" onClick={handleRemoveEventsButtonClick}>
               삭제
             </Button>
-            <Button
-              type="button"
-              onClick={handleClickSaveEventsButtonClick}
-              disabled={events.length === 0}
-            >
-              저장
-            </Button>
-          </S.ButtonBox>
-        </S.CalenderControlBox>
-      )}
+          </S.CalenderControlBox>
+        )}
+      </S.CalendarSideSection>
     </S.Layout>
   );
 };
