@@ -66,11 +66,11 @@ const MeetingListPage = () => {
       <S.Layout>
         <S.TimeSection>
           <S.DateBox>
-            <S.Title aria-label="오늘 날짜">Today</S.Title>
+            <S.Title>Today</S.Title>
             <S.EmptyStateDateParagraph />
           </S.DateBox>
           <S.DateBox>
-            <S.Title aria-label="지금 시간">Time</S.Title>
+            <S.Title>Time</S.Title>
             <S.EmptyStateTimeParagraph />
           </S.DateBox>
         </S.TimeSection>
