@@ -5,7 +5,7 @@ import * as S from './Avatar.styled';
 const Avatar = () => {
   return (
     <S.Layout>
-      <S.Image src={AvatarIconSVG} alt="avatar" />
+      <S.Image src={AvatarIconSVG} alt="아바타" />
     </S.Layout>
   );
 };

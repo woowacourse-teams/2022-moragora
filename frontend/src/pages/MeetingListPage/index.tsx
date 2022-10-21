@@ -166,7 +166,9 @@ const MeetingListPage = () => {
       <S.MeetingListSection>
         <S.TitleBox>
           <S.Title>참여 중인 모임</S.Title>
-          <S.PageLink to="/meeting/create">생성하기</S.PageLink>
+          <S.PageLink aria-label="모임 생성하기" to="/meeting/create">
+            생성하기
+          </S.PageLink>
         </S.TitleBox>
         <S.MeetingList>
           {sortedMeetings.map((meeting) => (
