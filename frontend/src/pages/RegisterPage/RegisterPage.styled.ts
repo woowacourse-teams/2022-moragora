@@ -38,6 +38,7 @@ export const EmailBox = styled.div`
 `;
 
 export const EmailInput = styled(Input)`
+  min-width: 0;
   flex: 1;
 `;
 
