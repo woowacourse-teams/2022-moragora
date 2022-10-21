@@ -92,7 +92,6 @@ public class AuthService {
                 .orElseThrow(InvalidTokenException::new);
         removeRefreshToken(oldToken);
         validateRefreshTokenExpiration(refreshToken);
-        validateUserExists(refreshToken);
 
         return createTokenResponse(refreshToken.getUserId());
     }
@@ -129,12 +128,6 @@ public class AuthService {
 
     private void validateRefreshTokenExpiration(final RefreshToken refreshToken) {
         if (refreshToken.isExpiredAt(serverTimeManager.getDateAndTime())) {
-            throw new InvalidTokenException();
-        }
-    }
-
-    private void validateUserExists(final RefreshToken refreshToken) {
-        if (!userRepository.existsById(refreshToken.getUserId())) {
             throw new InvalidTokenException();
         }
     }
