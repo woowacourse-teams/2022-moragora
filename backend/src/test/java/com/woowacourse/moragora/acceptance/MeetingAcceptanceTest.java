@@ -26,6 +26,7 @@ import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
 import io.restassured.response.ValidatableResponse;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -109,8 +110,8 @@ class MeetingAcceptanceTest extends AcceptanceTest {
         final int meetingId1 = saveMeeting(token, ids, meeting1);
         final int meetingId2 = saveMeeting(token, ids, meeting2);
 
-        final LocalDate today = LocalDate.now();
-        final Event event = EVENT_WITHOUT_DATE.createEventOnDate(meeting1, today);
+        final LocalDateTime today = LocalDateTime.of(2022, 8, 1, 10, 10);
+        final Event event = EVENT_WITHOUT_DATE.createEventOnDate(meeting1, today.toLocalDate());
 
         given(serverTimeManager.getDate())
                 .willReturn(event.getDate());
@@ -120,6 +121,8 @@ class MeetingAcceptanceTest extends AcceptanceTest {
                 .willReturn(LocalTime.of(9, 30));
         given(serverTimeManager.calculateAttendanceCloseTime(event.getStartTime()))
                 .willReturn(LocalTime.of(10, 5));
+        given(serverTimeManager.getDateAndTime())
+                .willReturn(today);
 
         saveEvents(token, List.of(event), (long) meetingId1);
 
