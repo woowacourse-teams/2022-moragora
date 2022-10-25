@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.domain.event;
 
+import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
 import java.time.LocalDate;
@@ -90,6 +91,18 @@ public class Event {
 
     public boolean isDateBefore(final LocalDate date) {
         return this.date.isBefore(date);
+    }
+
+    public boolean isActive(final LocalDate today, final ServerTimeManager serverTimeManager) {
+        return isSameDate(today) && serverTimeManager.isAttendanceOpen(startTime);
+    }
+
+    public LocalTime getOpenTime(final ServerTimeManager serverTimeManager) {
+        return serverTimeManager.calculateOpenTime(startTime);
+    }
+
+    public LocalTime getCloseTime(final ServerTimeManager serverTimeManager) {
+        return serverTimeManager.calculateAttendanceCloseTime(startTime);
     }
 
     private void validateStartEndTime(final LocalTime entranceTime, final LocalTime leaveTime) {

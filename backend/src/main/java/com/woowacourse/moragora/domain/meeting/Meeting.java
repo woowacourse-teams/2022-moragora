@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.domain.meeting;
 
+import com.woowacourse.moragora.domain.exception.BusinessException;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.participant.ParticipantAndCount;
 import com.woowacourse.moragora.exception.global.InvalidFormatException;
@@ -81,6 +82,22 @@ public class Meeting {
         return participants.stream()
                 .mapToLong(Participant::getTardyCount)
                 .sum();
+    }
+
+    public long tardyCountByUserId(final Long loginUserId) {
+        return participants.stream()
+                .filter(participant -> participant.getUser().getId().equals(loginUserId))
+                .map(participant -> participant.getTardyCount())
+                .findAny()
+                .orElseThrow(() -> new BusinessException("지각 횟수가 할당되지 않았습니다."));
+    }
+
+    public boolean isMaster(final Long userId) {
+        return participants.stream()
+                .filter(participant -> participant.getUser().getId().equals(userId))
+                .map(participant -> participant.getIsMaster())
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("유저 ID에 해당하는 참가자가 없습니다, id: " + userId));
     }
 
     private void validateName(final String name) {

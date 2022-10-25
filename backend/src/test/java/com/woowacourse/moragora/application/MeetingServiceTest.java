@@ -406,7 +406,7 @@ class MeetingServiceTest {
 
     @DisplayName("유저 id로 유저가 속한 모든 모임을 조회한다.")
     @Test
-    void findAllByUserId() {
+    void findAllByMe() {
         // given
         final Meeting meeting1 = MORAGORA.create();
         final Meeting meeting2 = TEATIME.create();
@@ -416,8 +416,7 @@ class MeetingServiceTest {
         final Participant participant2 = dataSupport.saveParticipant(user, meeting2, true);
         final Participant participant3 = dataSupport.saveParticipant(user2, meeting2, false);
         final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting1));
-        final List<Attendance> attendances = dataSupport.saveAllAttendances(event1,
-                List.of(participant1, participant2, participant3));
+        dataSupport.saveAllAttendances(event1, List.of(participant1, participant2, participant3));
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 6);
         serverTimeManager.refresh(dateTime);
@@ -449,7 +448,7 @@ class MeetingServiceTest {
                 .build();
 
         // when
-        final MyMeetingsResponse response = meetingService.findAllByUserId(user.getId());
+        final MyMeetingsResponse response = meetingService.findAllByMe(user.getId());
 
         // then
         assertThat(response).usingRecursiveComparison()

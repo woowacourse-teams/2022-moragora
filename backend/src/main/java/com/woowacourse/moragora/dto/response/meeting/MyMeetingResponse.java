@@ -1,7 +1,11 @@
 package com.woowacourse.moragora.dto.response.meeting;
 
+import com.woowacourse.moragora.application.ServerTimeManager;
+import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.dto.response.event.EventResponse;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -36,16 +40,45 @@ public class MyMeetingResponse {
     }
 
     public static MyMeetingResponse of(final Meeting meeting,
-                                       final int tardyCount,
-                                       final boolean isLoginUserMaster,
-                                       final boolean isCoffeeTime,
+                                       final Long userId,
                                        final boolean isActive,
-                                       final EventResponse upcomingEvent) {
+                                       final EventResponse upcomingEvent,
+                                       final long tardyCount) {
 
         return new MyMeetingResponse(
-                meeting.getId(), meeting.getName(),
-                tardyCount, isLoginUserMaster, isCoffeeTime, isActive,
+                meeting.getId(),
+                meeting.getName(),
+                (int) tardyCount,
+                meeting.isMaster(userId),
+                meeting.isTardyStackFull(),
+                isActive,
                 upcomingEvent
+        );
+    }
+
+    public static MyMeetingResponse of(final Long userId,
+                                       final Meeting meeting,
+                                       final Event upcomingEvent,
+                                       final long tardyCount,
+                                       final ServerTimeManager serverTimeManager) {
+        final LocalDate today = serverTimeManager.getDate();
+        boolean isActive = false;
+        EventResponse eventResponse = null;
+        if (upcomingEvent != null) {
+            isActive = upcomingEvent.isActive(today, serverTimeManager);
+            final LocalTime attendanceOpenTime = upcomingEvent.getOpenTime(serverTimeManager);
+            final LocalTime attendanceClosedTime = upcomingEvent.getCloseTime(serverTimeManager);
+            eventResponse = EventResponse.of(upcomingEvent, attendanceOpenTime, attendanceClosedTime);
+        }
+
+        return new MyMeetingResponse(
+                meeting.getId(),
+                meeting.getName(),
+                (int) tardyCount,
+                meeting.isMaster(userId),
+                meeting.isTardyStackFull(),
+                isActive,
+                eventResponse
         );
     }
 }
