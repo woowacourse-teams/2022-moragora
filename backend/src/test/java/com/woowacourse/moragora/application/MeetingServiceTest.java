@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.woowacourse.moragora.domain.attendance.Attendance;
 import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.geolocation.Beacon;
@@ -59,6 +60,9 @@ class MeetingServiceTest {
 
     @Autowired
     private MeetingService meetingService;
+
+    @Autowired
+    AttendanceScheduler attendanceScheduler;
 
     @Autowired
     private ServerTimeManager serverTimeManager;
@@ -407,9 +411,18 @@ class MeetingServiceTest {
         final Meeting meeting1 = MORAGORA.create();
         final Meeting meeting2 = TEATIME.create();
         final User user = KUN.create();
-        dataSupport.saveParticipant(user, meeting1, true);
-        dataSupport.saveParticipant(user, meeting2, true);
+        final User user2 = PHILLZ.create();
+        final Participant participant1 = dataSupport.saveParticipant(user, meeting1, true);
+        final Participant participant2 = dataSupport.saveParticipant(user, meeting2, true);
+        final Participant participant3 = dataSupport.saveParticipant(user2, meeting2, false);
         final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting1));
+        final List<Attendance> attendances = dataSupport.saveAllAttendances(event1,
+                List.of(participant1, participant2, participant3));
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 6);
+        serverTimeManager.refresh(dateTime);
+
+        attendanceScheduler.updateToTardyAtAttendanceClosingTime();
 
         final LocalTime entranceTime = event1.getStartTime();
         final EventResponse upcomingEvent = EventResponse.of(event1, entranceTime.minusMinutes(30),
@@ -418,9 +431,9 @@ class MeetingServiceTest {
         final MyMeetingResponse response1 = MyMeetingResponse.builder()
                 .id(meeting1.getId())
                 .name(meeting1.getName())
-                .tardyCount(0)
+                .tardyCount(1)
                 .isLoginUserMaster(true)
-                .isCoffeeTime(false)
+                .isCoffeeTime(true)
                 .isActive(false)
                 .upcomingEvent(upcomingEvent)
                 .build();
@@ -428,15 +441,12 @@ class MeetingServiceTest {
         final MyMeetingResponse response2 = MyMeetingResponse.builder()
                 .id(meeting2.getId())
                 .name(meeting2.getName())
-                .tardyCount(0)
+                .tardyCount(1)
                 .isLoginUserMaster(true)
-                .isCoffeeTime(false)
+                .isCoffeeTime(true)
                 .isActive(false)
                 .upcomingEvent(null)
                 .build();
-
-        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 1, 10, 5);
-        serverTimeManager.refresh(dateTime);
 
         // when
         final MyMeetingsResponse response = meetingService.findAllByUserId(user.getId());

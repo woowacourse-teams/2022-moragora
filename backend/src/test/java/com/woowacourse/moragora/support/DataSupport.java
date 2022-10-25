@@ -1,5 +1,7 @@
 package com.woowacourse.moragora.support;
 
+import static com.woowacourse.moragora.domain.attendance.Status.NONE;
+
 import com.woowacourse.moragora.domain.attendance.Attendance;
 import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
 import com.woowacourse.moragora.domain.attendance.Status;
@@ -88,5 +90,14 @@ public class DataSupport {
 
     public Event saveEvent(final Event event) {
         return eventRepository.save(event);
+    }
+
+    public List<Attendance> saveAllAttendances(final Event event, final List<Participant> participants) {
+        final List<Attendance> attendances = participants.stream()
+                .map(participant -> new Attendance(NONE, false, participant, event))
+                .collect(Collectors.toList());
+
+        attendanceRepository.saveAll(attendances);
+        return attendances;
     }
 }
