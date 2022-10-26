@@ -15,7 +15,9 @@ spring:
       ddl-auto: create # ddl-auto
   datasource:
     hikari:
-      maximum-pool-size: 20
+      maximum-pool-size: 5
+  session:
+    store-type: redis
 
 logging:
   level:
@@ -28,3 +30,12 @@ server:
     threads:
       max: 50
     accept-count: 10
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        secure: true
+
+jvm:
+  args:
+    scheduler: true

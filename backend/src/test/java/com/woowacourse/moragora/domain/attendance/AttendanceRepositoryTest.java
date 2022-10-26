@@ -3,6 +3,7 @@ package com.woowacourse.moragora.domain.attendance;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT2;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT3;
+import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT_WITHOUT_DATE;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.F12;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.AZPI;
@@ -16,6 +17,8 @@ import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.support.DataSupport;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -48,7 +51,7 @@ class AttendanceRepositoryTest {
                 .findByParticipantIdAndEventId(participant.getId(), event.getId());
 
         // then
-        assertThat(attendance.isPresent()).isTrue();
+        assertThat(attendance).isPresent();
     }
 
     @DisplayName("미팅 참가자들의 특정 날짜 이전의 출석 기록을 조회한다.")
@@ -73,7 +76,7 @@ class AttendanceRepositoryTest {
         dataSupport.saveAttendance(participant2, event3, Status.TARDY);
 
         // when
-        final List<Attendance> attendances = attendanceRepository.findByParticipantIdInAndDateLessThanEqual(
+        final List<Attendance> attendances = attendanceRepository.findByParticipantIdInAndEventDateLessThanEqual(
                 List.of(participant1.getId(), participant2.getId()),
                 event2.getDate()
         );
@@ -170,7 +173,7 @@ class AttendanceRepositoryTest {
         // when
         attendanceRepository.deleteByEventIdIn(List.of(event1.getId()));
         final List<Attendance> result = attendanceRepository
-                .findByParticipantIdInAndDateLessThanEqual(List.of(participant.getId()), event2.getDate());
+                .findByParticipantIdInAndEventDateLessThanEqual(List.of(participant.getId()), event2.getDate());
 
         // then
         assertThat(result).hasSize(1);
@@ -196,7 +199,7 @@ class AttendanceRepositoryTest {
         // when
         attendanceRepository.deleteByParticipantIdIn(List.of(participant1.getId()));
         final List<Attendance> result = attendanceRepository
-                .findByParticipantIdInAndDateLessThanEqual(List.of(participant1.getId(), participant2.getId()),
+                .findByParticipantIdInAndEventDateLessThanEqual(List.of(participant1.getId(), participant2.getId()),
                         event2.getDate());
 
         // then
@@ -233,5 +236,35 @@ class AttendanceRepositoryTest {
         // when, then
         assertThatCode(() -> attendanceRepository.deleteByParticipantId(participant.getId()))
                 .doesNotThrowAnyException();
+    }
+
+    @DisplayName("현재 날짜, 시간을 기준으로 status가 NONE인 attendances를 조회한다.")
+    @Test
+    void findByEvents() {
+        // given
+        final User user = SUN.create();
+        final Meeting meeting = MORAGORA.create();
+        final Participant participant = dataSupport.saveParticipant(user, meeting);
+        final Event event1 = EVENT_WITHOUT_DATE.createEventOnDateAndTime(meeting, LocalDate.now(), LocalTime.now());
+        final Event event2 = EVENT_WITHOUT_DATE.createEventOnDateAndTime(meeting, LocalDate.now(), LocalTime.now());
+        final Event event3 = EVENT_WITHOUT_DATE.createEventOnDateAndTime(meeting, LocalDate.now(),
+                LocalTime.now().plusMinutes(5));
+        final Event event4 = EVENT_WITHOUT_DATE.createEventOnDateAndTime(meeting, LocalDate.now().plusDays(1),
+                LocalTime.now());
+        final Event includedEvent1 = dataSupport.saveEvent(event1);
+        final Event includedEvent2 = dataSupport.saveEvent(event2);
+        final Event excludedEvent1 = dataSupport.saveEvent(event3);
+        final Event excludedEvent2 = dataSupport.saveEvent(event4);
+
+        dataSupport.saveAttendance(participant, includedEvent1, Status.NONE);
+        dataSupport.saveAttendance(participant, includedEvent2, Status.NONE);
+        dataSupport.saveAttendance(participant, excludedEvent1, Status.NONE);
+        dataSupport.saveAttendance(participant, excludedEvent2, Status.NONE);
+
+        // when
+        final int affectedRows = attendanceRepository.updateByEventDateTimeAndStatus(LocalDate.now(), LocalTime.now());
+
+        // then
+        assertThat(affectedRows).isEqualTo(2);
     }
 }

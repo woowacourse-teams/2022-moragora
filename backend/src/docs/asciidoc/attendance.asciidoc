@@ -72,7 +72,3 @@ include::{snippets}/attendance/use-coffee/http-request.adoc[]
 === HTTP response
 
 include::{snippets}/attendance/use-coffee/http-response.adoc[]
-
-
-
-

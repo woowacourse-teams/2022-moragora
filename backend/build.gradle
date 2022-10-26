@@ -45,6 +45,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.awaitility:awaitility:3.0.0'
 
@@ -79,6 +80,15 @@ dependencies {
     // prometheus
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.session:spring-session-data-redis'
+
+    // embedded-redis
+    implementation('it.ozimov:embedded-redis:0.7.3') {
+        exclude group: "org.slf4j", module: "slf4j-simple"
+    }
 }
 
 task copyDocument(type: Copy) {
@@ -134,7 +144,8 @@ jacocoTestCoverageVerification {
                 minimum = 0.80
             }
 
-            excludes = ['*infrastructure*', '*support*', '*config*', '*dto*', '*exception*', '*logging*', '*Application*']
+            excludes = ['*infrastructure*', '*support*', '*config*', '*dto*', '*exception*', '*logging*', '*Application*',
+                        '*ControllerAdvice', '*SessionAttributeNames', '*Patterns', '*ValidationMessages', '*StatusCheckController']
         }
     }
 }

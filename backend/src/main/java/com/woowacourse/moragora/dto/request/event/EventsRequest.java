@@ -4,6 +4,7 @@ import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,7 @@ import lombok.ToString;
 @ToString
 public class EventsRequest {
 
+    @Valid
     private List<EventRequest> events;
 
     @Builder

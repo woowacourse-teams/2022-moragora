@@ -1,15 +1,18 @@
 package com.woowacourse.moragora.domain.participant;
 
+import com.woowacourse.moragora.domain.exception.BusinessException;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,13 +30,16 @@ public class Participant {
     @Column(columnDefinition = "boolean default false")
     private Boolean isMaster;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "meeting_id")
     private Meeting meeting;
+
+    @Transient
+    private Long tardyCount;
 
     public Participant(final User user, final Meeting meeting, final boolean isMaster) {
         this.user = user;
@@ -51,5 +57,21 @@ public class Participant {
 
     public void updateIsMaster(final boolean isMaster) {
         this.isMaster = isMaster;
+    }
+
+    public boolean isSameParticipant(final Long userId) {
+        return user.isSameUser(userId);
+    }
+
+    public void allocateTardyCount(final Long tardyCount) {
+        this.tardyCount = tardyCount;
+    }
+
+    public Long getTardyCount() {
+        if (tardyCount == null) {
+            throw new BusinessException("지각 횟수가 할당되지 않았습니다.");
+        }
+
+        return tardyCount;
     }
 }

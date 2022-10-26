@@ -1,9 +1,9 @@
 import { rest } from 'msw';
-import NotFoundPage from '.';
 import Header from 'components/layouts/Header';
 import AppLayout from 'components/layouts/AppLayout';
 import Footer from 'components/layouts/Footer';
 import { Body } from 'components/layouts/Body/Body.styled';
+import NotFoundPage from '.';
 
 export default {
   title: 'Pages/NotFoundPage',

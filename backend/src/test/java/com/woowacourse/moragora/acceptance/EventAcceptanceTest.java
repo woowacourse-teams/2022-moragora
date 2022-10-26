@@ -14,7 +14,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
@@ -28,13 +27,9 @@ import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 
 class EventAcceptanceTest extends AcceptanceTest {
-
-    @MockBean
-    private ServerTimeManager serverTimeManager;
 
     @DisplayName("특정 모임에 대한 일정들을 등록하고 상태코드 200을 반환한다.")
     @Test

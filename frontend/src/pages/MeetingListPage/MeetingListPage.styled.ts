@@ -52,7 +52,7 @@ export const TitleBox = styled.div`
   padding: 0.75rem;
 `;
 
-export const Title = styled.h2`
+export const Title = styled.p`
   font-size: 1rem;
   font-weight: 300;
   color: ${({ theme: { colors } }) => colors['subtle-dark']};
@@ -117,11 +117,6 @@ export const MeetingCreateLink = styled(Link)`
   padding: 0.75rem 0;
   border-radius: 1.5rem;
 
-  opacity: 0;
-  animation: dissolve 1.5s;
-  animation-delay: 2.7s;
-  animation-fill-mode: forwards;
-
   :hover {
     background-color: ${({ theme: { colors } }) => colors['primary-subtle']};
   }
@@ -139,7 +134,7 @@ export const EmptyStateImage = styled.img`
   width: 10rem;
   height: 10rem;
   opacity: 0;
-  animation: smooth-appear 2s;
+  animation: smooth-appear 1s;
   animation-fill-mode: forwards;
 `;
 
@@ -148,7 +143,7 @@ export const EmptyStateTitle = styled.h2`
   font-weight: 600;
   color: ${({ theme: { colors } }) => colors['subtle-dark']};
   opacity: 0;
-  animation: smooth-appear 2s;
+  animation: smooth-appear 1s;
   animation-fill-mode: forwards;
 `;
 
@@ -158,7 +153,7 @@ export const EmptyStateDateParagraph = styled.p`
   border-radius: 0.5rem;
   height: 1.5rem;
   width: 10rem;
-  animation: skeleton-gradient 1.5s infinite ease-in-out;
+  animation: skeleton-gradient 1s infinite ease-in-out;
 `;
 
 export const EmptyStateTimeParagraph = styled.p`
@@ -167,7 +162,7 @@ export const EmptyStateTimeParagraph = styled.p`
   border-radius: 0.5rem;
   height: 1.5rem;
   width: 6rem;
-  animation: skeleton-gradient 1.5s infinite ease-in-out;
+  animation: skeleton-gradient 1s infinite ease-in-out;
 `;
 
 export const EmptyStateParagraph = styled.p`
@@ -175,6 +170,6 @@ export const EmptyStateParagraph = styled.p`
   color: ${({ theme: { colors } }) => colors['subtle-light']};
   opacity: 0;
   animation: dissolve 1s;
-  animation-delay: 1.5s;
+  animation-delay: 0.75s;
   animation-fill-mode: forwards;
 `;

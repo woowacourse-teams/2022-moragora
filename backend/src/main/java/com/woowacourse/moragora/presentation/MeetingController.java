@@ -2,9 +2,11 @@ package com.woowacourse.moragora.presentation;
 
 import com.woowacourse.moragora.application.MeetingService;
 import com.woowacourse.moragora.application.auth.MasterAuthorization;
+import com.woowacourse.moragora.dto.request.meeting.BeaconsRequest;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
+import com.woowacourse.moragora.dto.response.meeting.MeetingActiveResponse;
 import com.woowacourse.moragora.dto.response.meeting.MeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingsResponse;
 import com.woowacourse.moragora.presentation.auth.Authentication;
@@ -12,6 +14,7 @@ import com.woowacourse.moragora.presentation.auth.AuthenticationPrincipal;
 import java.net.URI;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -82,5 +85,18 @@ public class MeetingController {
                                        @AuthenticationPrincipal final Long loginId) {
         meetingService.deleteMeeting(meetingId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{meetingId}/beacons")
+    public ResponseEntity<Void> addBeacons(@PathVariable final Long meetingId,
+                                           @RequestBody @Valid final BeaconsRequest beaconsRequest) {
+        meetingService.addBeacons(meetingId, beaconsRequest.getBeacons());
+        return ResponseEntity.created(URI.create("/meetings/" + meetingId + "/beacons")).build();
+    }
+
+    @GetMapping("/{meetingId}/active")
+    public ResponseEntity<MeetingActiveResponse> checkActive(@PathVariable final Long meetingId) {
+        final MeetingActiveResponse meetingActiveResponse = meetingService.checkActive(meetingId);
+        return ResponseEntity.ok(meetingActiveResponse);
     }
 }
