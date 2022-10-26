@@ -25,6 +25,12 @@ public interface MeetingRepository extends Repository<Meeting, Long> {
             + " where p.user.id = :userId")
     List<Meeting> findMeetingParticipantUsersByUserId(@Param("userId") Long userId);
 
+    @Query("select m "
+            + " from Meeting m "
+            + " inner join m.participants p "
+            + " where p.user.id = :userId")
+    List<Meeting> findAllByUserId(@Param("userId") Long userId);
+
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("delete from Meeting m where m.id = :id")
     void deleteById(@Param("id") final Long id);

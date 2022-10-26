@@ -10,6 +10,7 @@ import com.woowacourse.moragora.domain.meeting.MeetingRepository;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.participant.ParticipantAndCount;
 import com.woowacourse.moragora.domain.participant.ParticipantRepository;
+import com.woowacourse.moragora.domain.query.CompositionRepository;
 import com.woowacourse.moragora.domain.query.QueryRepository;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.domain.user.UserRepository;
@@ -17,7 +18,6 @@ import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
 import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
-import com.woowacourse.moragora.dto.response.event.EventResponse;
 import com.woowacourse.moragora.dto.response.meeting.MeetingActiveResponse;
 import com.woowacourse.moragora.dto.response.meeting.MeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingResponse;
@@ -29,7 +29,6 @@ import com.woowacourse.moragora.exception.participant.InvalidParticipantExceptio
 import com.woowacourse.moragora.exception.participant.ParticipantNotFoundException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -53,6 +52,7 @@ public class MeetingService {
     private final UserRepository userRepository;
     private final BeaconRepository beaconRepository;
     private final QueryRepository queryRepository;
+    private final CompositionRepository compositionRepository;
     private final ServerTimeManager serverTimeManager;
 
     public MeetingService(final MeetingRepository meetingRepository,
@@ -62,6 +62,7 @@ public class MeetingService {
                           final UserRepository userRepository,
                           final BeaconRepository beaconRepository,
                           final QueryRepository queryRepository,
+                          final CompositionRepository compositionRepository,
                           final ServerTimeManager serverTimeManager) {
         this.meetingRepository = meetingRepository;
         this.eventRepository = eventRepository;
@@ -70,6 +71,7 @@ public class MeetingService {
         this.userRepository = userRepository;
         this.beaconRepository = beaconRepository;
         this.queryRepository = queryRepository;
+        this.compositionRepository = compositionRepository;
         this.serverTimeManager = serverTimeManager;
     }
 
@@ -105,6 +107,7 @@ public class MeetingService {
         return MeetingResponse.of(meeting, attendedEventCount, loginParticipant);
     }
 
+/*
     public MyMeetingsResponse findAllByMe(final Long loginUserId) {
         final LocalDate today = serverTimeManager.getDate();
 
@@ -113,15 +116,15 @@ public class MeetingService {
         final List<MyMeetingResponse> myMeetingResponses = new ArrayList<>();
 
         for (final Meeting meeting : meetings) {
-            final List<ParticipantAndCount> participantAndCounts = queryRepository.countParticipantsTardy(
-                    meeting.getParticipants(), today);
-
+            final List<ParticipantAndCount> participantAndCounts =
+                    queryRepository.countParticipantsTardy(meeting.getParticipants(), today);
+            compositionRepository.meetingsWithTardyCount(meeting.getParticipants());
             meeting.allocateParticipantsTardyCount(participantAndCounts);
             meeting.calculateTardy();
-            final Event upcomingEvent = eventRepository
-                    .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
-                    .orElse(null);
-
+            final Event upcomingEvent =
+                    eventRepository
+                            .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
+                            .orElse(null);
             long tardyCount = meeting.tardyCountByUserId(loginUserId);
 
             MyMeetingResponse myMeetingResponse =
@@ -131,6 +134,26 @@ public class MeetingService {
 
         return new MyMeetingsResponse(myMeetingResponses);
     }
+*/
+
+    public MyMeetingsResponse findAllByMe(final Long loginUserId) {
+        final LocalDate today = serverTimeManager.getDate();
+        final List<Meeting> meetings = compositionRepository.meetingsWithTardyCount(loginUserId);
+        final List<MyMeetingResponse> myMeetingResponses = new ArrayList<>();
+
+        for (final Meeting meeting : meetings) {
+            final Event upcomingEvent = eventRepository
+                            .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
+                            .orElse(null);
+            long tardyCount = meeting.tardyCountByUserId(loginUserId);
+            MyMeetingResponse myMeetingResponse =
+                    MyMeetingResponse.of(loginUserId, meeting, upcomingEvent, tardyCount, serverTimeManager);
+            myMeetingResponses.add(myMeetingResponse);
+        }
+
+        return new MyMeetingsResponse(myMeetingResponses);
+    }
+
 
     @Transactional
     public void assignMaster(final Long meetingId, final MasterRequest request, final Long loginId) {

@@ -40,7 +40,7 @@ public class Meeting {
     private String name;
 
     @OneToMany(mappedBy = "meeting")
-    private final List<Participant> participants = new ArrayList<>();
+    private List<Participant> participants = new ArrayList<>();
 
     @Builder
     public Meeting(final Long id, final String name) {
@@ -56,12 +56,6 @@ public class Meeting {
     public void updateName(final String name) {
         validateName(name);
         this.name = name;
-    }
-
-    public List<Long> getParticipantIds() {
-        return participants.stream()
-                .map(Participant::getId)
-                .collect(Collectors.toUnmodifiableList());
     }
 
     public Optional<Participant> findParticipant(final Long userId) {
@@ -90,6 +84,19 @@ public class Meeting {
                 .map(participant -> participant.getTardyCount())
                 .findAny()
                 .orElseThrow(() -> new BusinessException("지각 횟수가 할당되지 않았습니다."));
+    }
+
+    public void mapParticipants(final List<Participant> participants) {
+        for (final Participant participant : participants) {
+            participant.mapMeeting(this);
+        }
+        this.participants = participants;
+    }
+
+    public List<Long> getParticipantIds() {
+        return participants.stream()
+                .map(Participant::getId)
+                .collect(Collectors.toUnmodifiableList());
     }
 
     public boolean isMaster(final Long userId) {
