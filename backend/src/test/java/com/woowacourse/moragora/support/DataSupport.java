@@ -67,6 +67,10 @@ public class DataSupport {
         return userRepository.save(user);
     }
 
+    public List<Long> saveUsers(final User... users) {
+        return saveUsers(List.of(users));
+    }
+
     public List<Long> saveUsers(final List<User> users) {
         for (User user : users) {
             userRepository.save(user);
