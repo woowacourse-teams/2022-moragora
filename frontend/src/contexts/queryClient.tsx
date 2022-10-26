@@ -2,25 +2,12 @@ import { useContext, createContext } from 'react';
 import { QueryClient } from 'types/queryType';
 
 export const queryClient: QueryClient = {
-  dataCache: {},
-  queryCache: null,
+  cache: {},
   invalidateQueries: function (key) {
-    delete this.dataCache[key];
+    delete this.cache[key];
   },
   isCached: (key) =>
-    Object.prototype.hasOwnProperty.call(queryClient.dataCache, key),
-  clearQueryCache: function () {
-    this.queryCache = null;
-  },
-  reQueryCache: function () {
-    if (this.queryCache) {
-      this.queryCache();
-      this.clearQueryCache();
-    }
-  },
-  setQueryCache: function (query: () => Promise<void>) {
-    this.queryCache = query;
-  },
+    Object.prototype.hasOwnProperty.call(queryClient.cache, key),
 };
 
 const QueryClientContext = createContext(queryClient);

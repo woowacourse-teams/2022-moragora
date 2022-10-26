@@ -1,7 +1,7 @@
 import { useCallback, useContext, useState } from 'react';
 import { throttle } from 'utils/throttle';
 import { TOKEN_ERROR_STATUS_CODES } from 'consts';
-import { userContext, UserContextValues } from 'contexts/userContext';
+import { userContext } from 'contexts/userContext';
 
 const useQuerySelectItems = <T extends { id: number }>(
   url: string,
@@ -18,7 +18,7 @@ const useQuerySelectItems = <T extends { id: number }>(
   const filteredQueryResult = queryResult.filter(
     (item) => !selectedItems.find((selectedItem) => selectedItem.id === item.id)
   );
-  const userState = useContext(userContext) as UserContextValues;
+  const userState = useContext(userContext);
 
   const queryWithKeyword = async (keyword: string) => {
     setLoading(true);
@@ -28,14 +28,14 @@ const useQuerySelectItems = <T extends { id: number }>(
         `${process.env.API_SERVER_HOST}${url}${keyword}`,
         {
           headers: {
-            Authorization: `Bearer ${userState.accessToken}`,
+            Authorization: `Bearer ${userState?.user?.accessToken}`,
           },
         }
       );
 
       if (!res.ok) {
         if (TOKEN_ERROR_STATUS_CODES.includes(res.status)) {
-          userState.logout();
+          userState?.logout();
         }
 
         throw new Error('회원 조회를 실패했습니다.');

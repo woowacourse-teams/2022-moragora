@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.application;
 
+import static com.woowacourse.moragora.domain.user.Provider.CHECKMATE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 
@@ -14,17 +15,17 @@ import com.woowacourse.moragora.dto.request.user.NicknameRequest;
 import com.woowacourse.moragora.dto.request.user.PasswordRequest;
 import com.woowacourse.moragora.dto.request.user.UserDeleteRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
+import com.woowacourse.moragora.dto.response.user.EmailCheckResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
 import com.woowacourse.moragora.dto.response.user.UsersResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
-import com.woowacourse.moragora.exception.auth.AuthCodeException;
 import com.woowacourse.moragora.exception.global.NoParameterException;
 import com.woowacourse.moragora.exception.user.AuthenticationFailureException;
-import com.woowacourse.moragora.exception.user.EmailDuplicatedException;
 import com.woowacourse.moragora.exception.user.InvalidPasswordException;
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,15 +47,20 @@ public class UserService {
     }
 
     @Transactional
-    public Long create(final UserRequest userRequest, final String verifiedEmail) {
-        final String email = userRequest.getEmail();
-
-        validateUserExistsByEmail(email);
-        confirmEmailVerification(email, verifiedEmail);
-
-        final User user = userRequest.toEntity();
+    public Long create(final UserRequest userRequest) {
+        validateUserExistsByEmailAndProvider(userRequest.getEmail());
+        final User user = new User(userRequest.getEmail(), EncodedPassword.fromRawValue(userRequest.getPassword()),
+                userRequest.getNickname());
         final User savedUser = userRepository.save(user);
         return savedUser.getId();
+    }
+
+    public EmailCheckResponse isEmailExist(final String email) {
+        if (email.isBlank()) {
+            throw new NoParameterException();
+        }
+        final boolean isExist = userRepository.findByEmailAndProvider(email, CHECKMATE).isPresent();
+        return new EmailCheckResponse(isExist);
     }
 
     public UsersResponse searchByKeyword(final String keyword) {
@@ -108,16 +114,10 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    private void confirmEmailVerification(final String email, final String verifiedEmail) {
-        if (!email.equals(verifiedEmail)) {
-            throw new AuthCodeException("인증되지 않은 이메일입니다.");
-        }
-    }
-
-    private void validateUserExistsByEmail(final String email) {
-        final boolean isExist = userRepository.existsByEmail(email);
-        if (isExist) {
-            throw new EmailDuplicatedException();
+    private void validateUserExistsByEmailAndProvider(final String email) {
+        final Optional<User> user = userRepository.findByEmailAndProvider(email, CHECKMATE);
+        if (user.isPresent()) {
+            throw new ClientRuntimeException("이미 사용중인 이메일입니다.", BAD_REQUEST);
         }
     }
 

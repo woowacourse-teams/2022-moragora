@@ -1,9 +1,11 @@
 import '@emotion/react';
-import { SerializedStyles, CSSInterpolation } from '@emotion/react';
+import { SerializedStyles } from '@emotion/react';
 
 type ScreenSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-type MediaQuery<T extends string> = Record<T, (arg0: any) => SerializedStyles>;
-
+type MediaQuery<T extends string> = Record<
+  T,
+  (arg0: string[]) => SerializedStyles
+>;
 type Colors =
   | 'normal'
   | 'subtle-dark'

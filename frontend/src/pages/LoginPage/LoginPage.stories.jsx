@@ -1,9 +1,9 @@
 import { rest } from 'msw';
+import LoginPage from '.';
 import Header from 'components/layouts/Header';
 import AppLayout from 'components/layouts/AppLayout';
 import Footer from 'components/layouts/Footer';
 import Body from 'components/layouts/Body';
-import LoginPage from '.';
 
 export default {
   title: 'Pages/LoginPage',

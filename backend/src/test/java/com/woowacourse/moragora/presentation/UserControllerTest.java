@@ -4,7 +4,6 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -20,15 +19,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.woowacourse.moragora.constant.SessionAttributeNames;
 import com.woowacourse.moragora.dto.request.user.NicknameRequest;
 import com.woowacourse.moragora.dto.request.user.PasswordRequest;
 import com.woowacourse.moragora.dto.request.user.UserDeleteRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
+import com.woowacourse.moragora.dto.response.user.EmailCheckResponse;
 import com.woowacourse.moragora.dto.response.user.UserResponse;
 import com.woowacourse.moragora.dto.response.user.UsersResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
-import com.woowacourse.moragora.exception.auth.InvalidTokenException;
 import com.woowacourse.moragora.exception.global.NoParameterException;
 import com.woowacourse.moragora.exception.user.InvalidPasswordException;
 import java.util.List;
@@ -36,10 +34,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -53,16 +50,14 @@ class UserControllerTest extends ControllerTest {
         final String password = "1234Asdfg!";
         final String nickname = "kun";
         final UserRequest userRequest = new UserRequest(email, password, nickname);
-        final MockHttpSession session = new MockHttpSession();
-        session.setAttribute(SessionAttributeNames.VERIFIED_EMAIL, email);
 
-        given(userService.create(any(UserRequest.class), eq(email)))
+        given(userService.create(any(UserRequest.class)))
                 .willReturn(1L);
 
         validateToken("1");
 
         // when
-        final ResultActions resultActions = performPostWithSession("/users", userRequest, session);
+        final ResultActions resultActions = performPost("/users", userRequest);
 
         // then
         resultActions.andExpect(status().isCreated())
@@ -106,26 +101,44 @@ class UserControllerTest extends ControllerTest {
                         .value("입력 형식이 올바르지 않습니다."));
     }
 
-    @DisplayName("인증되지않은 이메일로 회원가입을 할 경우 예외가 발생한다.")
-    @Test
-    void signUp_throwsException_ifNotVerifiedEmail() throws Exception {
+    @DisplayName("이메일의 중복 여부를 확인한다.")
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void checkEmail(final boolean isExist) throws Exception {
         // given
         final String email = "kun@email.com";
-        final String password = "1234Asdfg!";
-        final String nickname = "kun";
-        final UserRequest userRequest = new UserRequest(email, password, nickname);
-
-        given(userService.create(any(UserRequest.class), eq(null)))
-                .willThrow(new ClientRuntimeException("인증되지 않은 이메일입니다.", HttpStatus.BAD_REQUEST));
-
-        validateToken("1");
+        given(userService.isEmailExist(email))
+                .willReturn(new EmailCheckResponse(isExist));
 
         // when
-        final ResultActions resultActions = performPost("/users", userRequest);
+        final ResultActions resultActions = performGet("/users/check-email?email=" + email);
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.isExist").value(isExist))
+                .andDo(document("user/check-duplicate-email",
+                        preprocessResponse(prettyPrint()),
+                        responseFields(
+                                fieldWithPath("isExist").type(JsonFieldType.BOOLEAN).description(isExist)
+                        )
+                ));
+    }
+
+    @DisplayName("이메일을 입력하지 않고 중복 여부를 확인하면 예외가 발생한다.")
+    @ParameterizedTest
+    @EmptySource
+    @ValueSource(strings = {" "})
+    void checkEmail_throwsException_ifBlank(final String email) throws Exception {
+        // given
+        given(userService.isEmailExist(email))
+                .willThrow(new NoParameterException());
+
+        // when
+        final ResultActions resultActions = performGet("/users/check-email?email=" + email);
 
         // then
         resultActions.andExpect(status().isBadRequest())
-                .andExpect(jsonPath("message", equalTo("인증되지 않은 이메일입니다.")));
+                .andExpect(jsonPath("$.message").value("값이 입력되지 않았습니다."));
     }
 
     @DisplayName("keyword로 유저를 검색해 반환한다.")
@@ -231,26 +244,12 @@ class UserControllerTest extends ControllerTest {
     @DisplayName("로그인하지 않은 상태에서 회원의 정보를 조회하면 예외가 발생한다.")
     @Test
     void findMe_ifNotLoggedIn() throws Exception {
-        // given
-        doThrow(new InvalidTokenException())
-                .when(jwtTokenProvider)
-                .validateToken(any());
-        given(refreshTokenCookieProvider.createInvalidCookie())
-                .willReturn(ResponseCookie.from("refreshToken", "").build());
-
-        // when
+        // given, when
         final ResultActions resultActions = performGet("/users/me");
 
         // then
         resultActions.andExpect(status().isUnauthorized())
-                .andDo(document("user/find-my-info-unauthorized",
-                        responseFields(
-                                fieldWithPath("message").type(JsonFieldType.STRING)
-                                        .description("유효하지 않은 토큰입니다."),
-                                fieldWithPath("tokenStatus").type(JsonFieldType.STRING)
-                                        .description("invalid")
-                        )
-                ));
+                .andDo(document("user/find-my-info-unauthorized"));
     }
 
     @DisplayName("로그인한 회원의 닉네임을 수정한다.")

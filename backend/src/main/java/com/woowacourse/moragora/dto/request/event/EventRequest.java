@@ -1,7 +1,5 @@
 package com.woowacourse.moragora.dto.request.event;
 
-import com.woowacourse.moragora.constant.Patterns;
-import com.woowacourse.moragora.constant.ValidationMessages;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import java.time.LocalDate;
@@ -18,16 +16,18 @@ import org.springframework.format.annotation.DateTimeFormat;
 @ToString
 public class EventRequest {
 
-    @NotNull(message = ValidationMessages.MISSING_REQUIRED_INPUT)
-    @DateTimeFormat(pattern = Patterns.TIME)
+    private static final String MISSING_REQUIRED_INPUT = "필수 입력 값이 누락됐습니다.";
+
+    @NotNull(message = MISSING_REQUIRED_INPUT)
+    @DateTimeFormat(pattern = "'T'HH:mm")
     private LocalTime meetingStartTime;
 
-    @NotNull(message = ValidationMessages.MISSING_REQUIRED_INPUT)
-    @DateTimeFormat(pattern = Patterns.TIME)
+    @NotNull(message = MISSING_REQUIRED_INPUT)
+    @DateTimeFormat(pattern = "'T'HH:mm")
     private LocalTime meetingEndTime;
 
-    @NotNull(message = ValidationMessages.MISSING_REQUIRED_INPUT)
-    @DateTimeFormat(pattern = Patterns.DATE)
+    @NotNull(message = MISSING_REQUIRED_INPUT)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
 
     @Builder

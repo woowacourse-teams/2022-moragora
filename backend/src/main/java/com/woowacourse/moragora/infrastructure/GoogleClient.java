@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.woowacourse.moragora.dto.response.user.GoogleProfileResponse;
 import com.woowacourse.moragora.dto.response.user.GoogleTokenResponse;
-import com.woowacourse.moragora.exception.auth.GoogleOAuthFailureException;
+import com.woowacourse.moragora.exception.GoogleOAuthFailureException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;

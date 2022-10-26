@@ -1,7 +1,7 @@
 package com.woowacourse.moragora.presentation.auth;
 
-import com.woowacourse.moragora.application.auth.JwtTokenProvider;
 import com.woowacourse.moragora.support.AuthorizationExtractor;
+import com.woowacourse.moragora.support.JwtTokenProvider;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;

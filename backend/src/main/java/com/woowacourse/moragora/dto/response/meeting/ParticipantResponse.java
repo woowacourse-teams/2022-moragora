@@ -20,23 +20,22 @@ public class ParticipantResponse {
     public ParticipantResponse(final Long id,
                                final String email,
                                final String nickname,
-                               final long tardyCount,
+                               final int tardyCount,
                                final boolean isMaster) {
         this.id = id;
         this.email = email;
         this.nickname = nickname;
-        this.tardyCount = (int) tardyCount;
+        this.tardyCount = tardyCount;
         this.isMaster = isMaster;
     }
 
-    public static ParticipantResponse from(final Participant participant) {
+    public static ParticipantResponse of(final Participant participant, final int tardyCount) {
         final User user = participant.getUser();
-
         return new ParticipantResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getNickname(),
-                participant.getTardyCount(),
+                tardyCount,
                 participant.getIsMaster());
     }
 }

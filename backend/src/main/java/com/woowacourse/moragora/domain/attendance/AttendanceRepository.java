@@ -1,7 +1,6 @@
 package com.woowacourse.moragora.domain.attendance;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.Modifying;
@@ -21,7 +20,7 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
     @Query("select a from Attendance a join fetch a.event e "
             + "where a.participant.id in :participantIds "
             + "and e.date <= :date ")
-    List<Attendance> findByParticipantIdInAndEventDateLessThanEqual(
+    List<Attendance> findByParticipantIdInAndDateLessThanEqual(
             @Param("participantIds") final List<Long> participantIds,
             @Param("date") final LocalDate date);
 
@@ -46,8 +45,5 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
     @Query("delete from Attendance a where a.participant.id in :participantIds")
     void deleteByParticipantIdIn(@Param("participantIds") final List<Long> participantIds);
 
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
-    @Query("update Attendance a set a.status ='TARDY' where a.status = 'NONE' and a.event in "
-            + "(select e from Event e where e.date = :today and e.startTime <= :now)")
-    int updateByEventDateTimeAndStatus(@Param("today") final LocalDate today, @Param("now") final LocalTime now);
+    List<Attendance> findByEventId(Long id);
 }

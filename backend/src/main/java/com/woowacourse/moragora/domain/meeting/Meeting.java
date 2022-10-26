@@ -1,14 +1,13 @@
 package com.woowacourse.moragora.domain.meeting;
 
 import com.woowacourse.moragora.domain.participant.Participant;
-import com.woowacourse.moragora.domain.participant.ParticipantAndCount;
 import com.woowacourse.moragora.exception.global.InvalidFormatException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -29,17 +28,14 @@ import lombok.NoArgsConstructor;
 public class Meeting {
 
     private static final int MAX_NAME_LENGTH = 50;
-
+    @OneToMany(mappedBy = "meeting", fetch = FetchType.LAZY)
+    private final List<Participant> participants = new ArrayList<>();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Include
     private Long id;
-
     @Column(nullable = false)
     private String name;
-
-    @OneToMany(mappedBy = "meeting")
-    private final List<Participant> participants = new ArrayList<>();
 
     @Builder
     public Meeting(final Long id, final String name) {
@@ -61,26 +57,6 @@ public class Meeting {
         return participants.stream()
                 .map(Participant::getId)
                 .collect(Collectors.toUnmodifiableList());
-    }
-
-    public Optional<Participant> findParticipant(final Long userId) {
-        return participants.stream()
-                .filter(it -> it.isSameParticipant(userId))
-                .findAny();
-    }
-
-    public void allocateParticipantsTardyCount(final List<ParticipantAndCount> participantAndCounts) {
-        participantAndCounts.forEach(it -> it.getParticipant().allocateTardyCount(it.getTardyCount()));
-    }
-
-    public Boolean isTardyStackFull() {
-        return calculateTardy() >= participants.size();
-    }
-
-    public long calculateTardy() {
-        return participants.stream()
-                .mapToLong(Participant::getTardyCount)
-                .sum();
     }
 
     private void validateName(final String name) {

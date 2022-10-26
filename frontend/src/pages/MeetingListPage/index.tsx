@@ -1,5 +1,6 @@
-import { useContext, useEffect } from 'react';
+import { useEffect, useContext } from 'react';
 import { css } from '@emotion/react';
+import * as S from './MeetingListPage.styled';
 import MeetingItem from 'components/MeetingItem';
 import MeetingItemSkeleton from 'components/MeetingItemSkeleton';
 import CoffeeStackItem from 'components/CoffeeStackItem';
@@ -9,13 +10,12 @@ import ReloadButton from 'components/@shared/ReloadButton';
 import useQuery from 'hooks/useQuery';
 import useTimer from 'hooks/useTimer';
 import NoSearchResultIconSVG from 'assets/NoSearchResult.svg';
+import { userContext, UserContextValues } from 'contexts/userContext';
 import { getMeetingListApi } from 'apis/meetingApis';
 import { getServerTime } from 'apis/common';
-import { userContext, UserContextValues } from 'contexts/userContext';
-import * as S from './MeetingListPage.styled';
 
 const MeetingListPage = () => {
-  const userState = useContext(userContext) as UserContextValues;
+  const { accessToken } = useContext(userContext) as UserContextValues;
   const { data: serverTimeResponse } = useQuery(['serverTime'], getServerTime);
 
   const {
@@ -23,9 +23,7 @@ const MeetingListPage = () => {
     refetch,
     isLoading,
     isError,
-  } = useQuery(['meetingList'], getMeetingListApi(), {
-    enabled: !!userState.accessToken,
-  });
+  } = useQuery(['meetingList'], getMeetingListApi(accessToken));
 
   const { currentTimestamp } = useTimer(
     serverTimeResponse?.body.serverTime || Date.now()
@@ -166,9 +164,7 @@ const MeetingListPage = () => {
       <S.MeetingListSection>
         <S.TitleBox>
           <S.Title>참여 중인 모임</S.Title>
-          <S.PageLink aria-label="모임 생성하기" to="/meeting/create">
-            생성하기
-          </S.PageLink>
+          <S.PageLink to="/meeting/create">생성하기</S.PageLink>
         </S.TitleBox>
         <S.MeetingList>
           {sortedMeetings.map((meeting) => (

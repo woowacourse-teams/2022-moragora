@@ -1,13 +1,14 @@
 import React, { useContext, useEffect } from 'react';
-import Toggle from 'components/@shared/Toggle';
-import { CalendarContext } from 'contexts/calendarContext';
-import { dateToFormattedString } from 'utils/timeUtil';
-import { css } from '@emotion/react';
 import * as S from './Calendar.styled';
 import WeekCell from './WeekCell';
 import DateCell from './DateCell';
 import AdvancedConfiguration from './AdvancedConfiguration';
 import MonthControlBox from './MonthControlBox';
+import DivideLine from 'components/@shared/DivideLine';
+import Toggle from 'components/@shared/Toggle';
+import { CalendarContext } from 'contexts/calendarContext';
+import { dateToFormattedString } from 'utils/timeUtil';
+import { css } from '@emotion/react';
 
 type CalendarProps = {
   readOnly?: boolean;
@@ -19,6 +20,7 @@ const Calendar: React.FC<CalendarProps> = ({ readOnly }) => {
     savedEvents,
     dates,
     initialDate,
+    currentDate,
     shouldApplyBeginEndDates,
     clearSelectedDates,
     bindDateCellControlRef,
@@ -40,6 +42,14 @@ const Calendar: React.FC<CalendarProps> = ({ readOnly }) => {
 
   return (
     <S.Layout>
+      <S.YearMonthBox>
+        <S.YearMonthParagraph>
+          {currentDate &&
+            `${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월`}
+        </S.YearMonthParagraph>
+        <MonthControlBox />
+      </S.YearMonthBox>
+      <DivideLine />
       {readOnly || (
         <>
           <button
@@ -72,9 +82,9 @@ const Calendar: React.FC<CalendarProps> = ({ readOnly }) => {
             </Toggle>
             <AdvancedConfiguration />
           </div>
+          <DivideLine />
         </>
       )}
-      <MonthControlBox />
       <S.CalendarBox>
         <WeekCell day={0}>일</WeekCell>
         <WeekCell day={1}>월</WeekCell>

@@ -1,10 +1,8 @@
 package com.woowacourse.moragora.dto.response.meeting;
 
 import com.woowacourse.moragora.domain.meeting.Meeting;
-import com.woowacourse.moragora.domain.participant.Participant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -20,6 +18,7 @@ public class MeetingResponse {
     private final long attendedEventCount;
     private final Boolean isLoginUserMaster;
     private final Boolean isCoffeeTime;
+    private final Boolean isActive;
     private final List<ParticipantResponse> users;
 
     @Builder
@@ -28,28 +27,30 @@ public class MeetingResponse {
                            final long attendedEventCount,
                            final Boolean isLoginUserMaster,
                            final Boolean isCoffeeTime,
+                           final Boolean isActive,
                            final List<ParticipantResponse> participantResponses) {
         this.id = id;
         this.name = name;
         this.attendedEventCount = attendedEventCount;
         this.isLoginUserMaster = isLoginUserMaster;
         this.isCoffeeTime = isCoffeeTime;
+        this.isActive = isActive;
         this.users = participantResponses;
     }
 
-    public static MeetingResponse of(final Meeting meeting,
-                                     final long attendedEventCount,
-                                     final Participant loginParticipant) {
-        final List<ParticipantResponse> participantResponses = meeting.getParticipants().stream()
-                .map(ParticipantResponse::from)
-                .collect(Collectors.toList());
-
+    public static MeetingResponse from(final Meeting meeting,
+                                       final long attendedEventCount,
+                                       final boolean isLoginUserMaster,
+                                       final boolean isCoffeeTime,
+                                       final boolean isActive,
+                                       final List<ParticipantResponse> participantResponses) {
         return new MeetingResponse(
                 meeting.getId(),
                 meeting.getName(),
                 attendedEventCount,
-                loginParticipant.getIsMaster(),
-                meeting.isTardyStackFull(),
+                isLoginUserMaster,
+                isCoffeeTime,
+                isActive,
                 participantResponses
         );
     }

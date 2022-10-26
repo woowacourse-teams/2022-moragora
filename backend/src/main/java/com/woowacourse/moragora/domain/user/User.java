@@ -87,10 +87,6 @@ public class User {
         this.password = newPassword;
     }
 
-    public boolean isSameUser(final Long userId) {
-        return id.equals(userId);
-    }
-
     private void validateEmail(final String email) {
         final Matcher matcher = PATTERN_EMAIL.matcher(email);
         if (!matcher.matches()) {

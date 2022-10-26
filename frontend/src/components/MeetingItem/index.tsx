@@ -1,10 +1,10 @@
 import React from 'react';
+import * as S from './MeetingItem.styled';
 import { MeetingListResponseBody } from 'types/meetingType';
 import crownIcon from 'assets/crown.svg';
 import coffeeIcon from 'assets/simple-coffee.svg';
 import { ArrayElement } from 'types/utilityType';
 import { css } from '@emotion/react';
-import * as S from './MeetingItem.styled';
 
 export type MeetingItemProps = {
   meeting: ArrayElement<MeetingListResponseBody['meetings']>;
@@ -26,15 +26,11 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
       <S.MeetingItemLink to={`/meeting/${meeting.id}`}>
         <S.Box>
           <S.MeetingBox>
-            <S.IconBox
-              aria-label={`모임의 ${
-                meeting.isLoginUserMaster ? '마스터' : '참여자'
-              } ${meeting.isCoffeeTime && '커피스택 가득참'}`}
-            >
+            <S.IconBox>
               {meeting.isLoginUserMaster ? (
                 <img
                   src={crownIcon}
-                  alt=""
+                  alt="crown-icon"
                   css={css`
                     width: 1rem;
                     height: 1rem;
@@ -107,7 +103,7 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
               {meeting.isCoffeeTime && (
                 <img
                   src={coffeeIcon}
-                  alt=""
+                  alt="coffee-icon"
                   css={css`
                     width: 1rem;
                     height: 1rem;
@@ -116,9 +112,7 @@ const MeetingItem: React.FC<MeetingItemProps> = ({ meeting }) => {
               )}
             </S.IconBox>
             <S.MeetingNameSpan>{meeting.name}</S.MeetingNameSpan>
-            <S.MeetingTimeSpan
-              aria-label={`${meeting.upcomingEvent?.meetingStartTime} 시작 ${meeting.upcomingEvent?.meetingEndTime} 마감`}
-            >
+            <S.MeetingTimeSpan>
               {meeting.upcomingEvent &&
                 `${meeting.upcomingEvent.meetingStartTime} ~ ${meeting.upcomingEvent.meetingEndTime}`}
             </S.MeetingTimeSpan>

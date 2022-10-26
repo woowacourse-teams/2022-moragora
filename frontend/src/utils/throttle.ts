@@ -3,7 +3,7 @@ export const throttle = <T extends (...args: any[]) => any>(
   wait: number = 0
 ) => {
   let timerId: NodeJS.Timeout | null = null;
-  const lastArgs: {
+  let lastArgs: {
     current: Parameters<T> | [];
   } = {
     current: [],

@@ -1,4 +1,4 @@
-package com.woowacourse.moragora.exception.auth;
+package com.woowacourse.moragora.exception;
 
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import org.springframework.http.HttpStatus;

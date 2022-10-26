@@ -1,4 +1,6 @@
 import React, { useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import * as S from './LoginPage.styled';
 import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
 import { userContext, UserContextValues } from 'contexts/userContext';
@@ -8,16 +10,17 @@ import Button from 'components/@shared/Button';
 import { UserLoginRequestBody } from 'types/userType';
 import { googleLoginApi, submitLoginApi } from 'apis/userApis';
 import GoogleLoginButton from 'components/GoogleLoginButton';
-import * as S from './LoginPage.styled';
 
 const LoginPage = () => {
-  const userState = useContext(userContext) as UserContextValues;
+  const navigate = useNavigate();
+  const { login } = useContext(userContext) as UserContextValues;
   const code = new URLSearchParams(location.search).get('code');
   const { errors, isSubmitting, onSubmit, register } = useForm();
 
   const { mutate: loginMutate } = useMutation(submitLoginApi, {
-    onSuccess: ({ body: { accessToken } }) => {
-      userState.setAccessToken(accessToken);
+    onSuccess: ({ body, accessToken }) => {
+      login(body, accessToken);
+      navigate('/');
     },
     onError: () => {
       alert('로그인을 실패했습니다.');
@@ -25,11 +28,14 @@ const LoginPage = () => {
   });
 
   const { mutate: googleLoginMutate } = useMutation(googleLoginApi, {
-    onSuccess: ({ body: { accessToken } }) => {
-      userState.setAccessToken(accessToken);
+    onSuccess: ({ body, accessToken }) => {
+      login(body, accessToken);
     },
     onError: () => {
       alert('구글 로그인을 실패했습니다.');
+    },
+    onSettled: () => {
+      navigate('/');
     },
   });
 

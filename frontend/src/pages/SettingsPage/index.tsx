@@ -1,11 +1,11 @@
 import { useContext, useState } from 'react';
+import * as S from './SettingsPage.styled';
 import Button from 'components/@shared/Button';
 import ModalPortal from 'components/ModalPortal';
 import ModalWindow from 'components/@shared/ModalWindow';
 import { userContext } from 'contexts/userContext';
 import Avatar from 'components/@shared/Avatar';
 import MenuLink from 'components/@shared/MenuLink';
-import * as S from './SettingsPage.styled';
 
 const SettingsPage = () => {
   const userState = useContext(userContext);

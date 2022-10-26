@@ -1,9 +1,9 @@
 import { rest } from 'msw';
+import RegisterPage from '.';
 import Header from 'components/layouts/Header';
 import AppLayout from 'components/layouts/AppLayout';
 import Footer from 'components/layouts/Footer';
 import { Body } from 'components/layouts/Body/Body.styled';
-import RegisterPage from '.';
 
 export default {
   title: 'Pages/RegisterPage',

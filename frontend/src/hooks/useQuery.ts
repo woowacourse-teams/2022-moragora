@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useQueryClient } from 'contexts/queryClient';
 import { QUERY_STATUS } from 'consts';
-import { QueryOptions } from 'types/queryType';
+import { QueryOptions, QueryStatus } from 'types/queryType';
 
 const useQuery = <TData = any>(
-  key: (string | number)[],
+  key: string[],
   queryFn: () => Promise<TData>,
   {
     onSuccess,
@@ -31,7 +31,7 @@ const useQuery = <TData = any>(
   const isSuccess = status === QUERY_STATUS.SUCCESS;
 
   const cacheData = (data: TData) => {
-    queryClient.dataCache[joinedKey] = data;
+    queryClient.cache[joinedKey] = data;
     staleTimerId.current = setTimeout(() => {
       queryClient.invalidateQueries(joinedKey);
     }, cacheTime);
@@ -41,7 +41,7 @@ const useQuery = <TData = any>(
     let data;
 
     if (queryClient.isCached(joinedKey)) {
-      data = queryClient.dataCache[joinedKey];
+      data = queryClient.cache[joinedKey];
     } else {
       data = await queryFn();
 
@@ -67,7 +67,6 @@ const useQuery = <TData = any>(
         return;
       }
 
-      queryClient.setQueryCache(refetch);
       setError(refetchError);
       await onError?.(refetchError);
 
@@ -110,7 +109,7 @@ const useQuery = <TData = any>(
     if (enabled && refetchOnMount) {
       refetch();
     }
-  }, [enabled, joinedKey]);
+  }, [enabled]);
 
   return { data, error, status, isLoading, isError, isSuccess, refetch };
 };

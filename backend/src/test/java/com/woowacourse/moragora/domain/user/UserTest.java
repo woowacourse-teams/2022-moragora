@@ -1,6 +1,5 @@
 package com.woowacourse.moragora.domain.user;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -96,24 +95,5 @@ class UserTest {
         // when, then
         assertThatThrownBy(() -> user.updateNickname(nickname))
                 .isInstanceOf(InvalidFormatException.class);
-    }
-
-    @DisplayName("id로 같은 유저인지 확인한다.")
-    @Test
-    void isSameUser() {
-        // given
-        final User user = User.builder()
-                .id(1L)
-                .nickname("sun")
-                .email("sun@gmail.com")
-                .password(EncodedPassword.fromRawValue("qwerasdf123!"))
-                .provider(Provider.GOOGLE)
-                .build();
-
-        // when
-        final boolean expected = user.isSameUser(1L);
-
-        // then
-        assertThat(expected).isTrue();
     }
 }

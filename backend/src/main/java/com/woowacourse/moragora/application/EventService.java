@@ -16,13 +16,18 @@ import com.woowacourse.moragora.dto.response.event.EventsResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
 import com.woowacourse.moragora.exception.event.EventNotFoundException;
 import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,19 +35,28 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class EventService {
 
+    private final ScheduledTasks scheduledTasks;
+    private final TaskScheduler taskScheduler;
     private final EventRepository eventRepository;
     private final MeetingRepository meetingRepository;
     private final AttendanceRepository attendanceRepository;
     private final ServerTimeManager serverTimeManager;
+    private final Scheduler scheduler;
 
-    public EventService(final EventRepository eventRepository,
+    public EventService(final ScheduledTasks scheduledTasks,
+                        final TaskScheduler taskScheduler,
+                        final EventRepository eventRepository,
                         final MeetingRepository meetingRepository,
                         final AttendanceRepository attendanceRepository,
-                        final ServerTimeManager serverTimeManager) {
+                        final ServerTimeManager serverTimeManager,
+                        final Scheduler scheduler) {
+        this.scheduledTasks = scheduledTasks;
+        this.taskScheduler = taskScheduler;
         this.eventRepository = eventRepository;
         this.meetingRepository = meetingRepository;
         this.attendanceRepository = attendanceRepository;
         this.serverTimeManager = serverTimeManager;
+        this.scheduler = scheduler;
     }
 
     @Transactional
@@ -61,6 +75,9 @@ public class EventService {
         updateEvent(requestEvents, existingEvents);
         final List<Event> savedEvents = eventRepository.saveAll(newEvents);
         saveAllAttendances(meeting.getParticipants(), savedEvents);
+
+        existingEvents.addAll(savedEvents);
+        scheduleAttendancesUpdateByEvents(existingEvents);
     }
 
     private List<Event> findExistingEvents(final EventsRequest request, final Long meetingId) {
@@ -87,6 +104,15 @@ public class EventService {
         }
     }
 
+    public void scheduleAttendancesUpdateByEvents(final List<Event> newEvents) {
+        newEvents.forEach(event -> {
+            final ScheduledFuture<?> schedule = taskScheduler.schedule(
+                    () -> scheduler.updateAttendancesToTardyAfterClosedTime(event),
+                    calculateUpdateInstant(event));
+            scheduledTasks.put(event, schedule);
+        });
+    }
+
     @Transactional
     public void cancel(final EventCancelRequest request, final Long meetingId) {
         meetingRepository.findById(meetingId)
@@ -98,6 +124,7 @@ public class EventService {
                 .collect(Collectors.toList());
         attendanceRepository.deleteByEventIdIn(eventIds);
         eventRepository.deleteByIdIn(eventIds);
+        events.forEach(scheduledTasks::remove);
     }
 
     public EventResponse findUpcomingEvent(final Long meetingId) {
@@ -138,6 +165,13 @@ public class EventService {
                 .collect(Collectors.toList());
     }
 
+    private Instant calculateUpdateInstant(final Event event) {
+        final LocalTime startTime = event.getStartTime();
+        final LocalTime closingTime = serverTimeManager.calculateAttendanceCloseTime(startTime);
+        return closingTime.atDate(event.getDate()).
+                atZone(ZoneId.systemDefault()).toInstant();
+    }
+
     private void validateBeginIsGreaterThanEqualEnd(final LocalDate begin, final LocalDate end) {
         if (begin == null || end == null) {
             return;
@@ -176,5 +210,9 @@ public class EventService {
                 throw new ClientRuntimeException("과거의 일정을 생성할 수 없습니다.", HttpStatus.BAD_REQUEST);
             }
         });
+    }
+
+    public Map<Event, ScheduledFuture<?>> getScheduledTasks() {
+        return scheduledTasks.getValues();
     }
 }

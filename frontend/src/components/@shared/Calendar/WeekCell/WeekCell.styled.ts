@@ -1,8 +1,8 @@
 import styled from '@emotion/styled';
 
 export const Button = styled.button`
-  width: 100%;
-  height: 100%;
+  width: 1.5rem;
+  height: 1.5rem;
   justify-self: center;
   cursor: pointer;
 

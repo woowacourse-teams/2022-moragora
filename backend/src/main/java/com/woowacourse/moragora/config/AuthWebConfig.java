@@ -1,7 +1,6 @@
 package com.woowacourse.moragora.config;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -16,22 +15,19 @@ public class AuthWebConfig implements WebMvcConfigurer {
 
     private final List<HandlerInterceptor> interceptors;
     private final List<HandlerMethodArgumentResolver> resolvers;
-    private final String allowedOrigin;
+
 
     public AuthWebConfig(final List<HandlerInterceptor> interceptors,
-                         final List<HandlerMethodArgumentResolver> resolvers,
-                         @Value("${cors-config.allowed-origin}") final String allowedOrigin) {
+                         final List<HandlerMethodArgumentResolver> resolvers) {
         this.interceptors = interceptors;
         this.resolvers = resolvers;
-        this.allowedOrigin = allowedOrigin;
     }
 
     @Override
     public void addCorsMappings(final CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins(allowedOrigin)
+                .allowedOrigins("*")
                 .allowedMethods(ALLOWED_METHOD_NAMES.split(","))
-                .allowCredentials(true)
                 .exposedHeaders(HttpHeaders.LOCATION);
     }
 

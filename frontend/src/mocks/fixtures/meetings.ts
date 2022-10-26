@@ -5,7 +5,7 @@ const meetings: (Meeting & { masterId: User['id'] })[] = [
   {
     id: 1,
     name: '리액트 사랑방',
-    isActive: true,
+    isActive: false,
     userIds: [1, 2, 3, 4, 5],
     attendedEventCount: 10,
     masterId: 1,

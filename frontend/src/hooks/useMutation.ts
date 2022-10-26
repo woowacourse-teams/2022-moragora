@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { MUTATION_STATUS } from 'consts';
 import { Variables, MutationOptions } from 'types/queryType';
-import { queryClient } from 'contexts/queryClient';
 
 const useMutation = <TData = any, TVariables extends Variables = Variables>(
   mutationFn: (variables: TVariables) => Promise<TData>,
@@ -43,7 +42,6 @@ const useMutation = <TData = any, TVariables extends Variables = Variables>(
         return;
       }
 
-      queryClient.setQueryCache(() => mutate(variables));
       setError(error);
       await onError?.(error, variables);
 

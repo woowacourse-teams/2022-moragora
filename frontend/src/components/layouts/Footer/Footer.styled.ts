@@ -8,6 +8,7 @@ export const Nav = styled.nav`
   bottom: 0;
   left: 0;
   display: flex;
+  justify-content: space-evenly;
   align-items: center;
   border-top: 1px solid ${({ theme: { colors } }) => colors['background']};
   padding: 0 1rem;
@@ -17,7 +18,7 @@ export const Nav = styled.nav`
 
 export const MenuNavLink = styled(NavLink)`
   text-decoration: inherit;
-  flex: 1;
+
   color: inherit;
 
   &.active {
@@ -26,7 +27,6 @@ export const MenuNavLink = styled(NavLink)`
 `;
 
 export const Figure = styled.figure`
-  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -35,5 +35,4 @@ export const Figure = styled.figure`
 
 export const Figcaption = styled.figcaption`
   font-size: 0.75rem;
-  width: ;
 `;

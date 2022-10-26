@@ -1,9 +1,9 @@
 import { useContext } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
+import * as S from './Header.styled';
 import ChevronLeftIconSVG from 'assets/chevron-left.svg';
 import Avatar from 'components/@shared/Avatar';
 import { userContext } from 'contexts/userContext';
-import * as S from './Header.styled';
 
 const Header = () => {
   const navigate = useNavigate();

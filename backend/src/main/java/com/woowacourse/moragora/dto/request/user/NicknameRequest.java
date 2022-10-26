@@ -1,7 +1,5 @@
 package com.woowacourse.moragora.dto.request.user;
 
-import com.woowacourse.moragora.constant.Patterns;
-import com.woowacourse.moragora.constant.ValidationMessages;
 import javax.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +10,7 @@ import lombok.ToString;
 @ToString
 public class NicknameRequest {
 
-    @Pattern(regexp = Patterns.NICKNAME, message = ValidationMessages.INVALID_FORMAT)
+    @Pattern(regexp = "[a-zA-Z0-9가-힣]{1,15}", message = "입력 형식이 올바르지 않습니다.")
     private String nickname;
 
     public NicknameRequest(final String nickname) {

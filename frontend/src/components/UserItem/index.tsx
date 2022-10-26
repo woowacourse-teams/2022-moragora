@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import * as S from './UserItem.styled';
 import Checkbox from 'components/@shared/Checkbox';
+import { userContext, UserContextValues } from 'contexts/userContext';
 import useMutation from 'hooks/useMutation';
 import { postUserAttendanceApi } from 'apis/userApis';
 import { ATTENDANCE_STATUS } from 'consts';
 import { Attendance } from 'types/attendanceType';
+import { css } from '@emotion/react';
 
 type UserItemProps = {
   user: Attendance;
@@ -13,6 +15,7 @@ type UserItemProps = {
 };
 
 const UserItem: React.FC<UserItemProps> = ({ user, meetingId, disabled }) => {
+  const { accessToken } = useContext(userContext) as UserContextValues;
   const [checked, setChecked] = useState<boolean>(
     ATTENDANCE_STATUS[user.attendanceStatus]
   );
@@ -34,6 +37,7 @@ const UserItem: React.FC<UserItemProps> = ({ user, meetingId, disabled }) => {
       attendanceMutation.mutate({
         meetingId,
         userId: user.id,
+        accessToken,
         isPresent: checked,
       });
     }

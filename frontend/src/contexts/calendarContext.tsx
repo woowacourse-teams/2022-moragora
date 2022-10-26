@@ -1,4 +1,4 @@
-import React, { createContext, useRef, useState } from 'react';
+import React, { createContext, useEffect, useRef, useState } from 'react';
 import { EventCreateRequestBody, MeetingEvent } from 'types/eventType';
 import { mergeArrays } from 'utils/common';
 import {

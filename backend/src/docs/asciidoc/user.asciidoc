@@ -25,6 +25,22 @@ include::{snippets}/user/sign-up/http-response.adoc[]
 
 include::{snippets}/user/sign-up/request-fields.adoc[]
 
+[[checkEmail]]
+== 이메일 중복 검사
+
+[[checkEmail-success]]
+=== HTTP request
+
+include::{snippets}/user/check-duplicate-email/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/user/check-duplicate-email/http-response.adoc[]
+
+=== Response fields
+
+include::{snippets}/user/check-duplicate-email/response-fields.adoc[]
+
 [[search]]
 == 유저 키워드 검색
 

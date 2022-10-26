@@ -6,7 +6,6 @@ import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT3;
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT4;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.TEATIME;
-import static com.woowacourse.moragora.support.fixture.UserFixtures.AZPI;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.MASTER;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.PHILLZ;
@@ -21,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
-import com.woowacourse.moragora.domain.geolocation.Beacon;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.user.User;
@@ -29,7 +27,6 @@ import com.woowacourse.moragora.dto.request.meeting.MasterRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingUpdateRequest;
 import com.woowacourse.moragora.dto.response.event.EventResponse;
-import com.woowacourse.moragora.dto.response.meeting.MeetingActiveResponse;
 import com.woowacourse.moragora.dto.response.meeting.MeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingResponse;
 import com.woowacourse.moragora.dto.response.meeting.MyMeetingsResponse;
@@ -42,7 +39,6 @@ import com.woowacourse.moragora.exception.participant.ParticipantNotFoundExcepti
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import com.woowacourse.moragora.support.DataSupport;
 import com.woowacourse.moragora.support.DatabaseCleanUp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -53,8 +49,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
+@Transactional
 class MeetingServiceTest {
 
     @Autowired
@@ -71,6 +69,7 @@ class MeetingServiceTest {
 
     @BeforeEach
     void setUp() {
+        databaseCleanUp.afterPropertiesSet();
         databaseCleanUp.execute();
     }
 
@@ -172,34 +171,67 @@ class MeetingServiceTest {
     void findById() {
         // given
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
-        final User user1 = dataSupport.saveUser(KUN.create());
-        final User user2 = dataSupport.saveUser(SUN.create());
-        final User user3 = dataSupport.saveUser(AZPI.create());
-        final Participant participant1 = dataSupport.saveParticipant(user1, meeting, true);
-        final Participant participant2 = dataSupport.saveParticipant(user2, meeting, false);
-        final Participant participant3 = dataSupport.saveParticipant(user3, meeting, false);
+        final User user = dataSupport.saveUser(KUN.create());
+        final Participant participant = dataSupport.saveParticipant(user, meeting, true);
         final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
         final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
         final Event event3 = dataSupport.saveEvent(EVENT3.create(meeting));
-        dataSupport.saveAttendance(participant1, event1, Status.TARDY);
-        dataSupport.saveAttendance(participant1, event2, Status.TARDY);
-        dataSupport.saveAttendance(participant1, event3, Status.TARDY);
-        dataSupport.saveAttendance(participant2, event3, Status.TARDY);
-        dataSupport.saveAttendance(participant3, event3, Status.TARDY);
+        dataSupport.saveAttendance(participant, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant, event2, Status.TARDY);
+        dataSupport.saveAttendance(participant, event3, Status.TARDY);
+
+        final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
+                .id(meeting.getId())
+                .name(meeting.getName())
+                .participantResponses(List.of(ParticipantResponse.of(participant, 3)))
+                .attendedEventCount(3)
+                .isCoffeeTime(true)
+                .isActive(false)
+                .isLoginUserMaster(true)
+                .build();
 
         final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 4, 10, 6);
         serverTimeManager.refresh(dateTime);
 
         // when
-        final MeetingResponse response = meetingService.findById(meeting.getId(), user1.getId());
+        final MeetingResponse response = meetingService.findById(meeting.getId(), user.getId());
+
+        // then
+        assertThat(response).usingRecursiveComparison()
+                .ignoringFields("users")
+                .isEqualTo(expectedMeetingResponse);
+    }
+
+    @DisplayName("id로 모임 상세 정보를 조회한다_당일 출석부가 없는 경우 추가 후 조회한다.")
+    @Test
+    void findById_putAttendanceIfAbsent() {
+        // given
+        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
+        final User user = dataSupport.saveUser(KUN.create());
+        final Participant participant = dataSupport.saveParticipant(user, meeting);
+
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        final Event event3 = dataSupport.saveEvent(EVENT3.create(meeting));
+        dataSupport.saveAttendance(participant, event1, Status.TARDY);
+        dataSupport.saveAttendance(participant, event2, Status.TARDY);
+        dataSupport.saveAttendance(participant, event3, Status.TARDY);
+
         final MeetingResponse expectedMeetingResponse = MeetingResponse.builder()
                 .id(meeting.getId())
                 .name(meeting.getName())
-                .participantResponses(List.of())
+                .participantResponses(List.of(ParticipantResponse.of(participant, 3)))
                 .attendedEventCount(3)
                 .isCoffeeTime(true)
-                .isLoginUserMaster(true)
+                .isActive(false)
+                .isLoginUserMaster(false)
                 .build();
+
+        final LocalDateTime dateTime = LocalDateTime.of(2022, 8, 4, 10, 0);
+        serverTimeManager.refresh(dateTime);
+
+        // when
+        final MeetingResponse response = meetingService.findById(meeting.getId(), user.getId());
 
         // then
         assertThat(response).usingRecursiveComparison()
@@ -240,6 +272,7 @@ class MeetingServiceTest {
                 .participantResponses(usersResponse)
                 .attendedEventCount(1)
                 .isCoffeeTime(false)
+                .isActive(true)
                 .isLoginUserMaster(true)
                 .build();
 
@@ -287,6 +320,7 @@ class MeetingServiceTest {
                 .participantResponses(usersResponse)
                 .attendedEventCount(1)
                 .isCoffeeTime(true)
+                .isActive(false)
                 .isLoginUserMaster(true)
                 .build();
 
@@ -317,6 +351,7 @@ class MeetingServiceTest {
                 .name(meeting.getName())
                 .attendedEventCount(1)
                 .isCoffeeTime(false)
+                .isActive(true)
                 .isLoginUserMaster(true)
                 .build();
 
@@ -347,6 +382,7 @@ class MeetingServiceTest {
                 .name(meeting.getName())
                 .attendedEventCount(1)
                 .isCoffeeTime(false)
+                .isActive(false)
                 .isLoginUserMaster(true)
                 .build();
 
@@ -410,6 +446,7 @@ class MeetingServiceTest {
         dataSupport.saveParticipant(user, meeting1, true);
         dataSupport.saveParticipant(user, meeting2, true);
         final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting1));
+        final Event event2 = dataSupport.saveEvent(EVENT1.create(meeting1));
 
         final LocalTime entranceTime = event1.getStartTime();
         final EventResponse upcomingEvent = EventResponse.of(event1, entranceTime.minusMinutes(30),
@@ -638,8 +675,6 @@ class MeetingServiceTest {
         final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
         final Event event3 = dataSupport.saveEvent(EVENT3.create(meeting));
         final Event event4 = dataSupport.saveEvent(EVENT4.create(meeting));
-        final Beacon beacon = new Beacon("루터회관", 37.5153, 127.103, 50);
-        dataSupport.saveBeacon(meeting, beacon);
 
         dataSupport.saveAttendance(participant, event1, Status.NONE);
         dataSupport.saveAttendance(participant, event2, Status.NONE);
@@ -663,59 +698,5 @@ class MeetingServiceTest {
         // when, then
         assertThatThrownBy(() -> meetingService.findById(99L, user.getId()))
                 .isInstanceOf(MeetingNotFoundException.class);
-    }
-
-    @DisplayName("미팅이 활성화 상태인지 확인한다.")
-    @Test
-    void checkActive() {
-        // given
-        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
-        dataSupport.saveEvent(EVENT1.create(meeting));
-        final LocalDate date = LocalDate.of(2022, 8, 1);
-        final LocalTime time = LocalTime.of(10, 4);
-        final LocalDateTime now = LocalDateTime.of(date, time);
-        serverTimeManager.refresh(now);
-
-        // when
-        final MeetingActiveResponse meetingActiveResponse = meetingService.checkActive(meeting.getId());
-
-        // then
-        assertThat(meetingActiveResponse.getIsActive()).isTrue();
-    }
-
-    @DisplayName("미팅이 비활성화 상태임을 확인한다(시간 검사)")
-    @Test
-    void checkInActive_byTime() {
-        // given
-        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
-        dataSupport.saveEvent(EVENT1.create(meeting));
-        final LocalDate date = LocalDate.of(2022, 8, 1);
-        final LocalTime time = LocalTime.of(10, 5);
-        final LocalDateTime now = LocalDateTime.of(date, time);
-        serverTimeManager.refresh(now);
-
-        // when
-        final MeetingActiveResponse meetingActiveResponse = meetingService.checkActive(meeting.getId());
-
-        // then
-        assertThat(meetingActiveResponse.getIsActive()).isFalse();
-    }
-
-    @DisplayName("미팅이 비활성화 상태임을 확인한다(날짜 검사)")
-    @Test
-    void checkInActive_byDate() {
-        // given
-        final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
-        dataSupport.saveEvent(EVENT1.create(meeting));
-        final LocalDate date = LocalDate.of(2022, 8, 2);
-        final LocalTime time = LocalTime.of(10, 4);
-        final LocalDateTime now = LocalDateTime.of(date, time);
-        serverTimeManager.refresh(now);
-
-        // when
-        final MeetingActiveResponse meetingActiveResponse = meetingService.checkActive(meeting.getId());
-
-        // then
-        assertThat(meetingActiveResponse.getIsActive()).isFalse();
     }
 }

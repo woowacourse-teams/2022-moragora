@@ -2,7 +2,7 @@ import { DefaultBodyType, rest } from 'msw';
 import users from 'mocks/fixtures/users';
 import events from 'mocks/fixtures/events';
 import { DELAY } from 'mocks/configs';
-import { checkExpiredToken, extractIdFromHeader } from 'mocks/utils';
+import { extractIdFromHeader } from 'mocks/utils';
 import {
   EventCreateRequestBody,
   DeleteEventsRequestBody,
@@ -26,17 +26,7 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({
-            message: '유효하지 않은 토큰입니다.',
-            tokenStatus: 'invalid',
-          })
-        );
-      }
-
-      if (checkExpiredToken(token.expiredTimestamp)) {
-        return res(
-          ctx.status(401),
-          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
         );
       }
 
@@ -96,17 +86,7 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({
-            message: '유효하지 않은 토큰입니다.',
-            tokenStatus: 'invalid',
-          })
-        );
-      }
-
-      if (checkExpiredToken(token.expiredTimestamp)) {
-        return res(
-          ctx.status(401),
-          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
         );
       }
 
@@ -135,17 +115,7 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({
-            message: '유효하지 않은 토큰입니다.',
-            tokenStatus: 'invalid',
-          })
-        );
-      }
-
-      if (checkExpiredToken(token.expiredTimestamp)) {
-        return res(
-          ctx.status(401),
-          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
         );
       }
 
@@ -179,17 +149,7 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({
-            message: '유효하지 않은 토큰입니다.',
-            tokenStatus: 'invalid',
-          })
-        );
-      }
-
-      if (checkExpiredToken(token.expiredTimestamp)) {
-        return res(
-          ctx.status(401),
-          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
+          ctx.json({ message: '유효하지 않은 토큰입니다.' })
         );
       }
 

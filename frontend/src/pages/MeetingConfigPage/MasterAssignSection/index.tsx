@@ -1,18 +1,23 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import * as S from './MasterAssignSection.styled';
+import Button from 'components/@shared/Button';
 import ModalPortal from 'components/ModalPortal';
 import ModalWindow from 'components/@shared/ModalWindow';
+import { Participant } from 'types/userType';
 import { useOutletContext } from 'react-router-dom';
 import { QueryState } from 'types/queryType';
 import { assignMasterApi, getMeetingData } from 'apis/meetingApis';
 import { getUpcomingEventApi } from 'apis/eventApis';
 import { ArrayElement } from 'types/utilityType';
 import { MeetingResponseBody } from 'types/meetingType';
+import request from 'utils/request';
 import useMutation from 'hooks/useMutation';
-import * as S from './MasterAssignSection.styled';
+import { userContext, UserContextValues } from 'contexts/userContext';
 
 type SelectedParticipant = ArrayElement<MeetingResponseBody['users']>;
 
 const MasterAssignSection = () => {
+  const { accessToken } = useContext(userContext) as UserContextValues;
   const [isDropdownOpened, setIsDropdownOpened] = useState(false);
   const [isModalOpened, setIsModalOpened] = useState(false);
   const { meetingQuery } = useOutletContext<{
@@ -26,7 +31,7 @@ const MasterAssignSection = () => {
     useState<SelectedParticipant>();
 
   const masterAssignMutation = useMutation(
-    assignMasterApi(meetingQuery.data?.body.id as number),
+    assignMasterApi(meetingQuery.data?.body.id as number, accessToken),
     {
       onSuccess: () => {
         meetingQuery.refetch();

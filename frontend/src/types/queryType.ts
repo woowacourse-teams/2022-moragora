@@ -5,13 +5,9 @@ export type Variables = Record<string, any> | null;
 export type QueryStatus = 'idle' | 'loading' | 'error' | 'success';
 
 export type QueryClient = {
-  dataCache: Record<string, any>;
-  queryCache: (() => Promise<void>) | null;
+  cache: Record<string, any>;
   invalidateQueries: (key: string) => void;
   isCached: (key: string) => boolean;
-  clearQueryCache: () => void;
-  reQueryCache: () => void;
-  setQueryCache: (query: () => Promise<void>) => void;
 };
 
 export type QueryOptions<TData> = {

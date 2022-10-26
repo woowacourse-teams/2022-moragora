@@ -57,7 +57,7 @@ export const EmptyStateImage = styled.img`
   width: 10rem;
   height: 10rem;
   opacity: 0;
-  animation: smooth-appear 1s;
+  animation: smooth-appear 2s;
   animation-fill-mode: forwards;
 `;
 
@@ -66,7 +66,7 @@ export const EmptyStateTitle = styled.h2`
   font-weight: 600;
   color: ${({ theme: { colors } }) => colors['subtle-dark']};
   opacity: 0;
-  animation: smooth-appear 1s;
+  animation: smooth-appear 2s;
   animation-fill-mode: forwards;
 `;
 
@@ -76,6 +76,6 @@ export const EmptyStateParagraph = styled.p`
   color: ${({ theme: { colors } }) => colors['subtle-light']};
   opacity: 0;
   animation: dissolve 1s;
-  animation-delay: 0.75s;
+  animation-delay: 1.5s;
   animation-fill-mode: forwards;
 `;

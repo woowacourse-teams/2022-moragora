@@ -14,7 +14,7 @@ const colors: Theme['colors'] = {
   transparent: 'transparent',
 };
 
-export const SCREEN_SIZES = {
+const SCREEN_SIZES = {
   xs: 480,
   sm: 768,
   md: 1024,
@@ -38,19 +38,19 @@ const media: Theme['media'] = {
     }
   `,
   sm: (...args) => css`
-    @media only screen and (min-width: ${SCREEN_SIZES.xs}px) {
+    @media only screen and (min-width: ${SCREEN_SIZES.xs}px) and (max-width: ${SCREEN_SIZES.sm}px) {
       ${args}
     }
   `,
   md: (...args) =>
     css`
-      @media only screen and (min-width: ${SCREEN_SIZES.md}px) {
+      @media only screen and (min-width: ${SCREEN_SIZES.md}px) and (max-width: ${SCREEN_SIZES.lg}px) {
         ${args}
       }
     `,
   lg: (...args) =>
     css`
-      @media only screen and (min-width: ${SCREEN_SIZES.lg}px) {
+      @media only screen and (min-width: ${SCREEN_SIZES.lg}px) and (max-width: ${SCREEN_SIZES.xl}px) {
         ${args}
       }
     `,

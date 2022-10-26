@@ -1,17 +1,9 @@
 package com.woowacourse.moragora.presentation;
 
-import static org.springframework.http.HttpHeaders.SET_COOKIE;
-
 import com.woowacourse.moragora.dto.response.ErrorResponse;
-import com.woowacourse.moragora.dto.response.TokenErrorResponse;
 import com.woowacourse.moragora.exception.ClientRuntimeException;
-import com.woowacourse.moragora.exception.auth.InvalidTokenException;
-import com.woowacourse.moragora.exception.auth.TokenException;
-import com.woowacourse.moragora.presentation.auth.RefreshTokenCookieProvider;
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
@@ -24,30 +16,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ControllerAdvice {
 
-    private final RefreshTokenCookieProvider refreshTokenCookieProvider;
-
-    public ControllerAdvice(final RefreshTokenCookieProvider refreshTokenCookieProvider) {
-        this.refreshTokenCookieProvider = refreshTokenCookieProvider;
-    }
-
     @ExceptionHandler(ClientRuntimeException.class)
     public ResponseEntity<ErrorResponse> handleClientRuntimeException(final ClientRuntimeException exception) {
         return ResponseEntity.status(exception.getHttpStatus()).body(new ErrorResponse(exception.getMessage()));
-    }
-
-    @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidTokenException(final HttpServletResponse response,
-                                                                     final InvalidTokenException exception) {
-        final ResponseCookie responseCookie = refreshTokenCookieProvider.createInvalidCookie();
-        response.addHeader(SET_COOKIE, responseCookie.toString());
-        return ResponseEntity.status(exception.getHttpStatus())
-                .body(new TokenErrorResponse(exception.getMessage(), exception.getStatus()));
-    }
-
-    @ExceptionHandler(TokenException.class)
-    public ResponseEntity<ErrorResponse> handleExpiredTokenException(final TokenException exception) {
-        return ResponseEntity.status(exception.getHttpStatus())
-                .body(new TokenErrorResponse(exception.getMessage(), exception.getStatus()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
