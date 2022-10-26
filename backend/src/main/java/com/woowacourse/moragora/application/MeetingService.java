@@ -8,10 +8,8 @@ import com.woowacourse.moragora.domain.geolocation.BeaconRepository;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.meeting.MeetingRepository;
 import com.woowacourse.moragora.domain.participant.Participant;
-import com.woowacourse.moragora.domain.participant.ParticipantAndCount;
 import com.woowacourse.moragora.domain.participant.ParticipantRepository;
 import com.woowacourse.moragora.domain.query.CompositionRepository;
-import com.woowacourse.moragora.domain.query.QueryRepository;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.domain.user.UserRepository;
 import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
@@ -51,7 +49,6 @@ public class MeetingService {
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
     private final BeaconRepository beaconRepository;
-    private final QueryRepository queryRepository;
     private final CompositionRepository compositionRepository;
     private final ServerTimeManager serverTimeManager;
 
@@ -61,7 +58,6 @@ public class MeetingService {
                           final AttendanceRepository attendanceRepository,
                           final UserRepository userRepository,
                           final BeaconRepository beaconRepository,
-                          final QueryRepository queryRepository,
                           final CompositionRepository compositionRepository,
                           final ServerTimeManager serverTimeManager) {
         this.meetingRepository = meetingRepository;
@@ -70,7 +66,6 @@ public class MeetingService {
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
         this.beaconRepository = beaconRepository;
-        this.queryRepository = queryRepository;
         this.compositionRepository = compositionRepository;
         this.serverTimeManager = serverTimeManager;
     }
@@ -93,12 +88,7 @@ public class MeetingService {
 
     public MeetingResponse findById(final Long meetingId, final Long loginId) {
         final LocalDate today = serverTimeManager.getDate();
-        final Meeting meeting = meetingRepository.findMeetingAndParticipantsById(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
-
-        final List<ParticipantAndCount> participantAndCounts = queryRepository
-                .countParticipantsTardy(meeting.getParticipants(), today);
-        meeting.allocateParticipantsTardyCount(participantAndCounts);
+        final Meeting meeting = compositionRepository.meetingWithTardyCount(meetingId);
 
         final long attendedEventCount = eventRepository.countByMeetingIdAndDateLessThanEqual(meetingId, today);
         final Participant loginParticipant = meeting.findParticipant(loginId)
@@ -107,51 +97,13 @@ public class MeetingService {
         return MeetingResponse.of(meeting, attendedEventCount, loginParticipant);
     }
 
-/*
-    public MyMeetingsResponse findAllByMe(final Long loginUserId) {
-        final LocalDate today = serverTimeManager.getDate();
-
-        final List<Meeting> meetings = meetingRepository.findMeetingParticipantUsersByUserId(loginUserId);
-
-        final List<MyMeetingResponse> myMeetingResponses = new ArrayList<>();
-
-        for (final Meeting meeting : meetings) {
-            final List<ParticipantAndCount> participantAndCounts =
-                    queryRepository.countParticipantsTardy(meeting.getParticipants(), today);
-            compositionRepository.meetingsWithTardyCount(meeting.getParticipants());
-            meeting.allocateParticipantsTardyCount(participantAndCounts);
-            meeting.calculateTardy();
-            final Event upcomingEvent =
-                    eventRepository
-                            .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
-                            .orElse(null);
-            long tardyCount = meeting.tardyCountByUserId(loginUserId);
-
-            MyMeetingResponse myMeetingResponse =
-                    MyMeetingResponse.of(loginUserId, meeting, upcomingEvent, tardyCount, serverTimeManager);
-            myMeetingResponses.add(myMeetingResponse);
-        }
-
-        return new MyMeetingsResponse(myMeetingResponses);
-    }
-*/
-
     public MyMeetingsResponse findAllByMe(final Long loginUserId) {
         final LocalDate today = serverTimeManager.getDate();
         final List<Meeting> meetings = compositionRepository.meetingsWithTardyCount(loginUserId);
-        final List<MyMeetingResponse> myMeetingResponses = new ArrayList<>();
 
-        for (final Meeting meeting : meetings) {
-            final Event upcomingEvent = eventRepository
-                            .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
-                            .orElse(null);
-            long tardyCount = meeting.tardyCountByUserId(loginUserId);
-            MyMeetingResponse myMeetingResponse =
-                    MyMeetingResponse.of(loginUserId, meeting, upcomingEvent, tardyCount, serverTimeManager);
-            myMeetingResponses.add(myMeetingResponse);
-        }
+        final List<MyMeetingResponse> myMeetingsResponse = createMyMeetingsResponse(loginUserId, today, meetings);
 
-        return new MyMeetingsResponse(myMeetingResponses);
+        return new MyMeetingsResponse(myMeetingsResponse);
     }
 
 
@@ -222,10 +174,6 @@ public class MeetingService {
         beaconRepository.saveAll(beacons);
     }
 
-    private boolean validateMaximumBeacon(final List<BeaconRequest> beaconsRequest) {
-        return beaconsRequest.size() > MAX_BEACON_SIZE;
-    }
-
     public MeetingActiveResponse checkActive(final Long meetingId) {
         validateMeetingExists(meetingId);
 
@@ -233,6 +181,37 @@ public class MeetingService {
         final boolean isActive = event.isPresent() && serverTimeManager.isAttendanceOpen(event.get().getStartTime());
 
         return new MeetingActiveResponse(isActive);
+    }
+
+    private void saveParticipants(final Meeting meeting, final User loginUser, final List<User> users) {
+        final Participant loginParticipant = new Participant(loginUser, meeting, true);
+        final List<Participant> participants = users.stream()
+                .map(user -> new Participant(user, meeting, false))
+                .collect(Collectors.toList());
+        participants.add(loginParticipant);
+
+        for (Participant participant : participants) {
+            participant.mapMeeting(meeting);
+            participantRepository.save(participant);
+        }
+    }
+
+    private List<MyMeetingResponse> createMyMeetingsResponse(final Long loginUserId,
+                                                             final LocalDate today,
+                                                             final List<Meeting> meetings) {
+        final List<MyMeetingResponse> myMeetingsResponse = new ArrayList<>();
+
+        for (final Meeting meeting : meetings) {
+            final Event upcomingEvent = eventRepository
+                    .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
+                    .orElse(null);
+            long tardyCount = meeting.tardyCountByUserId(loginUserId);
+            MyMeetingResponse myMeetingResponse =
+                    MyMeetingResponse.of(loginUserId, meeting, upcomingEvent, tardyCount, serverTimeManager);
+            myMeetingsResponse.add(myMeetingResponse);
+        }
+
+        return myMeetingsResponse;
     }
 
     /**
@@ -252,22 +231,13 @@ public class MeetingService {
         }
     }
 
+    private boolean validateMaximumBeacon(final List<BeaconRequest> beaconsRequest) {
+        return beaconsRequest.size() > MAX_BEACON_SIZE;
+    }
+
     private void validateUsersExists(final List<Long> userIds, final List<User> users) {
         if (users.size() != userIds.size()) {
             throw new UserNotFoundException();
-        }
-    }
-
-    private void saveParticipants(final Meeting meeting, final User loginUser, final List<User> users) {
-        final Participant loginParticipant = new Participant(loginUser, meeting, true);
-        final List<Participant> participants = users.stream()
-                .map(user -> new Participant(user, meeting, false))
-                .collect(Collectors.toList());
-        participants.add(loginParticipant);
-
-        for (Participant participant : participants) {
-            participant.mapMeeting(meeting);
-            participantRepository.save(participant);
         }
     }
 

@@ -86,13 +86,6 @@ public class Meeting {
                 .orElseThrow(() -> new BusinessException("지각 횟수가 할당되지 않았습니다."));
     }
 
-    public void mapParticipants(final List<Participant> participants) {
-        for (final Participant participant : participants) {
-            participant.mapMeeting(this);
-        }
-        this.participants = participants;
-    }
-
     public List<Long> getParticipantIds() {
         return participants.stream()
                 .map(Participant::getId)

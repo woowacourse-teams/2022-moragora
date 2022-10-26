@@ -15,8 +15,18 @@ public interface MeetingRepository extends Repository<Meeting, Long> {
 
     Optional<Meeting> findById(final Long id);
 
-    @Query("select m from Meeting m join fetch m.participants p where m.id = :id")
+    @Query("select m "
+            + " from Meeting m "
+            + " join fetch m.participants p "
+            + " where m.id = :id")
     Optional<Meeting> findMeetingAndParticipantsById(@Param("id") final Long id);
+
+    @Query("select m "
+            + " from Meeting m "
+            + " join fetch m.participants p "
+            + " join fetch p.user u "
+            + " where m.id = :id ")
+    Optional<Meeting> findMeetingParticipantUsersById(@Param("id") final Long id);
 
     @Query("select m "
             + " from Meeting m "
@@ -27,9 +37,9 @@ public interface MeetingRepository extends Repository<Meeting, Long> {
 
     @Query("select m "
             + " from Meeting m "
-            + " inner join m.participants p "
+            + " join fetch m.participants p "
             + " where p.user.id = :userId")
-    List<Meeting> findAllByUserId(@Param("userId") Long userId);
+    List<Meeting> findMeetingParticipantsByUserId(@Param("userId") Long userId);
 
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("delete from Meeting m where m.id = :id")

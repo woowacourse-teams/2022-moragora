@@ -47,6 +47,13 @@ public class Participant {
         this.isMaster = isMaster;
     }
 
+    public Participant(final Participant participant, final Long tardyCount) {
+        this.id = participant.id;
+        this.isMaster = participant.getIsMaster();
+        this.meeting = participant.getMeeting();
+        this.tardyCount = tardyCount;
+    }
+
     public Participant(final Participant participant, final User user, final Long tardyCount) {
         this.id = participant.id;
         this.isMaster = participant.getIsMaster();

@@ -1,6 +1,5 @@
 package com.woowacourse.moragora.domain.participant;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,15 +17,17 @@ public interface ParticipantRepository extends Repository<Participant, Long> {
 
     List<Participant> findByUserId(final Long userId);
 
-    @Query("select new com.woowacourse.moragora.domain.participant.Participant( "
-            + " p , u, "
+    @Query("select new com.woowacourse.moragora.domain.participant.TardyCountDto( "
+            + " p.id , "
             + " (select count(a) "
             + " from Attendance a "
-            + " where a.participant.id = p.id and a.status = 'TARDY' and a.disabled = false )) "
+            + " where a.participant.id = p.id "
+            + "   and a.status = 'TARDY' "
+            + "   and a.disabled = false )"
+            + " ) "
             + " from Participant p "
-            + " inner join p.user u"
-            + " where p in :participants")
-    List<Participant> countParticipantsTardy(@Param("participants") final List<Participant> participants);
+            + " where p in :participants ")
+    List<TardyCountDto> countParticipantsTardy(@Param("participants") final List<Participant> participants);
 
     void delete(final Participant participant);
 
