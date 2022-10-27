@@ -57,12 +57,6 @@ public class UserService {
         return savedUser.getId();
     }
 
-    private void confirmEmailVerification(final String email, final String verifiedEmail) {
-        if (!email.equals(verifiedEmail)) {
-            throw new AuthCodeException("인증되지 않은 이메일입니다.");
-        }
-    }
-
     public UsersResponse searchByKeyword(final String keyword) {
         validateKeyword(keyword);
         final List<User> searchedUsers = userRepository.findByNicknameOrEmailLike(keyword);
@@ -112,6 +106,12 @@ public class UserService {
         attendanceRepository.deleteByParticipantIdIn(participantIds);
         participantRepository.deleteByIdIn(participantIds);
         userRepository.delete(user);
+    }
+
+    private void confirmEmailVerification(final String email, final String verifiedEmail) {
+        if (!email.equals(verifiedEmail)) {
+            throw new AuthCodeException("인증되지 않은 이메일입니다.");
+        }
     }
 
     private void validateUserExistsByEmail(final String email) {

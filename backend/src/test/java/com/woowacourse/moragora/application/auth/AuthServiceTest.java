@@ -256,25 +256,6 @@ class AuthServiceTest {
                 .isInstanceOf(InvalidTokenException.class);
     }
 
-    @DisplayName("Refresh token에 해당하는 유저가 존재하지 않는 경우 예외가 발생한다.")
-    @Test
-    void refreshTokens_ifUserNotExists_throwsException() {
-        // given
-        final String email = "kun@email.com";
-        final String password = "qwerasdf123!";
-        final UserRequest userRequest = new UserRequest(email, password, "kun");
-        final Long userId = userService.create(userRequest, email);
-
-        final LoginRequest loginRequest = new LoginRequest(email, password);
-        final TokenResponse tokenResponse = authService.login(loginRequest);
-
-        // when, then
-        userService.delete(new UserDeleteRequest(password), userId);
-        serverTimeManager.refresh(LocalDateTime.now());
-        assertThatThrownBy(() -> authService.refreshTokens(tokenResponse.getRefreshToken()))
-                .isInstanceOf(InvalidTokenException.class);
-    }
-
     @DisplayName("인증 코드를 메일로 전송하고 세션에 이메일 인증관련 정보들을 저장한다.")
     @Test
     void sendAuthCode() {
