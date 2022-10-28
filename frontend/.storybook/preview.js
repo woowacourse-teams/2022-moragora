@@ -5,11 +5,13 @@ import handlers from 'mocks/handlers';
 import GlobalStyles from 'styles/GlobalStyles';
 import { theme } from 'styles/themes/theme';
 import { UserContextProvider } from 'contexts/userContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-// Initialize MSW
 initialize();
 
-// Provide decorators globally
+const queryClient = new QueryClient();
+
 export const decorators = [
   mswDecorator,
   withRouter,
@@ -18,7 +20,10 @@ export const decorators = [
       <GlobalStyles />
       <ThemeProvider theme={theme}>
         <UserContextProvider>
-          <Story />
+          <QueryClientProvider client={queryClient}>
+            <Story />
+            <ReactQueryDevtools />
+          </QueryClientProvider>
         </UserContextProvider>
       </ThemeProvider>
     </>

@@ -5,20 +5,27 @@ import App from './App';
 import { theme } from 'styles/themes/theme';
 import GlobalStyles from 'styles/GlobalStyles';
 import { UserContextProvider } from 'contexts/userContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 if (process.env.NODE_ENV === 'development') {
   const { worker } = require('./mocks/browser');
   worker.start();
 }
 
+const queryClient = new QueryClient();
+
 ReactDOM.render(
   <BrowserRouter>
-    <UserContextProvider>
-      <GlobalStyles />
-      <ThemeProvider theme={theme}>
-        <App />
-      </ThemeProvider>
-    </UserContextProvider>
+    <QueryClientProvider client={queryClient}>
+      <UserContextProvider>
+        <GlobalStyles />
+        <ThemeProvider theme={theme}>
+          <App />
+        </ThemeProvider>
+      </UserContextProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   </BrowserRouter>,
   document.getElementById('root')
 );
