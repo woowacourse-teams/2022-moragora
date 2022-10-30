@@ -1,3 +1,4 @@
+import { AxiosResponse } from 'axios';
 import {
   User,
   GetLoginUserDataResponseBody,
@@ -18,45 +19,25 @@ import {
   PostUserGeolocationAttendanceRequestBody,
 } from 'types/attendanceType';
 import request from '../utils/request';
+import { privateRequest, publicRequest } from './api';
 
 export const postEmailSendApi = (payload: UserEmailSendRequestBody) =>
-  request<{ expiredTime: number }>(`/email/send`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-    credentials: 'include',
+  publicRequest.post<{ expiredTime: number }>(`/email/send`, payload, {
+    withCredentials: true,
   });
 
 export const postVerifyCodeAPi = (payload: EmailCodeVerifyRequestBody) =>
-  request(`/email/verify`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-    credentials: 'include',
-  });
+  publicRequest.post(`/email/verify`, payload, { withCredentials: true });
 
-export const submitLoginApi = async (payload: UserLoginRequestBody) =>
-  request<UserLoginResponseBody>('/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-    credentials: 'include',
+export const submitLoginApi = async (payload: UserLoginRequestBody) => {
+  return publicRequest.post<UserLoginResponseBody>('/login', payload, {
+    withCredentials: true,
   });
+};
 
 export const submitRegisterApi = async (payload: UserRegisterRequestBody) => {
-  await request<{ accessToken: string }>('/users', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-    credentials: 'include',
+  await publicRequest.post<{ accessToken: string }>('/users', payload, {
+    withCredentials: true,
   });
 
   const { nickname, ...loginRequestBody } = payload;
@@ -65,21 +46,18 @@ export const submitRegisterApi = async (payload: UserRegisterRequestBody) => {
 };
 
 export const googleLoginApi = async ({ code }: GoogleLoginRequestBody) =>
-  request<UserLoginResponseBody>(`/login/oauth2/google?code=${code}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-  });
+  publicRequest.post<UserLoginResponseBody>(
+    `/login/oauth2/google?code=${code}`,
+    null,
+    {
+      withCredentials: true,
+    }
+  );
 
 export const getAttendancesApi = (id: number | undefined) => () => {
-  return request<AttendancesResponseBody>(`/meetings/${id}/attendances/today`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  return privateRequest<AttendancesResponseBody>(
+    `/meetings/${id}/attendances/today`
+  );
 };
 
 export const postUserAttendanceApi = async ({
@@ -87,15 +65,9 @@ export const postUserAttendanceApi = async ({
   userId,
   isPresent,
 }: PostUserAttendanceRequestBody) => {
-  return request<{}>(
+  return privateRequest.post<{}>(
     `/meetings/${meetingId}/users/${userId}/attendances/today`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ isPresent }),
-    }
+    { isPresent }
   );
 };
 
@@ -107,83 +79,45 @@ export const postUserGeolocationAttendanceApi =
     latitude,
     longitude,
   }: PostUserGeolocationAttendanceRequestBody) => {
-    return request<{}>(
+    return privateRequest.post<{}>(
       `/meetings/${meetingId}/users/${userId}/attendances/today/geolocation`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ latitude, longitude }),
-      }
+      { latitude, longitude }
     );
   };
 
 export const getLoginUserDataApi = () => async () => {
-  return request<GetLoginUserDataResponseBody>('/users/me', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  return privateRequest.get<GetLoginUserDataResponseBody>('/users/me');
 };
 
 export const getUserCoffeeStatsApi = (id: string | undefined) => async () => {
-  return request<UserCoffeeStatsResponseBody>(`/meetings/${id}/coffees/use`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  return privateRequest.get<UserCoffeeStatsResponseBody>(
+    `/meetings/${id}/coffees/use`
+  );
 };
 
 export const updateNicknameApi =
   () => async (payload: UserUpdateNicknameRequestBody) => {
-    return request('/users/me/nickname', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+    return privateRequest.put('/users/me/nickname', payload);
   };
 
 export const updatePasswordApi =
   () => async (payload: UserUpdatePasswordRequestBody) => {
-    return request('/users/me/password', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+    return privateRequest.put('/users/me/password', payload);
   };
 
 export const unregisterApi =
   () => async (payload: { password: User['password'] }) => {
-    return request('/users/me', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
+    return privateRequest.delete('/users/me', {
+      data: payload,
     });
   };
 
 export const accessTokenRefreshApi = () =>
-  request<AccessTokenRefreshResponseBody>('/token/refresh', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
+  publicRequest.get<AccessTokenRefreshResponseBody>('/token/refresh', {
+    withCredentials: true,
   });
 
 export const logoutApi = () =>
-  request(`/token/logout`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
+  publicRequest.post(`/token/logout`, null, {
+    withCredentials: true,
   });

@@ -1,9 +1,5 @@
 import request from 'utils/request';
+import { privateRequest } from './api';
 
 export const getServerTime = () =>
-  request<{ serverTime: number }>('/server-time', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  privateRequest.get<{ serverTime: number }>('/server-time');
