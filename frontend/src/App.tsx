@@ -10,49 +10,18 @@ import { CalendarProvider } from 'contexts/calendarContext';
 import useQuery from 'hooks/useQuery';
 import { getLoginUserDataApi, accessTokenRefreshApi } from 'apis/userApis';
 import useInterceptor from 'hooks/useInterceptor';
-import { TokenStatus } from 'types/userType';
-import { queryClient } from 'contexts/queryClient';
 import * as S from './App.styled';
 
 const App = () => {
   const userState = useContext(userContext) as UserContextValues;
+  useInterceptor({ userState });
 
-  useInterceptor({
-    accessToken: userState.accessToken,
-    onRequest: (url, options, accessToken) => ({
-      url,
-      options: {
-        ...options,
-        headers: {
-          ...options.headers,
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
-    }),
-    onError: (response, body) => {
-      if (response.status !== 401) {
-        return;
-      }
-
-      if (body.tokenStatus === TokenStatus['invalid']) {
-        userState.logout();
-        return;
-      }
-
-      if (body.tokenStatus === TokenStatus['expired']) {
-        refreshQuery.refetch();
-        return;
-      }
-
-      userState.setInitialized(true);
-    },
-  });
-
-  const refreshQuery = useQuery(['refresh'], accessTokenRefreshApi, {
-    onSuccess: ({ body: { accessToken } }) => {
+  useQuery(['refresh'], accessTokenRefreshApi, {
+    onSuccess: ({ data: { accessToken } }) => {
       userState.setAccessToken(accessToken);
+    },
+    onSettled: () => {
       userState.setInitialized(true);
-      queryClient.reQueryCache();
     },
   });
 
@@ -61,9 +30,9 @@ const App = () => {
     getLoginUserDataApi(),
     {
       enabled: !!userState.accessToken,
-      onSuccess: ({ body }) => {
+      onSuccess: ({ data }) => {
         if (userState.accessToken) {
-          userState.login(body, userState.accessToken);
+          userState.login(data, userState.accessToken);
         }
       },
       onError: (error) => {
