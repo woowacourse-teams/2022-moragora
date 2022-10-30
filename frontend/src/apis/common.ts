@@ -1,4 +1,3 @@
-import request from 'utils/request';
 import { privateRequest } from './api';
 
 export const getServerTime = () =>

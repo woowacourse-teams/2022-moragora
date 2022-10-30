@@ -4,19 +4,17 @@ import {
   MeetingNameUpdateRequestBody,
   MeetingResponseBody,
 } from 'types/meetingType';
-import request from 'utils/request';
 import { privateRequest } from './api';
 
 export const createMeetingApi = async (formDataObject: Record<string, any>) => {
   const meetingCreateResponse = await privateRequest.post(
     '/meetings',
-
     formDataObject
   );
 
   const location = meetingCreateResponse.headers.get('location') as string;
 
-  return request<{ id: number }>(location, {
+  return privateRequest.get<{ id: number }>(location, {
     headers: {},
   });
 };

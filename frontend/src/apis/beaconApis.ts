@@ -1,4 +1,3 @@
-import request from 'utils/request';
 import { CreateBeaconsRequestBody } from 'types/beaconType';
 import { privateRequest } from './api';
 

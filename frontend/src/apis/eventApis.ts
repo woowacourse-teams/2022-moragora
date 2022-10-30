@@ -16,7 +16,9 @@ export const createEventsApi =
 
 export const deleteEventsApi =
   (meetingId: string) => (payload: DeleteEventsRequestBody) =>
-    privateRequest.delete<{}>(`/meetings/${meetingId}/events`, payload);
+    privateRequest.delete<{}>(`/meetings/${meetingId}/events`, {
+      data: payload,
+    });
 
 export const getUpcomingEventApi = (meetingId: string) => () =>
   privateRequest.get<MeetingEvent>(`/meetings/${meetingId}/events/upcoming`);

@@ -1,4 +1,3 @@
-import { AxiosResponse } from 'axios';
 import {
   User,
   GetLoginUserDataResponseBody,
@@ -18,7 +17,6 @@ import {
   PostUserAttendanceRequestBody,
   PostUserGeolocationAttendanceRequestBody,
 } from 'types/attendanceType';
-import request from '../utils/request';
 import { privateRequest, publicRequest } from './api';
 
 export const postEmailSendApi = (payload: UserEmailSendRequestBody) =>
