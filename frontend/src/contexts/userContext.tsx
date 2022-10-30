@@ -42,9 +42,9 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
   const getUserDataQuery = useQuery(['loginUserData'], getLoginUserDataApi(), {
     enabled: !!accessToken,
     refetchOnMount: false,
-    onSuccess: ({ body }) => {
+    onSuccess: ({ data }) => {
       if (accessToken) {
-        login(body, accessToken);
+        login(data, accessToken);
       }
     },
   });

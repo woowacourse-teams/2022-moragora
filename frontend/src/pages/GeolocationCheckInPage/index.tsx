@@ -29,7 +29,7 @@ const GeolocationCheckInPage = () => {
   const mapUserMarkerRef = useRef<SVGSVGElement>(null);
 
   const meetingListQuery = useQuery(['meetingList'], getMeetingListApi(), {
-    onSuccess: ({ body: { meetings } }) => {
+    onSuccess: ({ data: { meetings } }) => {
       const activeMeeting = meetings.find((meeting) => meeting.isActive);
 
       if (activeMeeting) {
@@ -167,7 +167,7 @@ const GeolocationCheckInPage = () => {
       <S.CheckTimeSection>
         <S.SectionTitle>출결 중인 모임</S.SectionTitle>
         <S.MeetingList>
-          {meetingListQuery.data?.body.meetings
+          {meetingListQuery.data?.data.meetings
             .filter((meeting) => meeting.isActive)
             .map((meeting) => (
               <CheckMeetingItem

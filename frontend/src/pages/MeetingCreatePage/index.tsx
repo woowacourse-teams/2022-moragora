@@ -56,7 +56,7 @@ const MeetingCreatePage = () => {
   });
 
   const meetingCreateMutation = useMutation(createMeetingApi, {
-    onSuccess: ({ body: { id } }) => {
+    onSuccess: ({ data: { id } }) => {
       meetingIdRef.current = id;
       beaconCreateMutation.mutate({
         meetingId: id,

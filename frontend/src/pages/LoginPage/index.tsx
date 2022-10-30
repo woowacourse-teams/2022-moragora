@@ -16,7 +16,7 @@ const LoginPage = () => {
   const { errors, isSubmitting, onSubmit, register } = useForm();
 
   const { mutate: loginMutate } = useMutation(submitLoginApi, {
-    onSuccess: ({ body: { accessToken } }) => {
+    onSuccess: ({ data: { accessToken } }) => {
       userState.setAccessToken(accessToken);
     },
     onError: () => {
@@ -25,7 +25,7 @@ const LoginPage = () => {
   });
 
   const { mutate: googleLoginMutate } = useMutation(googleLoginApi, {
-    onSuccess: ({ body: { accessToken } }) => {
+    onSuccess: ({ data: { accessToken } }) => {
       userState.setAccessToken(accessToken);
     },
     onError: () => {

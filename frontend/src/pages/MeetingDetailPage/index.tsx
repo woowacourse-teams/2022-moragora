@@ -6,8 +6,8 @@ import { getMeetingData } from 'apis/meetingApis';
 import ReloadButton from 'components/@shared/ReloadButton';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import Spinner from 'components/@shared/Spinner';
-import * as S from './MeetingDetailPage.styled';
 import { CalendarContext } from 'contexts/calendarContext';
+import * as S from './MeetingDetailPage.styled';
 
 const MeetingDetailPage = () => {
   const { id } = useParams();
@@ -21,7 +21,7 @@ const MeetingDetailPage = () => {
   const { clearSelectedDates } = useContext(CalendarContext);
 
   const meetingQuery = useQuery(['meeting'], getMeetingData(id), {
-    onSuccess: ({ body: { users } }) => {
+    onSuccess: ({ data: { users } }) => {
       setTotalTardyCount(
         users.reduce((total, user) => total + user.tardyCount, 0)
       );
