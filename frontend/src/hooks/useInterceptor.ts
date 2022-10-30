@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { AxiosRequestConfig } from 'axios';
-import { publicRequest, privateRequest } from 'apis/api';
+import { publicRequest, privateRequest } from 'apis/instances';
 import { TokenStatus } from 'types/userType';
 import { UserContextValues } from 'contexts/userContext';
 

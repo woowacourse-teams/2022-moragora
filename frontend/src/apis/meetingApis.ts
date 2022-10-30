@@ -4,7 +4,7 @@ import {
   MeetingNameUpdateRequestBody,
   MeetingResponseBody,
 } from 'types/meetingType';
-import { privateRequest } from './api';
+import { privateRequest } from './instances';
 
 export const createMeetingApi = async (formDataObject: Record<string, any>) => {
   const meetingCreateResponse = await privateRequest.post(

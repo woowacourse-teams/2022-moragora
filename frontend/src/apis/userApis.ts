@@ -17,7 +17,7 @@ import {
   PostUserAttendanceRequestBody,
   PostUserGeolocationAttendanceRequestBody,
 } from 'types/attendanceType';
-import { privateRequest, publicRequest } from './api';
+import { privateRequest, publicRequest } from './instances';
 
 export const postEmailSendApi = (payload: UserEmailSendRequestBody) =>
   publicRequest.post<{ expiredTime: number }>(`/email/send`, payload, {

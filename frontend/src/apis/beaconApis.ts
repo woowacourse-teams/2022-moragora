@@ -1,5 +1,5 @@
 import { CreateBeaconsRequestBody } from 'types/beaconType';
-import { privateRequest } from './api';
+import { privateRequest } from './instances';
 
 export const createBeaconsApi =
   () =>

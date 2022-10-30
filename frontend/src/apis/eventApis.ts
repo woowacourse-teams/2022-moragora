@@ -3,7 +3,7 @@ import {
   DeleteEventsRequestBody,
   MeetingEvent,
 } from 'types/eventType';
-import { privateRequest } from './api';
+import { privateRequest } from './instances';
 
 export const getEventsApi = (meetingId: string) => () =>
   privateRequest.get<{ events: MeetingEvent[] }>(
