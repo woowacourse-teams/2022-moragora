@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { AxiosRequestConfig } from 'axios';
 import { publicRequest, privateRequest } from 'apis/instances';
 import { TokenStatus } from 'types/userType';
@@ -11,69 +11,75 @@ type useInterceptorProps = {
 const useInterceptor = (customConfig: useInterceptorProps) => {
   const { userState } = customConfig;
 
-  const onRequest = (config: AxiosRequestConfig<any>) => {
-    return {
-      ...config,
-      headers: {
-        ...config.headers,
-        Authorization: `Bearer ${userState.accessToken}`,
-      },
-    };
-  };
-
-  const onRejected = async (error: any) => {
-    const {
-      config,
-      response: {
-        status,
-        data: { tokenStatus },
-      },
-    } = error;
-
-    if (status !== 401) {
-      return Promise.reject(error);
-    }
-
-    if (tokenStatus === TokenStatus['invalid']) {
-      userState.logout();
-      return;
-    }
-
-    if (tokenStatus === TokenStatus['expired']) {
-      const {
-        data: { accessToken },
-      } = await publicRequest('/token/refresh');
-
-      const newConfig = {
+  const onRequest = useCallback(
+    (config: AxiosRequestConfig<any>) => {
+      return {
         ...config,
-        Authorization: `Bearer ${accessToken}`,
+        headers: {
+          ...config.headers,
+          Authorization: `Bearer ${userState.accessToken}`,
+        },
       };
+    },
+    [customConfig]
+  );
 
-      userState.setAccessToken(accessToken);
+  const onRejected = useCallback(
+    async (error: any) => {
+      const {
+        config,
+        response: {
+          status,
+          data: { tokenStatus },
+        },
+      } = error;
 
-      return privateRequest(newConfig);
-    }
+      if (status !== 401) {
+        return Promise.reject(error);
+      }
 
-    userState.setInitialized(true);
-    return Promise.reject(error);
-  };
+      if (tokenStatus === TokenStatus['invalid']) {
+        userState.logout();
+        return;
+      }
 
-  const setPublicRequestInterceptor = () => {
+      if (tokenStatus === TokenStatus['expired']) {
+        const {
+          data: { accessToken },
+        } = await publicRequest('/token/refresh');
+
+        const newConfig = {
+          ...config,
+          Authorization: `Bearer ${accessToken}`,
+        };
+
+        userState.setAccessToken(accessToken);
+
+        return privateRequest(newConfig);
+      }
+
+      userState.setInitialized(true);
+      return Promise.reject(error);
+    },
+    [customConfig]
+  );
+
+  const setPublicRequestInterceptor = useCallback(() => {
     publicRequest.interceptors.response.clear();
     publicRequest.interceptors.response.use((config) => config, onRejected);
-  };
+  }, [onRejected]);
 
-  const setPrivateRequestInterceptor = () => {
+  const setPrivateRequestInterceptor = useCallback(() => {
     privateRequest.interceptors.request.clear();
     privateRequest.interceptors.response.clear();
     privateRequest.interceptors.request.use(onRequest);
     privateRequest.interceptors.response.use((config) => config, onRejected);
-  };
+  }, [onRejected, onRequest]);
 
   useEffect(() => {
     setPublicRequestInterceptor();
     setPrivateRequestInterceptor();
-  }, [userState]);
+  }, [setPublicRequestInterceptor, setPrivateRequestInterceptor]);
 };
 
 export default useInterceptor;
