@@ -10,11 +10,60 @@ import { CalendarProvider } from 'contexts/calendarContext';
 import useQuery from 'hooks/useQuery';
 import { getLoginUserDataApi, accessTokenRefreshApi } from 'apis/userApis';
 import useInterceptor from 'hooks/useInterceptor';
+import { AxiosRequestConfig } from 'axios';
+import { TokenStatus } from 'types/userType';
+import { publicRequest, privateRequest } from 'apis/instances';
 import * as S from './App.styled';
 
 const App = () => {
   const userState = useContext(userContext) as UserContextValues;
-  useInterceptor({ userState });
+
+  useInterceptor({
+    onRequest: (config: AxiosRequestConfig<unknown>) => ({
+      ...config,
+      headers: {
+        ...config.headers,
+        Authorization: `Bearer ${userState.accessToken}`,
+      },
+    }),
+    onRejected: async (error: any) => {
+      const {
+        config,
+        response: {
+          status,
+          data: { tokenStatus },
+        },
+      } = error;
+
+      if (status !== 401) {
+        return Promise.reject(error);
+      }
+
+      if (tokenStatus === TokenStatus['invalid']) {
+        userState.logout();
+        return;
+      }
+
+      if (tokenStatus === TokenStatus['expired']) {
+        const {
+          data: { accessToken },
+        } = await publicRequest('/token/refresh');
+
+        const newConfig = {
+          ...config,
+          Authorization: `Bearer ${accessToken}`,
+        };
+
+        userState.setAccessToken(accessToken);
+
+        return privateRequest(newConfig);
+      }
+
+      userState.setInitialized(true);
+      return Promise.reject(error);
+    },
+    resolver: [userState],
+  });
 
   useQuery(['refresh'], accessTokenRefreshApi, {
     onSuccess: ({ data: { accessToken } }) => {
