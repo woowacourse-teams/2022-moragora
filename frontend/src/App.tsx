@@ -62,7 +62,7 @@ const App = () => {
       userState.setInitialized(true);
       return Promise.reject(error);
     },
-    resolver: [userState],
+    resolver: [userState.accessToken],
   });
 
   useQuery(['refresh'], accessTokenRefreshApi, {
