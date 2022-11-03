@@ -55,7 +55,7 @@ const AttendanceSection: React.FC<AttendanceSectionProps> = ({
       ) : (
         <S.UserListBox>
           <S.UserList>
-            {attendancesQuery.data?.body.users.map((user) => (
+            {attendancesQuery.data?.data.users.map((user) => (
               <UserItem
                 key={user.id}
                 meetingId={currentMeeting.id}

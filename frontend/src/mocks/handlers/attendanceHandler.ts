@@ -84,7 +84,7 @@ export default [
       const token = extractIdFromHeader(req);
       const { meetingId, userId } = req.params;
 
-      if (!token.isValidToken || token.id !== Number(userId)) {
+      if (!token.isValidToken) {
         return res(
           ctx.status(401),
           ctx.json({

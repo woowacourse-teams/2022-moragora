@@ -19,7 +19,7 @@ const RegisterPage = () => {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
 
   const emailSendMutation = useMutation(postEmailSendApi, {
-    onSuccess: ({ body: { expiredTime } }) => {
+    onSuccess: ({ data: { expiredTime } }) => {
       setExpiredTimestamp(expiredTime);
       setIsModalOpened(true);
     },
@@ -43,7 +43,7 @@ const RegisterPage = () => {
   });
 
   const registerMutation = useMutation(submitRegisterApi, {
-    onSuccess: ({ body: { accessToken } }) => {
+    onSuccess: ({ data: { accessToken } }) => {
       userState?.setAccessToken(accessToken);
     },
     onError: () => {

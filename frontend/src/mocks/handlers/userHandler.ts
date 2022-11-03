@@ -7,6 +7,9 @@ import {
   AuthProvider,
   UserEmailSendRequestBody,
   EmailCodeVerifyRequestBody,
+  UserDeleteRequestBody,
+  UserUpdateNicknameRequestBody,
+  UserUpdatePasswordRequestBody,
 } from 'types/userType';
 import { DELAY } from 'mocks/configs';
 import {
@@ -15,11 +18,6 @@ import {
   generateAccessToken,
   generateRefreshToken,
 } from 'mocks/utils';
-import {
-  UserDeleteRequestBody,
-  UserUpdateNicknameRequestBody,
-  UserUpdatePasswordRequestBody,
-} from 'types/userType';
 import meetings from 'mocks/fixtures/meetings';
 
 const emailReg =

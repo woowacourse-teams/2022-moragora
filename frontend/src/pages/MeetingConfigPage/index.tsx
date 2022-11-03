@@ -92,7 +92,7 @@ const MeetingConfigPage = () => {
     meetingLeaveMutation.mutate({});
   };
 
-  if (meetingQuery.data?.body.isLoginUserMaster) {
+  if (meetingQuery.data?.data.isLoginUserMaster) {
     return (
       <S.Layout>
         <S.Form
@@ -105,8 +105,8 @@ const MeetingConfigPage = () => {
               <Input
                 type="text"
                 {...register('name', {
-                  defaultValue: meetingQuery.data.body.name,
-                  placeholder: meetingQuery.data.body.name,
+                  defaultValue: meetingQuery.data.data.name,
+                  placeholder: meetingQuery.data.data.name,
                   maxLength: 50,
                   required: true,
                 })}

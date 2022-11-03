@@ -16,8 +16,8 @@ import { getMeetingData } from 'apis/meetingApis';
 import Spinner from 'components/@shared/Spinner';
 import { QueryState } from 'types/queryType';
 import ErrorIcon from 'components/@shared/ErrorIcon';
-import * as S from './CalendarPage.styled';
 import TimePicker from 'components/@shared/TimePicker';
+import * as S from './CalendarPage.styled';
 
 const CalendarPage = () => {
   const { id: meetingId } = useParams();
@@ -50,7 +50,7 @@ const CalendarPage = () => {
   }>();
 
   const eventsQuery = useQuery(['events'], getEventsApi(meetingId), {
-    onSuccess: ({ body: { events: queriedEvents } }) => {
+    onSuccess: ({ data: { events: queriedEvents } }) => {
       setSavedEvents(queriedEvents);
     },
     onError: (error) => {
@@ -143,7 +143,7 @@ const CalendarPage = () => {
     );
   }
 
-  if (!meetingQuery.data?.body.isLoginUserMaster) {
+  if (!meetingQuery.data?.data.isLoginUserMaster) {
     return (
       <S.Layout>
         <S.CalendarBox>

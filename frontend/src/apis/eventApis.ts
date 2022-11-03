@@ -1,42 +1,24 @@
-import request from 'utils/request';
 import {
   EventCreateRequestBody,
   DeleteEventsRequestBody,
   MeetingEvent,
 } from 'types/eventType';
+import { privateRequest } from './instances';
 
 export const getEventsApi = (meetingId: string) => () =>
-  request<{ events: MeetingEvent[] }>(`/meetings/${meetingId}/events`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  privateRequest.get<{ events: MeetingEvent[] }>(
+    `/meetings/${meetingId}/events`
+  );
 
 export const createEventsApi =
   (meetingId: string) => (payload: EventCreateRequestBody) =>
-    request<{}>(`/meetings/${meetingId}/events`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+    privateRequest.post<{}>(`/meetings/${meetingId}/events`, payload);
 
 export const deleteEventsApi =
   (meetingId: string) => (payload: DeleteEventsRequestBody) =>
-    request<{}>(`/meetings/${meetingId}/events`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
+    privateRequest.delete<{}>(`/meetings/${meetingId}/events`, {
+      data: payload,
     });
 
 export const getUpcomingEventApi = (meetingId: string) => () =>
-  request<MeetingEvent>(`/meetings/${meetingId}/events/upcoming`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  privateRequest.get<MeetingEvent>(`/meetings/${meetingId}/events/upcoming`);
