@@ -64,22 +64,15 @@ const useInterceptor = (customConfig: useInterceptorProps) => {
     [customConfig]
   );
 
-  const setPublicRequestInterceptor = useCallback(() => {
+  useEffect(() => {
     publicRequest.interceptors.response.clear();
     publicRequest.interceptors.response.use((config) => config, onRejected);
-  }, [onRejected]);
 
-  const setPrivateRequestInterceptor = useCallback(() => {
     privateRequest.interceptors.request.clear();
     privateRequest.interceptors.response.clear();
     privateRequest.interceptors.request.use(onRequest);
     privateRequest.interceptors.response.use((config) => config, onRejected);
   }, [onRejected, onRequest]);
-
-  useEffect(() => {
-    setPublicRequestInterceptor();
-    setPrivateRequestInterceptor();
-  }, [setPublicRequestInterceptor, setPrivateRequestInterceptor]);
 };
 
 export default useInterceptor;
