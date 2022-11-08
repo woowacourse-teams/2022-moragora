@@ -1,28 +1,26 @@
 import React, { useContext } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Button from 'components/@shared/Button';
-import useQuery from 'hooks/useQuery';
 import {
   getAttendancesApi,
   postUserGeolocationAttendanceApi,
 } from 'apis/userApis';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import { MeetingListResponseBody } from 'types/meetingType';
-import useMutation from 'hooks/useMutation';
 import * as S from './CheckInButtonSection.styled';
 
 type CheckInButtonSectionProps = React.HTMLAttributes<HTMLDivElement> & {
   meeting: MeetingListResponseBody['meetings'][0];
   currentPosition?: GeolocationPosition;
-  refetchMeetingList: () => void;
 };
 
 const CheckInButtonSection = ({
   currentPosition,
   meeting,
-  refetchMeetingList,
   ...props
 }: CheckInButtonSectionProps) => {
   const { user } = useContext(userContext) as UserContextValues;
+  const queryClient = useQueryClient();
   const attendancesQuery = useQuery(
     ['attendances', meeting.id],
     getAttendancesApi(meeting.id),
@@ -36,11 +34,10 @@ const CheckInButtonSection = ({
     {
       onSuccess: () => {
         alert('출석에 성공했습니다.');
-        refetchMeetingList();
+        queryClient.invalidateQueries(['meetingList']);
       },
       onError: () => {
         alert('출석을 실패했습니다.');
-        refetchMeetingList();
       },
     }
   );

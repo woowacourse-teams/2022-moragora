@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getMeetingListApi } from 'apis/meetingApis';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import ReloadButton from 'components/@shared/ReloadButton';
-import useQuery from 'hooks/useQuery';
 import { MeetingListResponseBody } from 'types/meetingType';
 import emptyInboxSVG from 'assets/empty-inbox.svg';
 import useGeolocation from 'hooks/useGeolocation';
