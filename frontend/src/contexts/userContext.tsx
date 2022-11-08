@@ -1,8 +1,8 @@
 import React, { createContext, useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getLoginUserDataApi, logoutApi } from 'apis/userApis';
 import useQuery from 'hooks/useQuery';
 import { User } from 'types/userType';
-import useMutation from 'hooks/useMutation';
 
 type UserContextData = Omit<User, 'password'>;
 
@@ -31,11 +31,13 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
   const [user, setUser] = useState<UserContextValues['user']>(null);
   const [accessToken, setAccessToken] =
     useState<UserContextValues['accessToken']>(null);
+  const queryClient = useQueryClient();
 
   const logoutMutation = useMutation(logoutApi, {
     onSuccess: () => {
       setUser(null);
       setAccessToken(null);
+      queryClient.invalidateQueries();
     },
   });
 
@@ -57,7 +59,7 @@ const UserContextProvider: React.FC<React.PropsWithChildren> = ({
 
   const logout = () => {
     setInitialized(true);
-    logoutMutation.mutate({});
+    logoutMutation.mutate();
   };
 
   return (
