@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { Navigate, Outlet, useParams } from 'react-router-dom';
-import useQuery from 'hooks/useQuery';
+import { useQuery } from '@tanstack/react-query';
 import { getUpcomingEventApi } from 'apis/eventApis';
 import { getMeetingData } from 'apis/meetingApis';
 import ReloadButton from 'components/@shared/ReloadButton';
@@ -20,7 +20,7 @@ const MeetingDetailPage = () => {
   const [upcomingEventNotExist, setUpcomingEventNotExist] = useState(false);
   const { clearSelectedDates } = useContext(CalendarContext);
 
-  const meetingQuery = useQuery(['meeting'], getMeetingData(id), {
+  const meetingQuery = useQuery(['meeting', id], getMeetingData(id), {
     onSuccess: ({ body: { users } }) => {
       setTotalTardyCount(
         users.reduce((total, user) => total + user.tardyCount, 0)
@@ -29,14 +29,16 @@ const MeetingDetailPage = () => {
   });
 
   const upcomingEventQuery = useQuery(
-    ['upcomingEvent'],
+    ['upcomingEvent', id],
     getUpcomingEventApi(id),
     {
       enabled: meetingQuery.isSuccess,
       onError: (error) => {
-        setUpcomingEventNotExist(
-          parseInt(error.message.split(': ')[0], 10) === 404
-        );
+        if (error instanceof Error) {
+          setUpcomingEventNotExist(
+            parseInt(error.message.split(': ')[0], 10) === 404
+          );
+        }
       },
     }
   );

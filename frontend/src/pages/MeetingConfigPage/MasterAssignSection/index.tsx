@@ -1,42 +1,37 @@
 import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ModalPortal from 'components/ModalPortal';
 import ModalWindow from 'components/@shared/ModalWindow';
-import { useOutletContext } from 'react-router-dom';
-import { QueryState } from 'types/queryType';
-import { assignMasterApi, getMeetingData } from 'apis/meetingApis';
-import { getUpcomingEventApi } from 'apis/eventApis';
+import { assignMasterApi } from 'apis/meetingApis';
 import { ArrayElement } from 'types/utilityType';
 import { MeetingResponseBody } from 'types/meetingType';
-import useMutation from 'hooks/useMutation';
 import * as S from './MasterAssignSection.styled';
 
 type SelectedParticipant = ArrayElement<MeetingResponseBody['users']>;
+type MasterAssignSectionProps = {
+  meeting: MeetingResponseBody;
+};
 
-const MasterAssignSection = () => {
+const MasterAssignSection = ({ meeting }: MasterAssignSectionProps) => {
+  const queryClient = useQueryClient();
   const [isDropdownOpened, setIsDropdownOpened] = useState(false);
   const [isModalOpened, setIsModalOpened] = useState(false);
-  const { meetingQuery } = useOutletContext<{
-    meetingQuery: QueryState<typeof getMeetingData>;
-    upcomingEventQuery: QueryState<typeof getUpcomingEventApi>;
-    totalTardyCount: number;
-    upcomingEventNotExist: boolean;
-  }>();
-  const participants = meetingQuery.data?.body.users;
+  const participants = meeting.users;
   const [selectedParticipant, setSelectedParticipant] =
     useState<SelectedParticipant>();
 
-  const masterAssignMutation = useMutation(
-    assignMasterApi(meetingQuery.data?.body.id as number),
-    {
-      onSuccess: () => {
-        meetingQuery.refetch();
-        alert('마스터 권한을 넘겼습니다.');
-      },
-      onError: (e) => {
+  const masterAssignMutation = useMutation(assignMasterApi(meeting.id), {
+    onSuccess: () => {
+      alert('마스터 권한을 넘겼습니다.');
+      queryClient.invalidateQueries(['meeting', meeting.id]);
+      queryClient.invalidateQueries(['meetings']);
+    },
+    onError: (e) => {
+      if (e instanceof Error) {
         alert(e.message);
-      },
-    }
-  );
+      }
+    },
+  });
 
   const handleParticipantClick = (participant: SelectedParticipant) => () => {
     setIsDropdownOpened(false);
@@ -74,7 +69,7 @@ const MasterAssignSection = () => {
         <S.MasterAssignBox>
           <S.SelectBox>
             <S.SelectSpan
-              onClick={(e) => {
+              onClick={() => {
                 setIsDropdownOpened((prev) => !prev);
               }}
             >

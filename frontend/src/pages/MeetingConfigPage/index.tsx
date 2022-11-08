@@ -1,15 +1,14 @@
-import React, { useContext } from 'react';
 import {
   Navigate,
   useNavigate,
   useOutletContext,
   useParams,
 } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { css } from '@emotion/react';
 import Button from 'components/@shared/Button';
 import Input from 'components/@shared/Input';
 import useForm from 'hooks/useForm';
-import useMutation from 'hooks/useMutation';
 import {
   deleteMeetingApi,
   getMeetingData,
@@ -38,34 +37,46 @@ const MeetingConfigPage = () => {
     totalTardyCount: number;
     upcomingEventNotExist: boolean;
   }>();
+  const queryClient = useQueryClient();
+
   const meetingNameUpdateMutation = useMutation(
     updateMeetingNameApi(meetingId),
     {
       onSuccess: () => {
-        meetingQuery.refetch();
         alert('모임명이 수정되었습니다.');
+        queryClient.invalidateQueries(['meeting', meetingId]);
       },
       onError: (e) => {
-        alert(e.message);
+        if (e instanceof Error) {
+          alert(e.message);
+        }
       },
     }
   );
   const meetingDeleteMutation = useMutation(deleteMeetingApi(meetingId), {
     onSuccess: () => {
       alert('모임이 삭제되었습니다.');
+      queryClient.invalidateQueries(['meetingList']);
+      queryClient.invalidateQueries(['meeting', meetingId]);
       navigate('/');
     },
     onError: (e) => {
-      alert(e.message);
+      if (e instanceof Error) {
+        alert(e.message);
+      }
     },
   });
   const meetingLeaveMutation = useMutation(leaveMeetingApi(meetingId), {
     onSuccess: () => {
       alert('모임을 나갔습니다.');
+      queryClient.invalidateQueries(['meetingList']);
+      queryClient.invalidateQueries(['meeting', meetingId]);
       navigate('/');
     },
     onError: (e) => {
-      alert(e.message);
+      if (e instanceof Error) {
+        alert(e.message);
+      }
     },
   });
 
@@ -82,14 +93,14 @@ const MeetingConfigPage = () => {
 
   const handleMeetingDeleteClick: React.MouseEventHandler<
     HTMLButtonElement
-  > = ({ currentTarget }) => {
-    meetingDeleteMutation.mutate({});
+  > = () => {
+    meetingDeleteMutation.mutate();
   };
 
   const handleMeetingLeaveClick: React.MouseEventHandler<
     HTMLButtonElement
   > = () => {
-    meetingLeaveMutation.mutate({});
+    meetingLeaveMutation.mutate();
   };
 
   if (meetingQuery.data?.body.isLoginUserMaster) {
@@ -121,10 +132,10 @@ const MeetingConfigPage = () => {
             padding: 0.75rem;
           `}
         >
-          <MasterAssignSection />
+          <MasterAssignSection meeting={meetingQuery.data.body} />
         </div>
         <div
-          css={css`
+          css={css`?.body
             padding: 0.75rem;
           `}
         >
