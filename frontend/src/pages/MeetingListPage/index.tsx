@@ -1,4 +1,5 @@
 import { useContext, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { css } from '@emotion/react';
 import MeetingItem from 'components/MeetingItem';
 import MeetingItemSkeleton from 'components/MeetingItemSkeleton';
@@ -6,7 +7,6 @@ import CoffeeStackItem from 'components/CoffeeStackItem';
 import CoffeeStackItemSkeleton from 'components/CoffeeStackItemSkeleton';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import ReloadButton from 'components/@shared/ReloadButton';
-import useQuery from 'hooks/useQuery';
 import useTimer from 'hooks/useTimer';
 import NoSearchResultIconSVG from 'assets/NoSearchResult.svg';
 import { getMeetingListApi } from 'apis/meetingApis';
@@ -61,7 +61,7 @@ const MeetingListPage = () => {
     }
   }, [currentLocaleTimeString]);
 
-  if (isLoading && !meetingListResponse?.body) {
+  if (isLoading) {
     return (
       <S.Layout>
         <S.TimeSection>
