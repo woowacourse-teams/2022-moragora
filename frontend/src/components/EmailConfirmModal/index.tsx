@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import * as S from './EmailConfirmModal.styled';
 import { postVerifyCodeAPi } from 'apis/userApis';
-import useMutation from 'hooks/useMutation';
 import useTimer from 'hooks/useTimer';
 import { User, UserEmailSendRequestBody } from 'types/userType';
 import { getTimestampDiff } from 'utils/timeUtil';
@@ -11,7 +11,7 @@ type EmailConfirmModalProps = {
   expiredTimestamp: number;
   onSuccess: () => void;
   onDismiss: () => void;
-  refetch: (variables: UserEmailSendRequestBody) => Promise<void>;
+  refetch: (variables: UserEmailSendRequestBody) => void;
 };
 
 const EmailConfirmModal: React.FC<

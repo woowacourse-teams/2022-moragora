@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
 import Button from 'components/@shared/Button';
 import { userContext } from 'contexts/userContext';
 import useForm from 'hooks/useForm';
-import useMutation from 'hooks/useMutation';
 import { UserRegisterRequestBody } from 'types/userType';
 import { postEmailSendApi, submitRegisterApi } from 'apis/userApis';
 import ModalPortal from 'components/ModalPortal';
@@ -51,13 +51,13 @@ const RegisterPage = () => {
     },
   });
 
-  const handleModalClose = () => {
+  const handleClose = () => {
     setIsModalOpened(false);
   };
 
   const handleEmailConfirmSuccess = () => {
     setIsEmailVerified(true);
-    setIsModalOpened(false);
+    handleClose();
   };
 
   const handleEmailCheckButtonClick: React.MouseEventHandler<
@@ -80,18 +80,18 @@ const RegisterPage = () => {
       formData.entries()
     ) as UserRegisterRequestBody;
 
-    await registerMutation.mutate(formDataObject);
+    registerMutation.mutate(formDataObject);
   };
 
   return (
     <>
       {isModalOpened && (
-        <ModalPortal closePortal={handleModalClose}>
+        <ModalPortal closePortal={handleClose}>
           <EmailConfirmModal
             email={values['email'] as string}
             expiredTimestamp={expiredTimestamp}
             onSuccess={handleEmailConfirmSuccess}
-            onDismiss={handleModalClose}
+            onDismiss={handleClose}
             refetch={emailSendMutation.mutate}
           />
         </ModalPortal>
