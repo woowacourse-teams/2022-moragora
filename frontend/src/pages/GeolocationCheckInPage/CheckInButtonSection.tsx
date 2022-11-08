@@ -45,7 +45,7 @@ const CheckInButtonSection = ({
     }
   );
 
-  const userAttendanceStatus = attendancesQuery.data?.body.users.find(
+  const userAttendanceStatus = attendancesQuery.data?.data.users.find(
     ({ id }) => id === user?.id
   )?.attendanceStatus;
   const isCheckInable = !!currentPosition && userAttendanceStatus === 'none';

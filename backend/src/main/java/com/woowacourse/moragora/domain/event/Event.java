@@ -2,8 +2,10 @@ package com.woowacourse.moragora.domain.event;
 
 import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.meeting.Meeting;
+import com.woowacourse.moragora.exception.event.IllegalAlreadyStartedEventException;
 import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -77,13 +79,8 @@ public class Event {
         return this.meeting.equals(meeting);
     }
 
-    public void updateTime(final LocalTime startTime, final LocalTime endTime) {
-        validateStartEndTime(startTime, endTime);
-        this.startTime = startTime;
-        this.endTime = endTime;
-    }
-
-    public void updateTime(final Event other) {
+    public void updateTime(final LocalDateTime now, final Event other) {
+        validateAlreadyStart(now);
         validateStartEndTime(other.startTime, other.endTime);
         this.startTime = other.startTime;
         this.endTime = other.endTime;
@@ -91,6 +88,13 @@ public class Event {
 
     public boolean isDateBefore(final LocalDate date) {
         return this.date.isBefore(date);
+    }
+
+    private void validateAlreadyStart(final LocalDateTime now) {
+        final LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
+        if (now.isAfter(startDateTime)) {
+            throw new IllegalAlreadyStartedEventException();
+        }
     }
 
     public boolean isActive(final LocalDate today, final ServerTimeManager serverTimeManager) {

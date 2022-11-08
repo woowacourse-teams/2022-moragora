@@ -202,12 +202,16 @@ public class MeetingService {
         final List<MyMeetingResponse> myMeetingsResponse = new ArrayList<>();
 
         for (final Meeting meeting : meetings) {
+
             final Event upcomingEvent = eventRepository
                     .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
                     .orElse(null);
+
             long tardyCount = meeting.tardyCountByUserId(loginUserId);
-            MyMeetingResponse myMeetingResponse =
+
+            final MyMeetingResponse myMeetingResponse =
                     MyMeetingResponse.of(loginUserId, meeting, upcomingEvent, tardyCount, serverTimeManager);
+
             myMeetingsResponse.add(myMeetingResponse);
         }
 

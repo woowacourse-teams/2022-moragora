@@ -21,12 +21,12 @@ const MasterAssignSection = () => {
     totalTardyCount: number;
     upcomingEventNotExist: boolean;
   }>();
-  const participants = meetingQuery.data?.body.users;
+  const participants = meetingQuery.data?.data.users;
   const [selectedParticipant, setSelectedParticipant] =
     useState<SelectedParticipant>();
 
   const masterAssignMutation = useMutation(
-    assignMasterApi(meetingQuery.data?.body.id as number),
+    assignMasterApi(meetingQuery.data?.data.id as number),
     {
       onSuccess: () => {
         meetingQuery.refetch();
