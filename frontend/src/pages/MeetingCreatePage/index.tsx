@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { css } from '@emotion/react';
 import Input from 'components/@shared/Input';
 import MemberAddInput from 'components/MemberAddInput';
 import InputHint from 'components/@shared/InputHint';
 import useForm from 'hooks/useForm';
-import useMutation from 'hooks/useMutation';
 import useQuerySelectItems from 'hooks/useQuerySelectItems';
 import useGeolocation from 'hooks/useGeolocation';
 import useKakaoMap from 'hooks/useKakaoMap';
@@ -44,6 +44,7 @@ const MeetingCreatePage = () => {
     panTo,
   } = useKakaoMap();
   const mapOverlayRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
 
   const beaconCreateMutation = useMutation(createBeaconsApi(), {
     onSuccess: () => {
@@ -67,6 +68,7 @@ const MeetingCreatePage = () => {
           address: beacon.address.address_name,
         })),
       });
+      queryClient.invalidateQueries(['meetingList']);
     },
     onError: () => {
       alert('모임 생성을 실패했습니다.');
