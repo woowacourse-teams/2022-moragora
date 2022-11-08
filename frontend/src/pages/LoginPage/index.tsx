@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import useForm from 'hooks/useForm';
-import useMutation from 'hooks/useMutation';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
@@ -15,7 +15,7 @@ const LoginPage = () => {
   const code = new URLSearchParams(location.search).get('code');
   const { errors, isSubmitting, onSubmit, register } = useForm();
 
-  const { mutate: loginMutate } = useMutation(submitLoginApi, {
+  const loginMutatation = useMutation(submitLoginApi, {
     onSuccess: ({ body: { accessToken } }) => {
       userState.setAccessToken(accessToken);
     },
@@ -24,7 +24,7 @@ const LoginPage = () => {
     },
   });
 
-  const { mutate: googleLoginMutate } = useMutation(googleLoginApi, {
+  const googleLoginMutatation = useMutation(googleLoginApi, {
     onSuccess: ({ body: { accessToken } }) => {
       userState.setAccessToken(accessToken);
     },
@@ -41,12 +41,12 @@ const LoginPage = () => {
       formData.entries()
     ) as UserLoginRequestBody;
 
-    await loginMutate(formDataObject);
+    loginMutatation.mutate(formDataObject);
   };
 
   useEffect(() => {
     if (code) {
-      googleLoginMutate({ code });
+      googleLoginMutatation.mutate({ code });
     }
   }, [code]);
 
