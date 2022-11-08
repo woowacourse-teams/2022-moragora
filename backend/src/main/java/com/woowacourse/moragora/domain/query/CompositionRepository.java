@@ -13,8 +13,12 @@ import com.woowacourse.moragora.exception.meeting.MeetingNotFoundException;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 @Repository
+@Transactional(readOnly = true)
 public class CompositionRepository {
 
     private final MeetingRepository meetingRepository;
@@ -55,10 +59,10 @@ public class CompositionRepository {
     }
 
     private Map<Long, Long> findParticipantIdToTardyCount(final Meeting meeting) {
-        final List<TardyCountDto> participants2 = participantRepository.countParticipantsTardy(meeting.getParticipants());
-        final Map<Long, Long> participantsToTardyCount = participants2.stream()
+        final List<TardyCountDto> tardyCountDtos = participantRepository.countParticipantsTardy(meeting.getParticipants());
+        final Map<Long, Long> participantIdsToTardyCount = tardyCountDtos.stream()
                 .collect(toMap(TardyCountDto::getParticipantId, TardyCountDto::getTardyCount));
-        return participantsToTardyCount;
+        return participantIdsToTardyCount;
     }
 
     private void allocateTardyCountToParticipants(final Meeting meeting, final Map<Long, Long> participantIdToTardyCount) {
