@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
+import { useMutation } from '@tanstack/react-query';
 import useForm from 'hooks/useForm';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
 import Button from 'components/@shared/Button';
 import { userContext, UserContextValues } from 'contexts/userContext';
-import useMutation from 'hooks/useMutation';
 import { unregisterApi } from 'apis/userApis';
 import * as S from './UnregisterPage.styled';
 
@@ -17,7 +17,9 @@ const UnregisterPage = () => {
       alert('회원 탈퇴되었습니다.');
     },
     onError: (e) => {
-      alert(e.message);
+      if (e instanceof Error) {
+        alert(e.message);
+      }
     },
   });
   const { errors, onSubmit, register, isSubmitting } = useForm();

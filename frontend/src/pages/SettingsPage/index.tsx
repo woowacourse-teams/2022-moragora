@@ -64,7 +64,7 @@ const SettingsPage = () => {
           >
             회원정보 수정
           </MenuLink>
-          <Button onClick={() => handleOpen()}>로그아웃</Button>
+          <Button onClick={handleOpen}>로그아웃</Button>
         </S.ButtonBox>
       </S.Layout>
     </>
