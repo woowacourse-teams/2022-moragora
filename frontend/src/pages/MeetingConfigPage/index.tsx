@@ -135,7 +135,7 @@ const MeetingConfigPage = () => {
           <MasterAssignSection meeting={meetingQuery.data.body} />
         </div>
         <div
-          css={css`?.body
+          css={css`
             padding: 0.75rem;
           `}
         >
