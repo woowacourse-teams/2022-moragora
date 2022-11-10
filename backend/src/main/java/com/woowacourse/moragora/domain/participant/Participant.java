@@ -47,21 +47,6 @@ public class Participant {
         this.isMaster = isMaster;
     }
 
-    public Participant(final Participant participant, final Long tardyCount) {
-        this.id = participant.id;
-        this.isMaster = participant.getIsMaster();
-        this.meeting = participant.getMeeting();
-        this.tardyCount = tardyCount;
-    }
-
-    public Participant(final Participant participant, final User user, final Long tardyCount) {
-        this.id = participant.id;
-        this.isMaster = participant.getIsMaster();
-        this.user = user;
-        this.meeting = participant.getMeeting();
-        this.tardyCount = tardyCount;
-    }
-
     public void mapMeeting(final Meeting meeting) {
         this.meeting = meeting;
 
@@ -80,6 +65,10 @@ public class Participant {
 
     public void allocateTardyCount(final Long tardyCount) {
         this.tardyCount = tardyCount;
+    }
+
+    public boolean isSameUserId(final Long userId) {
+        return getUser().getId().equals(userId);
     }
 
     public Long getTardyCount() {

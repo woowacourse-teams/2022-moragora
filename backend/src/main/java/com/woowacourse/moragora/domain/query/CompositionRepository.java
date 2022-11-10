@@ -60,9 +60,9 @@ public class CompositionRepository {
 
     private Map<Long, Long> findParticipantIdToTardyCount(final Meeting meeting) {
         final List<TardyCountDto> tardyCountDtos = participantRepository.countParticipantsTardy(meeting.getParticipants());
-        final Map<Long, Long> participantIdsToTardyCount = tardyCountDtos.stream()
+
+        return tardyCountDtos.stream()
                 .collect(toMap(TardyCountDto::getParticipantId, TardyCountDto::getTardyCount));
-        return participantIdsToTardyCount;
     }
 
     private void allocateTardyCountToParticipants(final Meeting meeting, final Map<Long, Long> participantIdToTardyCount) {

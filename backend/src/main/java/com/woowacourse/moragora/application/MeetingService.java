@@ -207,12 +207,7 @@ public class MeetingService {
                     .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
                     .orElse(null);
 
-            final long tardyCount = meeting.tardyCountByUserId(loginUserId);
-
-            final MyMeetingResponse myMeetingResponse =
-                    MyMeetingResponse.of(loginUserId, meeting, upcomingEvent, tardyCount, serverTimeManager);
-
-            myMeetingsResponse.add(myMeetingResponse);
+            myMeetingsResponse.add(MyMeetingResponse.of(meeting, upcomingEvent, loginUserId, serverTimeManager));
         }
 
         return myMeetingsResponse;

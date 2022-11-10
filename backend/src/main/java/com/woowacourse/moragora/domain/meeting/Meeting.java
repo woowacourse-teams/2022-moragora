@@ -15,6 +15,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -80,7 +81,7 @@ public class Meeting {
 
     public long tardyCountByUserId(final Long loginUserId) {
         return participants.stream()
-                .filter(participant -> participant.getUser().getId().equals(loginUserId))
+                .filter(participant -> participant.isSameUserId(loginUserId))
                 .map(participant -> participant.getTardyCount())
                 .findAny()
                 .orElseThrow(() -> new BusinessException("지각 횟수가 할당되지 않았습니다."));

@@ -40,45 +40,43 @@ public class MyMeetingResponse {
     }
 
     public static MyMeetingResponse of(final Meeting meeting,
-                                       final Long userId,
-                                       final boolean isActive,
-                                       final EventResponse upcomingEvent,
-                                       final long tardyCount) {
+                                       final Event upcomingEvent,
+                                       final Long loginUserId,
+                                       final ServerTimeManager serverTimeManager) {
+
+        final long tardyCount = meeting.tardyCountByUserId(loginUserId);
+
+        final LocalDate today = serverTimeManager.getDate();
+
+        if (upcomingEvent == null) {
+            return createEmptyResponse(meeting, loginUserId, (int) tardyCount);
+        }
+
+        final LocalTime attendanceOpenTime = upcomingEvent.getOpenTime(serverTimeManager);
+        final LocalTime attendanceClosedTime = upcomingEvent.getCloseTime(serverTimeManager);
 
         return new MyMeetingResponse(
                 meeting.getId(),
                 meeting.getName(),
                 (int) tardyCount,
-                meeting.isMaster(userId),
+                meeting.isMaster(loginUserId),
                 meeting.isTardyStackFull(),
-                isActive,
-                upcomingEvent
+                upcomingEvent.isActive(today, serverTimeManager),
+                EventResponse.of(upcomingEvent, attendanceOpenTime, attendanceClosedTime)
         );
     }
 
-    public static MyMeetingResponse of(final Long userId,
-                                       final Meeting meeting,
-                                       final Event upcomingEvent,
-                                       final long tardyCount,
-                                       final ServerTimeManager serverTimeManager) {
-        final LocalDate today = serverTimeManager.getDate();
-        boolean isActive = false;
-        EventResponse eventResponse = null;
-        if (upcomingEvent != null) {
-            isActive = upcomingEvent.isActive(today, serverTimeManager);
-            final LocalTime attendanceOpenTime = upcomingEvent.getOpenTime(serverTimeManager);
-            final LocalTime attendanceClosedTime = upcomingEvent.getCloseTime(serverTimeManager);
-            eventResponse = EventResponse.of(upcomingEvent, attendanceOpenTime, attendanceClosedTime);
-        }
-
+    private static MyMeetingResponse createEmptyResponse(final Meeting meeting,
+                                                         final Long loginUserId,
+                                                         final int tardyCount) {
         return new MyMeetingResponse(
                 meeting.getId(),
                 meeting.getName(),
-                (int) tardyCount,
-                meeting.isMaster(userId),
+                tardyCount,
+                meeting.isMaster(loginUserId),
                 meeting.isTardyStackFull(),
-                isActive,
-                eventResponse
+                false,
+                null
         );
     }
 }
