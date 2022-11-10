@@ -125,12 +125,12 @@ public class AttendanceService {
 
         validateCoffeeTime(numberOfParticipants, attendancesForCoffeeStack.size());
 
-        final Map<User, Long> coffeeStacksPerUser = new HashMap<>();
+        final Map<User, Long> coffeeStackByUser = new HashMap<>();
         for (Attendance attendance : attendancesForCoffeeStack) {
             final User user = attendance.getParticipant().getUser();
-            coffeeStacksPerUser.put(user, coffeeStacksPerUser.getOrDefault(user, 0L) + 1);
+            coffeeStackByUser.put(user, coffeeStackByUser.getOrDefault(user, 0L) + 1);
         }
-        return CoffeeStatsResponse.from(coffeeStacksPerUser);
+        return CoffeeStatsResponse.from(coffeeStackByUser);
     }
 
     @Transactional
