@@ -3,7 +3,6 @@ package com.woowacourse.moragora.application;
 import com.woowacourse.moragora.domain.attendance.Attendance;
 import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
 import com.woowacourse.moragora.domain.attendance.CoffeeStatRepository;
-import com.woowacourse.moragora.domain.attendance.MeetingAttendances;
 import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.event.EventRepository;
@@ -30,7 +29,6 @@ import com.woowacourse.moragora.exception.participant.ParticipantNotFoundExcepti
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -117,13 +115,9 @@ public class AttendanceService {
     public CoffeeStatsResponse countUsableCoffeeStack(final Long meetingId) {
         validateMeetingExist(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meetingId);
-        final int numberOfParticipants = participants.size();
 
-        final PageRequest pageRequest = PageRequest.ofSize(numberOfParticipants);
-        final List<Attendance> attendancesForCoffeeStack = coffeeStatRepository.findCoffeeStackOrderedByParticipant(
-                pageRequest, participants);
-
-        validateCoffeeTime(numberOfParticipants, attendancesForCoffeeStack.size());
+        final List<Attendance> attendancesForCoffeeStack = findAttendancesToUseCoffeeStat(participants);
+        validateCoffeeTime(participants.size(), attendancesForCoffeeStack.size());
 
         final Map<User, Long> coffeeStackByUser = attendancesForCoffeeStack.stream()
                 .collect(Collectors.groupingBy(attendance -> attendance.getParticipant().getUser(),
@@ -182,21 +176,6 @@ public class AttendanceService {
         }
     }
 
-    private MeetingAttendances findMeetingAttendancesBy(final Long meetingId) {
-        final Meeting meeting = meetingRepository.findById(meetingId)
-                .orElseThrow(MeetingNotFoundException::new);
-        final List<Long> participantIds = meeting.getParticipantIds();
-        final List<Attendance> attendances = attendanceRepository
-                .findByParticipantIdInAndEventDateLessThanEqual(participantIds, serverTimeManager.getDate());
-        return new MeetingAttendances(attendances, participantIds.size());
-    }
-
-    private void validateEnoughTardyCountToDisable(final MeetingAttendances attendances) {
-        if (!attendances.isTardyStackFull()) {
-            throw new InvalidCoffeeTimeException();
-        }
-    }
-
     private void validateMeetingExist(final Long meetingId) {
         if (!meetingRepository.existsById(meetingId)) {
             throw new MeetingNotFoundException();
@@ -205,16 +184,7 @@ public class AttendanceService {
 
     private List<Attendance> findAttendancesToUseCoffeeStat(final List<Participant> participants) {
         final PageRequest pageRequest = PageRequest.ofSize(participants.size());
-        return coffeeStatRepository.findCoffeeStatsLimitParticipant(pageRequest, participants);
-    }
-
-    private Map<User, Long> countCoffeeStatGroupByUser(final List<Attendance> attendances) {
-        final Map<User, Long> coffeeStatsByUser = new HashMap<>();
-        for (Attendance attendance : attendances) {
-            final User user = attendance.getParticipant().getUser();
-            coffeeStatsByUser.put(user, coffeeStatsByUser.getOrDefault(user, 0L) + 1);
-        }
-        return coffeeStatsByUser;
+        return coffeeStatRepository.findCoffeeStackOrderedByParticipant(pageRequest, participants);
     }
 
     private void validateUserExist(final Long userId) {
