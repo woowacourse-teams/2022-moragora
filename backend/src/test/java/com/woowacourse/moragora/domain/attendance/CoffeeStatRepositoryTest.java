@@ -38,7 +38,7 @@ public class CoffeeStatRepositoryTest {
 
     @DisplayName("참가자 정보와 참가자의 활성화된 총 지각 횟수를 반환한다.")
     @Test
-    void countCoffeeStats() {
+    void findCoffeeStackOrderedByParticipant() {
         // given
         final Meeting meeting = dataSupport.saveMeeting(MORAGORA.create());
 
@@ -68,7 +68,7 @@ public class CoffeeStatRepositoryTest {
         final PageRequest pageRequest = PageRequest.of(0, participants.size());
 
         // when
-        final List<Attendance> attendances = coffeeStatRepository.findCoffeeStatsLimitParticipant(
+        final List<Attendance> attendances = coffeeStatRepository.findCoffeeStackOrderedByParticipant(
                 pageRequest, participants);
 
         final List<Long> ids = attendances.stream()

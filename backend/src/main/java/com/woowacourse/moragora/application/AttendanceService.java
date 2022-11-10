@@ -120,7 +120,7 @@ public class AttendanceService {
         final int numberOfParticipants = participants.size();
 
         final PageRequest pageRequest = PageRequest.ofSize(numberOfParticipants);
-        final List<Attendance> attendances = coffeeStatRepository.findCoffeeStatsLimitParticipant(
+        final List<Attendance> attendances = coffeeStatRepository.findCoffeeStackOrderedByParticipant(
                 pageRequest, participants);
 
         validateCoffeeTime(numberOfParticipants, attendances.size());

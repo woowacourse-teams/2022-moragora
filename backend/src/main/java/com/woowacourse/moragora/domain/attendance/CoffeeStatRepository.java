@@ -13,6 +13,6 @@ public interface CoffeeStatRepository extends JpaRepository<Attendance, Long> {
             + "where a.disabled = false and a.status = 'TARDY' "
             + "and a.participant in :participants "
             + "order by a.event.date asc ")
-    List<Attendance> findCoffeeStatsLimitParticipant(final Pageable pageable,
-                                                     @Param("participants") final List<Participant> participants);
+    List<Attendance> findCoffeeStackOrderedByParticipant(final Pageable pageable,
+                                                         @Param("participants") final List<Participant> participants);
 }
