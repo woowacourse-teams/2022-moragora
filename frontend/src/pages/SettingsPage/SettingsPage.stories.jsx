@@ -1,9 +1,9 @@
 import { rest } from 'msw';
-import SettingsPage from '.';
 import Header from 'components/layouts/Header';
 import AppLayout from 'components/layouts/AppLayout';
 import Footer from 'components/layouts/Footer';
 import { Body } from 'components/layouts/Body/Body.styled';
+import SettingsPage from '.';
 
 export default {
   title: 'Pages/SettingsPage',

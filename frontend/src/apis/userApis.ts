@@ -10,41 +10,32 @@ import {
   GoogleLoginRequestBody,
   UserEmailSendRequestBody,
   EmailCodeVerifyRequestBody,
+  AccessTokenRefreshResponseBody,
 } from 'types/userType';
 import {
   AttendancesResponseBody,
   PostUserAttendanceRequestBody,
+  PostUserGeolocationAttendanceRequestBody,
 } from 'types/attendanceType';
-import request from '../utils/request';
+import { privateRequest, publicRequest } from './instances';
 
 export const postEmailSendApi = (payload: UserEmailSendRequestBody) =>
-  request<{ expiredTime: number }>(`/email/send`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-    credentials: 'include',
+  publicRequest.post<{ expiredTime: number }>(`/email/send`, payload, {
+    withCredentials: true,
   });
 
 export const postVerifyCodeAPi = (payload: EmailCodeVerifyRequestBody) =>
-  request(`/email/verify`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-    credentials: 'include',
+  publicRequest.post(`/email/verify`, payload, { withCredentials: true });
+
+export const submitLoginApi = async (payload: UserLoginRequestBody) => {
+  return publicRequest.post<UserLoginResponseBody>('/login', payload, {
+    withCredentials: true,
   });
+};
 
 export const submitRegisterApi = async (payload: UserRegisterRequestBody) => {
-  await request<{ accessToken: string }>('/users', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-    credentials: 'include',
+  await publicRequest.post<{ accessToken: string }>('/users', payload, {
+    withCredentials: true,
   });
 
   const { nickname, ...loginRequestBody } = payload;
@@ -52,178 +43,79 @@ export const submitRegisterApi = async (payload: UserRegisterRequestBody) => {
   return submitLoginApi(loginRequestBody);
 };
 
-export const submitLoginApi = async (payload: UserLoginRequestBody) => {
-  const loginResponse = await request<UserLoginResponseBody>('/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!loginResponse.body.accessToken) {
-    throw new Error('로그인 중 오류가 발생했습니다.');
-  }
-
-  const accessToken = loginResponse.body.accessToken;
-  const loginUserResponse = await request<GetLoginUserDataResponseBody>(
-    '/users/me',
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
-  );
-
-  return { ...loginUserResponse, accessToken };
-};
-
-export const googleLoginApi = async ({ code }: GoogleLoginRequestBody) => {
-  const googleLoginResponse = await request<UserLoginResponseBody>(
+export const googleLoginApi = async ({ code }: GoogleLoginRequestBody) =>
+  publicRequest.post<UserLoginResponseBody>(
     `/login/oauth2/google?code=${code}`,
+    null,
     {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      withCredentials: true,
     }
   );
 
-  if (!googleLoginResponse.body.accessToken) {
-    throw new Error('구글 로그인 중 오류가 발생했습니다.');
-  }
-
-  const accessToken = googleLoginResponse.body.accessToken;
-  const loginUserResponse = await request<GetLoginUserDataResponseBody>(
-    '/users/me',
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    }
+export const getAttendancesApi = (id: number | undefined) => () => {
+  return privateRequest<AttendancesResponseBody>(
+    `/meetings/${id}/attendances/today`
   );
-
-  return { ...loginUserResponse, accessToken };
 };
-
-export const getAttendancesApi =
-  (id: number | undefined, accessToken: User['accessToken']) => () => {
-    if (!id || !accessToken) {
-      throw new Error('출석 정보 요청 중 에러가 발생했습니다.');
-    }
-
-    return request<AttendancesResponseBody>(
-      `/meetings/${id}/attendances/today`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-  };
 
 export const postUserAttendanceApi = async ({
   meetingId,
   userId,
-  accessToken,
   isPresent,
 }: PostUserAttendanceRequestBody) => {
-  if (!accessToken) {
-    throw new Error('미팅 정보를 불러오는 중 에러가 발생했습니다.');
-  }
-
-  return request<{}>(
+  return privateRequest.post<{}>(
     `/meetings/${meetingId}/users/${userId}/attendances/today`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({ isPresent }),
-    }
+    { isPresent }
   );
 };
 
-export const getLoginUserDataApi =
-  (accessToken: User['accessToken']) => async () => {
-    if (!accessToken) {
-      throw new Error('내 정보를 가져오는 중 에러가 발생했습니다.');
-    }
-
-    return request<GetLoginUserDataResponseBody>('/users/me', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+export const postUserGeolocationAttendanceApi =
+  () =>
+  async ({
+    meetingId,
+    userId,
+    latitude,
+    longitude,
+  }: PostUserGeolocationAttendanceRequestBody) => {
+    return privateRequest.post<{}>(
+      `/meetings/${meetingId}/users/${userId}/attendances/today/geolocation`,
+      { latitude, longitude }
+    );
   };
 
-export const getUserCoffeeStatsApi =
-  (id: string | undefined, accessToken: User['accessToken']) => async () => {
-    if (!accessToken) {
-      throw new Error('유저별 커피정보를 불러오는 중 에러가 발생했습니다.');
-    }
+export const getLoginUserDataApi = () => async () => {
+  return privateRequest.get<GetLoginUserDataResponseBody>('/users/me');
+};
 
-    return request<UserCoffeeStatsResponseBody>(`/meetings/${id}/coffees/use`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-  };
+export const getUserCoffeeStatsApi = (id: string | undefined) => async () => {
+  return privateRequest.get<UserCoffeeStatsResponseBody>(
+    `/meetings/${id}/coffees/use`
+  );
+};
 
 export const updateNicknameApi =
-  (accessToken: User['accessToken']) =>
-  async (payload: UserUpdateNicknameRequestBody) => {
-    if (!accessToken) {
-      throw new Error('닉네임 변경 중 에러가 발생했습니다.');
-    }
-
-    return request('/users/me/nickname', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(payload),
-    });
+  () => async (payload: UserUpdateNicknameRequestBody) => {
+    return privateRequest.put('/users/me/nickname', payload);
   };
 
 export const updatePasswordApi =
-  (accessToken: User['accessToken']) =>
-  async (payload: UserUpdatePasswordRequestBody) => {
-    if (!accessToken) {
-      throw new Error('비밀번호 변경 중 에러가 발생했습니다.');
-    }
-
-    return request('/users/me/password', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(payload),
-    });
+  () => async (payload: UserUpdatePasswordRequestBody) => {
+    return privateRequest.put('/users/me/password', payload);
   };
 
 export const unregisterApi =
-  (accessToken: User['accessToken']) =>
-  async (payload: { password: User['password'] }) => {
-    return request('/users/me', {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(payload),
+  () => async (payload: { password: User['password'] }) => {
+    return privateRequest.delete('/users/me', {
+      data: payload,
     });
   };
+
+export const accessTokenRefreshApi = () =>
+  publicRequest.get<AccessTokenRefreshResponseBody>('/token/refresh', {
+    withCredentials: true,
+  });
+
+export const logoutApi = () =>
+  publicRequest.post(`/token/logout`, null, {
+    withCredentials: true,
+  });

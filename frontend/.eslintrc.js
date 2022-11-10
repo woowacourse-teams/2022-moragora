@@ -69,6 +69,21 @@ module.exports = {
       },
     ],
     'react/prop-types': 'off',
+    'no-unused-vars': 'off',
+    'import/no-unresolved': 'off',
+    'import/prefer-default-export': 'off',
+    'react/require-default-props': 'off',
+    'react/no-array-index-key': 'off',
+    'no-alert': 'off',
+    'dot-notation': 'off',
+    'no-use-before-define': 'off',
   },
-  'no-unused-vars': 'off',
+  overrides: [
+    {
+      files: ['*.ts', '*.tsx'],
+      rules: {
+        'no-undef': 'off',
+      },
+    },
+  ],
 };

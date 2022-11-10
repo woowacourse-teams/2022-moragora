@@ -65,8 +65,8 @@ public class EventService {
 
     private List<Event> findExistingEvents(final EventsRequest request, final Long meetingId) {
         final List<LocalDate> datesToSearch = request.getEvents().stream()
-                .map(EventRequest::getDate).
-                collect(Collectors.toList());
+                .map(EventRequest::getDate)
+                .collect(Collectors.toList());
         return eventRepository.findByMeetingIdAndDateIn(meetingId, datesToSearch);
     }
 
@@ -79,11 +79,11 @@ public class EventService {
     }
 
     private void updateEvent(final List<Event> requestEvents, final List<Event> existingEvents) {
-        for (Event existingEvent : existingEvents) {
+        for (final Event existingEvent : existingEvents) {
             final Optional<Event> searchedEvent = requestEvents.stream()
                     .filter(it -> it.isSameDate(existingEvent))
                     .findAny();
-            searchedEvent.ifPresent(existingEvent::updateTime);
+            searchedEvent.ifPresent(it -> existingEvent.updateTime(serverTimeManager.getDateAndTime(), it));
         }
     }
 
@@ -102,7 +102,7 @@ public class EventService {
 
     public EventResponse findUpcomingEvent(final Long meetingId) {
         final Event event = eventRepository.findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(
-                        meetingId, serverTimeManager.getDate())
+                meetingId, serverTimeManager.getDate())
                 .orElseThrow(EventNotFoundException::new);
 
         final LocalTime entranceTime = event.getStartTime();

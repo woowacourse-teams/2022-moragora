@@ -11,6 +11,8 @@ import com.woowacourse.moragora.dto.request.auth.EmailRequest;
 import com.woowacourse.moragora.dto.request.auth.EmailVerifyRequest;
 import com.woowacourse.moragora.dto.request.event.EventRequest;
 import com.woowacourse.moragora.dto.request.event.EventsRequest;
+import com.woowacourse.moragora.dto.request.meeting.BeaconRequest;
+import com.woowacourse.moragora.dto.request.meeting.BeaconsRequest;
 import com.woowacourse.moragora.dto.request.meeting.MeetingRequest;
 import com.woowacourse.moragora.dto.request.user.LoginRequest;
 import com.woowacourse.moragora.dto.request.user.UserRequest;
@@ -192,6 +194,16 @@ public class AcceptanceTest {
 
         EventsRequest eventsRequest = new EventsRequest(eventRequests);
         post("/meetings/" + meetingId + "/events", eventsRequest, token);
+    }
+
+    protected void saveBeacons(final String token, final Long meetingId) {
+        final BeaconRequest beaconRequest =
+                new BeaconRequest("서울시 송파구", 37.33, 126.58, 50);
+        final BeaconsRequest beaconsRequest = new BeaconsRequest(List.of(beaconRequest));
+
+        // when
+        final String uri = String.format("/meetings/%d/beacons", meetingId);
+        post(uri, beaconsRequest, token);
     }
 
     protected String saveVerificationAndGetSessionId(final String email, final String code) {

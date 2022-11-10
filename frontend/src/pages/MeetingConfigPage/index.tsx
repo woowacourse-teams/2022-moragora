@@ -6,10 +6,8 @@ import {
   useParams,
 } from 'react-router-dom';
 import { css } from '@emotion/react';
-import * as S from './MeetingConfigPage.styled';
 import Button from 'components/@shared/Button';
 import Input from 'components/@shared/Input';
-import { userContext, UserContextValues } from 'contexts/userContext';
 import useForm from 'hooks/useForm';
 import useMutation from 'hooks/useMutation';
 import {
@@ -20,14 +18,14 @@ import {
 } from 'apis/meetingApis';
 import { getUpcomingEventApi } from 'apis/eventApis';
 import { QueryState } from 'types/queryType';
-import MasterAssignSection from './MasterAssignSection';
 import InputHint from 'components/@shared/InputHint';
 import { MeetingNameUpdateRequestBody } from 'types/meetingType';
+import MasterAssignSection from './MasterAssignSection';
+import * as S from './MeetingConfigPage.styled';
 
 const MeetingConfigPage = () => {
   const navigate = useNavigate();
   const { id: meetingId } = useParams();
-  const { accessToken } = useContext(userContext) as UserContextValues;
 
   if (!meetingId) {
     return <Navigate to="/error" />;
@@ -41,7 +39,7 @@ const MeetingConfigPage = () => {
     upcomingEventNotExist: boolean;
   }>();
   const meetingNameUpdateMutation = useMutation(
-    updateMeetingNameApi(meetingId, accessToken),
+    updateMeetingNameApi(meetingId),
     {
       onSuccess: () => {
         meetingQuery.refetch();
@@ -52,30 +50,24 @@ const MeetingConfigPage = () => {
       },
     }
   );
-  const meetingDeleteMutation = useMutation(
-    deleteMeetingApi(meetingId, accessToken),
-    {
-      onSuccess: () => {
-        alert('모임이 삭제되었습니다.');
-        navigate('/');
-      },
-      onError: (e) => {
-        alert(e.message);
-      },
-    }
-  );
-  const meetingLeaveMutation = useMutation(
-    leaveMeetingApi(meetingId, accessToken),
-    {
-      onSuccess: () => {
-        alert('모임을 나갔습니다.');
-        navigate('/');
-      },
-      onError: (e) => {
-        alert(e.message);
-      },
-    }
-  );
+  const meetingDeleteMutation = useMutation(deleteMeetingApi(meetingId), {
+    onSuccess: () => {
+      alert('모임이 삭제되었습니다.');
+      navigate('/');
+    },
+    onError: (e) => {
+      alert(e.message);
+    },
+  });
+  const meetingLeaveMutation = useMutation(leaveMeetingApi(meetingId), {
+    onSuccess: () => {
+      alert('모임을 나갔습니다.');
+      navigate('/');
+    },
+    onError: (e) => {
+      alert(e.message);
+    },
+  });
 
   const handleMeetingNameSubmitValid: React.FormEventHandler<
     HTMLFormElement
@@ -100,7 +92,7 @@ const MeetingConfigPage = () => {
     meetingLeaveMutation.mutate({});
   };
 
-  if (meetingQuery.data?.body.isLoginUserMaster) {
+  if (meetingQuery.data?.data.isLoginUserMaster) {
     return (
       <S.Layout>
         <S.Form
@@ -113,8 +105,8 @@ const MeetingConfigPage = () => {
               <Input
                 type="text"
                 {...register('name', {
-                  defaultValue: meetingQuery.data.body.name,
-                  placeholder: meetingQuery.data.body.name,
+                  defaultValue: meetingQuery.data.data.name,
+                  placeholder: meetingQuery.data.data.name,
                   maxLength: 50,
                   required: true,
                 })}

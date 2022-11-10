@@ -10,7 +10,7 @@ import {
   MeetingMasterAssignRequestBody,
 } from 'types/meetingType';
 import { DELAY } from 'mocks/configs';
-import { extractIdFromHeader } from 'mocks/utils';
+import { checkExpiredToken, extractIdFromHeader } from 'mocks/utils';
 
 type MeetingPathParams = {
   meetingId: string;
@@ -24,7 +24,17 @@ export default [
     if (!token.isValidToken) {
       return res(
         ctx.status(401),
-        ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        ctx.json({
+          message: '유효하지 않은 토큰입니다.',
+          tokenStatus: 'invalid',
+        })
+      );
+    }
+
+    if (checkExpiredToken(token.expiredTimestamp)) {
+      return res(
+        ctx.status(401),
+        ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
       );
     }
 
@@ -71,7 +81,17 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -130,7 +150,17 @@ export default [
       if (!token.isValidToken || !token.id) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -172,7 +202,17 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -213,7 +253,17 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -257,7 +307,17 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -295,7 +355,17 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -312,7 +382,17 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -360,7 +440,17 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 

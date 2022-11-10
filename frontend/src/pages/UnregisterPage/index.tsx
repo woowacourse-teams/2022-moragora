@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import * as S from './UnregisterPage.styled';
 import useForm from 'hooks/useForm';
 import Input from 'components/@shared/Input';
 import InputHint from 'components/@shared/InputHint';
@@ -7,22 +6,20 @@ import Button from 'components/@shared/Button';
 import { userContext, UserContextValues } from 'contexts/userContext';
 import useMutation from 'hooks/useMutation';
 import { unregisterApi } from 'apis/userApis';
+import * as S from './UnregisterPage.styled';
 
 const UnregisterPage = () => {
   const userState = useContext(userContext) as UserContextValues;
-  const confirmMessage = `${userState.user?.email}/delete`;
-  const passwordUpdateMutation = useMutation(
-    unregisterApi(userState.accessToken),
-    {
-      onSuccess: () => {
-        userState.logout();
-        alert('회원 탈퇴되었습니다.');
-      },
-      onError: (e) => {
-        alert(e.message);
-      },
-    }
-  );
+  const confirmMessage = `${userState?.user?.email}/delete`;
+  const passwordUpdateMutation = useMutation(unregisterApi(), {
+    onSuccess: () => {
+      userState?.logout();
+      alert('회원 탈퇴되었습니다.');
+    },
+    onError: (e) => {
+      alert(e.message);
+    },
+  });
   const { errors, onSubmit, register, isSubmitting } = useForm();
 
   const handleUnregisterSubmitValid: React.FormEventHandler<

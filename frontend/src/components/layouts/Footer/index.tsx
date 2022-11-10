@@ -37,30 +37,50 @@ const Footer: React.FC<React.HTMLAttributes<HTMLElement>> = () => {
           <S.Figcaption>모임</S.Figcaption>
         </S.Figure>
       </S.MenuNavLink>
+      <S.MenuNavLink to="/geolocation">
+        <S.Figure>
+          <svg
+            width="1.5rem"
+            height="1.5rem"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+            />
+          </svg>
+
+          <S.Figcaption>출첵</S.Figcaption>
+        </S.Figure>
+      </S.MenuNavLink>
       <S.MenuNavLink to="/check-in">
         <S.Figure>
           <svg
             width="1.5rem"
             height="1.5rem"
-            viewBox="0 0 24 24"
-            fill="currentColor"
             xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
           >
             <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M7.665 3.5C5.135 3.5 3.5 5.233 3.5 7.916V16.084C3.5 18.767 5.135 20.5 7.665 20.5H16.333C18.864 20.5 20.5 18.767 20.5 16.084V7.916C20.5 5.233 18.864 3.5 16.334 3.5H7.665ZM16.333 22H7.665C4.276 22 2 19.622 2 16.084V7.916C2 4.378 4.276 2 7.665 2H16.334C19.723 2 22 4.378 22 7.916V16.084C22 19.622 19.723 22 16.333 22Z"
-              fill="currentFill"
-            />
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M10.8134 15.123C10.6224 15.123 10.4294 15.05 10.2834 14.903L7.90945 12.53C7.61645 12.237 7.61645 11.763 7.90945 11.47C8.20245 11.177 8.67645 11.177 8.96945 11.47L10.8134 13.312L15.0294 9.09701C15.3224 8.80401 15.7964 8.80401 16.0894 9.09701C16.3824 9.39001 16.3824 9.86401 16.0894 10.157L11.3434 14.903C11.1974 15.05 11.0054 15.123 10.8134 15.123Z"
-              fill="currentFill"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75"
             />
           </svg>
-
-          <S.Figcaption>출첵</S.Figcaption>
+          <S.Figcaption>출결 관리</S.Figcaption>
         </S.Figure>
       </S.MenuNavLink>
       <S.MenuNavLink to="/settings">

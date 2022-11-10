@@ -4,128 +4,43 @@ import {
   MeetingNameUpdateRequestBody,
   MeetingResponseBody,
 } from 'types/meetingType';
-import { User } from 'types/userType';
-import request from 'utils/request';
+import { privateRequest } from './instances';
 
-export const createMeetingApi = async ({
-  accessToken,
-  formDataObject,
-}: {
-  accessToken: User['accessToken'];
-  formDataObject: Record<string, any>;
-}) => {
-  if (!accessToken) {
-    throw new Error('미팅을 생성하는 중 에러가 발생했습니다.');
-  }
-
-  const meetingCreateResponse = await request('/meetings', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify(formDataObject),
-  });
+export const createMeetingApi = async (formDataObject: Record<string, any>) => {
+  const meetingCreateResponse = await privateRequest.post(
+    '/meetings',
+    formDataObject
+  );
 
   const location = meetingCreateResponse.headers.get('location') as string;
 
-  return request<{ id: number }>(location, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
+  return privateRequest.get<{ id: number }>(location, {
+    headers: {},
   });
 };
 
-export const getMeetingData =
-  (id: string | undefined, accessToken: User['accessToken']) => async () => {
-    if (!id || !accessToken) {
-      throw new Error('미팅 정보 요청 중 에러가 발생했습니다.');
-    }
+export const getMeetingData = (id: string | undefined) => async () => {
+  return privateRequest.get<MeetingResponseBody>(`/meetings/${id}`);
+};
 
-    return request<MeetingResponseBody>(`/meetings/${id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-  };
+export const getMeetingListApi = () => async () => {
+  return privateRequest.get<MeetingListResponseBody>('/meetings/me');
+};
 
-export const getMeetingListApi =
-  (accessToken: User['accessToken']) => async () => {
-    if (!accessToken) {
-      throw new Error('미팅 목록 요청 중 에러가 발생했습니다.');
-    }
-
-    return request<MeetingListResponseBody>('/meetings/me', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-  };
-
-export const postEmptyCoffeeStackApi = ({
-  id,
-  accessToken,
-}: {
-  id: string;
-  accessToken: User['accessToken'];
-}) => {
-  if (!accessToken) {
-    throw new Error('커피 비우기 요청 중 에러가 발생했습니다.');
-  }
-
-  return request<{}>(`/meetings/${id}/coffees/use`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
+export const postEmptyCoffeeStackApi = ({ id }: { id: string }) => {
+  return privateRequest.post<{}>(`/meetings/${id}/coffees/use`);
 };
 
 export const updateMeetingNameApi =
-  (meetingId: string, accessToken: User['accessToken']) =>
-  (payload: MeetingNameUpdateRequestBody) =>
-    request(`/meetings/${meetingId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(payload),
-    });
+  (meetingId: string) => (payload: MeetingNameUpdateRequestBody) =>
+    privateRequest.put(`/meetings/${meetingId}`, payload);
 
 export const assignMasterApi =
-  (meetingId: number, accessToken: User['accessToken']) =>
-  (payload: MeetingMasterAssignRequestBody) =>
-    request(`/meetings/${meetingId}/master`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(payload),
-    });
+  (meetingId: number) => (payload: MeetingMasterAssignRequestBody) =>
+    privateRequest.put(`/meetings/${meetingId}/master`, payload);
 
-export const deleteMeetingApi =
-  (meetingId: string, accessToken: User['accessToken']) => () =>
-    request<{}>(`/meetings/${meetingId}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+export const deleteMeetingApi = (meetingId: string) => () =>
+  privateRequest.delete<{}>(`/meetings/${meetingId}`);
 
-export const leaveMeetingApi =
-  (meetingId: string, accessToken: User['accessToken']) => () =>
-    request<{}>(`/meetings/${meetingId}/me`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+export const leaveMeetingApi = (meetingId: string) => () =>
+  privateRequest.delete<{}>(`/meetings/${meetingId}/me`);

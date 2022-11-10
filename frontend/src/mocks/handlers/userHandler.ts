@@ -7,14 +7,17 @@ import {
   AuthProvider,
   UserEmailSendRequestBody,
   EmailCodeVerifyRequestBody,
-} from 'types/userType';
-import { DELAY } from 'mocks/configs';
-import { extractIdFromHeader, generateToken } from 'mocks/utils';
-import {
   UserDeleteRequestBody,
   UserUpdateNicknameRequestBody,
   UserUpdatePasswordRequestBody,
 } from 'types/userType';
+import { DELAY } from 'mocks/configs';
+import {
+  checkExpiredToken,
+  extractIdFromHeader,
+  generateAccessToken,
+  generateRefreshToken,
+} from 'mocks/utils';
 import meetings from 'mocks/fixtures/meetings';
 
 const emailReg =
@@ -89,7 +92,8 @@ export default [
         );
       }
 
-      const accessToken = generateToken(targetUser.id);
+      const accessToken = generateAccessToken(targetUser.id);
+      const refreshToken = generateRefreshToken(targetUser.id);
 
       targetUser.accessToken = accessToken;
 
@@ -98,6 +102,7 @@ export default [
         ctx.json({
           accessToken: targetUser.accessToken,
         }),
+        ctx.cookie('refreshToken', refreshToken),
         ctx.delay(DELAY)
       );
     }
@@ -116,12 +121,14 @@ export default [
       }
 
       const targetUser = users[users.length - 1];
-      const accessToken = generateToken(targetUser.id);
+      const accessToken = generateAccessToken(targetUser.id);
+      const refreshToken = generateRefreshToken(targetUser.id);
 
       targetUser.accessToken = accessToken;
 
       return res(
         ctx.status(200),
+        ctx.cookie('refreshToken', refreshToken),
         ctx.json({
           accessToken: targetUser.accessToken,
         }),
@@ -153,7 +160,17 @@ export default [
     if (!token.isValidToken) {
       return res(
         ctx.status(401),
-        ctx.json({ message: '유효하지 않은 토큰입니다.' })
+        ctx.json({
+          message: '유효하지 않은 토큰입니다.',
+          tokenStatus: 'invalid',
+        })
+      );
+    }
+
+    if (checkExpiredToken(token.expiredTimestamp)) {
+      return res(
+        ctx.status(401),
+        ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
       );
     }
 
@@ -187,7 +204,17 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -215,7 +242,17 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -263,7 +300,17 @@ export default [
       if (!token.isValidToken) {
         return res(
           ctx.status(401),
-          ctx.json({ message: '유효하지 않은 토큰입니다.' })
+          ctx.json({
+            message: '유효하지 않은 토큰입니다.',
+            tokenStatus: 'invalid',
+          })
+        );
+      }
+
+      if (checkExpiredToken(token.expiredTimestamp)) {
+        return res(
+          ctx.status(401),
+          ctx.json({ message: '만료된 토큰입니다.', tokenStatus: 'expired' })
         );
       }
 
@@ -385,4 +432,15 @@ export default [
       return res(ctx.status(204), ctx.delay(DELAY));
     }
   ),
+
+  rest.post(`${process.env.API_SERVER_HOST}/token/logout`, (req, res, ctx) => {
+    const timer = new Date();
+    timer.setSeconds(timer.getSeconds() + 1);
+
+    return res(
+      ctx.status(204),
+      ctx.cookie('refreshToken', '', { expires: timer }),
+      ctx.delay(DELAY)
+    );
+  }),
 ];
