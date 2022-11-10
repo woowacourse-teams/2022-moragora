@@ -120,13 +120,13 @@ public class AttendanceService {
         final int numberOfParticipants = participants.size();
 
         final PageRequest pageRequest = PageRequest.ofSize(numberOfParticipants);
-        final List<Attendance> attendances = coffeeStatRepository.findCoffeeStackOrderedByParticipant(
+        final List<Attendance> attendancesForCoffeeStack = coffeeStatRepository.findCoffeeStackOrderedByParticipant(
                 pageRequest, participants);
 
-        validateCoffeeTime(numberOfParticipants, attendances.size());
+        validateCoffeeTime(numberOfParticipants, attendancesForCoffeeStack.size());
 
         final Map<User, Long> coffeeStatsByUser = new HashMap<>();
-        for (Attendance attendance : attendances) {
+        for (Attendance attendance : attendancesForCoffeeStack) {
             final User user = attendance.getParticipant().getUser();
             coffeeStatsByUser.put(user, coffeeStatsByUser.getOrDefault(user, 0L) + 1);
         }
