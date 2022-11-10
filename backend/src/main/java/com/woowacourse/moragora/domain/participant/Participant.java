@@ -46,16 +46,16 @@ public class Participant {
     @Transient
     private Long tardyCount;
 
+    public Participant(final User user, final Meeting meeting, final boolean isMaster) {
+        this(null, user, meeting, isMaster);
+    }
+
     @Builder
     public Participant(final Long id, final User user, final Meeting meeting, final boolean isMaster) {
         this.id = id;
         this.user = user;
         this.meeting = meeting;
         this.isMaster = isMaster;
-    }
-
-    public Participant(final User user, final Meeting meeting, final boolean isMaster) {
-        this(null, user, meeting, isMaster);
     }
 
     public void mapMeeting(final Meeting meeting) {

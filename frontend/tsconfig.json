@@ -50,7 +50,7 @@
     "resolveJsonModule": true,
     // json파일도 모듈로 취급해서 import할 수 있게 합니다
 
-    "types": ["node"],
+    "types": ["node", "kakao.maps.d.ts"],
     "baseUrl": "./src"
     // import something from './src/some/thing.ts' 이렇게 안하고
     // import something from 'some/thing.ts' 이렇게 해도 잘 작동하도록 합니다.

@@ -212,6 +212,7 @@ class MeetingAcceptanceTest extends AcceptanceTest {
         final String token = signUpAndGetToken(user);
         final List<Long> userIds = saveUsers(createUsers());
         final int meetingId = saveMeeting(token, userIds, MORAGORA.create());
+        saveBeacons(token, (long) meetingId);
 
         // when
         final ValidatableResponse response = delete("/meetings/" + meetingId, token);

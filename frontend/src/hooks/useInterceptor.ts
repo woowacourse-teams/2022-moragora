@@ -1,16 +1,29 @@
 import { useEffect } from 'react';
-import { interceptor } from 'utils/request';
-import type { InterceptHandler } from 'types/requestType';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { publicRequest, privateRequest } from 'apis/instances';
 
-type UseInterceptor = {
-  onSuccess: InterceptHandler;
-  onError: InterceptHandler;
+type UseInterceptorProps = {
+  onRequest: (
+    config: AxiosRequestConfig<unknown>
+  ) => AxiosRequestConfig<unknown>;
+  onRejected: (error: unknown) => Promise<AxiosResponse<any, any> | undefined>;
+  resolver: unknown[];
 };
 
-const useInterceptor = ({ onSuccess, onError }: Partial<UseInterceptor>) => {
+const useInterceptor = ({
+  onRejected,
+  onRequest,
+  resolver,
+}: UseInterceptorProps) => {
   useEffect(() => {
-    interceptor.set(onSuccess, onError);
-  }, []);
+    publicRequest.interceptors.response.clear();
+    publicRequest.interceptors.response.use((config) => config, onRejected);
+
+    privateRequest.interceptors.request.clear();
+    privateRequest.interceptors.response.clear();
+    privateRequest.interceptors.request.use(onRequest);
+    privateRequest.interceptors.response.use((config) => config, onRejected);
+  }, [...resolver]);
 };
 
 export default useInterceptor;

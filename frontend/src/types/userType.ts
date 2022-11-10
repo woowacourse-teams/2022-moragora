@@ -3,6 +3,12 @@ export enum AuthProvider {
   google = 'google',
 }
 
+export enum TokenStatus {
+  expired = 'expired',
+  invalid = 'invalid',
+  empty = 'empty',
+}
+
 export type AttendanceStatus = 'none' | 'present' | 'tardy';
 
 export type User = {
@@ -60,4 +66,11 @@ export type UserEmailSendRequestBody = Pick<User, 'email'>;
 export type EmailCodeVerifyRequestBody = {
   email: User['email'];
   verifyCode: string;
+};
+
+export type AccessTokenRefreshResponseBody = Pick<User, 'accessToken'>;
+
+export type ErrorResponseBody = {
+  message: string;
+  tokenStatus?: keyof typeof TokenStatus;
 };

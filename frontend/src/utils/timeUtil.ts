@@ -2,24 +2,24 @@
 // 24시를 넘어갈 때 0으로 수정
 const reconcileTime = (time: string) => {
   const timeList = time.split(':');
-  let hour = parseInt(timeList[0]);
-  let minute = parseInt(timeList[1]);
+  let hour = parseInt(timeList[0], 10);
+  let minute = parseInt(timeList[1], 10);
 
   if (minute >= 60) {
     hour += 1;
     minute -= 60;
   }
 
-  return `${('0' + (hour % 24)).slice(-2)}:${('0' + minute).slice(-2)}`;
+  return `${`0${hour % 24}`.slice(-2)}:${`0${minute}`.slice(-2)}`;
 };
 
 // 분에 minute에 해당하는만큼 추가
 export const addMinute = (startTime: string, minute: number) => {
   const timeList = startTime.split(':');
-  let startHour = timeList[0];
-  let startMinute = parseInt(timeList[1]);
+  const startHour = timeList[0];
+  const startMinute = parseInt(timeList[1], 10);
 
-  const addedTime = `${startHour}:${('0' + (startMinute + minute)).slice(-2)}`;
+  const addedTime = `${startHour}:${`0${startMinute + minute}`.slice(-2)}`;
 
   return reconcileTime(addedTime);
 };

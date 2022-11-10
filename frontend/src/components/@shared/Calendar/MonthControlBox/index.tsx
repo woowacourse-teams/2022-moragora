@@ -1,16 +1,16 @@
 import { useContext } from 'react';
-import * as S from './MonthControlBox.styled';
 import { CalendarContext } from 'contexts/calendarContext';
 import ArrowLeftIconSVG from 'assets/chevron-left.svg';
 import ArrowRightIconSVG from 'assets/chevron-right.svg';
+import * as S from './MonthControlBox.styled';
 
 const MonthControlBox = () => {
-  const { navigateMonthTo, clearDateCellControlRef } =
+  const { currentDate, navigateMonthTo, clearDateCellControlRef } =
     useContext(CalendarContext);
 
   return (
     <S.MonthControlBox>
-      <button
+      <S.ControlButton
         type="button"
         onClick={() => {
           clearDateCellControlRef();
@@ -18,8 +18,12 @@ const MonthControlBox = () => {
         }}
       >
         <S.ChevronImage src={ArrowLeftIconSVG} alt="show previous month" />
-      </button>
-      <button
+      </S.ControlButton>
+      <S.YearMonthSpan>
+        {currentDate &&
+          `${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월`}
+      </S.YearMonthSpan>
+      <S.ControlButton
         type="button"
         onClick={() => {
           clearDateCellControlRef();
@@ -27,7 +31,7 @@ const MonthControlBox = () => {
         }}
       >
         <S.ChevronImage src={ArrowRightIconSVG} alt="show next month" />
-      </button>
+      </S.ControlButton>
     </S.MonthControlBox>
   );
 };

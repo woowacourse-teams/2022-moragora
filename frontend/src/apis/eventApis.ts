@@ -1,51 +1,24 @@
-import request from 'utils/request';
 import {
   EventCreateRequestBody,
   DeleteEventsRequestBody,
   MeetingEvent,
 } from 'types/eventType';
-import { User } from 'types/userType';
+import { privateRequest } from './instances';
 
-export const getEventsApi =
-  (meetingId: string, accessToken?: User['accessToken']) => () =>
-    request<{ events: MeetingEvent[] }>(`/meetings/${meetingId}/events`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+export const getEventsApi = (meetingId: string) => () =>
+  privateRequest.get<{ events: MeetingEvent[] }>(
+    `/meetings/${meetingId}/events`
+  );
 
 export const createEventsApi =
-  (meetingId: string, accessToken?: User['accessToken']) =>
-  (payload: EventCreateRequestBody) =>
-    request<{}>(`/meetings/${meetingId}/events`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(payload),
-    });
+  (meetingId: string) => (payload: EventCreateRequestBody) =>
+    privateRequest.post<{}>(`/meetings/${meetingId}/events`, payload);
 
 export const deleteEventsApi =
-  (meetingId: string, accessToken?: User['accessToken']) =>
-  (payload: DeleteEventsRequestBody) =>
-    request<{}>(`/meetings/${meetingId}/events`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify(payload),
+  (meetingId: string) => (payload: DeleteEventsRequestBody) =>
+    privateRequest.delete<{}>(`/meetings/${meetingId}/events`, {
+      data: payload,
     });
 
-export const getUpcomingEventApi =
-  (meetingId: string, accessToken?: User['accessToken']) => () =>
-    request<MeetingEvent>(`/meetings/${meetingId}/events/upcoming`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+export const getUpcomingEventApi = (meetingId: string) => () =>
+  privateRequest.get<MeetingEvent>(`/meetings/${meetingId}/events/upcoming`);

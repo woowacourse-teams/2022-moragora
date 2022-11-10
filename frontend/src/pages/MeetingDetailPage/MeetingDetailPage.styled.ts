@@ -56,7 +56,7 @@ export const TabNavLink = styled(NavLink)`
 `;
 
 const setTabPosition = (tabPositions: TabPosition[]) => {
-  let styles: Record<string, { left: string; width: string }> = {};
+  const styles: Record<string, { left: string; width: string }> = {};
 
   tabPositions.forEach((position, index) => {
     styles[`${TabNavLink}:nth-of-type(${index + 1}).active ~ &`] = {

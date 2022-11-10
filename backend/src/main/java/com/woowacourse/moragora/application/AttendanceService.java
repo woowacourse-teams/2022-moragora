@@ -3,6 +3,7 @@ package com.woowacourse.moragora.application;
 import com.woowacourse.moragora.domain.attendance.Attendance;
 import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
 import com.woowacourse.moragora.domain.attendance.CoffeeStatRepository;
+import com.woowacourse.moragora.domain.attendance.MeetingAttendances;
 import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.event.EventRepository;
@@ -116,14 +117,20 @@ public class AttendanceService {
     public CoffeeStatsResponse countUsableCoffeeStack(final Long meetingId) {
         validateMeetingExist(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meetingId);
-        final List<Attendance> attendances = findAttendancesToUseCoffeeStat(participants);
+        final int numberOfParticipants = participants.size();
 
-        validateCoffeeTime(participants.size(), attendances.size());
+        final PageRequest pageRequest = PageRequest.ofSize(numberOfParticipants);
+        final List<Attendance> attendancesForCoffeeStack = coffeeStatRepository.findCoffeeStackOrderedByParticipant(
+                pageRequest, participants);
 
-        final Map<User, Long> coffeeStatsByUser = countCoffeeStatGroupByUser(attendances);
-        return CoffeeStatsResponse.from(coffeeStatsByUser);
+        validateCoffeeTime(numberOfParticipants, attendancesForCoffeeStack.size());
+
+        final Map<User, Long> coffeeStackByUser = attendancesForCoffeeStack.stream()
+                .collect(Collectors.groupingBy(attendance -> attendance.getParticipant().getUser(),
+                        Collectors.counting()));
+
+        return CoffeeStatsResponse.from(coffeeStackByUser);
     }
-
 
     @Transactional
     public void disableUsedTardy(final Long meetingId) {
@@ -169,6 +176,27 @@ public class AttendanceService {
         }
     }
 
+    private void validateCoffeeTime(final int numberOfParticipant, int totalTardyCount) {
+        if (totalTardyCount < numberOfParticipant) {
+            throw new InvalidCoffeeTimeException();
+        }
+    }
+
+    private MeetingAttendances findMeetingAttendancesBy(final Long meetingId) {
+        final Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(MeetingNotFoundException::new);
+        final List<Long> participantIds = meeting.getParticipantIds();
+        final List<Attendance> attendances = attendanceRepository
+                .findByParticipantIdInAndEventDateLessThanEqual(participantIds, serverTimeManager.getDate());
+        return new MeetingAttendances(attendances, participantIds.size());
+    }
+
+    private void validateEnoughTardyCountToDisable(final MeetingAttendances attendances) {
+        if (!attendances.isTardyStackFull()) {
+            throw new InvalidCoffeeTimeException();
+        }
+    }
+
     private void validateMeetingExist(final Long meetingId) {
         if (!meetingRepository.existsById(meetingId)) {
             throw new MeetingNotFoundException();
@@ -187,12 +215,6 @@ public class AttendanceService {
             coffeeStatsByUser.put(user, coffeeStatsByUser.getOrDefault(user, 0L) + 1);
         }
         return coffeeStatsByUser;
-    }
-
-    private void validateCoffeeTime(final int numberOfParticipant, int totalTardyCount) {
-        if (totalTardyCount < numberOfParticipant) {
-            throw new InvalidCoffeeTimeException();
-        }
     }
 
     private void validateUserExist(final Long userId) {
