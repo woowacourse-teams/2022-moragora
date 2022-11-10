@@ -115,8 +115,8 @@ public class AttendanceService {
     public CoffeeStatsResponse countUsableCoffeeStack(final Long meetingId) {
         validateMeetingExist(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meetingId);
-
         final List<Attendance> attendancesForCoffeeStack = findAttendancesToUseCoffeeStat(participants);
+
         validateCoffeeTime(participants.size(), attendancesForCoffeeStack.size());
 
         final Map<User, Long> coffeeStackByUser = attendancesForCoffeeStack.stream()
@@ -130,11 +130,11 @@ public class AttendanceService {
     public void disableUsedTardy(final Long meetingId) {
         validateMeetingExist(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meetingId);
-        final List<Attendance> attendances = findAttendancesToUseCoffeeStat(participants);
+        final List<Attendance> attendancesForCoffeeStack = findAttendancesToUseCoffeeStat(participants);
 
-        validateCoffeeTime(participants.size(), attendances.size());
+        validateCoffeeTime(participants.size(), attendancesForCoffeeStack.size());
 
-        attendanceRepository.updateDisabledInAttendances(attendances);
+        attendanceRepository.updateDisabledInAttendances(attendancesForCoffeeStack);
     }
 
     @Transactional
