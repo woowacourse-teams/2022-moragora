@@ -30,7 +30,6 @@ import com.woowacourse.moragora.exception.participant.ParticipantNotFoundExcepti
 import com.woowacourse.moragora.exception.user.UserNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -125,11 +124,10 @@ public class AttendanceService {
 
         validateCoffeeTime(numberOfParticipants, attendancesForCoffeeStack.size());
 
-        final Map<User, Long> coffeeStackByUser = new HashMap<>();
-        for (Attendance attendance : attendancesForCoffeeStack) {
-            final User user = attendance.getParticipant().getUser();
-            coffeeStackByUser.put(user, coffeeStackByUser.getOrDefault(user, 0L) + 1);
-        }
+        final Map<User, Long> coffeeStackByUser = attendancesForCoffeeStack.stream()
+                .collect(Collectors.groupingBy(attendance -> attendance.getParticipant().getUser(),
+                        Collectors.counting()));
+
         return CoffeeStatsResponse.from(coffeeStackByUser);
     }
 
