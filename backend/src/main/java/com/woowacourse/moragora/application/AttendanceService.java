@@ -2,6 +2,7 @@ package com.woowacourse.moragora.application;
 
 import com.woowacourse.moragora.domain.attendance.Attendance;
 import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
+import com.woowacourse.moragora.domain.attendance.CoffeeStatRepository;
 import com.woowacourse.moragora.domain.attendance.MeetingAttendances;
 import com.woowacourse.moragora.domain.attendance.Status;
 import com.woowacourse.moragora.domain.event.Event;
@@ -32,6 +33,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +47,7 @@ public class AttendanceService {
     private final ParticipantRepository participantRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
+    private final CoffeeStatRepository coffeeStatRepository;
     private final BeaconRepository beaconRepository;
     private final ServerTimeManager serverTimeManager;
 
@@ -53,6 +56,7 @@ public class AttendanceService {
                              final ParticipantRepository participantRepository,
                              final AttendanceRepository attendanceRepository,
                              final UserRepository userRepository,
+                             final CoffeeStatRepository coffeeStatRepository,
                              final BeaconRepository beaconRepository,
                              final ServerTimeManager serverTimeManager) {
         this.meetingRepository = meetingRepository;
@@ -60,6 +64,7 @@ public class AttendanceService {
         this.participantRepository = participantRepository;
         this.attendanceRepository = attendanceRepository;
         this.userRepository = userRepository;
+        this.coffeeStatRepository = coffeeStatRepository;
         this.beaconRepository = beaconRepository;
         this.serverTimeManager = serverTimeManager;
     }
@@ -109,10 +114,21 @@ public class AttendanceService {
     }
 
     public CoffeeStatsResponse countUsableCoffeeStack(final Long meetingId) {
-        final MeetingAttendances meetingAttendances = findMeetingAttendancesBy(meetingId);
-        validateEnoughTardyCountToDisable(meetingAttendances);
-        final Map<User, Long> userCoffeeStats = meetingAttendances.countUsableAttendancesPerUsers();
-        return CoffeeStatsResponse.from(userCoffeeStats);
+        validateMeetingExist(meetingId);
+        final List<Participant> participants = participantRepository.findByMeetingId(meetingId);
+        final int numberOfParticipants = participants.size();
+
+        final PageRequest pageRequest = PageRequest.ofSize(numberOfParticipants);
+        final List<Attendance> attendancesForCoffeeStack = coffeeStatRepository.findCoffeeStackOrderedByParticipant(
+                pageRequest, participants);
+
+        validateCoffeeTime(numberOfParticipants, attendancesForCoffeeStack.size());
+
+        final Map<User, Long> coffeeStackByUser = attendancesForCoffeeStack.stream()
+                .collect(Collectors.groupingBy(attendance -> attendance.getParticipant().getUser(),
+                        Collectors.counting()));
+
+        return CoffeeStatsResponse.from(coffeeStackByUser);
     }
 
     @Transactional
@@ -152,6 +168,12 @@ public class AttendanceService {
 
         if (!serverTimeManager.isAttendanceOpen(entranceTime)) {
             throw new NotCheckInTimeException();
+        }
+    }
+
+    private void validateCoffeeTime(final int numberOfParticipant, int totalTardyCount) {
+        if (totalTardyCount < numberOfParticipant) {
+            throw new InvalidCoffeeTimeException();
         }
     }
 

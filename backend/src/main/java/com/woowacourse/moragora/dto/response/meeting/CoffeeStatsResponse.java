@@ -17,9 +17,9 @@ public class CoffeeStatsResponse {
         this.userCoffeeStats = List.copyOf(userCoffeeStats);
     }
 
-    public static CoffeeStatsResponse from(Map<User, Long> userCoffeeStats) {
-        final List<CoffeeStatResponse> coffeeStatResponses = userCoffeeStats.keySet().stream()
-                .map(user -> CoffeeStatResponse.of(user, userCoffeeStats.get(user)))
+    public static CoffeeStatsResponse from(final Map<User, Long> coffeeStatsByUser) {
+        final List<CoffeeStatResponse> coffeeStatResponses = coffeeStatsByUser.entrySet().stream()
+                .map(entry -> CoffeeStatResponse.of(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
         return new CoffeeStatsResponse(coffeeStatResponses);
     }
