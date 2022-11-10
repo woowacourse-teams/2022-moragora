@@ -43,15 +43,15 @@ public class Meeting {
     @OneToMany(mappedBy = "meeting")
     private List<Participant> participants = new ArrayList<>();
 
+    public Meeting(final String name) {
+        this(null, name);
+    }
+
     @Builder
     public Meeting(final Long id, final String name) {
         validateName(name);
         this.id = id;
         this.name = name;
-    }
-
-    public Meeting(final String name) {
-        this(null, name);
     }
 
     public void updateName(final String name) {

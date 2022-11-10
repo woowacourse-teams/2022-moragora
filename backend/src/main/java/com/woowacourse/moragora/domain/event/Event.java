@@ -49,6 +49,10 @@ public class Event {
     @JoinColumn(name = "meeting_id")
     private Meeting meeting;
 
+    public Event(final LocalDate date, final LocalTime startTime, final LocalTime endTime, final Meeting meeting) {
+        this(null, date, startTime, endTime, meeting);
+    }
+
     @Builder
     public Event(final Long id,
                  final LocalDate date,
@@ -61,10 +65,6 @@ public class Event {
         this.startTime = startTime;
         this.endTime = endTime;
         this.meeting = meeting;
-    }
-
-    public Event(final LocalDate date, final LocalTime startTime, final LocalTime endTime, final Meeting meeting) {
-        this(null, date, startTime, endTime, meeting);
     }
 
     public boolean isSameDate(final Event other) {

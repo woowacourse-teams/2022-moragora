@@ -219,6 +219,15 @@ class AttendanceServiceTest {
                 .isInstanceOf(InvalidCoffeeTimeException.class);
     }
 
+    @DisplayName("meeting이 존재하지 않은 경우 예외가 발생한다.")
+    @Test
+    void countUsableCoffeeStack_notExistMeeting_throwsException() {
+        // when, then
+        assertThatThrownBy(() -> attendanceService.countUsableCoffeeStack(1L))
+                .isInstanceOf(MeetingNotFoundException.class);
+
+    }
+
     @DisplayName("사용된 커피스택을 비활성화한다.")
     @Test
     void disableUsedTardy() {

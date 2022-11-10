@@ -52,6 +52,14 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Provider provider;
 
+    public User(final String email, final EncodedPassword password, final String nickname) {
+        this(null, email, password, nickname, CHECKMATE);
+    }
+
+    public User(final String email, final String nickname, final Provider provider) {
+        this(null, email, null, nickname, provider);
+    }
+
     @Builder
     public User(final Long id, final String email, final EncodedPassword password,
                 final String nickname, final Provider provider) {
@@ -62,14 +70,6 @@ public class User {
         this.password = password;
         this.nickname = nickname;
         this.provider = provider;
-    }
-
-    public User(final String email, final EncodedPassword password, final String nickname) {
-        this(null, email, password, nickname, CHECKMATE);
-    }
-
-    public User(final String email, final String nickname, final Provider provider) {
-        this(null, email, null, nickname, provider);
     }
 
     public void checkPassword(final RawPassword rawPassword) {
