@@ -14,6 +14,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.EqualsAndHashCode.Include;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -21,10 +24,12 @@ import lombok.NoArgsConstructor;
 @Table(name = "participant")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Participant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Include
     private Long id;
 
     @Column(columnDefinition = "boolean default false")
@@ -42,6 +47,12 @@ public class Participant {
     private Long tardyCount;
 
     public Participant(final User user, final Meeting meeting, final boolean isMaster) {
+        this(null, user, meeting, isMaster);
+    }
+
+    @Builder
+    public Participant(final Long id, final User user, final Meeting meeting, final boolean isMaster) {
+        this.id = id;
         this.user = user;
         this.meeting = meeting;
         this.isMaster = isMaster;
