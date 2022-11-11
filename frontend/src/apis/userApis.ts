@@ -44,7 +44,7 @@ export const submitRegisterApi = async (payload: UserRegisterRequestBody) => {
 };
 
 export const googleLoginApi = async ({ code }: GoogleLoginRequestBody) =>
-  publicRequest({
+  publicRequest<UserLoginResponseBody>({
     method: 'post',
     url: `/login/oauth2/google?code=${code}`,
     withCredentials: true,
