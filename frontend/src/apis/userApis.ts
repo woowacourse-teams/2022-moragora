@@ -44,13 +44,11 @@ export const submitRegisterApi = async (payload: UserRegisterRequestBody) => {
 };
 
 export const googleLoginApi = async ({ code }: GoogleLoginRequestBody) =>
-  publicRequest.post<UserLoginResponseBody>(
-    `/login/oauth2/google?code=${code}`,
-    null,
-    {
-      withCredentials: true,
-    }
-  );
+  publicRequest<UserLoginResponseBody>({
+    method: 'post',
+    url: `/login/oauth2/google?code=${code}`,
+    withCredentials: true,
+  });
 
 export const getAttendancesApi = (id: number | undefined) => () => {
   return privateRequest<AttendancesResponseBody>(
@@ -116,6 +114,8 @@ export const accessTokenRefreshApi = () =>
   });
 
 export const logoutApi = () =>
-  publicRequest.post(`/token/logout`, null, {
+  publicRequest({
+    method: 'post',
+    url: `/token/logout`,
     withCredentials: true,
   });
