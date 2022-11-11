@@ -1,4 +1,4 @@
-package com.woowacourse.moragora.domain.query;
+package com.woowacourse.moragora.domain.global;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 
 @Repository
 @Transactional(readOnly = true)

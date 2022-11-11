@@ -78,7 +78,7 @@ public class Participant {
         this.tardyCount = tardyCount;
     }
 
-    public boolean isSameUserId(final Long userId) {
+    public boolean isSameUser(final Long userId) {
         return getUser().getId().equals(userId);
     }
 
@@ -86,7 +86,6 @@ public class Participant {
         if (tardyCount == null) {
             throw new BusinessException("지각 횟수가 할당되지 않았습니다.");
         }
-
         return tardyCount;
     }
 }

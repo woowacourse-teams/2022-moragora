@@ -1,4 +1,4 @@
-package com.woowacourse.moragora.domain.query;
+package com.woowacourse.moragora.domain.global;
 
 import static com.woowacourse.moragora.support.fixture.EventFixtures.EVENT1;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
@@ -14,6 +14,7 @@ import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.support.DataSupport;
 import java.util.List;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ class CompositionRepositoryTest {
     @Autowired
     private DataSupport dataSupport;
 
+    @DisplayName("지각횟수를 포함한 단일 미팅 정보를 조회한다.")
     @Test
     void meetingWithTardyCount() {
         // given
@@ -56,26 +58,14 @@ class CompositionRepositoryTest {
                 foundParticipant2.getTardyCount());
 
         assertAll(
-                () -> assertThat(foundMeeting)
-                        .usingRecursiveComparison()
-                        .ignoringFields("participants")
-                        .isEqualTo(meeting),
-
-                () -> assertThat(foundParticipants)
-                        .usingRecursiveComparison()
-                        .ignoringFields("user", "meeting", "tardyCount")
-                        .isEqualTo(List.of(foundParticipant1, foundParticipant2)),
-
-                () -> assertThat(foundTardyCounts)
-                        .usingRecursiveComparison()
-                        .isEqualTo(List.of(1L, 0L)),
-
-                () -> assertThat(foundUsers)
-                        .usingRecursiveComparison()
-                        .isEqualTo(List.of(user1, user2))
+                assertMeetingSame(foundMeeting, meeting),
+                assertParticipantsSame(foundParticipants, List.of(foundParticipant1, foundParticipant2)),
+                assertEquals(foundTardyCounts, List.of(1L, 0L)),
+                assertEquals(foundUsers, List.of(user1, user2))
         );
     }
 
+    @DisplayName("나의 지각횟수를 포함한 나의 모든 미팅을 조회한다.")
     @Test
     void meetingsWithTardyCount() {
         // given
@@ -122,6 +112,14 @@ class CompositionRepositoryTest {
                 .usingRecursiveComparison()
                 .ignoringFields("user", "meeting", "tardyCount")
                 .isEqualTo(expectedParticipant);
+    }
+
+    private Executable assertParticipantsSame(final List<Participant> actualParticipants,
+                                             final List<Participant> expectedParticipants) {
+        return () -> assertThat(actualParticipants)
+                .usingRecursiveComparison()
+                .ignoringFields("user", "meeting", "tardyCount")
+                .isEqualTo(expectedParticipants);
     }
 
     private <T> Executable assertEquals(final T actual, final T expected) {

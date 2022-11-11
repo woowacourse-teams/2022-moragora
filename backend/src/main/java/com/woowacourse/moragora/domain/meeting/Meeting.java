@@ -2,7 +2,6 @@ package com.woowacourse.moragora.domain.meeting;
 
 import com.woowacourse.moragora.domain.exception.BusinessException;
 import com.woowacourse.moragora.domain.participant.Participant;
-import com.woowacourse.moragora.domain.participant.ParticipantAndCount;
 import com.woowacourse.moragora.exception.global.InvalidFormatException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -65,10 +63,6 @@ public class Meeting {
                 .findAny();
     }
 
-    public void allocateParticipantsTardyCount(final List<ParticipantAndCount> participantAndCounts) {
-        participantAndCounts.forEach(it -> it.getParticipant().allocateTardyCount(it.getTardyCount()));
-    }
-
     public Boolean isTardyStackFull() {
         return calculateTardy() >= participants.size();
     }
@@ -81,7 +75,7 @@ public class Meeting {
 
     public long tardyCountByUserId(final Long loginUserId) {
         return participants.stream()
-                .filter(participant -> participant.isSameUserId(loginUserId))
+                .filter(participant -> participant.isSameUser(loginUserId))
                 .map(participant -> participant.getTardyCount())
                 .findAny()
                 .orElseThrow(() -> new BusinessException("지각 횟수가 할당되지 않았습니다."));
@@ -95,8 +89,8 @@ public class Meeting {
 
     public boolean isMaster(final Long userId) {
         return participants.stream()
-                .filter(participant -> participant.getUser().getId().equals(userId))
-                .map(participant -> participant.getIsMaster())
+                .filter(participant -> participant.isSameUser(userId))
+                .map(Participant::getIsMaster)
                 .findAny()
                 .orElseThrow(() -> new IllegalArgumentException("유저 ID에 해당하는 참가자가 없습니다, id: " + userId));
     }

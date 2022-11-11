@@ -4,6 +4,7 @@ import static com.woowacourse.moragora.domain.user.Provider.GOOGLE;
 import static com.woowacourse.moragora.domain.user.password.EncodedPassword.fromRawValue;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.PHILLZ;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -133,5 +134,20 @@ class ParticipantTest {
         assertThatThrownBy(participant::getTardyCount)
                 .isInstanceOf(BusinessException.class)
                 .hasMessage("지각 횟수가 할당되지 않았습니다.");
+    }
+
+    @DisplayName("참가자의 회원 정보 일치 여부를 조회한다.")
+    @Test
+    void isSameUser() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final User user = PHILLZ.create(1L);
+        final Participant participant = new Participant(user, meeting, true);
+
+        // when
+        final boolean sameUser = participant.isSameUser(user.getId());
+
+        // then
+        assertThat(sameUser).isEqualTo(true);
     }
 }

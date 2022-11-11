@@ -57,6 +57,16 @@ public enum UserFixtures {
                 .build();
     }
 
+    public User create(final Long id) {
+        return User.builder()
+                .id(id)
+                .email(this.email)
+                .password(this.password)
+                .nickname(this.nickname)
+                .provider(CHECKMATE)
+                .build();
+    }
+
     public String getEmail() {
         return email;
     }
