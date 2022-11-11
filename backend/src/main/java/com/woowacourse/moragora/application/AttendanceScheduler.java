@@ -24,8 +24,8 @@ public class AttendanceScheduler {
     @Scheduled(cron = "5 */5 * * * *")
     @Transactional
     public void updateToTardyAtAttendanceClosingTime() {
-        final LocalDateTime now = serverTimeManager.getDateAndTime();
-        attendanceRepository.updateByEventDateTimeAndStatus(now.toLocalDate(), now.toLocalTime());
+        final LocalDateTime dateTime = serverTimeManager.getDateAndTime();
+        attendanceRepository.updateByEventDateTimeAndStatus(dateTime.toLocalDate(), dateTime.toLocalTime());
         log.info("출석 마감 처리 완료");
     }
 }
