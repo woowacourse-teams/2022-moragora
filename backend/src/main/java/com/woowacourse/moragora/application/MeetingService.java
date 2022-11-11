@@ -100,7 +100,6 @@ public class MeetingService {
     public MyMeetingsResponse findAllByMe(final Long loginUserId) {
         final LocalDate today = serverTimeManager.getDate();
         final List<Meeting> meetings = compositionRepository.meetingsWithTardyCount(loginUserId);
-
         final List<MyMeetingResponse> myMeetingsResponse = createMyMeetingsResponse(loginUserId, today, meetings);
 
         return new MyMeetingsResponse(myMeetingsResponse);
@@ -202,11 +201,7 @@ public class MeetingService {
         final List<MyMeetingResponse> myMeetingsResponse = new ArrayList<>();
 
         for (final Meeting meeting : meetings) {
-
-            final Event upcomingEvent = eventRepository
-                    .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
-                    .orElse(null);
-
+            final Event upcomingEvent = findUpComingEvent(meeting, today);
             myMeetingsResponse.add(MyMeetingResponse.of(meeting, upcomingEvent, loginUserId, serverTimeManager));
         }
 
@@ -228,6 +223,12 @@ public class MeetingService {
         if (userIds.isEmpty()) {
             throw new InvalidParticipantException("생성자를 제외한 참가자가 없습니다.");
         }
+    }
+
+    private Event findUpComingEvent(final Meeting meeting, final LocalDate today) {
+        return eventRepository
+                .findFirstByMeetingIdAndDateGreaterThanEqualOrderByDate(meeting.getId(), today)
+                .orElse(null);
     }
 
     private boolean validateMaximumBeacon(final List<BeaconRequest> beaconsRequest) {

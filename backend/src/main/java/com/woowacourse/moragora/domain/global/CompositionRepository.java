@@ -49,7 +49,6 @@ public class CompositionRepository {
 
         for (final Meeting meeting : meetings) {
             final Map<Long, Long> participantIdToTardyCount = findParticipantIdToTardyCount(meeting);
-
             allocateTardyCountToParticipants(meeting, participantIdToTardyCount);
         }
 
