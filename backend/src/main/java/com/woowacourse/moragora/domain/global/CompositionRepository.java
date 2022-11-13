@@ -35,24 +35,27 @@ public class CompositionRepository {
     }
 
     public Meeting meetingWithTardyCount(final Long meetingId) {
-        final Meeting meeting = meetingRepository.findMeetingParticipantUsersById(meetingId)
+        final Meeting meeting = meetingRepository.findMeetingParticipantUserById(meetingId)
                 .orElseThrow(MeetingNotFoundException::new);
-        final Map<Long, Long> participantIdToTardyCount = findParticipantIdToTardyCount(meeting);
 
-        allocateTardyCountToParticipants(meeting, participantIdToTardyCount);
+        findTardyCountAndAllocate(meeting);
 
         return meeting;
     }
 
     public List<Meeting> meetingsWithTardyCount(final Long userId) {
-        final List<Meeting> meetings = meetingRepository.findMeetingParticipantsByUserId(userId);
+        final List<Meeting> meetings = meetingRepository.findAllMeetingParticipantsByUserId(userId);
 
         for (final Meeting meeting : meetings) {
-            final Map<Long, Long> participantIdToTardyCount = findParticipantIdToTardyCount(meeting);
-            allocateTardyCountToParticipants(meeting, participantIdToTardyCount);
+            findTardyCountAndAllocate(meeting);
         }
 
         return meetings;
+    }
+
+    private void findTardyCountAndAllocate(final Meeting meeting) {
+        final Map<Long, Long> participantIdToTardyCount = findParticipantIdToTardyCount(meeting);
+        allocateTardyCountToParticipants(meeting, participantIdToTardyCount);
     }
 
     private Map<Long, Long> findParticipantIdToTardyCount(final Meeting meeting) {
