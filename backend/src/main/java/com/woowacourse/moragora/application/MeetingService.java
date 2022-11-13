@@ -1,5 +1,7 @@
 package com.woowacourse.moragora.application;
 
+import static java.util.stream.Collectors.toList;
+
 import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.event.EventRepository;
@@ -105,7 +107,6 @@ public class MeetingService {
         return new MyMeetingsResponse(myMeetingsResponse);
     }
 
-
     @Transactional
     public void assignMaster(final Long meetingId, final MasterRequest request, final Long loginId) {
         final Long assignedUserId = request.getUserId();
@@ -168,7 +169,7 @@ public class MeetingService {
 
         final List<Beacon> beacons = beaconsRequest.stream()
                 .map((BeaconRequest beaconRequest) -> beaconRequest.toEntity(meeting))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         beaconRepository.saveAll(beacons);
     }
@@ -186,7 +187,7 @@ public class MeetingService {
         final Participant loginParticipant = new Participant(loginUser, meeting, true);
         final List<Participant> participants = users.stream()
                 .map(user -> new Participant(user, meeting, false))
-                .collect(Collectors.toList());
+                .collect(toList());
         participants.add(loginParticipant);
 
         for (Participant participant : participants) {
