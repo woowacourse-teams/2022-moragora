@@ -12,7 +12,7 @@ import { getLoginUserDataApi, accessTokenRefreshApi } from 'apis/userApis';
 import useInterceptor from 'hooks/useInterceptor';
 import { AxiosRequestConfig } from 'axios';
 import { TokenStatus } from 'types/userType';
-import { publicRequest, privateRequest } from 'apis/instances';
+import { privateRequest } from 'apis/instances';
 import * as S from './App.styled';
 
 const App = () => {
@@ -47,7 +47,7 @@ const App = () => {
       if (tokenStatus === TokenStatus['expired']) {
         const {
           data: { accessToken },
-        } = await publicRequest('/token/refresh');
+        } = await accessTokenRefreshApi();
 
         const newConfig = {
           ...config,
