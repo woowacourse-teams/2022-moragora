@@ -48,7 +48,7 @@ class RefreshTokenRepositoryTest {
     @Test
     void deleteByValue() {
         // given
-        final RefreshToken refreshToken = new RefreshToken("refresh_token", 1L, LocalDateTime.now());
+        final RefreshToken refreshToken = new RefreshToken("delete_token", 1L, LocalDateTime.now());
         final RefreshToken savedRefreshToken = refreshTokenRepository.save(refreshToken);
 
         // when
