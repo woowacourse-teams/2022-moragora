@@ -11,7 +11,10 @@ public interface ParticipantRepository extends Repository<Participant, Long> {
 
     Participant save(final Participant participant);
 
-    List<Participant> findByMeetingId(final Long meetingId);
+    @Query("select p from Participant p "
+            + "join fetch p.user u "
+            + "where p.meeting.id = :meetingId")
+    List<Participant> findByMeetingId(@Param("meetingId") final Long meetingId);
 
     Optional<Participant> findByMeetingIdAndUserId(final Long meetingId, final Long userId);
 

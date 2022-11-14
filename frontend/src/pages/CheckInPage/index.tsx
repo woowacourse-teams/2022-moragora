@@ -18,7 +18,7 @@ const CheckInPage = () => {
 
   const meetingListQuery = useQuery(['meetingList'], getMeetingListApi(), {
     enabled: !!userState.accessToken,
-    onSuccess: ({ body: { meetings } }) => {
+    onSuccess: ({ data: { meetings } }) => {
       const activeMeeting = meetings.find((meeting) => meeting.isActive);
 
       setCurrentMeeting(activeMeeting || meetings[0]);
@@ -75,7 +75,7 @@ const CheckInPage = () => {
       <S.EndedCheckTimeSection>
         <S.SectionTitle>출결이 끝난 모임</S.SectionTitle>
         <S.MeetingList>
-          {meetingListQuery.data?.body.meetings
+          {meetingListQuery.data?.data.meetings
             .filter((meeting) => !meeting.isActive)
             .map((meeting) => (
               <CheckMeetingItem
@@ -92,7 +92,7 @@ const CheckInPage = () => {
       <S.CheckTimeSection>
         <S.SectionTitle>출결 중인 모임</S.SectionTitle>
         <S.MeetingList>
-          {meetingListQuery.data?.body.meetings
+          {meetingListQuery.data?.data.meetings
             .filter((meeting) => meeting.isActive)
             .map((meeting) => (
               <CheckMeetingItem

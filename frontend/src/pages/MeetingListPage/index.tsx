@@ -28,7 +28,7 @@ const MeetingListPage = () => {
   });
 
   const { currentTimestamp } = useTimer(
-    serverTimeResponse?.body.serverTime || Date.now()
+    serverTimeResponse?.data.serverTime || Date.now()
   );
 
   const currentDate = new Date(currentTimestamp);
@@ -38,10 +38,10 @@ const MeetingListPage = () => {
     minute: '2-digit',
   });
 
-  const activeMeetings = meetingListResponse?.body.meetings.filter(
+  const activeMeetings = meetingListResponse?.data.meetings.filter(
     ({ isActive }) => isActive
   );
-  const inactiveMeetings = meetingListResponse?.body.meetings.filter(
+  const inactiveMeetings = meetingListResponse?.data.meetings.filter(
     ({ isActive }) => !isActive
   );
   const sortedMeetings = [
@@ -61,7 +61,7 @@ const MeetingListPage = () => {
     }
   }, [currentLocaleTimeString]);
 
-  if (isLoading && !meetingListResponse?.body) {
+  if (isLoading && !meetingListResponse?.data) {
     return (
       <S.Layout>
         <S.TimeSection>
@@ -121,7 +121,7 @@ const MeetingListPage = () => {
     );
   }
 
-  if (meetingListResponse?.body.meetings.length === 0) {
+  if (meetingListResponse?.data.meetings.length === 0) {
     return (
       <S.Layout>
         <S.EmptyStateBox>
@@ -183,7 +183,7 @@ const MeetingListPage = () => {
           <S.Title>나의 커피 스택</S.Title>
         </S.TitleBox>
         <S.CoffeeStackList>
-          {meetingListResponse?.body.meetings.map((meeting) => (
+          {meetingListResponse?.data.meetings.map((meeting) => (
             <li key={meeting.id}>
               <CoffeeStackItem
                 name={meeting.name}

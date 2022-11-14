@@ -10,49 +10,67 @@ import { CalendarProvider } from 'contexts/calendarContext';
 import useQuery from 'hooks/useQuery';
 import { getLoginUserDataApi, accessTokenRefreshApi } from 'apis/userApis';
 import useInterceptor from 'hooks/useInterceptor';
+import { AxiosRequestConfig } from 'axios';
 import { TokenStatus } from 'types/userType';
-import { queryClient } from 'contexts/queryClient';
+import { privateRequest } from 'apis/instances';
 import * as S from './App.styled';
 
 const App = () => {
   const userState = useContext(userContext) as UserContextValues;
 
   useInterceptor({
-    accessToken: userState.accessToken,
-    onRequest: (url, options, accessToken) => ({
-      url,
-      options: {
-        ...options,
-        headers: {
-          ...options.headers,
-          Authorization: `Bearer ${accessToken}`,
-        },
+    onRequest: (config: AxiosRequestConfig<unknown>) => ({
+      ...config,
+      headers: {
+        ...config.headers,
+        Authorization: `Bearer ${userState.accessToken}`,
       },
     }),
-    onError: (response, body) => {
-      if (response.status !== 401) {
-        return;
+    onRejected: async (error: any) => {
+      const {
+        config,
+        response: {
+          status,
+          data: { tokenStatus },
+        },
+      } = error;
+
+      if (status !== 401) {
+        return Promise.reject(error);
       }
 
-      if (body.tokenStatus === TokenStatus['invalid']) {
+      if (tokenStatus === TokenStatus['invalid']) {
         userState.logout();
         return;
       }
 
-      if (body.tokenStatus === TokenStatus['expired']) {
-        refreshQuery.refetch();
-        return;
+      if (tokenStatus === TokenStatus['expired']) {
+        const {
+          data: { accessToken },
+        } = await accessTokenRefreshApi();
+
+        const newConfig = {
+          ...config,
+          Authorization: `Bearer ${accessToken}`,
+        };
+
+        userState.setAccessToken(accessToken);
+
+        return privateRequest(newConfig);
       }
 
       userState.setInitialized(true);
+      return Promise.reject(error);
     },
+    resolver: [userState.accessToken],
   });
 
-  const refreshQuery = useQuery(['refresh'], accessTokenRefreshApi, {
-    onSuccess: ({ body: { accessToken } }) => {
+  useQuery(['refresh'], accessTokenRefreshApi, {
+    onSuccess: ({ data: { accessToken } }) => {
       userState.setAccessToken(accessToken);
+    },
+    onSettled: () => {
       userState.setInitialized(true);
-      queryClient.reQueryCache();
     },
   });
 
@@ -61,9 +79,9 @@ const App = () => {
     getLoginUserDataApi(),
     {
       enabled: !!userState.accessToken,
-      onSuccess: ({ body }) => {
+      onSuccess: ({ data }) => {
         if (userState.accessToken) {
-          userState.login(body, userState.accessToken);
+          userState.login(data, userState.accessToken);
         }
       },
       onError: (error) => {

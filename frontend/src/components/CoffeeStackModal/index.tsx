@@ -1,12 +1,12 @@
 import { css } from '@emotion/react';
 import { useParams } from 'react-router-dom';
-import * as S from './CoffeeStackModal.styled';
 import useQuery from 'hooks/useQuery';
 import DialogButton from 'components/@shared/DialogButton';
 import Spinner from 'components/@shared/Spinner';
 import ErrorIcon from 'components/@shared/ErrorIcon';
 import { getUserCoffeeStatsApi } from 'apis/userApis';
 import coffeeIcon from 'assets/coffee.svg';
+import * as S from './CoffeeStackModal.styled';
 
 type CoffeeStackModalProps = {
   onConfirm: React.MouseEventHandler;
@@ -48,7 +48,7 @@ const CoffeeStackModal = ({ onDismiss, onConfirm }: CoffeeStackModalProps) => {
     <S.Layout>
       <S.Title>It's 커피 타임~</S.Title>
       <S.StatsBox>
-        {userCoffeeStatsResponse?.body.userCoffeeStats.map((data) => (
+        {userCoffeeStatsResponse?.data.userCoffeeStats.map((data) => (
           <S.RowBox key={data.id}>
             <span>{data.nickname}</span>
             <S.CoffeeIconBox>

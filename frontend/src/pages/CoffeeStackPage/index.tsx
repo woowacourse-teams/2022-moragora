@@ -62,7 +62,7 @@ const CoffeeStackPage = () => {
         </ModalPortal>
       )}
       <S.Layout>
-        {upcomingEventNotExist && meetingQuery.data?.body.isLoginUserMaster && (
+        {upcomingEventNotExist && meetingQuery.data?.data.isLoginUserMaster && (
           <>
             <S.EmptyStateBox>
               <S.EmptyStateTitle>다가오는 일정이 없습니다.</S.EmptyStateTitle>
@@ -77,7 +77,7 @@ const CoffeeStackPage = () => {
           </>
         )}
         <S.TitleSection>
-          <S.MeetingTitle>{meetingQuery.data?.body.name}</S.MeetingTitle>
+          <S.MeetingTitle>{meetingQuery.data?.data.name}</S.MeetingTitle>
         </S.TitleSection>
         <S.MeetingDetailBox>
           <S.MeetingStatusSection>
@@ -86,13 +86,13 @@ const CoffeeStackPage = () => {
                 size={10}
                 percent={
                   (totalTardyCount /
-                    (meetingQuery.data?.body.users.length ?? 0)) *
+                    (meetingQuery.data?.data.users.length ?? 0)) *
                   100
                 }
               />
               <S.StackDetailBox>
-                {meetingQuery.data?.body.isLoginUserMaster &&
-                meetingQuery.data.body.isCoffeeTime ? (
+                {meetingQuery.data?.data.isLoginUserMaster &&
+                meetingQuery.data.data.isCoffeeTime ? (
                   <S.EmptyButton
                     variant="confirm"
                     type="button"
@@ -103,7 +103,7 @@ const CoffeeStackPage = () => {
                 ) : (
                   <p>
                     <span>{totalTardyCount}</span> /
-                    <span>{meetingQuery.data?.body.users.length}</span>
+                    <span>{meetingQuery.data?.data.users.length}</span>
                   </p>
                 )}
               </S.StackDetailBox>
@@ -114,12 +114,12 @@ const CoffeeStackPage = () => {
               <S.SectionTitle>커피 스택 현황</S.SectionTitle>
               <p>
                 총 출석일:{' '}
-                <span>{meetingQuery.data?.body.attendedEventCount}</span>
+                <span>{meetingQuery.data?.data.attendedEventCount}</span>
               </p>
             </S.UserListSectionHeader>
             <S.UserListBox>
               <S.UserList>
-                {meetingQuery.data?.body.users.map((user) => (
+                {meetingQuery.data?.data.users.map((user) => (
                   <CoffeeStackItem
                     key={user.id}
                     name={user.nickname}
