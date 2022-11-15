@@ -115,7 +115,7 @@ public class AttendanceService {
     public CoffeeStatsResponse countUsableCoffeeStack(final Long meetingId) {
         validateMeetingExist(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meetingId);
-        final List<Attendance> attendancesForCoffeeStack = findAttendancesToUseCoffeeStat(participants);
+        final List<Attendance> attendancesForCoffeeStack = findAttendancesToUseCoffeeStack(participants);
 
         validateCoffeeTime(participants.size(), attendancesForCoffeeStack.size());
 
@@ -130,7 +130,7 @@ public class AttendanceService {
     public void disableUsedTardy(final Long meetingId) {
         validateMeetingExist(meetingId);
         final List<Participant> participants = participantRepository.findByMeetingId(meetingId);
-        final List<Attendance> attendancesForCoffeeStack = findAttendancesToUseCoffeeStat(participants);
+        final List<Attendance> attendancesForCoffeeStack = findAttendancesToUseCoffeeStack(participants);
 
         validateCoffeeTime(participants.size(), attendancesForCoffeeStack.size());
 
@@ -182,7 +182,7 @@ public class AttendanceService {
         }
     }
 
-    private List<Attendance> findAttendancesToUseCoffeeStat(final List<Participant> participants) {
+    private List<Attendance> findAttendancesToUseCoffeeStack(final List<Participant> participants) {
         final PageRequest pageRequest = PageRequest.ofSize(participants.size());
         return coffeeStackRepository.findCoffeeStackOrderedByParticipant(pageRequest, participants);
     }
