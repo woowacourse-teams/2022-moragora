@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.woowacourse.moragora.domain.exception.BusinessException;
 import com.woowacourse.moragora.domain.participant.Participant;
 import com.woowacourse.moragora.domain.participant.ParticipantAndCount;
 import com.woowacourse.moragora.domain.user.User;
@@ -77,32 +78,6 @@ class MeetingTest {
         assertThat(foundParticipant).isEqualTo(participant);
     }
 
-    @DisplayName("참가자들의 결석 횟수를 할당한다.")
-    @Test
-    void allocateParticipantsTardyCount() {
-        // given
-        final Meeting meeting = new Meeting(1L, "체크메이트");
-        final User user = new User(1L, "sun@gmail.com", fromRawValue("asdf1234!"), "sun", GOOGLE);
-        final Participant participant = new Participant(user, meeting, true);
-        ParticipantAndCount participantAndCount = new ParticipantAndCount() {
-            @Override
-            public Participant getParticipant() {
-                return participant;
-            }
-
-            @Override
-            public Long getTardyCount() {
-                return 5L;
-            }
-        };
-
-        // when
-        meeting.allocateParticipantsTardyCount(List.of(participantAndCount));
-
-        // then
-        assertThat(participant.getTardyCount()).isEqualTo(5);
-    }
-
     @DisplayName("모임의 지각 횟수가 다 채워졌다면 True를 반환한다.")
     @Test
     void isTardyStackFull() {
@@ -164,5 +139,45 @@ class MeetingTest {
 
         // then
         assertThat(totalTardyCount).isEqualTo(8);
+    }
+
+    @DisplayName("회원의 지각 횟수를 조회한다.")
+    @Test
+    void tardyCountByUserId() {
+        // given
+        final Meeting meeting = new Meeting(1L, "체크메이트");
+        final User user1 = new User(1L, "sun@gmail.com", fromRawValue("asdf1234!"), "sun", GOOGLE);
+        final User user2 = new User(2L, "kun@gmail.com", fromRawValue("asdf1234!"), "kun", GOOGLE);
+        final Participant participant1 = new Participant(1L, user1, meeting, true);
+        final Participant participant2 = new Participant(2L, user2, meeting, false);
+        participant1.mapMeeting(meeting);
+        participant2.mapMeeting(meeting);
+        participant1.allocateTardyCount(5L);
+        participant2.allocateTardyCount(3L);
+
+        // when
+        final long totalTardyCount = meeting.tardyCountByUserId(1L);
+
+        // then
+        assertThat(totalTardyCount).isEqualTo(5);
+    }
+
+    @DisplayName("회원이 마스터인지를 조회한다.")
+    @Test
+    void isMaster() {
+        // given
+        final Meeting meeting = new Meeting(1L, "체크메이트");
+        final User user1 = new User(1L, "sun@gmail.com", fromRawValue("asdf1234!"), "sun", GOOGLE);
+        final User user2 = new User(2L, "kun@gmail.com", fromRawValue("asdf1234!"), "kun", GOOGLE);
+        final Participant participant1 = new Participant(1L, user1, meeting, true);
+        final Participant participant2 = new Participant(2L, user2, meeting, false);
+        participant1.mapMeeting(meeting);
+        participant2.mapMeeting(meeting);
+
+        // when
+        final boolean master = meeting.isMaster(1L);
+
+        // then
+        assertThat(master).isEqualTo(true);
     }
 }

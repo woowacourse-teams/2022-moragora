@@ -14,7 +14,6 @@ import com.woowacourse.moragora.presentation.auth.AuthenticationPrincipal;
 import java.net.URI;
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,7 +49,7 @@ public class MeetingController {
 
     @GetMapping("/me")
     public ResponseEntity<MyMeetingsResponse> findMy(@AuthenticationPrincipal final Long loginId) {
-        final MyMeetingsResponse meetingsResponse = meetingService.findAllByUserId(loginId);
+        final MyMeetingsResponse meetingsResponse = meetingService.findAllByMe(loginId);
         return ResponseEntity.ok(meetingsResponse);
     }
 

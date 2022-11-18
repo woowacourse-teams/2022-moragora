@@ -1,5 +1,8 @@
 package com.woowacourse.moragora.application;
 
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
+
 import com.woowacourse.moragora.domain.attendance.Attendance;
 import com.woowacourse.moragora.domain.attendance.AttendanceRepository;
 import com.woowacourse.moragora.domain.attendance.CoffeeStatRepository;
@@ -119,14 +122,14 @@ public class AttendanceService {
         final int numberOfParticipants = participants.size();
 
         final PageRequest pageRequest = PageRequest.ofSize(numberOfParticipants);
-        final List<Attendance> attendancesForCoffeeStack = coffeeStatRepository.findCoffeeStackOrderedByParticipant(
-                pageRequest, participants);
+        final List<Attendance> attendancesForCoffeeStack =
+                coffeeStatRepository.findCoffeeStackOrderedByParticipant(pageRequest, participants);
 
         validateCoffeeTime(numberOfParticipants, attendancesForCoffeeStack.size());
 
-        final Map<User, Long> coffeeStackByUser = attendancesForCoffeeStack.stream()
-                .collect(Collectors.groupingBy(attendance -> attendance.getParticipant().getUser(),
-                        Collectors.counting()));
+        final Map<User, Long> coffeeStackByUser =
+                attendancesForCoffeeStack.stream()
+                        .collect(groupingBy(attendance -> attendance.getParticipant().getUser(), counting()));
 
         return CoffeeStatsResponse.from(coffeeStackByUser);
     }

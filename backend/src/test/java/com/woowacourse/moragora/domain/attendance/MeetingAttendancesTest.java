@@ -1,5 +1,6 @@
 package com.woowacourse.moragora.domain.attendance;
 
+import static com.woowacourse.moragora.domain.attendance.Status.TARDY;
 import static com.woowacourse.moragora.domain.user.Provider.CHECKMATE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -81,10 +82,10 @@ class MeetingAttendancesTest {
         final Participant participant2 = new Participant(user2, meeting, false);
         final Participant participant3 = new Participant(user3, meeting, false);
 
-        final Attendance attendance1 = new Attendance(Status.TARDY, false, participant1, event1);
-        final Attendance attendance2 = new Attendance(Status.TARDY, false, participant2, event1);
+        final Attendance attendance1 = new Attendance(TARDY, false, participant1, event1);
+        final Attendance attendance2 = new Attendance(TARDY, false, participant2, event1);
         final Attendance attendance3 = new Attendance(Status.PRESENT, false, participant3, event1);
-        final Attendance attendance4 = new Attendance(Status.TARDY, false, participant1, event2);
+        final Attendance attendance4 = new Attendance(TARDY, false, participant1, event2);
         final Attendance attendance5 = new Attendance(Status.PRESENT, false, participant2, event2);
         final Attendance attendance6 = new Attendance(Status.PRESENT, false, participant3, event2);
 
@@ -121,12 +122,12 @@ class MeetingAttendancesTest {
         final Participant participant2 = new Participant(user2, meeting, false);
         final Participant participant3 = new Participant(user3, meeting, false);
 
-        final Attendance attendance1 = new Attendance(Status.TARDY, false, participant1, event1);
-        final Attendance attendance2 = new Attendance(Status.TARDY, false, participant2, event1);
-        final Attendance attendance3 = new Attendance(Status.TARDY, false, participant3, event1);
-        final Attendance attendance4 = new Attendance(Status.TARDY, false, participant1, event2);
-        final Attendance attendance5 = new Attendance(Status.TARDY, false, participant2, event2);
-        final Attendance attendance6 = new Attendance(Status.TARDY, false, participant3, event2);
+        final Attendance attendance1 = new Attendance(TARDY, false, participant1, event1);
+        final Attendance attendance2 = new Attendance(TARDY, false, participant2, event1);
+        final Attendance attendance3 = new Attendance(TARDY, false, participant3, event1);
+        final Attendance attendance4 = new Attendance(TARDY, false, participant1, event2);
+        final Attendance attendance5 = new Attendance(TARDY, false, participant2, event2);
+        final Attendance attendance6 = new Attendance(TARDY, false, participant3, event2);
 
         final List<Attendance> attendances = List.of(
                 attendance1, attendance2, attendance3, attendance4, attendance5, attendance6);
@@ -157,11 +158,41 @@ class MeetingAttendancesTest {
         final Participant participant1 = new Participant(user, meeting1, false);
         final Participant participant2 = new Participant(user, meeting2, false);
         final Event event1 = EventFixtures.EVENT1.create(meeting1);
-        final Attendance attendance1 = new Attendance(Status.TARDY, false, participant1, event1);
-        final Attendance attendance2 = new Attendance(Status.TARDY, false, participant2, event1);
+        final Attendance attendance1 = new Attendance(TARDY, false, participant1, event1);
+        final Attendance attendance2 = new Attendance(TARDY, false, participant2, event1);
 
         // when, then
         assertThatThrownBy(() -> new MeetingAttendances(List.of(attendance1, attendance2), 2))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @DisplayName("지각스택이 쌓였는지를 확인한다.")
+    @Test
+    void isTardyStackFull() {
+        // given
+        final EncodedPassword encodedPassword = EncodedPassword.fromRawValue("qwer1234!");
+        final LocalDateTime now = LocalDateTime.now();
+        final LocalDate date = now.toLocalDate();
+        final LocalTime time = now.toLocalTime();
+        final User user1 = new User("sun@gmail.com", encodedPassword, "sun");
+        final User user2 = new User("kun@gmail.com", encodedPassword, "kun");
+        final User user3 = new User("forki@gmail.com", encodedPassword, "forki");
+        final Meeting meeting = new Meeting("미팅1");
+        final Event event = new Event(date, time, time, meeting);
+        final Participant participant1 = new Participant(user1, meeting, true);
+        final Participant participant2 = new Participant(user2, meeting, false);
+        final Participant participant3 = new Participant(user3, meeting, false);
+
+        final Attendance attendance1 = new Attendance(TARDY, false, participant1, event);
+        final Attendance attendance2 = new Attendance(TARDY, false, participant2, event);
+        final Attendance attendance3 = new Attendance(TARDY, false, participant3, event);
+
+        final MeetingAttendances meetingAttendances = new MeetingAttendances(List.of(attendance1, attendance2, attendance3), 3);
+
+        // when
+        final boolean actual = meetingAttendances.isTardyStackFull();
+
+        // then
+        assertThat(actual).isEqualTo(true);
     }
 }

@@ -40,9 +40,7 @@ public class MeetingResponse {
     public static MeetingResponse of(final Meeting meeting,
                                      final long attendedEventCount,
                                      final Participant loginParticipant) {
-        final List<ParticipantResponse> participantResponses = meeting.getParticipants().stream()
-                .map(ParticipantResponse::from)
-                .collect(Collectors.toList());
+        final List<ParticipantResponse> participantResponses = createParticipantResponses(meeting);
 
         return new MeetingResponse(
                 meeting.getId(),
@@ -52,5 +50,11 @@ public class MeetingResponse {
                 meeting.isTardyStackFull(),
                 participantResponses
         );
+    }
+
+    private static List<ParticipantResponse> createParticipantResponses(final Meeting meeting) {
+        return meeting.getParticipants().stream()
+                .map(ParticipantResponse::from)
+                .collect(Collectors.toList());
     }
 }

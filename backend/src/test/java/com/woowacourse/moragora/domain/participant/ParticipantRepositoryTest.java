@@ -3,12 +3,16 @@ package com.woowacourse.moragora.domain.participant;
 import static com.woowacourse.moragora.support.fixture.MeetingFixtures.MORAGORA;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.AZPI;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
+import static com.woowacourse.moragora.support.fixture.UserFixtures.PHILLZ;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.SUN;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.woowacourse.moragora.domain.attendance.Status;
+import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.domain.user.User;
 import com.woowacourse.moragora.support.DataSupport;
+import com.woowacourse.moragora.support.fixture.EventFixtures;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -57,6 +61,40 @@ class ParticipantRepositoryTest {
 
         // then
         assertThat(participant.isPresent()).isTrue();
+    }
+
+    /**
+     * 참가자 들의 지각 횟수만을 찾아서 반환하는 메서드입니다.
+     */
+    @DisplayName("참가자들의 지각 횟수를 찾아서 반환한다.")
+    @Test
+    void countParticipantsTardy() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final User user1 = PHILLZ.create();
+        final User user2 = AZPI.create();
+        final Participant participant1 = dataSupport.saveParticipant(user1, meeting, true);
+        final Participant participant2 = dataSupport.saveParticipant(user2, meeting, false);
+        final Event event = EventFixtures.EVENT1.create(meeting);
+
+        dataSupport.saveMeeting(meeting);
+        dataSupport.saveUsers(user1, user2);
+        dataSupport.saveEvent(event);
+        dataSupport.saveAttendance(participant1, event, Status.TARDY);
+        dataSupport.saveAttendance(participant2, event, Status.PRESENT);
+
+        // when
+        final List<TardyCountDto> tardyCountDtos = participantRepository.countParticipantsTardy(
+                List.of(participant1, participant2));
+
+        // then
+        assertThat(tardyCountDtos)
+                .usingRecursiveComparison()
+                .isEqualTo(List.of(
+                        new TardyCountDto(participant1.getId(), 1L),
+                        new TardyCountDto(participant2.getId(), 0L))
+                );
+
     }
 
     @DisplayName("id로 여러 참가자를 삭제한다.")

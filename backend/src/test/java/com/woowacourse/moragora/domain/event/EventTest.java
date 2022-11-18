@@ -6,9 +6,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import com.woowacourse.moragora.application.ServerTimeManager;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.exception.event.IllegalAlreadyStartedEventException;
 import com.woowacourse.moragora.exception.meeting.IllegalEntranceLeaveTimeException;
+import com.woowacourse.moragora.support.fixture.ServerDateTimeFixtures;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -114,5 +116,57 @@ class EventTest {
         // when, then
         assertThatThrownBy(() -> event.updateTime(alreadyStartedTime, eventForUpdate))
                 .isInstanceOf(IllegalAlreadyStartedEventException.class);
+    }
+
+    @DisplayName("이벤트가 활성화 되었는지 확인한다.")
+    @Test
+    void isActive() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final Event event = EVENT1.create(meeting);
+
+        final LocalDateTime serverDateTime = LocalDateTime.of(2022, 8, 1, 9, 50);
+        final ServerTimeManager serverTimeManager = ServerDateTimeFixtures.createServerTimeManager(serverDateTime);
+
+        // when
+        final LocalDate today = LocalDate.of(2022, 8, 1);
+        final boolean actual = event.isActive(today, serverTimeManager);
+
+        // then
+        assertThat(actual).isEqualTo(true);
+    }
+
+    @DisplayName("출석부가 열리는 시간을 조회한다.")
+    @Test
+    void getOpenTime() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final Event event = EVENT1.create(meeting);
+
+        final LocalDateTime serverDateTime = LocalDateTime.of(2022, 8, 1, 9, 50);
+        final ServerTimeManager serverTimeManager = ServerDateTimeFixtures.createServerTimeManager(serverDateTime);
+
+        // when
+        final LocalTime openTime = event.getOpenTime(serverTimeManager);
+
+        // then
+        assertThat(openTime).isEqualTo(LocalTime.of(9, 30));
+    }
+
+    @DisplayName("출석부가 닫히는 시간을 조회한다.")
+    @Test
+    void getCloseTime() {
+        // given
+        final Meeting meeting = MORAGORA.create();
+        final Event event = EVENT1.create(meeting);
+
+        final LocalDateTime serverDateTime = LocalDateTime.of(2022, 8, 1, 9, 50);
+        final ServerTimeManager serverTimeManager = ServerDateTimeFixtures.createServerTimeManager(serverDateTime);
+
+        // when
+        final LocalTime openTime = event.getCloseTime(serverTimeManager);
+
+        // then
+        assertThat(openTime).isEqualTo(LocalTime.of(10, 5));
     }
 }

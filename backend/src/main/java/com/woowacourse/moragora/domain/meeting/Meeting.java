@@ -1,7 +1,7 @@
 package com.woowacourse.moragora.domain.meeting;
 
+import com.woowacourse.moragora.domain.exception.BusinessException;
 import com.woowacourse.moragora.domain.participant.Participant;
-import com.woowacourse.moragora.domain.participant.ParticipantAndCount;
 import com.woowacourse.moragora.exception.global.InvalidFormatException;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,20 +57,10 @@ public class Meeting {
         this.name = name;
     }
 
-    public List<Long> getParticipantIds() {
-        return participants.stream()
-                .map(Participant::getId)
-                .collect(Collectors.toUnmodifiableList());
-    }
-
     public Optional<Participant> findParticipant(final Long userId) {
         return participants.stream()
                 .filter(it -> it.isSameParticipant(userId))
                 .findAny();
-    }
-
-    public void allocateParticipantsTardyCount(final List<ParticipantAndCount> participantAndCounts) {
-        participantAndCounts.forEach(it -> it.getParticipant().allocateTardyCount(it.getTardyCount()));
     }
 
     public Boolean isTardyStackFull() {
@@ -81,6 +71,28 @@ public class Meeting {
         return participants.stream()
                 .mapToLong(Participant::getTardyCount)
                 .sum();
+    }
+
+    public long tardyCountByUserId(final Long userId) {
+        return participants.stream()
+                .filter(participant -> participant.isSameUser(userId))
+                .map(participant -> participant.getTardyCount())
+                .findAny()
+                .orElseThrow(() -> new BusinessException("지각 횟수가 할당되지 않았습니다."));
+    }
+
+    public List<Long> getParticipantIds() {
+        return participants.stream()
+                .map(Participant::getId)
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    public boolean isMaster(final Long userId) {
+        return participants.stream()
+                .filter(participant -> participant.isSameUser(userId))
+                .map(Participant::getIsMaster)
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("유저 ID에 해당하는 참가자가 없습니다, id: " + userId));
     }
 
     private void validateName(final String name) {

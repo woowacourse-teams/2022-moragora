@@ -19,13 +19,6 @@ public class MeetingAttendances {
         this.numberOfParticipants = numberOfParticipants;
     }
 
-    public ParticipantAttendances extractAttendancesByParticipant(final Participant participant) {
-        final List<Attendance> attendances = values.stream()
-                .filter(attendance -> attendance.getParticipant().equals(participant))
-                .collect(Collectors.toList());
-        return new ParticipantAttendances(attendances);
-    }
-
     public int countTardy() {
         return (int) values.stream()
                 .filter(Attendance::isEnabled)

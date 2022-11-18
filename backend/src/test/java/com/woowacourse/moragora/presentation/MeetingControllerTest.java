@@ -307,7 +307,7 @@ class MeetingControllerTest extends ControllerTest {
         validateToken("1");
 
         // when
-        given(meetingService.findAllByUserId(eq(1L)))
+        given(meetingService.findAllByMe(eq(1L)))
                 .willReturn(meetingsResponse);
 
         // then
@@ -368,7 +368,7 @@ class MeetingControllerTest extends ControllerTest {
         validateToken("1");
 
         // when
-        given(meetingService.findAllByUserId(eq(1L)))
+        given(meetingService.findAllByMe(eq(1L)))
                 .willReturn(meetingsResponse);
 
         // then

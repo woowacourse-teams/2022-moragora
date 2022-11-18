@@ -1,7 +1,11 @@
 package com.woowacourse.moragora.dto.response.meeting;
 
+import com.woowacourse.moragora.application.ServerTimeManager;
+import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
 import com.woowacourse.moragora.dto.response.event.EventResponse;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -36,16 +40,43 @@ public class MyMeetingResponse {
     }
 
     public static MyMeetingResponse of(final Meeting meeting,
-                                       final int tardyCount,
-                                       final boolean isLoginUserMaster,
-                                       final boolean isCoffeeTime,
-                                       final boolean isActive,
-                                       final EventResponse upcomingEvent) {
+                                       final Event upcomingEvent,
+                                       final Long loginUserId,
+                                       final ServerTimeManager serverTimeManager) {
+
+        final long tardyCount = meeting.tardyCountByUserId(loginUserId);
+
+        final LocalDate today = serverTimeManager.getDate();
+
+        if (upcomingEvent == null) {
+            return createEmptyResponse(meeting, loginUserId, (int) tardyCount);
+        }
+
+        final LocalTime attendanceOpenTime = upcomingEvent.getOpenTime(serverTimeManager);
+        final LocalTime attendanceClosedTime = upcomingEvent.getCloseTime(serverTimeManager);
 
         return new MyMeetingResponse(
-                meeting.getId(), meeting.getName(),
-                tardyCount, isLoginUserMaster, isCoffeeTime, isActive,
-                upcomingEvent
+                meeting.getId(),
+                meeting.getName(),
+                (int) tardyCount,
+                meeting.isMaster(loginUserId),
+                meeting.isTardyStackFull(),
+                upcomingEvent.isActive(today, serverTimeManager),
+                EventResponse.of(upcomingEvent, attendanceOpenTime, attendanceClosedTime)
+        );
+    }
+
+    private static MyMeetingResponse createEmptyResponse(final Meeting meeting,
+                                                         final Long loginUserId,
+                                                         final int tardyCount) {
+        return new MyMeetingResponse(
+                meeting.getId(),
+                meeting.getName(),
+                tardyCount,
+                meeting.isMaster(loginUserId),
+                meeting.isTardyStackFull(),
+                false,
+                null
         );
     }
 }
