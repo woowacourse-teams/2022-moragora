@@ -39,7 +39,7 @@ public class Meeting {
     private String name;
 
     @OneToMany(mappedBy = "meeting")
-    private List<Participant> participants = new ArrayList<>();
+    private final List<Participant> participants = new ArrayList<>();
 
     public Meeting(final String name) {
         this(null, name);
@@ -73,9 +73,9 @@ public class Meeting {
                 .sum();
     }
 
-    public long tardyCountByUserId(final Long loginUserId) {
+    public long tardyCountByUserId(final Long userId) {
         return participants.stream()
-                .filter(participant -> participant.isSameUser(loginUserId))
+                .filter(participant -> participant.isSameUser(userId))
                 .map(participant -> participant.getTardyCount())
                 .findAny()
                 .orElseThrow(() -> new BusinessException("지각 횟수가 할당되지 않았습니다."));

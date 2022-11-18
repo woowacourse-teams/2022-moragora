@@ -31,13 +31,6 @@ public interface MeetingRepository extends Repository<Meeting, Long> {
     @Query("select m "
             + " from Meeting m "
             + " join fetch m.participants p "
-            + " join fetch p.user u "
-            + " where p.user.id = :userId")
-    List<Meeting> findMeetingParticipantUsersByUserId(@Param("userId") Long userId);
-
-    @Query("select m "
-            + " from Meeting m "
-            + " join fetch m.participants p "
             + " where p.user.id = :userId")
     List<Meeting> findAllMeetingParticipantsByUserId(@Param("userId") Long userId);
 
