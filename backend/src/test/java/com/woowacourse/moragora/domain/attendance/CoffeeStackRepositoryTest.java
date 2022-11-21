@@ -28,10 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Import(DataSupport.class)
 @DataJpaTest(showSql = false)
 @Transactional
-public class CoffeeStatRepositoryTest {
+public class CoffeeStackRepositoryTest {
 
     @Autowired
-    private CoffeeStatRepository coffeeStatRepository;
+    private CoffeeStackRepository coffeeStackRepository;
 
     @Autowired
     private DataSupport dataSupport;
@@ -68,7 +68,7 @@ public class CoffeeStatRepositoryTest {
         final PageRequest pageRequest = PageRequest.of(0, participants.size());
 
         // when
-        final List<Attendance> attendances = coffeeStatRepository.findCoffeeStackOrderedByParticipant(
+        final List<Attendance> attendances = coffeeStackRepository.findCoffeeStackOrderedByParticipant(
                 pageRequest, participants);
 
         final List<Long> ids = attendances.stream()

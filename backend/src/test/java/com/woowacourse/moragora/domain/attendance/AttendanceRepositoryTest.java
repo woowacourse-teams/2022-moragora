@@ -11,6 +11,7 @@ import static com.woowacourse.moragora.support.fixture.UserFixtures.KUN;
 import static com.woowacourse.moragora.support.fixture.UserFixtures.SUN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.woowacourse.moragora.domain.event.Event;
 import com.woowacourse.moragora.domain.meeting.Meeting;
@@ -266,5 +267,32 @@ class AttendanceRepositoryTest {
 
         // then
         assertThat(affectedRows).isEqualTo(2);
+    }
+
+    @DisplayName("출석들의 disabled를 업데이트한다.")
+    @Test
+    void updateDisabledInAttendances() {
+        // given
+        final User user = SUN.create();
+        final Meeting meeting = MORAGORA.create();
+        final Participant participant = dataSupport.saveParticipant(user, meeting);
+
+        final Event event1 = dataSupport.saveEvent(EVENT1.create(meeting));
+        final Event event2 = dataSupport.saveEvent(EVENT2.create(meeting));
+        final Event event3 = dataSupport.saveEvent(EVENT3.create(meeting));
+
+        final Attendance attendance1 = dataSupport.saveAttendance(participant, event1, Status.TARDY);
+        final Attendance attendance2 = dataSupport.saveAttendance(participant, event2, Status.TARDY);
+        final Attendance attendance3 = dataSupport.saveAttendance(participant, event3, Status.TARDY);
+
+        // when
+        attendanceRepository.updateDisabledInAttendances(List.of(attendance1, attendance2, attendance3));
+        final List<Attendance> attendances = attendanceRepository.findByEventIdIn(List.of(event1.getId(), event2.getId(), event3.getId()));
+
+        assertAll(
+                () -> assertThat(attendances.get(0).getDisabled()).isEqualTo(true),
+                () -> assertThat(attendances.get(1).getDisabled()).isEqualTo(true),
+                () -> assertThat(attendances.get(2).getDisabled()).isEqualTo(true)
+        );
     }
 }

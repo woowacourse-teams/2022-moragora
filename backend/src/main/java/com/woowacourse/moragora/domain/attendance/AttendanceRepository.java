@@ -50,4 +50,8 @@ public interface AttendanceRepository extends Repository<Attendance, Long> {
     @Query("update Attendance a set a.status ='TARDY' where a.status = 'NONE' and a.event in "
             + "(select e from Event e where e.date = :today and e.startTime <= :now)")
     int updateByEventDateTimeAndStatus(@Param("today") final LocalDate today, @Param("now") final LocalTime now);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("update Attendance a set a.disabled = true where a in :attendances")
+    void updateDisabledInAttendances(@Param("attendances") final List<Attendance> attendances);
 }
