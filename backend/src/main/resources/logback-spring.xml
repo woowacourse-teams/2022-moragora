@@ -60,12 +60,13 @@
         </logger>
     </springProfile>
 
-
     <springProfile name="prod">
+        <include resource="logback/console-appender.xml"/>
         <include resource="logback/file-info-appender.xml"/>
         <include resource="logback/file-error-appender.xml"/>
         <include resource="logback/file-slow-sql-appender.xml"/>
         <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE-INFO"/>
             <appender-ref ref="FILE-ERROR"/>
         </root>
